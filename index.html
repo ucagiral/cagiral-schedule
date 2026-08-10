@@ -425,6 +425,7 @@
     editingId: null,
     drag: null,
     dirty: false,            // unsaved local changes exist
+    revision: 0,             // bumped on every local edit, so an edit made mid-save isn't lost
     saving: false,
     conflict: null,          // {remoteEvents, remoteSha}
     lastLoadedAt: null,
@@ -641,6 +642,7 @@
 
   function scheduleSave(){
     state.dirty = true;
+    state.revision++;
     if (!canWrite()){
       setStatus("Not saved — read-only on this device", "error");
       $("bannerReadonly").classList.add("show");
@@ -659,6 +661,10 @@
     }
     state.saving = true;
     setStatus("Saving…", "saving");
+    // Remember which edit we're sending. If another edit lands while this request is in
+    // flight, the payload we serialized here is already stale — so we must not mark the
+    // app clean afterwards, or that later edit would be silently dropped.
+    var sentRevision = state.revision;
     try {
       var body = {
         message: "Update schedule from " + getDevice(),
@@ -695,9 +701,16 @@
       }
       var out = await r.json();
       state.sha = out.content && out.content.sha ? out.content.sha : null;
-      state.dirty = false;
       state.saving = false;
       cacheSave();
+      if (state.revision !== sentRevision){
+        // Edited again mid-flight — keep it dirty and push the newer version.
+        setStatus("Saving…", "saving");
+        clearTimeout(state.saveTimer);
+        state.saveTimer = setTimeout(save, 400);
+        return;
+      }
+      state.dirty = false;
       setStatus("Saved · " + new Date().toLocaleTimeString(), "saved");
     } catch(err){
       state.saving = false;
@@ -1159,9 +1172,15 @@
     }, pollInterval());
   }
   document.addEventListener("visibilitychange", function(){
-    if (!document.hidden && !state.saving && !state.conflict) load({quiet:true});
+    if (document.hidden || state.saving || state.conflict) return;
+    // A save that failed while the app was in the background gets another go here,
+    // rather than sitting unsaved until the next edit.
+    if (state.dirty && canWrite()) save(); else load({quiet:true});
   });
-  window.addEventListener("online", function(){ $("bannerOffline").classList.remove("show"); load({quiet:true}); });
+  window.addEventListener("online", function(){
+    $("bannerOffline").classList.remove("show");
+    if (state.dirty && canWrite() && !state.saving) save(); else load({quiet:true});
+  });
   window.addEventListener("offline", function(){ $("bannerOffline").classList.add("show"); });
 
   // Warn before losing an unsaved change (e.g. save failed and the tab is closing).

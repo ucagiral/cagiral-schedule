@@ -1674,8 +1674,7 @@
     }
   ],
   "_meta": {
-    "lastModified": "2026-08-10T20:56:08.102Z",
-    "modifiedBy": "migration-from-icloud",
-    "note": "Source of truth moved here from C:/iCloudDrive/Desktop/Agent/claudeAgent.json on migration. Events copied verbatim."
+    "lastModified": "2026-08-10T22:02:14.957Z",
+    "modifiedBy": "claude (pipeline test)"
   }
 }

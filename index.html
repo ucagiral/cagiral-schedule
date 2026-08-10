@@ -1188,6 +1188,19 @@
     if (state.dirty){ e.preventDefault(); e.returnValue = ""; }
   });
 
+  // Watch the same breakpoint the CSS uses. A media-query listener fires in cases where a
+  // plain resize event doesn't, so the layout and the view can't disagree about the width.
+  if (window.matchMedia){
+    try {
+      window.matchMedia("(max-width: 820px)").addEventListener("change", function(){
+        if (state.view && !state.viewLocked && autoView() !== state.view) render();
+      });
+    } catch(e){}
+  }
+  window.addEventListener("orientationchange", function(){
+    setTimeout(function(){ if (state.view && !state.viewLocked && autoView() !== state.view) render(); }, 250);
+  });
+
   var resizeTimer = null;
   window.addEventListener("resize", function(){
     clearTimeout(resizeTimer);

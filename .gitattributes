@@ -1,0 +1,9 @@
+# Normalize text in the repository to LF regardless of who commits from where.
+* text=auto
+
+# schedule.ics is exempt: the iCalendar spec (RFC 5545) requires CRLF line
+# endings, and git's autocrlf would otherwise store it with bare LF — which
+# also made CI see a phantom diff on every run. Store it exactly as generated.
+*.ics -text
+
+*.png binary

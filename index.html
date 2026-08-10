@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cagiral Schedule</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cagiral Schedule">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
+    --grid-line:#e5e7eb; --hour-line:#cfd4db; --halfhour-line:#eef0f3;
+    --cat-experiment:#3b82f6; --cat-meeting:#ef4444; --cat-writing:#8b5cf6;
+    --cat-personal:#22c55e; --cat-other:#6b7280;
+    --accent:#2563eb; --warn-bg:#fff7ed; --warn-border:#fde68a; --warn-text:#7c2d12;
+    --ok:#15803d; --bad:#b91c1c;
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]){
+      --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+      --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
+      --accent:#5b8def; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
+      --ok:#4ade80; --bad:#f87171;
+    }
+  }
+  html[data-theme="dark"]{
+    --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+    --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
+    --accent:#5b8def; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
+    --ok:#4ade80; --bad:#f87171;
+  }
+  *{box-sizing:border-box}
+  html,body{overscroll-behavior-y:contain}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); -webkit-text-size-adjust:100%;
+  }
+  header{
+    display:flex; align-items:center; gap:8px; padding:8px 12px;
+    background:var(--panel); border-bottom:1px solid var(--border); flex-wrap:wrap;
+  }
+  header h1{font-size:15px; margin:0 8px 0 0; font-weight:650; letter-spacing:-.01em}
+  button{
+    font:inherit; padding:6px 11px; border-radius:7px; border:1px solid var(--border);
+    background:var(--panel); cursor:pointer; color:var(--text);
+  }
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+  button.danger{color:var(--bad); border-color:var(--border)}
+  button:disabled{opacity:.45; cursor:not-allowed}
+  #status{font-size:12px; color:var(--muted); margin-left:auto; text-align:right; min-width:120px}
+  #status.saving{color:var(--accent)}
+  #status.saved{color:var(--ok)}
+  #status.error{color:var(--bad)}
+  .nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  #weekLabel{font-size:13px; font-weight:650; text-align:center; min-width:150px}
+  .banner{
+    padding:9px 12px; font-size:13px; background:var(--warn-bg); color:var(--warn-text);
+    border-bottom:1px solid var(--warn-border); display:none; line-height:1.45;
+  }
+  .banner.show{display:block}
+  .banner button{margin-left:8px; padding:3px 9px; font-size:12px}
+  #legend{display:flex; gap:12px; padding:6px 12px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; align-items:center}
+  #legend .swatch{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; vertical-align:-1px}
+  main{padding:12px; overflow-x:auto}
+
+  /* ---------- carryover ---------- */
+  #carryover{margin-bottom:12px}
+  #carryover h2{font-size:12px; font-weight:650; margin:0 0 6px}
+  #carryover ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px}
+  #carryover li{
+    display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--border);
+    border-radius:7px; padding:7px 9px; font-size:12.5px;
+  }
+  #carryover li .co-date{color:var(--muted); font-size:11px; white-space:nowrap}
+  #carryover li .co-title{flex:1; cursor:pointer; min-width:0}
+  #carryover li button{font-size:11px; padding:3px 8px}
+  #carryover.empty{display:none}
+
+  /* ---------- week grid (wide screens) ---------- */
+  .gridwrap{background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:10px; display:inline-block; min-width:100%}
+  .grid{
+    display:grid;
+    grid-template-columns: 56px repeat(7, minmax(110px, 1fr));
+    grid-auto-rows: 8px;
+    position:relative; user-select:none;
+  }
+  .head{
+    grid-row:1; padding:4px 6px; font-size:12px; font-weight:650; text-align:center;
+    border-bottom:2px solid var(--hour-line); background:var(--panel); position:sticky; top:0; z-index:3;
+  }
+  .head .datepart{font-weight:400; color:var(--muted); font-size:10px}
+  .head.today{color:var(--accent)}
+  .timelabel{
+    font-size:10px; color:var(--muted); text-align:right; padding-right:6px;
+    border-top:1px solid var(--grid-line); position:relative; top:-5px;
+  }
+  .timelabel.halfhour{font-size:9px; opacity:.7}
+  .cell{border-top:1px solid var(--grid-line); border-left:1px solid var(--grid-line); cursor:crosshair}
+  .cell.hourline{border-top:1px solid var(--hour-line)}
+  .cell.halfhourline{border-top:1px solid var(--halfhour-line)}
+  .event{
+    border-radius:5px; padding:3px 6px; font-size:11px; color:#fff; overflow:hidden;
+    cursor:pointer; z-index:2; box-shadow:0 1px 2px rgba(0,0,0,.15); line-height:1.25; position:relative;
+  }
+  .event b{display:block; font-size:11px; padding-right:16px; font-weight:600}
+  .event span{opacity:.85; font-size:10px}
+  .event.passive{z-index:1; color:var(--text); box-shadow:none; border:1px dashed rgba(128,128,128,.55)}
+  .event.done b{text-decoration:line-through}
+  .event.done{opacity:.5}
+  .event .chk{position:absolute; top:2px; right:3px; width:15px; height:15px; margin:0; cursor:pointer}
+  .drag-preview{background:rgba(37,99,235,.35); border:1px dashed var(--accent); border-radius:5px; z-index:4; pointer-events:none}
+
+  /* ---------- day agenda (phones) ---------- */
+  #agenda{display:flex; flex-direction:column; gap:7px}
+  .ag-item{
+    display:flex; align-items:flex-start; gap:10px; background:var(--panel);
+    border:1px solid var(--border); border-left:4px solid var(--cat-other);
+    border-radius:9px; padding:10px 11px;
+  }
+  .ag-item.passive{border-style:dashed}
+  .ag-time{font-size:12px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; padding-top:1px; min-width:82px}
+  .ag-main{flex:1; min-width:0; cursor:pointer}
+  .ag-title{font-size:14.5px; font-weight:600; line-height:1.3; word-break:break-word}
+  .ag-item.done .ag-title{text-decoration:line-through; opacity:.55}
+  .ag-tags{font-size:11px; color:var(--muted); margin-top:3px}
+  .ag-notes{font-size:12px; color:var(--muted); margin-top:5px; line-height:1.4; white-space:pre-wrap; word-break:break-word}
+  .ag-chk{width:24px; height:24px; margin:0; flex:none; cursor:pointer}
+  .ag-empty{padding:26px 12px; text-align:center; color:var(--muted); font-size:13.5px}
+  .daybar{display:flex; align-items:center; gap:8px; margin-bottom:10px}
+  .daybar button{padding:8px 13px}
+  .daybar .dlabel{flex:1; text-align:center; font-size:14px; font-weight:650}
+  .daybar .dlabel small{display:block; font-weight:400; color:var(--muted); font-size:11.5px}
+
+  /* ---------- dialogs ---------- */
+  dialog{
+    border:1px solid var(--border); border-radius:12px; padding:0; width:min(380px, 94vw);
+    background:var(--panel); color:var(--text); box-shadow:0 10px 30px rgba(0,0,0,.28);
+  }
+  dialog::backdrop{background:rgba(0,0,0,.4)}
+  .dlg-body{padding:15px; max-height:74vh; overflow-y:auto}
+  .dlg-body h2{font-size:15px; margin:0 0 12px}
+  .field{margin-bottom:10px}
+  .field label{display:block; font-size:11px; color:var(--muted); margin-bottom:3px}
+  .field input[type=text], .field input[type=password], .field select, .field textarea{
+    width:100%; padding:8px; border:1px solid var(--border); border-radius:7px; font:inherit;
+    background:var(--bg); color:var(--text);
+  }
+  .field textarea{height:64px; resize:vertical}
+  .row2{display:flex; gap:8px}
+  .row2 > .field{flex:1; min-width:0}
+  .dlg-actions{display:flex; justify-content:space-between; gap:8px; padding:11px 15px; border-top:1px solid var(--border)}
+  .dlg-actions .right{display:flex; gap:8px}
+  .hint{font-size:12px; color:var(--muted); line-height:1.5}
+  .hint code{background:var(--bg); padding:1px 4px; border-radius:4px; font-size:11.5px}
+  .hint ol{padding-left:18px; margin:8px 0}
+  .hint li{margin-bottom:5px}
+  .urlbox{
+    width:100%; padding:8px; border:1px solid var(--border); border-radius:7px;
+    background:var(--bg); font-size:11.5px; word-break:break-all; font-family:ui-monospace,Consolas,monospace;
+  }
+
+  /* ---------- floating add button ---------- */
+  #fab{
+    position:fixed; right:16px; bottom:calc(16px + var(--safe-b)); z-index:20;
+    width:56px; height:56px; border-radius:28px; font-size:28px; line-height:1;
+    background:var(--accent); color:#fff; border:none; box-shadow:0 5px 16px rgba(0,0,0,.3);
+    display:none; align-items:center; justify-content:center; padding:0;
+  }
+
+  @media (max-width: 820px){
+    header h1{font-size:14px; width:100%; margin-bottom:2px}
+    #status{margin-left:0; width:100%; text-align:left; min-width:0}
+    #legend{display:none}
+    main{padding:10px 10px calc(88px + var(--safe-b))}
+    #fab{display:flex}
+    .gridwrap{padding:6px}
+  }
+  @media (pointer: coarse){
+    button{padding:9px 13px}
+    .field input[type=text], .field input[type=password], .field select, .field textarea{padding:11px; font-size:16px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Cagiral Schedule</h1>
+  <button id="btnView" title="Switch between week grid and day list">Day</button>
+  <button id="btnConnect">Connect</button>
+  <button id="btnFeed" title="Calendar subscription link">Feed</button>
+  <button id="btnPI" title="Turkish summary for your PI">PI</button>
+  <button id="btnTheme" title="Toggle dark mode">🌙</button>
+  <span id="status">Loading…</span>
+</header>
+
+<div id="bannerReadonly" class="banner">
+  <b>Read-only.</b> You can browse everything, but saving needs a one-time token on this device.
+  <button id="bannerConnectBtn">Set it up</button>
+</div>
+<div id="bannerOffline" class="banner">
+  <b>Offline.</b> Showing the last schedule this device downloaded. Changes can't be saved until you're back online.
+</div>
+<div id="bannerConflict" class="banner">
+  <b>Someone else saved first.</b> This device's copy is out of date.
+  <button id="conflictReload">Use the newer version</button>
+  <button id="conflictForce">Keep mine instead</button>
+</div>
+
+<header class="nav" style="border-top:none">
+  <button id="btnPrev">‹ Prev</button>
+  <button id="btnToday">Today</button>
+  <button id="btnNext">Next ›</button>
+  <span id="weekLabel"></span>
+  <button id="btnRefresh" style="margin-left:auto" title="Check for changes now">↻</button>
+</header>
+
+<div id="legend">
+  <span><span class="swatch" style="background:var(--cat-experiment)"></span>Experiment</span>
+  <span><span class="swatch" style="background:var(--cat-meeting)"></span>Meeting</span>
+  <span><span class="swatch" style="background:var(--cat-writing)"></span>Writing/Analysis</span>
+  <span><span class="swatch" style="background:var(--cat-personal)"></span>Personal</span>
+  <span><span class="swatch" style="background:var(--cat-other)"></span>Other</span>
+  <span><span class="swatch" style="background:var(--cat-experiment); opacity:.35; border:1px dashed currentColor"></span>Passive — doesn't block time</span>
+  <span style="margin-left:auto">Drag on the grid to add. Click an event to edit.</span>
+</div>
+
+<main>
+  <div id="carryover" class="empty">
+    <h2>Carried over — not done, from before this week</h2>
+    <ul id="carryoverList"></ul>
+  </div>
+
+  <div id="dayWrap" style="display:none">
+    <div class="daybar">
+      <button id="dayPrev" aria-label="Previous day">‹</button>
+      <span class="dlabel" id="dayLabel"></span>
+      <button id="dayNext" aria-label="Next day">›</button>
+    </div>
+    <div id="agenda"></div>
+  </div>
+
+  <div id="weekWrap" class="gridwrap">
+    <div class="grid" id="grid"></div>
+  </div>
+</main>
+
+<button id="fab" aria-label="Add event">+</button>
+
+<!-- ---------- event editor ---------- -->
+<dialog id="dlg">
+  <div class="dlg-body">
+    <h2 id="dlgTitle">New event</h2>
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="fTitle" placeholder="e.g. ChIP sonication">
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input type="text" id="fDate" inputmode="numeric" placeholder="YYYY-MM-DD">
+    </div>
+    <div class="row2">
+      <div class="field"><label>Start</label><select id="fStart"></select></div>
+      <div class="field"><label>End</label><select id="fEnd"></select></div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Category</label>
+        <select id="fCategory">
+          <option value="experiment">Experiment</option>
+          <option value="meeting">Meeting</option>
+          <option value="writing">Writing/Analysis</option>
+          <option value="personal">Personal</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="fStatus">
+          <option value="pending">Pending</option>
+          <option value="done">Done</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Type</label>
+      <select id="fType">
+        <option value="active">Active — needs you there, blocks time</option>
+        <option value="passive">Passive — runs unattended</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Notes</label>
+      <textarea id="fNotes"></textarea>
+    </div>
+  </div>
+  <div class="dlg-actions">
+    <button class="danger" id="btnDelete" style="display:none">Delete</button>
+    <div class="right">
+      <button id="btnCancel">Cancel</button>
+      <button class="primary" id="btnSaveEvent">Save</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ---------- token setup ---------- -->
+<dialog id="dlgToken">
+  <div class="dlg-body">
+    <h2>Let this device save changes</h2>
+    <div class="hint" id="tokenHint">
+      <p style="margin-top:0">Reading the schedule needs nothing. To <b>edit</b> from this device, GitHub needs
+      a token — a long password that only lets this one app change this one file. You make it once, here:</p>
+      <ol>
+        <li>Open <b>github.com</b> → your picture (top right) → <b>Settings</b></li>
+        <li>Scroll to the bottom of the left menu → <b>Developer settings</b></li>
+        <li><b>Personal access tokens</b> → <b>Fine-grained tokens</b> → <b>Generate new token</b></li>
+        <li>Name it anything. Under <b>Repository access</b> pick <b>Only select repositories</b> → <code id="repoNameSlot">cagiral-schedule</code></li>
+        <li>Under <b>Permissions → Repository permissions</b>, set <b>Contents</b> to <b>Read and write</b></li>
+        <li><b>Generate token</b>, copy it, and paste it below</li>
+      </ol>
+      <p>It's stored only on this device and never leaves it except to talk to GitHub.</p>
+    </div>
+    <div class="field">
+      <label>Token</label>
+      <input type="password" id="fToken" placeholder="github_pat_… or ghp_…" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>Name this device (shows up in the change history)</label>
+      <input type="text" id="fDevice" placeholder="iPhone">
+    </div>
+    <div id="tokenStatus" class="hint"></div>
+  </div>
+  <div class="dlg-actions">
+    <button class="danger" id="btnForget" style="display:none">Disconnect</button>
+    <div class="right">
+      <button id="btnTokenCancel">Close</button>
+      <button class="primary" id="btnTokenSave">Check &amp; save</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ---------- calendar feed ---------- -->
+<dialog id="dlgFeed">
+  <div class="dlg-body">
+    <h2>Reminders in your Calendar app</h2>
+    <div class="hint">
+      <p style="margin-top:0">Subscribe once and your Calendar app keeps itself up to date — alerts 15 minutes
+      before anything hands-on. You never import anything again.</p>
+      <div class="urlbox" id="feedUrl"></div>
+      <p><b>iPhone:</b> Settings → Apps → Calendar → Calendar Accounts → Add Account → Other →
+      Add Subscribed Calendar → paste.</p>
+      <p><b>Mac:</b> Calendar app → File → New Calendar Subscription → paste.</p>
+      <p>Apple refreshes subscriptions on its own schedule (usually about an hour), so a change you make
+      now may take a little while to reach the Calendar app. The app you're looking at is always instant.</p>
+    </div>
+  </div>
+  <div class="dlg-actions">
+    <span></span>
+    <div class="right">
+      <button id="btnFeedClose">Close</button>
+      <button class="primary" id="btnFeedCopy">Copy link</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ---------- PI summary ---------- -->
+<dialog id="dlgPI">
+  <div class="dlg-body">
+    <h2>PI Summary (TR)</h2>
+    <div class="field">
+      <label>Personal items are left out. Edit freely before sending.</label>
+      <textarea id="piText" style="height:300px; white-space:pre; font-size:13px"></textarea>
+    </div>
+  </div>
+  <div class="dlg-actions">
+    <span id="piCopyStatus" class="hint" style="align-self:center"></span>
+    <div class="right">
+      <button id="btnPIClose">Close</button>
+      <button class="primary" id="btnPICopy">Copy</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  "use strict";
+
+  // =====================================================================
+  // Config — resolved from the URL so nothing is hardcoded to one account.
+  // On GitHub Pages, https://<owner>.github.io/<repo>/ gives us both.
+  // =====================================================================
+  var LS = { token:"cs_token", device:"cs_device", theme:"cs_theme", cache:"cs_cache", cfg:"cs_cfg" };
+  var DATA_FILE = "claudeAgent.json";
+  var ICS_FILE = "schedule.ics";
+
+  function resolveConfig(){
+    var stored = null;
+    try { stored = JSON.parse(localStorage.getItem(LS.cfg) || "null"); } catch(e){}
+    if (stored && stored.owner && stored.repo) return stored;
+    var host = location.hostname || "";
+    var m = host.match(/^([^.]+)\.github\.io$/i);
+    var seg = location.pathname.split("/").filter(Boolean);
+    if (m) return { owner: m[1], repo: seg.length ? seg[0] : (m[1] + ".github.io"), branch: "main" };
+    return { owner:null, repo:null, branch:"main" };
+  }
+  var CFG = resolveConfig();
+  var API = CFG.owner ? "https://api.github.com/repos/" + CFG.owner + "/" + CFG.repo + "/contents/" + DATA_FILE : null;
+  var RAW = CFG.owner ? "https://raw.githubusercontent.com/" + CFG.owner + "/" + CFG.repo + "/" + (CFG.branch||"main") + "/" + DATA_FILE : null;
+
+  var state = {
+    events: [], sha: null, meta: null,
+    weekStart: getMonday(new Date()),
+    dayDate: startOfDay(new Date()),
+    view: null,              // "week" | "day"
+    viewLocked: false,       // true once the user picks a view by hand — then we stop auto-switching
+    editingId: null,
+    drag: null,
+    dirty: false,            // unsaved local changes exist
+    saving: false,
+    conflict: null,          // {remoteEvents, remoteSha}
+    lastLoadedAt: null,
+    pollTimer: null,
+    saveTimer: null
+  };
+
+  // ---------------- small helpers ----------------
+  var $ = function(id){ return document.getElementById(id); };
+  var statusEl = $("status");
+  function setStatus(text, cls){
+    statusEl.textContent = text;
+    statusEl.className = cls || "";
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function getToken(){ try { return localStorage.getItem(LS.token) || null; } catch(e){ return null; } }
+  function getDevice(){ try { return localStorage.getItem(LS.device) || "unknown device"; } catch(e){ return "unknown device"; } }
+  function canWrite(){ return !!(getToken() && API); }
+
+  // ---------------- date helpers ----------------
+  function startOfDay(d){ d = new Date(d); d.setHours(0,0,0,0); return d; }
+  function getMonday(d){
+    d = new Date(d); var day = d.getDay(); var diff = (day === 0 ? -6 : 1 - day);
+    d.setDate(d.getDate() + diff); d.setHours(0,0,0,0); return d;
+  }
+  function addDays(d, n){ var r = new Date(d); r.setDate(r.getDate() + n); return r; }
+  function isoDate(d){
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function displayDate(d){ return d.toLocaleDateString(undefined, {month:"short", day:"numeric"}); }
+  function longDate(d){ return d.toLocaleDateString(undefined, {weekday:"long", month:"long", day:"numeric"}); }
+  function isSameDay(a,b){ return isoDate(a) === isoDate(b); }
+  function weekDates(){ return DAY_NAMES.map(function(_, i){ return addDays(state.weekStart, i); }); }
+
+  var DAY_NAMES = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  var DAY_NAMES_TR = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"];
+  var START_HOUR = 7, END_HOUR = 23, SLOT_MIN = 5;
+  var ROWS = (END_HOUR - START_HOUR) * 60 / SLOT_MIN;
+  var CAT_VAR = {experiment:"--cat-experiment", meeting:"--cat-meeting",
+                 writing:"--cat-writing", personal:"--cat-personal", other:"--cat-other"};
+
+  function timeToRow(t){
+    var p = String(t||"00:00").split(":");
+    var mins = (+p[0] - START_HOUR)*60 + (+p[1]);
+    return 2 + Math.round(mins / SLOT_MIN);
+  }
+  function rowToTime(row){
+    var mins = (row - 2) * SLOT_MIN;
+    var h = START_HOUR + Math.floor(mins/60), m = ((mins % 60) + 60) % 60;
+    return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0");
+  }
+  function uid(){ return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  // ---------------- theme ----------------
+  var btnTheme = $("btnTheme");
+  function applyTheme(){
+    var stored = null;
+    try { stored = localStorage.getItem(LS.theme); } catch(e){}
+    if (stored === "dark" || stored === "light") document.documentElement.setAttribute("data-theme", stored);
+    else document.documentElement.removeAttribute("data-theme");
+    var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var effectiveDark = stored ? stored === "dark" : systemDark;
+    btnTheme.textContent = effectiveDark ? "☀️" : "🌙";
+  }
+  btnTheme.addEventListener("click", function(){
+    var stored = null;
+    try { stored = localStorage.getItem(LS.theme); } catch(e){}
+    var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var effectiveDark = stored ? stored === "dark" : systemDark;
+    try { localStorage.setItem(LS.theme, effectiveDark ? "light" : "dark"); } catch(e){}
+    applyTheme();
+  });
+  applyTheme();
+  if (window.matchMedia) {
+    try {
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){
+        var s = null; try { s = localStorage.getItem(LS.theme); } catch(e){}
+        if (!s) applyTheme();
+      });
+    } catch(e){}
+  }
+
+  // =====================================================================
+  // base64 <-> UTF-8 (chunked, so a 60 KB file doesn't blow the arg limit)
+  // =====================================================================
+  function utf8ToBase64(str){
+    var bytes = new TextEncoder().encode(str);
+    var chunk = 0x8000, parts = [];
+    for (var i = 0; i < bytes.length; i += chunk){
+      parts.push(String.fromCharCode.apply(null, bytes.subarray(i, i + chunk)));
+    }
+    return btoa(parts.join(""));
+  }
+  function base64ToUtf8(b64){
+    var bin = atob(String(b64).replace(/\s/g, ""));
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  // =====================================================================
+  // Loading
+  //   with a token → API (gives us the sha we need in order to save)
+  //   without     → raw CDN (no rate limit, but may lag a few minutes)
+  // =====================================================================
+  function cacheSave(){
+    try {
+      localStorage.setItem(LS.cache, JSON.stringify({ events: state.events, at: new Date().toISOString() }));
+    } catch(e){}
+  }
+  function cacheLoad(){
+    try {
+      var c = JSON.parse(localStorage.getItem(LS.cache) || "null");
+      if (c && Array.isArray(c.events)) return c;
+    } catch(e){}
+    return null;
+  }
+
+  function ghHeaders(){
+    var h = { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
+    var t = getToken();
+    if (t) h["Authorization"] = "Bearer " + t;
+    return h;
+  }
+
+  async function fetchRemote(){
+    if (!API) throw new Error("This app must be opened from its GitHub Pages address.");
+    if (getToken()){
+      var r = await fetch(API + "?ref=" + encodeURIComponent(CFG.branch||"main"), {
+        headers: ghHeaders(), cache: "no-store"
+      });
+      if (r.status === 401) throw Object.assign(new Error("Token rejected by GitHub — it may be expired."), {kind:"auth"});
+      if (r.status === 404) throw new Error("Couldn't find " + DATA_FILE + " in the repository.");
+      if (!r.ok) throw new Error("GitHub returned " + r.status);
+      var j = await r.json();
+      var text = base64ToUtf8(j.content || "");
+      return { text: text, sha: j.sha };
+    }
+    var rr = await fetch(RAW + "?t=" + Date.now(), { cache: "no-store" });
+    if (!rr.ok) throw new Error("Couldn't download the schedule (" + rr.status + ")");
+    return { text: await rr.text(), sha: null };
+  }
+
+  function parsePayload(text){
+    var data = JSON.parse(text);
+    return {
+      events: Array.isArray(data.events) ? data.events : [],
+      meta: data._meta || null
+    };
+  }
+
+  async function load(opts){
+    opts = opts || {};
+    try {
+      var got = await fetchRemote();
+      var parsed = parsePayload(got.text);
+
+      // If this device has unsaved edits and the remote moved on, don't stomp either side.
+      if (state.dirty && state.sha && got.sha && got.sha !== state.sha){
+        state.conflict = { remoteEvents: parsed.events, remoteSha: got.sha };
+        $("bannerConflict").classList.add("show");
+        setStatus("Conflict — needs your choice", "error");
+        return;
+      }
+
+      state.events = parsed.events;
+      state.meta = parsed.meta;
+      state.sha = got.sha;
+      state.dirty = false;
+      state.lastLoadedAt = new Date();
+      cacheSave();
+      $("bannerOffline").classList.remove("show");
+      render();
+      setStatus(canWrite() ? ("Up to date · " + state.lastLoadedAt.toLocaleTimeString()) : "Read-only · up to date", "");
+    } catch(err){
+      if (err && err.kind === "auth"){
+        setStatus("Token expired", "error");
+        $("bannerReadonly").classList.add("show");
+        $("tokenStatus").innerHTML = "<span style='color:var(--bad)'>GitHub rejected the saved token. Generate a new one and paste it here.</span>";
+        openToken();
+        return;
+      }
+      var cached = cacheLoad();
+      if (cached && !state.events.length){
+        state.events = cached.events;
+        render();
+        $("bannerOffline").classList.add("show");
+        setStatus("Offline — showing saved copy", "error");
+      } else if (opts.quiet) {
+        // a background poll failed; keep whatever is on screen
+        setStatus("Couldn't reach GitHub — will retry", "error");
+      } else {
+        setStatus(err.message || "Load failed", "error");
+      }
+    }
+  }
+
+  // =====================================================================
+  // Saving — optimistic concurrency via the blob sha
+  // =====================================================================
+  function buildPayload(){
+    return JSON.stringify({
+      events: state.events,
+      _meta: {
+        lastModified: new Date().toISOString(),
+        modifiedBy: getDevice()
+      }
+    }, null, 2) + "\n";
+  }
+
+  function scheduleSave(){
+    state.dirty = true;
+    if (!canWrite()){
+      setStatus("Not saved — read-only on this device", "error");
+      $("bannerReadonly").classList.add("show");
+      return;
+    }
+    setStatus("Saving…", "saving");
+    clearTimeout(state.saveTimer);
+    state.saveTimer = setTimeout(save, 900);   // coalesce rapid edits into one commit
+  }
+
+  async function save(force){
+    if (!canWrite() || state.saving) return;
+    if (!state.sha && !force){
+      // We loaded read-only earlier and have no sha; fetch one first.
+      try { var g = await fetchRemote(); state.sha = g.sha; } catch(e){ setStatus("Save failed: " + e.message, "error"); return; }
+    }
+    state.saving = true;
+    setStatus("Saving…", "saving");
+    try {
+      var body = {
+        message: "Update schedule from " + getDevice(),
+        content: utf8ToBase64(buildPayload()),
+        branch: CFG.branch || "main"
+      };
+      if (state.sha) body.sha = state.sha;
+      var r = await fetch(API, { method:"PUT", headers: Object.assign({"Content-Type":"application/json"}, ghHeaders()), body: JSON.stringify(body) });
+
+      if (r.status === 409 || r.status === 422){
+        // Someone else committed since we loaded. Fetch theirs and ask.
+        state.saving = false;
+        try {
+          var got = await fetchRemote();
+          var parsed = parsePayload(got.text);
+          state.conflict = { remoteEvents: parsed.events, remoteSha: got.sha };
+          $("bannerConflict").classList.add("show");
+          setStatus("Conflict — needs your choice", "error");
+        } catch(e){ setStatus("Save conflicted and refresh failed", "error"); }
+        return;
+      }
+      if (r.status === 401 || r.status === 403){
+        state.saving = false;
+        setStatus("Save refused — check the token", "error");
+        $("tokenStatus").innerHTML = "<span style='color:var(--bad)'>GitHub refused to save (" + r.status +
+          "). The token may be expired, or missing <b>Contents: Read and write</b> on this repository.</span>";
+        openToken();
+        return;
+      }
+      if (!r.ok){
+        var msg = "";
+        try { msg = (await r.json()).message || ""; } catch(e){}
+        throw new Error(r.status + (msg ? " — " + msg : ""));
+      }
+      var out = await r.json();
+      state.sha = out.content && out.content.sha ? out.content.sha : null;
+      state.dirty = false;
+      state.saving = false;
+      cacheSave();
+      setStatus("Saved · " + new Date().toLocaleTimeString(), "saved");
+    } catch(err){
+      state.saving = false;
+      setStatus("Save failed: " + (err.message || err), "error");
+    }
+  }
+
+  // conflict resolution
+  $("conflictReload").addEventListener("click", function(){
+    if (!state.conflict) return;
+    state.events = state.conflict.remoteEvents;
+    state.sha = state.conflict.remoteSha;
+    state.dirty = false;
+    state.conflict = null;
+    $("bannerConflict").classList.remove("show");
+    render();
+    setStatus("Reloaded the newer version", "");
+  });
+  $("conflictForce").addEventListener("click", function(){
+    if (!state.conflict) return;
+    state.sha = state.conflict.remoteSha;   // write on top of theirs
+    state.conflict = null;
+    $("bannerConflict").classList.remove("show");
+    save(true);
+  });
+
+  // =====================================================================
+  // Rendering
+  // =====================================================================
+  var gridEl = $("grid"), weekLabelEl = $("weekLabel");
+
+  function autoView(){ return window.innerWidth <= 820 ? "day" : "week"; }
+  function pickDefaultView(){
+    // Narrow screens get the day list, wide ones the week grid — but once the user
+    // chooses for themselves, respect it and stop second-guessing on every resize.
+    if (state.viewLocked && state.view) return state.view;
+    return autoView();
+  }
+
+  function render(){
+    state.view = pickDefaultView();
+    var isDay = state.view === "day";
+    $("dayWrap").style.display = isDay ? "" : "none";
+    $("weekWrap").style.display = isDay ? "none" : "";
+    $("btnView").textContent = isDay ? "Week" : "Day";
+    if (isDay) renderAgenda(); else { buildStaticGrid(); renderEvents(); }
+    renderCarryover();
+    updateLabels();
+  }
+
+  function updateLabels(){
+    var dates = weekDates();
+    weekLabelEl.textContent = state.view === "day"
+      ? ""
+      : displayDate(dates[0]) + " – " + displayDate(dates[6]) + ", " + dates[6].getFullYear();
+    $("dayLabel").innerHTML = escapeHtml(longDate(state.dayDate)) +
+      (isSameDay(state.dayDate, new Date()) ? " <small>today</small>" : "<small>&nbsp;</small>");
+  }
+
+  function visibleEvents(){
+    return state.events.filter(function(e){ return e.status !== "cancelled"; });
+  }
+
+  // ---- day agenda (phone-first) ----
+  function renderAgenda(){
+    var box = $("agenda");
+    box.innerHTML = "";
+    var iso = isoDate(state.dayDate);
+    var items = visibleEvents()
+      .filter(function(e){ return e.date === iso; })
+      .sort(function(a,b){ return String(a.start).localeCompare(String(b.start)); });
+
+    if (!items.length){
+      box.innerHTML = '<div class="ag-empty">Nothing scheduled.<br>Tap + to add something.</div>';
+      return;
+    }
+    items.forEach(function(ev){
+      var isPassive = ev.type === "passive", isDone = ev.status === "done";
+      var el = document.createElement("div");
+      el.className = "ag-item" + (isPassive ? " passive" : "") + (isDone ? " done" : "");
+      el.style.borderLeftColor = "var(" + (CAT_VAR[ev.category] || CAT_VAR.other) + ")";
+
+      var chk = document.createElement("input");
+      chk.type = "checkbox"; chk.className = "ag-chk"; chk.checked = isDone;
+      chk.setAttribute("aria-label", "Mark done");
+      chk.addEventListener("change", function(){
+        ev.status = chk.checked ? "done" : "pending";
+        render(); scheduleSave();
+      });
+
+      var time = document.createElement("div");
+      time.className = "ag-time";
+      time.textContent = ev.start + "–" + ev.end;
+
+      var mainDiv = document.createElement("div");
+      mainDiv.className = "ag-main";
+      var tags = [ev.category || "other"];
+      if (isPassive) tags.push("passive");
+      mainDiv.innerHTML = '<div class="ag-title">' + escapeHtml(ev.title || "(untitled)") + "</div>" +
+        '<div class="ag-tags">' + escapeHtml(tags.join(" · ")) + "</div>" +
+        (ev.notes ? '<div class="ag-notes">' + escapeHtml(ev.notes) + "</div>" : "");
+      mainDiv.addEventListener("click", function(){ openDialog(ev); });
+
+      el.appendChild(chk); el.appendChild(time); el.appendChild(mainDiv);
+      box.appendChild(el);
+    });
+  }
+
+  // ---- week grid (desktop) ----
+  function buildStaticGrid(){
+    gridEl.style.gridTemplateRows = "34px repeat(" + ROWS + ", 8px)";
+    gridEl.innerHTML = "";
+
+    var corner = document.createElement("div");
+    corner.className = "head"; corner.style.gridColumn = 1; corner.style.gridRow = 1;
+    gridEl.appendChild(corner);
+
+    var today = new Date(), dates = weekDates();
+    dates.forEach(function(dt, i){
+      var h = document.createElement("div");
+      h.className = "head" + (isSameDay(dt, today) ? " today" : "");
+      h.style.gridColumn = i+2; h.style.gridRow = 1;
+      h.innerHTML = DAY_NAMES[i] + '<div class="datepart">' + displayDate(dt) + "</div>";
+      gridEl.appendChild(h);
+    });
+
+    for (var r = 0; r < ROWS; r++){
+      var row = 2 + r;
+      var isHour = (r % (60/SLOT_MIN)) === 0;
+      var isHalf = !isHour && (r % (30/SLOT_MIN)) === 0;
+      if (isHour || isHalf){
+        var lbl = document.createElement("div");
+        lbl.className = "timelabel" + (isHalf ? " halfhour" : "");
+        lbl.style.gridColumn = 1; lbl.style.gridRow = row;
+        lbl.textContent = rowToTime(row);
+        gridEl.appendChild(lbl);
+      }
+      for (var c = 0; c < 7; c++){
+        var cell = document.createElement("div");
+        cell.className = "cell" + (isHour ? " hourline" : (isHalf ? " halfhourline" : ""));
+        cell.style.gridColumn = c+2; cell.style.gridRow = row;
+        cell.dataset.dayIdx = c; cell.dataset.row = row;
+        gridEl.appendChild(cell);
+      }
+    }
+  }
+
+  function renderEvents(){
+    Array.prototype.slice.call(gridEl.querySelectorAll(".event")).forEach(function(n){ n.remove(); });
+    var isoWeek = weekDates().map(isoDate);
+    var ordered = visibleEvents().slice().sort(function(a,b){
+      return (a.type === "passive" ? 0 : 1) - (b.type === "passive" ? 0 : 1);
+    });
+    ordered.forEach(function(ev){
+      var idx = isoWeek.indexOf(ev.date);
+      if (idx === -1) return;
+      var isPassive = ev.type === "passive", isDone = ev.status === "done";
+      var catVar = CAT_VAR[ev.category] || CAT_VAR.other;
+      var el = document.createElement("div");
+      el.className = "event" + (isPassive ? " passive" : "") + (isDone ? " done" : "");
+      el.style.gridColumn = idx+2;
+      el.style.gridRow = timeToRow(ev.start) + " / " + Math.max(timeToRow(ev.end), timeToRow(ev.start)+1);
+      el.style.background = isPassive
+        ? "color-mix(in srgb, var(" + catVar + ") 28%, var(--panel))"
+        : "var(" + catVar + ")";
+      el.innerHTML = '<input type="checkbox" class="chk"' + (isDone ? " checked" : "") + ">" +
+        "<b>" + escapeHtml(ev.title || "(untitled)") + "</b><span>" + escapeHtml(ev.start + "–" + ev.end + (isPassive ? " · passive" : "")) + "</span>";
+      el.querySelector(".chk").addEventListener("click", function(e){
+        e.stopPropagation();
+        ev.status = e.target.checked ? "done" : "pending";
+        render(); scheduleSave();
+      });
+      el.addEventListener("click", function(){ openDialog(ev); });
+      gridEl.appendChild(el);
+    });
+  }
+
+  function renderCarryover(){
+    var box = $("carryover"), list = $("carryoverList");
+    list.innerHTML = "";
+    // Carry-forward is computed, never moved: any pending event dated before the
+    // period on screen keeps showing until it's done, cancelled or rescheduled.
+    var boundary = state.view === "day" ? isoDate(state.dayDate) : isoDate(state.weekStart);
+    var items = state.events.filter(function(e){
+      return e.status === "pending" && e.date < boundary;
+    }).sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+
+    if (!items.length){ box.classList.add("empty"); return; }
+    box.classList.remove("empty");
+    items.forEach(function(ev){
+      var li = document.createElement("li");
+      var chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.addEventListener("change", function(){ ev.status = "done"; render(); scheduleSave(); });
+      var d = document.createElement("span"); d.className = "co-date"; d.textContent = ev.date;
+      var t = document.createElement("span"); t.className = "co-title"; t.textContent = ev.title || "(untitled)";
+      t.addEventListener("click", function(){ openDialog(ev); });
+      var c = document.createElement("button"); c.textContent = "Cancel";
+      c.addEventListener("click", function(){ ev.status = "cancelled"; render(); scheduleSave(); });
+      li.appendChild(chk); li.appendChild(d); li.appendChild(t); li.appendChild(c);
+      list.appendChild(li);
+    });
+  }
+
+  // =====================================================================
+  // Navigation
+  // =====================================================================
+  $("btnPrev").addEventListener("click", function(){
+    if (state.view === "day") state.dayDate = addDays(state.dayDate, -7);
+    state.weekStart = addDays(state.weekStart, -7); render();
+  });
+  $("btnNext").addEventListener("click", function(){
+    if (state.view === "day") state.dayDate = addDays(state.dayDate, 7);
+    state.weekStart = addDays(state.weekStart, 7); render();
+  });
+  $("btnToday").addEventListener("click", function(){
+    state.weekStart = getMonday(new Date()); state.dayDate = startOfDay(new Date()); render();
+  });
+  $("dayPrev").addEventListener("click", function(){
+    state.dayDate = addDays(state.dayDate, -1); state.weekStart = getMonday(state.dayDate); render();
+  });
+  $("dayNext").addEventListener("click", function(){
+    state.dayDate = addDays(state.dayDate, 1); state.weekStart = getMonday(state.dayDate); render();
+  });
+  $("btnView").addEventListener("click", function(){
+    state.view = state.view === "day" ? "week" : "day";
+    state.viewLocked = true;
+    render();
+  });
+  $("btnRefresh").addEventListener("click", function(){ setStatus("Checking…", "saving"); load(); });
+
+  // =====================================================================
+  // Drag-to-create on the week grid (desktop)
+  // =====================================================================
+  var previewEl = null;
+  gridEl.addEventListener("mousedown", function(e){
+    var cell = e.target.closest && e.target.closest(".cell");
+    if (!cell) return;
+    state.drag = { dayIdx:+cell.dataset.dayIdx, startRow:+cell.dataset.row, curRow:+cell.dataset.row };
+    previewEl = document.createElement("div");
+    previewEl.className = "drag-preview";
+    previewEl.style.gridColumn = state.drag.dayIdx + 2;
+    updatePreview();
+    gridEl.appendChild(previewEl);
+  });
+  document.addEventListener("mousemove", function(e){
+    if (!state.drag) return;
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    var cell = el && el.closest ? el.closest(".cell") : null;
+    if (cell && +cell.dataset.dayIdx === state.drag.dayIdx){
+      state.drag.curRow = +cell.dataset.row;
+      updatePreview();
+    }
+  });
+  document.addEventListener("mouseup", function(){
+    if (!state.drag) return;
+    var d = state.drag;
+    var r0 = Math.min(d.startRow, d.curRow), r1 = Math.max(d.startRow, d.curRow) + 1;
+    if (previewEl){ previewEl.remove(); previewEl = null; }
+    state.drag = null;
+    openDialog({ id:null, date: isoDate(addDays(state.weekStart, d.dayIdx)),
+      start: rowToTime(r0), end: rowToTime(r1), title:"", category:"experiment",
+      type:"active", status:"pending", notes:"" });
+  });
+  function updatePreview(){
+    var d = state.drag;
+    previewEl.style.gridRow = Math.min(d.startRow,d.curRow) + " / " + (Math.max(d.startRow,d.curRow)+1);
+  }
+
+  // =====================================================================
+  // Event dialog
+  // =====================================================================
+  var dlg = $("dlg");
+  var fTitle=$("fTitle"), fDate=$("fDate"), fStart=$("fStart"), fEnd=$("fEnd"),
+      fCategory=$("fCategory"), fType=$("fType"), fStatus=$("fStatus"), fNotes=$("fNotes"),
+      btnDelete=$("btnDelete");
+
+  for (var row = 2; row <= ROWS + 1; row++){
+    var t = rowToTime(row);
+    [fStart, fEnd].forEach(function(sel){
+      var o = document.createElement("option"); o.value = t; o.textContent = t; sel.appendChild(o);
+    });
+  }
+
+  function openDialog(ev){
+    state.editingId = ev.id;
+    $("dlgTitle").textContent = ev.id ? "Edit event" : "New event";
+    fTitle.value = ev.title || "";
+    fDate.value = ev.date;
+    fStart.value = ev.start; fEnd.value = ev.end;
+    if (fStart.value !== ev.start) addLooseOption(fStart, ev.start);
+    if (fEnd.value !== ev.end) addLooseOption(fEnd, ev.end);
+    fCategory.value = ev.category || "experiment";
+    fType.value = ev.type || "active";
+    fStatus.value = ev.status || "pending";
+    fNotes.value = ev.notes || "";
+    btnDelete.style.display = ev.id ? "" : "none";
+    dlg.showModal();
+  }
+  // Times that aren't on the 5-minute grid (or outside 07:00–23:00) must stay editable, not be silently rewritten.
+  function addLooseOption(sel, val){
+    if (!val) return;
+    var o = document.createElement("option"); o.value = val; o.textContent = val + " (off-grid)";
+    sel.appendChild(o); sel.value = val;
+  }
+
+  $("btnCancel").addEventListener("click", function(){ dlg.close(); });
+  $("fab").addEventListener("click", function(){
+    var base = state.view === "day" ? state.dayDate : new Date();
+    var d = state.view === "day" ? base : (isSameDay(new Date(), base) ? base : state.weekStart);
+    openDialog({ id:null, date: isoDate(d), start:"09:00", end:"10:00", title:"",
+      category:"experiment", type:"active", status:"pending", notes:"" });
+  });
+
+  $("btnSaveEvent").addEventListener("click", function(){
+    var date = fDate.value.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)){ alert("Date must look like 2026-08-14."); return; }
+    if (fEnd.value <= fStart.value){ alert("End time must be after start time."); return; }
+    var payload = {
+      id: state.editingId || uid(), date: date, start: fStart.value, end: fEnd.value,
+      title: fTitle.value.trim(), category: fCategory.value, type: fType.value,
+      status: fStatus.value, notes: fNotes.value.trim()
+    };
+    var idx = state.events.findIndex(function(e){ return e.id === payload.id; });
+    if (idx >= 0) state.events[idx] = payload; else state.events.push(payload);
+    dlg.close();
+    if (state.view === "day") state.dayDate = startOfDay(new Date(date + "T00:00:00"));
+    state.weekStart = getMonday(new Date(date + "T00:00:00"));
+    render(); scheduleSave();
+  });
+
+  btnDelete.addEventListener("click", function(){
+    if (!confirm("Delete this event? Marking it Cancelled keeps a record instead.")) return;
+    state.events = state.events.filter(function(e){ return e.id !== state.editingId; });
+    dlg.close(); render(); scheduleSave();
+  });
+
+  // =====================================================================
+  // Token setup
+  // =====================================================================
+  var dlgToken = $("dlgToken");
+  function openToken(){
+    $("repoNameSlot").textContent = CFG.repo || "cagiral-schedule";
+    $("fToken").value = "";
+    $("fDevice").value = getDevice() === "unknown device" ? guessDevice() : getDevice();
+    $("btnForget").style.display = getToken() ? "" : "none";
+    if (!dlgToken.open) dlgToken.showModal();
+  }
+  function guessDevice(){
+    var ua = navigator.userAgent;
+    if (/iPhone/.test(ua)) return "iPhone";
+    if (/iPad/.test(ua)) return "iPad";
+    if (/Macintosh/.test(ua)) return "MacBook";
+    if (/Windows/.test(ua)) return "Windows PC";
+    return "browser";
+  }
+  $("btnConnect").addEventListener("click", openToken);
+  $("bannerConnectBtn").addEventListener("click", openToken);
+  $("btnTokenCancel").addEventListener("click", function(){ dlgToken.close(); });
+  $("btnForget").addEventListener("click", function(){
+    try { localStorage.removeItem(LS.token); } catch(e){}
+    dlgToken.close();
+    updateWriteUI();
+    setStatus("Disconnected — read-only", "");
+  });
+  $("btnTokenSave").addEventListener("click", async function(){
+    var tok = $("fToken").value.trim();
+    var dev = $("fDevice").value.trim() || guessDevice();
+    if (!tok){ $("tokenStatus").innerHTML = "<span style='color:var(--bad)'>Paste the token first.</span>"; return; }
+    $("tokenStatus").textContent = "Checking with GitHub…";
+    try {
+      var r = await fetch(API + "?ref=" + encodeURIComponent(CFG.branch||"main"), {
+        headers: { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28", "Authorization":"Bearer " + tok },
+        cache: "no-store"
+      });
+      if (!r.ok){
+        $("tokenStatus").innerHTML = "<span style='color:var(--bad)'>GitHub said no (" + r.status +
+          "). Check that the token covers <b>" + escapeHtml(CFG.repo||"") + "</b> with <b>Contents: Read and write</b>.</span>";
+        return;
+      }
+      try { localStorage.setItem(LS.token, tok); localStorage.setItem(LS.device, dev); } catch(e){
+        $("tokenStatus").innerHTML = "<span style='color:var(--bad)'>This browser won't let the app remember the token (private mode?).</span>";
+        return;
+      }
+      $("tokenStatus").innerHTML = "<span style='color:var(--ok)'>Connected. This device can save now.</span>";
+      updateWriteUI();
+      setTimeout(function(){ dlgToken.close(); load(); startPolling(); }, 700);
+    } catch(err){
+      $("tokenStatus").innerHTML = "<span style='color:var(--bad)'>Couldn't reach GitHub: " + escapeHtml(err.message||"") + "</span>";
+    }
+  });
+
+  function updateWriteUI(){
+    var w = canWrite();
+    $("bannerReadonly").classList.toggle("show", !w);
+    $("btnConnect").textContent = w ? "Connected" : "Connect";
+  }
+
+  // =====================================================================
+  // Calendar feed
+  // =====================================================================
+  var dlgFeed = $("dlgFeed");
+  function feedUrl(){
+    return location.origin + location.pathname.replace(/[^/]*$/, "") + ICS_FILE;
+  }
+  $("btnFeed").addEventListener("click", function(){
+    $("feedUrl").textContent = feedUrl();
+    dlgFeed.showModal();
+  });
+  $("btnFeedClose").addEventListener("click", function(){ dlgFeed.close(); });
+  $("btnFeedCopy").addEventListener("click", async function(){
+    try { await navigator.clipboard.writeText(feedUrl()); $("btnFeedCopy").textContent = "Copied"; }
+    catch(e){
+      var r = document.createRange(); r.selectNodeContents($("feedUrl"));
+      var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      $("btnFeedCopy").textContent = "Selected — copy it";
+    }
+    setTimeout(function(){ $("btnFeedCopy").textContent = "Copy link"; }, 1800);
+  });
+
+  // =====================================================================
+  // PI summary (Turkish) — same format and exclusions as before
+  // =====================================================================
+  function buildPIText(){
+    var dates = weekDates(), isoWeek = dates.map(isoDate);
+    var lines = ["Hocam merhaba,", " ", "Bu hafta için aşağıdakileri planladım."];
+    isoWeek.forEach(function(iso, i){
+      var dayEvents = state.events.filter(function(e){
+        return e.date === iso && e.status !== "cancelled" && e.category !== "personal";
+      }).sort(function(a,b){ return String(a.start).localeCompare(String(b.start)); });
+      if (!dayEvents.length) return;
+      lines.push(" ");
+      lines.push(DAY_NAMES_TR[i] + ":");
+      dayEvents.forEach(function(e){ lines.push(e.title || "(untitled)"); });
+    });
+    return lines.join("\n");
+  }
+  var dlgPI = $("dlgPI");
+  $("btnPI").addEventListener("click", function(){
+    $("piText").value = buildPIText();
+    $("piCopyStatus").textContent = "";
+    dlgPI.showModal();
+  });
+  $("btnPIClose").addEventListener("click", function(){ dlgPI.close(); });
+  $("btnPICopy").addEventListener("click", async function(){
+    try { await navigator.clipboard.writeText($("piText").value); $("piCopyStatus").textContent = "Copied."; }
+    catch(e){ $("piText").select(); $("piCopyStatus").textContent = "Selected — copy it."; }
+  });
+
+  // =====================================================================
+  // Freshness: poll, plus refetch whenever the app comes back to the front
+  // =====================================================================
+  function pollInterval(){ return canWrite() ? 20000 : 60000; }
+  function startPolling(){
+    clearInterval(state.pollTimer);
+    state.pollTimer = setInterval(function(){
+      if (document.hidden || state.saving || state.dirty || state.conflict) return;
+      load({quiet:true});
+    }, pollInterval());
+  }
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden && !state.saving && !state.conflict) load({quiet:true});
+  });
+  window.addEventListener("online", function(){ $("bannerOffline").classList.remove("show"); load({quiet:true}); });
+  window.addEventListener("offline", function(){ $("bannerOffline").classList.add("show"); });
+
+  // Warn before losing an unsaved change (e.g. save failed and the tab is closing).
+  window.addEventListener("beforeunload", function(e){
+    if (state.dirty){ e.preventDefault(); e.returnValue = ""; }
+  });
+
+  var resizeTimer = null;
+  window.addEventListener("resize", function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){
+      if (!state.view) return;
+      // Rotating a phone or resizing a window should move between day and week
+      // views on its own, unless the user has overridden it.
+      if (!state.viewLocked && autoView() !== state.view) render();
+      else if (state.view === "week") render();   // grid needs re-laying out at the new width
+    }, 200);
+  });
+
+  // =====================================================================
+  // Boot
+  // =====================================================================
+  if ("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
+
+  if (!API){
+    setStatus("Open this from its web address", "error");
+    document.querySelector("main").insertAdjacentHTML("afterbegin",
+      '<div class="banner show"><b>This app needs to run from its GitHub Pages address</b> ' +
+      '(https://&lt;your-account&gt;.github.io/cagiral-schedule/) so it knows which repository to read. ' +
+      'Opening the file directly from disk won\'t work.</div>');
+  } else {
+    updateWriteUI();
+    var cached = cacheLoad();
+    if (cached){ state.events = cached.events; render(); setStatus("Showing saved copy — checking…", ""); }
+    load().then(startPolling);
+  }
+})();
+</script>
+</body>
+</html>

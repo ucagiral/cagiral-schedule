@@ -1,0 +1,2791 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//cagiral-schedule//weekly planner//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Cagiral Schedule
+X-WR-TIMEZONE:Europe/Istanbul
+X-WR-CALDESC:Lab schedule — generated from claudeAgent.json. Do not edit 
+ here\; edits are overwritten.
+REFRESH-INTERVAL;VALUE=DURATION:PT1H
+X-PUBLISHED-TTL:PT1H
+BEGIN:VTIMEZONE
+TZID:Europe/Istanbul
+X-LIC-LOCATION:Europe/Istanbul
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:e-bact-culture@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260809T160000
+DTEND;TZID=Europe/Istanbul:20260809T230000
+SUMMARY:✓ Bacterial culture — incubating overnight
+DESCRIPTION:Placeholder start time (actual start unconfirmed) — continues
+  overnight past this grid's 23:00 window\, ready for miniprep tomorrow mor
+ ning.\nPassive — runs unattended\, does not block time\nCategory: experi
+ ment\nMarked done.
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-miniprep@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260810T091500
+DTEND;TZID=Europe/Istanbul:20260810T104500
+SUMMARY:✓ Miniprep
+DESCRIPTION:From overnight bacterial culture. Duration is an estimate — a
+ djust to actual sample count.\nActive — needs you there\nCategory: exper
+ iment\nMarked done.
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-seed-hek@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260810T110000
+DTEND;TZID=Europe/Istanbul:20260810T113000
+SUMMARY:✓ Seed HEK293T cells
+DESCRIPTION:Target ~70-80% confluency by tomorrow's transfection (protocols
+ .md\, Lentivirus Production).\nActive — needs you there\nCategory: exper
+ iment\nMarked done.
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-transfection@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260811T093000
+DTEND;TZID=Europe/Istanbul:20260811T103000
+SUMMARY:pLentiGuide Plasmid Transfection
+DESCRIPTION:protocols.md Transfection (viral particle production)\, PEI. Ta
+ rget DNA = today's miniprep product. Add dropwise to HEK dish after ~15-20
+  min RT incubation.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:pLentiGuide Plasmid Transfection
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-harvest-2@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260814T140000
+DTEND;TZID=Europe/Istanbul:20260814T150000
+SUMMARY:Virus Medium Harvest
+DESCRIPTION:Scheduled after the 9:30-12:30 Friday meeting\, not before it.\
+ nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Virus Medium Harvest
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-17@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260817T081500
+DTEND;TZID=Europe/Istanbul:20260817T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-18@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260818T081500
+DTEND;TZID=Europe/Istanbul:20260818T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-19@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260819T081500
+DTEND;TZID=Europe/Istanbul:20260819T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-20@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260820T081500
+DTEND;TZID=Europe/Istanbul:20260820T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-21@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260821T081500
+DTEND;TZID=Europe/Istanbul:20260821T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-22@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260822T081500
+DTEND;TZID=Europe/Istanbul:20260822T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-23@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260823T081500
+DTEND;TZID=Europe/Istanbul:20260823T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-24@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260824T081500
+DTEND;TZID=Europe/Istanbul:20260824T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-25@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260825T081500
+DTEND;TZID=Europe/Istanbul:20260825T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-26@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260826T081500
+DTEND;TZID=Europe/Istanbul:20260826T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-27@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260827T081500
+DTEND;TZID=Europe/Istanbul:20260827T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-28@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260828T081500
+DTEND;TZID=Europe/Istanbul:20260828T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-29@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260829T081500
+DTEND;TZID=Europe/Istanbul:20260829T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-vacation-2026-08-30@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260830T081500
+DTEND;TZID=Europe/Istanbul:20260830T192000
+SUMMARY:✓ Vacation
+DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
+ ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
+ l\nMarked done.
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-08-10@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260811T153000
+DTEND;TZID=Europe/Istanbul:20260811T160000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-08-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260811T130000
+DTEND;TZID=Europe/Istanbul:20260811T133000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. 2026-08-10: the "back-to-back
+  with SRB copper treatment" reason no longer applies (SRB treatment cancel
+ led/postponed) but time is left as-is\, no conflict.\nActive — needs you
+  there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-08-13@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260813T090000
+DTEND;TZID=Europe/Istanbul:20260813T093000
+SUMMARY:CuAdapt cells — FREEZE
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — FREEZE
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-01@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260901T090000
+DTEND;TZID=Europe/Istanbul:20260901T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-09-03@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260903T090000
+DTEND;TZID=Europe/Istanbul:20260903T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-04@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260904T153000
+DTEND;TZID=Europe/Istanbul:20260904T160000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-09-07@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260907T090000
+DTEND;TZID=Europe/Istanbul:20260907T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-08@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260908T090000
+DTEND;TZID=Europe/Istanbul:20260908T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-09-10@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260910T090000
+DTEND;TZID=Europe/Istanbul:20260910T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260911T124000
+DTEND;TZID=Europe/Istanbul:20260911T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-09-14@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260914T090000
+DTEND;TZID=Europe/Istanbul:20260914T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-15@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260915T090000
+DTEND;TZID=Europe/Istanbul:20260915T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-09-17@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260917T090000
+DTEND;TZID=Europe/Istanbul:20260917T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-18@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260918T124000
+DTEND;TZID=Europe/Istanbul:20260918T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-09-21@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260921T090000
+DTEND;TZID=Europe/Istanbul:20260921T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-22@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260922T090000
+DTEND;TZID=Europe/Istanbul:20260922T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-09-24@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260924T090000
+DTEND;TZID=Europe/Istanbul:20260924T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-25@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260925T124000
+DTEND;TZID=Europe/Istanbul:20260925T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-09-28@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260928T090000
+DTEND;TZID=Europe/Istanbul:20260928T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-09-29@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260929T090000
+DTEND;TZID=Europe/Istanbul:20260929T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-01@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261001T090000
+DTEND;TZID=Europe/Istanbul:20261001T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-02@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261002T124000
+DTEND;TZID=Europe/Istanbul:20261002T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-05@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261005T090000
+DTEND;TZID=Europe/Istanbul:20261005T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-06@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261006T090000
+DTEND;TZID=Europe/Istanbul:20261006T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-08@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261008T090000
+DTEND;TZID=Europe/Istanbul:20261008T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-09@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261009T124000
+DTEND;TZID=Europe/Istanbul:20261009T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-12@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261012T090000
+DTEND;TZID=Europe/Istanbul:20261012T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-13@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261013T090000
+DTEND;TZID=Europe/Istanbul:20261013T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-15@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261015T090000
+DTEND;TZID=Europe/Istanbul:20261015T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-16@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261016T124000
+DTEND;TZID=Europe/Istanbul:20261016T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-19@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261019T090000
+DTEND;TZID=Europe/Istanbul:20261019T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-20@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261020T090000
+DTEND;TZID=Europe/Istanbul:20261020T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-22@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261022T090000
+DTEND;TZID=Europe/Istanbul:20261022T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-23@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261023T124000
+DTEND;TZID=Europe/Istanbul:20261023T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-26@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261026T090000
+DTEND;TZID=Europe/Istanbul:20261026T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-27@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261027T090000
+DTEND;TZID=Europe/Istanbul:20261027T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-10-29@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261029T090000
+DTEND;TZID=Europe/Istanbul:20261029T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-10-30@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261030T124000
+DTEND;TZID=Europe/Istanbul:20261030T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-02@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261102T090000
+DTEND;TZID=Europe/Istanbul:20261102T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-11-03@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261103T090000
+DTEND;TZID=Europe/Istanbul:20261103T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-05@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261105T090000
+DTEND;TZID=Europe/Istanbul:20261105T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-11-06@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261106T124000
+DTEND;TZID=Europe/Istanbul:20261106T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-09@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261109T090000
+DTEND;TZID=Europe/Istanbul:20261109T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-11-10@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261110T090000
+DTEND;TZID=Europe/Istanbul:20261110T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-12@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261112T090000
+DTEND;TZID=Europe/Istanbul:20261112T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-11-13@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261113T124000
+DTEND;TZID=Europe/Istanbul:20261113T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-16@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261116T090000
+DTEND;TZID=Europe/Istanbul:20261116T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-11-17@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261117T090000
+DTEND;TZID=Europe/Istanbul:20261117T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-19@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261119T090000
+DTEND;TZID=Europe/Istanbul:20261119T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-11-20@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261120T124000
+DTEND;TZID=Europe/Istanbul:20261120T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-23@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261123T090000
+DTEND;TZID=Europe/Istanbul:20261123T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-11-24@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261124T090000
+DTEND;TZID=Europe/Istanbul:20261124T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-26@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261126T090000
+DTEND;TZID=Europe/Istanbul:20261126T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-11-27@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261127T124000
+DTEND;TZID=Europe/Istanbul:20261127T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-11-30@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261130T090000
+DTEND;TZID=Europe/Istanbul:20261130T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-01@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261201T090000
+DTEND;TZID=Europe/Istanbul:20261201T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-03@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261203T090000
+DTEND;TZID=Europe/Istanbul:20261203T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-04@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261204T124000
+DTEND;TZID=Europe/Istanbul:20261204T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-07@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261207T090000
+DTEND;TZID=Europe/Istanbul:20261207T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-08@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261208T090000
+DTEND;TZID=Europe/Istanbul:20261208T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-10@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261210T090000
+DTEND;TZID=Europe/Istanbul:20261210T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261211T124000
+DTEND;TZID=Europe/Istanbul:20261211T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-14@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261214T090000
+DTEND;TZID=Europe/Istanbul:20261214T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-15@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261215T090000
+DTEND;TZID=Europe/Istanbul:20261215T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-17@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261217T090000
+DTEND;TZID=Europe/Istanbul:20261217T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-18@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261218T124000
+DTEND;TZID=Europe/Istanbul:20261218T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-21@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261221T090000
+DTEND;TZID=Europe/Istanbul:20261221T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-22@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261222T090000
+DTEND;TZID=Europe/Istanbul:20261222T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-24@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261224T090000
+DTEND;TZID=Europe/Istanbul:20261224T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-25@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261225T124000
+DTEND;TZID=Europe/Istanbul:20261225T131000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-28@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261228T090000
+DTEND;TZID=Europe/Istanbul:20261228T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-copper-2026-12-29@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261229T090000
+DTEND;TZID=Europe/Istanbul:20261229T093000
+SUMMARY:CuAdapt cells — copper treatment
+DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
+ s needed.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — copper treatment
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-2026-12-31@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261231T090000
+DTEND;TZID=Europe/Istanbul:20261231T093000
+SUMMARY:CuAdapt cells — passage
+DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
+ d.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-srb-seeding-2026-08-10@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260810T114000
+DTEND;TZID=Europe/Istanbul:20260810T141000
+SUMMARY:Cell seeding for SRB
+DESCRIPTION:Pellet for RNA\nPellet for Protein\nFreeze 2026-08-10 CANCELLED
+ : postponed to after vacation return (no specific date yet) — one of the
+  planned cell lines died after puromycin selection\; Umut will substitute 
+ from a previous replicate once back. Do not delete\; regenerate SRB chain 
+ (seeding -> treatment -> TCA fixation) once a return date is picked.\nActi
+ ve — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-srb-treatment-2026-08-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260811T104000
+DTEND;TZID=Europe/Istanbul:20260811T121000
+SUMMARY:Copper and cisplatin treatment
+DESCRIPTION:SRB assay drug treatment\, 24h after seeding. Placed after the 
+ 09:00-09:30 CuAdapt copper feeding and 09:30-10:30 pLentiGuide Transfectio
+ n to avoid overlap. Duration is an estimate for prepping/applying both Cis
+ platin and CuCl2 dilution series (protocols.md dilution reference table) 
+ — adjust to actual plate count. 2026-08-10 CANCELLED: postponed to after
+  vacation return (no specific date yet) — one of the planned cell lines 
+ died after puromycin selection\; Umut will substitute from a previous repl
+ icate once back. Do not delete\; regenerate SRB chain (seeding -> treatmen
+ t -> TCA fixation) once a return date is picked.\nActive — needs you the
+ re\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-srb-tca-fix-2026-08-14@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260814T123000
+DTEND;TZID=Europe/Istanbul:20260814T124500
+SUMMARY:TCA fixation (active: add TCA)
+DESCRIPTION:SRB assay fixation\, add-TCA step only (protocols.md SRB Assay 
+ step 1). 15 min active per Umut (2026-08-09) — see e-srb-tca-fix-passive
+ -2026-08-14 for the 3h passive incubation\, and e-srb-tca-wash-2026-08-14 
+ (2026-08-10) for the wash step that follows the incubation. Scheduled afte
+ r the 9:30-12:30 Friday meeting and before the 14:00-15:00 Virus Medium Ha
+ rvest. 2026-08-10 CANCELLED: postponed to after vacation return (no specif
+ ic date yet) — one of the planned cell lines died after puromycin select
+ ion\; Umut will substitute from a previous replicate once back. Do not del
+ ete\; regenerate SRB chain (seeding -> treatment -> TCA fixation) once a r
+ eturn date is picked.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-srb-tca-fix-passive-2026-08-14@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260814T124500
+DTEND;TZID=Europe/Istanbul:20260814T154500
+SUMMARY:TCA fixation — passive incubation
+DESCRIPTION:3h passive incubation following the active TCA add/wash step. D
+ oes not block active scheduling (freely overlaps other active events per s
+ chedule.md). 2026-08-10 CANCELLED: postponed to after vacation return (no 
+ specific date yet) — one of the planned cell lines died after puromycin 
+ selection\; Umut will substitute from a previous replicate once back. Do n
+ ot delete\; regenerate SRB chain (seeding -> treatment -> TCA fixation) on
+ ce a return date is picked.\nPassive — runs unattended\, does not block 
+ time\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-08-12@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260812T211000
+DTEND;TZID=Europe/Istanbul:20260812T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-09-02@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260902T211000
+DTEND;TZID=Europe/Istanbul:20260902T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-09-04@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260904T093000
+DTEND;TZID=Europe/Istanbul:20260904T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-09-09@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260909T211000
+DTEND;TZID=Europe/Istanbul:20260909T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-09-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260911T093000
+DTEND;TZID=Europe/Istanbul:20260911T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-09-16@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260916T211000
+DTEND;TZID=Europe/Istanbul:20260916T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-09-18@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260918T093000
+DTEND;TZID=Europe/Istanbul:20260918T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-09-23@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260923T211000
+DTEND;TZID=Europe/Istanbul:20260923T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-09-25@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260925T093000
+DTEND;TZID=Europe/Istanbul:20260925T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-09-30@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260930T211000
+DTEND;TZID=Europe/Istanbul:20260930T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-10-02@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261002T093000
+DTEND;TZID=Europe/Istanbul:20261002T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-10-07@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261007T211000
+DTEND;TZID=Europe/Istanbul:20261007T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-10-09@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261009T093000
+DTEND;TZID=Europe/Istanbul:20261009T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-10-14@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261014T211000
+DTEND;TZID=Europe/Istanbul:20261014T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-10-16@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261016T093000
+DTEND;TZID=Europe/Istanbul:20261016T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-10-21@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261021T211000
+DTEND;TZID=Europe/Istanbul:20261021T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-10-23@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261023T093000
+DTEND;TZID=Europe/Istanbul:20261023T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-10-28@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261028T211000
+DTEND;TZID=Europe/Istanbul:20261028T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-10-30@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261030T093000
+DTEND;TZID=Europe/Istanbul:20261030T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-11-04@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261104T211000
+DTEND;TZID=Europe/Istanbul:20261104T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-11-06@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261106T093000
+DTEND;TZID=Europe/Istanbul:20261106T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-11-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261111T211000
+DTEND;TZID=Europe/Istanbul:20261111T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-11-13@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261113T093000
+DTEND;TZID=Europe/Istanbul:20261113T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-11-18@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261118T211000
+DTEND;TZID=Europe/Istanbul:20261118T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-11-20@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261120T093000
+DTEND;TZID=Europe/Istanbul:20261120T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-11-25@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261125T211000
+DTEND;TZID=Europe/Istanbul:20261125T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-11-27@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261127T093000
+DTEND;TZID=Europe/Istanbul:20261127T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-12-02@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261202T211000
+DTEND;TZID=Europe/Istanbul:20261202T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-12-04@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261204T093000
+DTEND;TZID=Europe/Istanbul:20261204T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-12-09@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261209T211000
+DTEND;TZID=Europe/Istanbul:20261209T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-12-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261211T093000
+DTEND;TZID=Europe/Istanbul:20261211T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-12-16@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261216T211000
+DTEND;TZID=Europe/Istanbul:20261216T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-12-18@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261218T093000
+DTEND;TZID=Europe/Istanbul:20261218T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-12-23@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261223T211000
+DTEND;TZID=Europe/Istanbul:20261223T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-meeting-weekly-2026-12-25@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261225T093000
+DTEND;TZID=Europe/Istanbul:20261225T123000
+SUMMARY:Weekly meeting
+DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
+  this time. Materialized as a calendar entry (2026-08-09 rule change) inst
+ ead of an implicit rule.\nActive — needs you there\nCategory: meeting
+CATEGORIES:meeting
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Weekly meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-zoom-weekly-2026-12-30@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20261230T211000
+DTEND;TZID=Europe/Istanbul:20261230T221000
+SUMMARY:Zoom meeting
+DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
+ week without exception (2026-08-09: Umut clarified this is personal\, not 
+ a work meeting\, and happens even during vacation). Wednesday schedule sho
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
+ egory: personal
+CATEGORIES:personal
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Zoom meeting
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:emsm99uvd9u3c3@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260812T090000
+DTEND;TZID=Europe/Istanbul:20260812T093000
+SUMMARY:Virus Medium Change
+DESCRIPTION:Active — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Virus Medium Change
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:emsm9x1qoiioh8@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260813T120000
+DTEND;TZID=Europe/Istanbul:20260813T140000
+SUMMARY:qPCR ATF3 rep 3
+DESCRIPTION:Active — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:qPCR ATF3 rep 3
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:emsma0r8nygas7@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260831T100000
+DTEND;TZID=Europe/Istanbul:20260831T110000
+SUMMARY:LNCX and LUCX thaw
+DESCRIPTION:Active — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:LNCX and LUCX thaw
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:emsma11dcoz8k5@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260902T100000
+DTEND;TZID=Europe/Istanbul:20260902T110000
+SUMMARY:Seed LNCX and LUCX
+DESCRIPTION:Seeding density: 100k per well (corrected from initial 100-150k
+  range\, 2026-08-10). Day 2 after thaw ("the other day" per thaw-cell rule
+ ).\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Seed LNCX and LUCX
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:emsma1ai82ip4s@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260903T100000
+DTEND;TZID=Europe/Istanbul:20260903T110000
+SUMMARY:LNCX and LUCX transduction
+DESCRIPTION:Renamed from "medium change" (2026-08-10) — this is "next day
+ " after the 2026-09-02 seeding\, matching Umut's plan to transduce the day
+  after seeding\, with viruses frozen before vacation. Day 1 of the 6-day t
+ ransduction+hygromycin-selection window (2026-09-03 to 2026-09-08)\, which
+  ends on a Tuesday (not Fri/Sat/Sun) per Umut's constraint.\nActive — ne
+ eds you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:LNCX and LUCX transduction
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:emsma1mm8ixuwv@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260904T140000
+DTEND;TZID=Europe/Istanbul:20260904T150000
+SUMMARY:LNCX and LUCX Hygromycin
+DESCRIPTION:Day 2 of the 6-day transduction+selection window (2026-09-03 tr
+ ansduction through 2026-09-08). Selection window end (2026-09-08) is a Tue
+ sday\, satisfying "shouldn't end on a Friday or weekend."\nActive — need
+ s you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:LNCX and LUCX Hygromycin
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-srb-pellet-rna-2026-08-10@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260810T141000
+DTEND;TZID=Europe/Istanbul:20260810T151000
+SUMMARY:✓ Pellet for RNA and Protein (SRB cells)
+DESCRIPTION:2026-08-10: this replaced today's SRB seeding — Umut pelleted
+  and froze the cells he was going to seed for SRB (rather than seeding)\, 
+ since the SRB experiment itself is postponed to after vacation. Not a base
+ line-from-plate pellet\; it is the preservation step for the postponed bat
+ ch.\nActive — needs you there\nCategory: experiment\nMarked done.
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-qpcr-rna-isolation-2026-08-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260811T104000
+DTEND;TZID=Europe/Istanbul:20260811T114000
+SUMMARY:RNA isolation (ATF3 rep 3\, cells seeded 08-10)
+DESCRIPTION:For qPCR ATF3 rep 3 (2026-08-13 12:00-14:00). Cells seeded 2026
+ -08-10 (Monday). 2026-08-10: moved from Wed 08-12 to Tue 08-11 per Umut. P
+ laced after pLentiGuide Transfection (09:30-10:30).\nActive — needs you 
+ there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:RNA isolation (ATF3 rep 3\, cells seeded 08-10)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-qpcr-cdna-2026-08-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260811T115000
+DTEND;TZID=Europe/Istanbul:20260811T125000
+SUMMARY:LunaScript cDNA conversion (ATF3 rep 3)
+DESCRIPTION:Follows RNA isolation same day. For qPCR ATF3 rep 3 (2026-08-13
+ ). 2026-08-10: moved from Wed 08-12 to Tue 08-11 per Umut.\nActive — nee
+ ds you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:LunaScript cDNA conversion (ATF3 rep 3)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-thaw-hekhuh7-atf3-2026-08-31@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260831T111000
+DTEND;TZID=Europe/Istanbul:20260831T121000
+SUMMARY:Thaw cells (Hek and Huh7 ATF3 mutants)
+DESCRIPTION:From -80C. No experiment same day (thaw-cell rule). Mandatory m
+ edium change next day (2026-09-01). Duration defaulted to 1h.\nActive — 
+ needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Thaw cells (Hek and Huh7 ATF3 mutants)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-thaw-cuadapts-2026-08-31@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260831T122000
+DTEND;TZID=Europe/Istanbul:20260831T132000
+SUMMARY:Thaw cells (CuAdapts)
+DESCRIPTION:From -80C. No experiment same day (thaw-cell rule). Mandatory m
+ edium change next day (2026-09-01). Duration defaulted to 1h. Separate fro
+ m the ongoing recurring CuAdapt passage/copper-feeding routine.\nActive 
+ — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Thaw cells (CuAdapts)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-medchange-hekhuh7-atf3-2026-09-01@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260901T094000
+DTEND;TZID=Europe/Istanbul:20260901T104000
+SUMMARY:Medium change (Hek and Huh7 ATF3 mutants)
+DESCRIPTION:Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell 
+ rule). Duration defaulted to 1h.\nActive — needs you there\nCategory: ex
+ periment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Medium change (Hek and Huh7 ATF3 mutants)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-medchange-cuadapts-2026-09-01@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260901T105000
+DTEND;TZID=Europe/Istanbul:20260901T115000
+SUMMARY:Medium change (CuAdapts\, newly thawed)
+DESCRIPTION:Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell 
+ rule). Duration defaulted to 1h.\nActive — needs you there\nCategory: ex
+ periment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Medium change (CuAdapts\, newly thawed)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-medchange-lncxlucx-2026-09-01@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260901T120000
+DTEND;TZID=Europe/Istanbul:20260901T130000
+SUMMARY:LNCX and LUCX medium change (post-thaw recovery)
+DESCRIPTION:Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell 
+ rule) — this is the recovery-flask medium change\, separate from the 202
+ 6-09-02 seeding into assay wells at 100k/well. Duration defaulted to 1h.\n
+ Active — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:LNCX and LUCX medium change (post-thaw recovery)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-lncxlucx-hygro-endpoint-2026-09-08@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260908T100000
+DTEND;TZID=Europe/Istanbul:20260908T103000
+SUMMARY:LNCX and LUCX hygromycin selection — day 6 check
+DESCRIPTION:End of the 6-day transduction+selection window (2026-09-03 - 20
+ 26-09-08). Falls on a Tuesday\, satisfying the no-Friday/weekend-end const
+ raint. Duration is a short checkpoint\, not a full protocol step.\nActive 
+ — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:LNCX and LUCX hygromycin selection — day 6 check
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-srb-tca-wash-2026-08-14@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260814T154500
+DTEND;TZID=Europe/Istanbul:20260814T160000
+SUMMARY:TCA wash (discard\, wash 5x\, tap dry)
+DESCRIPTION:2026-08-10 correction: previously missing — TCA fixation need
+ s this active wash step after the passive incubation\, not just the initia
+ l "add TCA" step. protocols.md SRB Assay steps 3-5. 15 min per Umut. 2026-
+ 08-10 CANCELLED: postponed to after vacation return (no specific date yet)
+  — one of the planned cell lines died after puromycin selection\; Umut w
+ ill substitute from a previous replicate once back. Do not delete\; regene
+ rate SRB chain (seeding -> treatment -> TCA fixation) once a return date i
+ s picked.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:emsmbiis5h5tbj@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260812T094000
+DTEND;TZID=Europe/Istanbul:20260812T104000
+SUMMARY:qPCR prep
+DESCRIPTION:2026-08-10: moved from Thu 08-13 to Wed 08-12 per Umut — prep
+ are the plate a day early and keep it in the fridge\, so Thursday (qPCR + 
+ Western day) is lighter. Placed after Virus Medium Change (09:00-09:30).\n
+ Active — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:qPCR prep
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-passage-onetime-2026-08-11@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260811T134000
+DTEND;TZID=Europe/Istanbul:20260811T141000
+SUMMARY:CuAdapt cells — passage (one-off\, missed Monday)
+DESCRIPTION:2026-08-10: Monday (08-10) passage did not happen\, so passagin
+ g today alongside copper treatment instead. One-off\, not part of the recu
+ rring Mon/Thu pattern.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:CuAdapt cells — passage (one-off\, missed Monday)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-protein-boil-2026-08-12@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260812T105000
+DTEND;TZID=Europe/Istanbul:20260812T115000
+SUMMARY:Boil protein samples (for Thursday Western)
+DESCRIPTION:2026-08-10: prep for Thursday (08-13) Western run — boil afte
+ r calculating concentrations. Duration defaulted to 1h (not specified).\nA
+ ctive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Boil protein samples (for Thursday Western)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-run-2026-08-13@cagiral-schedule
+DTSTAMP:20260810T205608Z
+SEQUENCE:29773256
+DTSTART;TZID=Europe/Istanbul:20260813T093000
+DTEND;TZID=Europe/Istanbul:20260813T151000
+SUMMARY:Western (run)
+DESCRIPTION:2026-08-10: separate track from the ATF3 qPCR\, protein boiled 
+ the day before (08-12). Placed after the 12:00-14:00 qPCR. Duration defaul
+ ted to 1h (not specified). Needs a booked appointment/reservation — see 
+ workflows.md standing to-do.\nPassive — runs unattended\, does not block
+  time\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

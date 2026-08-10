@@ -1,0 +1,47 @@
+name: Rebuild calendar feed
+
+# Whenever the schedule changes, regenerate schedule.ics so subscribed calendars
+# pick it up on their next refresh. No secrets needed — the built-in token is enough.
+#
+# No infinite loop: this workflow only ever commits schedule.ics, and the paths
+# filter below doesn't include schedule.ics, so its own commit can't retrigger it.
+on:
+  push:
+    branches: [main]
+    paths:
+      - claudeAgent.json
+      - tools/build-ics.mjs
+      - .github/workflows/ics.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ics-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate schedule.ics
+        run: node tools/build-ics.mjs
+
+      - name: Commit if it changed
+        run: |
+          if git diff --quiet -- schedule.ics; then
+            echo "schedule.ics unchanged — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add schedule.ics
+          git commit -m "Rebuild calendar feed [skip ci]"
+          git push

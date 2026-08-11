@@ -228,6 +228,7 @@
 <header>
   <h1>Cagiral Schedule</h1>
   <button id="btnView" title="Switch between week grid and day list">Day</button>
+  <button id="btnProject" title="Plan and track projects">📋 Project</button>
   <button id="btnConnect">Connect</button>
   <button id="btnFeed" title="Calendar subscription link">Feed</button>
   <button id="btnPI" title="Turkish summary for your PI">PI</button>
@@ -437,6 +438,62 @@
     <div class="right">
       <button id="btnPIClose">Close</button>
       <button class="primary" id="btnPICopy">Copy</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ---------- project planning ---------- -->
+<dialog id="dlgProject">
+  <div class="dlg-body">
+    <h2>Plan a Project Phase</h2>
+    <div id="projectState" style="display:none">
+      <div class="field">
+        <label>Project name</label>
+        <select id="projectName" style="width:100%">
+          <option value="">-- Select a project --</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Phase to plan</label>
+        <select id="projectPhase" style="width:100%">
+          <option value="">-- Loading phases... --</option>
+        </select>
+      </div>
+      <div id="projectInfo" class="hint" style="margin-top:12px; display:none"></div>
+      <div id="projectEvents" style="margin-top:12px; display:none">
+        <h3 style="font-size:14px; margin:0 0 8px">Suggested events</h3>
+        <div id="eventsList" style="max-height:40vh; overflow-y:auto; border:1px solid var(--border); border-radius:6px; padding:8px"></div>
+      </div>
+    </div>
+    <div id="projectNew">
+      <div class="hint">
+        <p style="margin-top:0">Describe your goal. The agent will research methods, ask clarifying questions, and break it into phases with timings and verification steps.</p>
+      </div>
+      <div class="field">
+        <label>What do you want to build or validate? (e.g., "GATA6 KO HEK293T cells")</label>
+        <textarea id="projectGoal" placeholder="Be specific: include the cell line, target, or research question" style="height:80px"></textarea>
+      </div>
+      <div class="field">
+        <label>Any constraints? (equipment, timeline, existing materials)</label>
+        <textarea id="projectConstraints" placeholder="Optional: e.g., 'Need to finish by Dec 1', 'No lentiviral facility'" style="height:60px"></textarea>
+      </div>
+      <div id="projectLoading" style="display:none; color:var(--muted); font-size:13px">
+        Agent is researching and planning... (this may take a minute)
+      </div>
+    </div>
+    <div id="projectReview" style="display:none">
+      <div class="hint">
+        <p style="margin-top:0"><b>Review the breakdown below.</b> The agent has researched methods and proposed phases. Edit directly in <code>projects.md</code> if you want changes.</p>
+      </div>
+      <div style="max-height:40vh; overflow-y:auto; border:1px solid var(--border); border-radius:6px; padding:8px; font-size:12px; white-space:pre-wrap; word-break:break-word; font-family:ui-monospace,monospace" id="projectBreakdown"></div>
+    </div>
+  </div>
+  <div class="dlg-actions">
+    <span></span>
+    <div class="right">
+      <button id="btnProjectCancel">Close</button>
+      <button class="primary" id="btnProjectStart" style="display:none">Create &amp; continue</button>
+      <button class="primary" id="btnProjectPlan" style="display:none">Plan this phase</button>
     </div>
   </div>
 </dialog>
@@ -1572,6 +1629,189 @@
   $("btnPICopy").addEventListener("click", async function(){
     try { await navigator.clipboard.writeText($("piText").value); $("piCopyStatus").textContent = "Copied."; }
     catch(e){ $("piText").select(); $("piCopyStatus").textContent = "Selected — copy it."; }
+  });
+
+  // =====================================================================
+  // Project planning — break down research goals into phases and calendar events
+  // =====================================================================
+
+  // Parse projects.md to extract project names and phases
+  async function loadProjects(){
+    try {
+      var url = "https://raw.githubusercontent.com/" + config.owner + "/" + config.repo +
+        "/" + config.branch + "/projects.md";
+      var resp = await fetch(url, {cache: "no-store"});
+      if (!resp.ok) return {};
+      var text = await resp.text();
+      return parseProjectsMarkdown(text);
+    } catch(e){
+      console.warn("Could not load projects.md:", e);
+      return {};
+    }
+  }
+
+  function parseProjectsMarkdown(md){
+    var projects = {};
+    var lines = md.split('\n');
+    var currentProject = null;
+    var phaseNum = 0;
+
+    for (var i = 0; i < lines.length; i++){
+      var line = lines[i];
+      if (line.startsWith('## ') && !line.includes('Template')){
+        currentProject = line.replace('## ', '').trim();
+        projects[currentProject] = { phases: [], goal: '' };
+        phaseNum = 0;
+      } else if (line.startsWith('**Goal**:') && currentProject){
+        projects[currentProject].goal = line.replace('**Goal**:', '').trim();
+      } else if (line.match(/^### Phase \d+/) && currentProject){
+        phaseNum++;
+        var phaseTitle = line.replace('### Phase ', '').trim();
+        var substeps = [];
+        var j = i + 1;
+        while (j < lines.length && !lines[j].match(/^###|^##|^Duration/)){
+          if (lines[j].match(/^\s*-\s+/)){
+            substeps.push(lines[j].replace(/^\s*-\s+/, '').trim());
+          }
+          j++;
+        }
+        projects[currentProject].phases.push({
+          number: phaseNum,
+          title: phaseTitle,
+          substeps: substeps
+        });
+      }
+    }
+    return projects;
+  }
+
+  // Generate calendar events from project phase substeps
+  function generatePhaseEvents(projectName, phaseNum, phase, startDate){
+    var events = [];
+    var baseDate = new Date(startDate);
+
+    phase.substeps.forEach(function(step, idx){
+      var eventDate = new Date(baseDate);
+      eventDate.setDate(eventDate.getDate() + Math.floor(idx / 2)); // ~2 per day
+      var eventDateStr = isoDate(eventDate);
+
+      var startHour = 9 + (idx % 4);
+      var startTime = String(startHour).padStart(2, '0') + ':00';
+      var endHour = startHour + 1;
+      var endTime = String(endHour).padStart(2, '0') + ':00';
+
+      events.push({
+        id: 'proj-' + projectName.toLowerCase().replace(/\s+/g, '-') + '-' + phaseNum + '-' + idx,
+        date: eventDateStr,
+        start: startTime,
+        end: endTime,
+        title: step,
+        category: 'experiment',
+        type: 'active',
+        status: 'pending',
+        group: projectName,
+        project: projectName,
+        phase: phaseNum,
+        notes: 'Phase ' + phaseNum + ': ' + phase.title
+      });
+    });
+
+    return events;
+  }
+
+  var dlgProject = $("dlgProject");
+  var currentProject = null;
+
+  var allProjects = {};
+  var suggestedEvents = [];
+
+  function updateProjectPhases(){
+    var pname = $("projectName").value;
+    if (!pname){ $("projectPhase").innerHTML = "<option>-- Select a phase --</option>"; return; }
+    var project = allProjects[pname];
+    $("projectPhase").innerHTML = "<option value=\"\">-- Select a phase --</option>";
+    project.phases.forEach(function(phase){
+      var opt = document.createElement("option");
+      opt.value = phase.number;
+      opt.textContent = "Phase " + phase.number + ": " + phase.title;
+      $("projectPhase").appendChild(opt);
+    });
+  }
+
+  function updatePhaseEvents(){
+    var pname = $("projectName").value;
+    var phaseNum = parseInt($("projectPhase").value);
+    if (!pname || !phaseNum || !allProjects[pname]){
+      $("projectInfo").style.display = "none";
+      $("projectEvents").style.display = "none";
+      return;
+    }
+
+    var phase = allProjects[pname].phases.find(function(p){ return p.number === phaseNum; });
+    if (!phase) return;
+
+    suggestedEvents = generatePhaseEvents(pname, phaseNum, phase, state.weekStart);
+    var html = "";
+    suggestedEvents.forEach(function(ev){
+      html += "<div style='padding:6px; border-bottom:1px solid var(--border); font-size:12px'>" +
+        "<b>" + escapeHtml(ev.title) + "</b><br>" +
+        escapeHtml(ev.date) + " " + ev.start + "–" + ev.end +
+        "</div>";
+    });
+    $("eventsList").innerHTML = html || "<div style='padding:10px; color:var(--muted)'>No events</div>";
+    $("projectEvents").style.display = "block";
+    $("btnProjectPlan").style.display = "inline-block";
+  }
+
+  $("btnProject").addEventListener("click", async function(){
+    $("btnProject").disabled = true;
+    setStatus("Loading projects…", "saving");
+    allProjects = await loadProjects();
+
+    if (Object.keys(allProjects).length === 0){
+      alert("No projects found in projects.md.\n\nAdd your first project there, then come back.");
+      $("btnProject").disabled = false;
+      dlgProject.close();
+      return;
+    }
+
+    // Show project selector
+    $("projectState").style.display = "block";
+    $("projectNew").style.display = "none";
+    $("projectReview").style.display = "none";
+    $("projectName").innerHTML = "<option value=\"\">-- Select a project --</option>";
+
+    Object.keys(allProjects).forEach(function(pname){
+      var opt = document.createElement("option");
+      opt.value = pname;
+      opt.textContent = pname;
+      $("projectName").appendChild(opt);
+    });
+
+    dlgProject.showModal();
+    setStatus("Ready.", "saved");
+    $("btnProject").disabled = false;
+  });
+
+  $("btnProjectCancel").addEventListener("click", function(){ dlgProject.close(); });
+  $("projectName").addEventListener("change", updateProjectPhases);
+  $("projectPhase").addEventListener("change", updatePhaseEvents);
+
+  $("btnProjectPlan").addEventListener("click", function(){
+    if (suggestedEvents.length === 0){ alert("No events to add."); return; }
+
+    // Add events to calendar
+    suggestedEvents.forEach(function(ev){
+      // Check if event already exists
+      if (!state.events.find(function(e){ return e.id === ev.id; })){
+        state.events.push(ev);
+      }
+    });
+
+    render();
+    scheduleSave();
+    setStatus("Added " + suggestedEvents.length + " event(s).", "saved");
+    dlgProject.close();
   });
 
   // =====================================================================

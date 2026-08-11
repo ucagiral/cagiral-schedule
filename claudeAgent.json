@@ -35,14 +35,14 @@
     },
     {
       "id": "e-transfection",
-      "date": "2026-08-12",
-      "start": "12:45",
-      "end": "13:45",
+      "date": "2026-08-11",
+      "start": "09:30",
+      "end": "10:30",
       "title": "pLentiGuide Plasmid Transfection",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: Carried over from Tue 08-11 per Umut. Slotted into the 2 h wet transfer, which is unattended once running."
+      "status": "done",
+      "notes": "2026-08-11: pLentiGuide transfection — done on 08-11 as originally scheduled. Umut confirmed it was completed, so it was not carried into 08-12."
     },
     {
       "id": "e-harvest-2",
@@ -1531,25 +1531,25 @@
     },
     {
       "id": "e-qpcr-rna-isolation-2026-08-11",
-      "date": "2026-08-12",
-      "start": "13:45",
-      "end": "14:45",
+      "date": "2026-08-11",
+      "start": "10:40",
+      "end": "11:40",
       "title": "RNA isolation (ATF3 rep 3, cells seeded 08-10)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: Carried over from Tue 08-11 per Umut. Also inside the wet transfer window. Cells were seeded 08-10."
+      "status": "done",
+      "notes": "2026-08-11: RNA isolation (ATF3 rep 3) — done on 08-11 as originally scheduled. Umut confirmed it was completed, so it was not carried into 08-12."
     },
     {
       "id": "e-qpcr-cdna-2026-08-11",
-      "date": "2026-08-12",
-      "start": "14:45",
-      "end": "15:45",
+      "date": "2026-08-11",
+      "start": "11:50",
+      "end": "12:50",
       "title": "LunaScript cDNA conversion (ATF3 rep 3)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: Carried over from Tue 08-11 per Umut. Runs straight off the RNA isolation, during the membrane blocking step."
+      "status": "done",
+      "notes": "2026-08-11: LunaScript cDNA conversion (ATF3 rep 3) — done on 08-11, straight off the RNA isolation. Umut confirmed it was completed, so it was not carried into 08-12."
     },
     {
       "id": "e-thaw-hekhuh7-atf3-2026-08-31",
@@ -1631,13 +1631,13 @@
     {
       "id": "emsmbiis5h5tbj",
       "date": "2026-08-12",
-      "start": "15:45",
-      "end": "16:45",
+      "start": "12:45",
+      "end": "13:45",
       "title": "qPCR prep",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-11: Moved again to sit after the cDNA conversion it depends on, during the streptavidin-HRP incubation. Plate is fridged overnight for Thursday's 12:00-14:00 qPCR."
+      "notes": "2026-08-11: moved up into the wet transfer window — the cDNA it depends on was finished on 08-11, so it no longer has to wait until the afternoon. Plate is fridged overnight for Thursday's 12:00-14:00 qPCR."
     },
     {
       "id": "e-cuadapt-passage-onetime-2026-08-11",

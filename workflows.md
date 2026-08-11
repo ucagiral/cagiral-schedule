@@ -88,6 +88,40 @@ Dependency chain, each step feeding the next:
 
 ---
 
+## Colour groups
+
+Related work shares one colour across the week through the event's `group` field, so a whole
+experiment thread reads as a single strand on the grid. The eight in use:
+
+| Group | Colour | Covers |
+|---|---|---|
+| Virus prep | teal | HEK293T seeding, pLentiGuide transfection, virus medium change, harvest |
+| Western — biotin | red | every `Western — …` step plus the protein boil |
+| ATF3 qPCR | amber | RNA isolation, cDNA conversion, qPCR prep, qPCR run |
+| CuAdapt | green | copper treatment, passage, freeze, thaw, medium change |
+| Cloning | violet | bacterial culture, miniprep, plasmids to sequencing |
+| SRB assay | pink | seeding, copper/cisplatin treatment, TCA fixation and wash, pelleting |
+| LNCX/LUCX | indigo | thaw, seed, transduction, hygromycin selection |
+| ATF3 mutants | slate | thaw and medium change for the HEK/Huh7 mutants |
+
+Colours are pinned in `_groups` rather than left to the name hash, because *Cloning* would otherwise
+collide with *CuAdapt* and *SRB assay* with *ATF3 qPCR*. Any of them can be changed in the app's
+colour dropdown. Passive events keep their pale treatment, tinted with the group's colour.
+
+Meetings, Zoom calls and vacation stay ungrouped and keep their category colours.
+
+## Estimating durations
+
+**Every event that gets created or re-timed gets a web-searched duration — every time, no
+exceptions, including procedures that have been looked up before.** Findings land in
+[`protocols/durations.md`](protocols/durations.md) with their sources, so the table grows into a
+reference; it is a record of what was found, not a substitute for looking again.
+
+- Anything Umut has stated directly beats a published range, and gets recorded as our value.
+- The split between hands-on and unattended time matters as much as the total, since it decides
+  what else can be scheduled on top.
+- Events already on the calendar are left alone — this applies to new and re-timed events only.
+
 ## Scheduling conventions
 
 - `active` = has to be attended, blocks the day. `passive` = runs unattended, does not block.

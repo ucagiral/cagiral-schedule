@@ -28,9 +28,9 @@ DTEND;TZID=Europe/Istanbul:20260809T230000
 SUMMARY:✓ Bacterial culture — incubating overnight
 DESCRIPTION:Placeholder start time (actual start unconfirmed) — continues
   overnight past this grid's 23:00 window\, ready for miniprep tomorrow mor
- ning.\nPassive — runs unattended\, does not block time\nCategory: experi
- ment\nMarked done.
-CATEGORIES:experiment
+ ning.\nPassive — runs unattended\, does not block time\nGroup: Cloning\n
+ Category: experiment\nMarked done.
+CATEGORIES:Cloning,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -42,9 +42,9 @@ DTSTART;TZID=Europe/Istanbul:20260810T091500
 DTEND;TZID=Europe/Istanbul:20260810T104500
 SUMMARY:✓ Miniprep
 DESCRIPTION:From overnight bacterial culture. Duration is an estimate — a
- djust to actual sample count.\nActive — needs you there\nCategory: exper
- iment\nMarked done.
-CATEGORIES:experiment
+ djust to actual sample count.\nActive — needs you there\nGroup: Cloning\
+ nCategory: experiment\nMarked done.
+CATEGORIES:Cloning,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -56,9 +56,9 @@ DTSTART;TZID=Europe/Istanbul:20260810T110000
 DTEND;TZID=Europe/Istanbul:20260810T113000
 SUMMARY:✓ Seed HEK293T cells
 DESCRIPTION:Target ~70-80% confluency by tomorrow's transfection (protocols
- .md\, Lentivirus Production).\nActive — needs you there\nCategory: exper
- iment\nMarked done.
-CATEGORIES:experiment
+ .md\, Lentivirus Production).\nActive — needs you there\nGroup: Virus pr
+ ep\nCategory: experiment\nMarked done.
+CATEGORIES:Virus prep,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -71,8 +71,9 @@ DTEND;TZID=Europe/Istanbul:20260811T103000
 SUMMARY:✓ pLentiGuide Plasmid Transfection
 DESCRIPTION:2026-08-11: pLentiGuide transfection — done on 08-11 as origi
  nally scheduled. Umut confirmed it was completed\, so it was not carried i
- nto 08-12.\nActive — needs you there\nCategory: experiment\nMarked done.
-CATEGORIES:experiment
+ nto 08-12.\nActive — needs you there\nGroup: Virus prep\nCategory: exper
+ iment\nMarked done.
+CATEGORIES:Virus prep,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -84,8 +85,8 @@ DTSTART;TZID=Europe/Istanbul:20260814T140000
 DTEND;TZID=Europe/Istanbul:20260814T150000
 SUMMARY:Virus Medium Harvest
 DESCRIPTION:Scheduled after the 9:30-12:30 Friday meeting\, not before it.\
- nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ nActive — needs you there\nGroup: Virus prep\nCategory: experiment
+CATEGORIES:Virus prep,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -302,8 +303,9 @@ DESCRIPTION:Not done on the day (Monday 08-10). Carried over to Tuesday 08-
  ch-up\, not a change to the recurring Mon/Thu pattern. Cancelled here rath
  er than deleted so the skip stays on the record. Had been moved to 08-11 1
  5:30\, which duplicated the catch-up entry\; restored to its own date 2026
- -08-10 per Umut.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ -08-10 per Umut.\nActive — needs you there\nGroup: CuAdapt\nCategory: ex
+ periment
+CATEGORIES:CuAdapt,experiment
 STATUS:CANCELLED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -315,8 +317,9 @@ DTSTART;TZID=Europe/Istanbul:20260812T101500
 DTEND;TZID=Europe/Istanbul:20260812T104500
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:2026-08-11: Carried over from 08-11. Done during the SDS-PAGE r
- un\, as requested.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ un\, as requested.\nActive — needs you there\nGroup: CuAdapt\nCategory: 
+ experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -333,8 +336,8 @@ DTSTART;TZID=Europe/Istanbul:20260813T090000
 DTEND;TZID=Europe/Istanbul:20260813T093000
 SUMMARY:CuAdapt cells — FREEZE
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -351,8 +354,9 @@ DTSTART;TZID=Europe/Istanbul:20260901T090000
 DTEND;TZID=Europe/Istanbul:20260901T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -369,8 +373,8 @@ DTSTART;TZID=Europe/Istanbul:20260903T090000
 DTEND;TZID=Europe/Istanbul:20260903T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -387,8 +391,9 @@ DTSTART;TZID=Europe/Istanbul:20260904T153000
 DTEND;TZID=Europe/Istanbul:20260904T160000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -405,8 +410,8 @@ DTSTART;TZID=Europe/Istanbul:20260907T090000
 DTEND;TZID=Europe/Istanbul:20260907T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -423,8 +428,9 @@ DTSTART;TZID=Europe/Istanbul:20260908T090000
 DTEND;TZID=Europe/Istanbul:20260908T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -441,8 +447,8 @@ DTSTART;TZID=Europe/Istanbul:20260910T090000
 DTEND;TZID=Europe/Istanbul:20260910T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -459,8 +465,9 @@ DTSTART;TZID=Europe/Istanbul:20260911T124000
 DTEND;TZID=Europe/Istanbul:20260911T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -477,8 +484,8 @@ DTSTART;TZID=Europe/Istanbul:20260914T090000
 DTEND;TZID=Europe/Istanbul:20260914T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -495,8 +502,9 @@ DTSTART;TZID=Europe/Istanbul:20260915T090000
 DTEND;TZID=Europe/Istanbul:20260915T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -513,8 +521,8 @@ DTSTART;TZID=Europe/Istanbul:20260917T090000
 DTEND;TZID=Europe/Istanbul:20260917T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -531,8 +539,9 @@ DTSTART;TZID=Europe/Istanbul:20260918T124000
 DTEND;TZID=Europe/Istanbul:20260918T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -549,8 +558,8 @@ DTSTART;TZID=Europe/Istanbul:20260921T090000
 DTEND;TZID=Europe/Istanbul:20260921T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -567,8 +576,9 @@ DTSTART;TZID=Europe/Istanbul:20260922T090000
 DTEND;TZID=Europe/Istanbul:20260922T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -585,8 +595,8 @@ DTSTART;TZID=Europe/Istanbul:20260924T090000
 DTEND;TZID=Europe/Istanbul:20260924T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -603,8 +613,9 @@ DTSTART;TZID=Europe/Istanbul:20260925T124000
 DTEND;TZID=Europe/Istanbul:20260925T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -621,8 +632,8 @@ DTSTART;TZID=Europe/Istanbul:20260928T090000
 DTEND;TZID=Europe/Istanbul:20260928T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -639,8 +650,9 @@ DTSTART;TZID=Europe/Istanbul:20260929T090000
 DTEND;TZID=Europe/Istanbul:20260929T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -657,8 +669,8 @@ DTSTART;TZID=Europe/Istanbul:20261001T090000
 DTEND;TZID=Europe/Istanbul:20261001T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -675,8 +687,9 @@ DTSTART;TZID=Europe/Istanbul:20261002T124000
 DTEND;TZID=Europe/Istanbul:20261002T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -693,8 +706,8 @@ DTSTART;TZID=Europe/Istanbul:20261005T090000
 DTEND;TZID=Europe/Istanbul:20261005T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -711,8 +724,9 @@ DTSTART;TZID=Europe/Istanbul:20261006T090000
 DTEND;TZID=Europe/Istanbul:20261006T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -729,8 +743,8 @@ DTSTART;TZID=Europe/Istanbul:20261008T090000
 DTEND;TZID=Europe/Istanbul:20261008T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -747,8 +761,9 @@ DTSTART;TZID=Europe/Istanbul:20261009T124000
 DTEND;TZID=Europe/Istanbul:20261009T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -765,8 +780,8 @@ DTSTART;TZID=Europe/Istanbul:20261012T090000
 DTEND;TZID=Europe/Istanbul:20261012T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -783,8 +798,9 @@ DTSTART;TZID=Europe/Istanbul:20261013T090000
 DTEND;TZID=Europe/Istanbul:20261013T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -801,8 +817,8 @@ DTSTART;TZID=Europe/Istanbul:20261015T090000
 DTEND;TZID=Europe/Istanbul:20261015T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -819,8 +835,9 @@ DTSTART;TZID=Europe/Istanbul:20261016T124000
 DTEND;TZID=Europe/Istanbul:20261016T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -837,8 +854,8 @@ DTSTART;TZID=Europe/Istanbul:20261019T090000
 DTEND;TZID=Europe/Istanbul:20261019T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -855,8 +872,9 @@ DTSTART;TZID=Europe/Istanbul:20261020T090000
 DTEND;TZID=Europe/Istanbul:20261020T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -873,8 +891,8 @@ DTSTART;TZID=Europe/Istanbul:20261022T090000
 DTEND;TZID=Europe/Istanbul:20261022T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -891,8 +909,9 @@ DTSTART;TZID=Europe/Istanbul:20261023T124000
 DTEND;TZID=Europe/Istanbul:20261023T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -909,8 +928,8 @@ DTSTART;TZID=Europe/Istanbul:20261026T090000
 DTEND;TZID=Europe/Istanbul:20261026T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -927,8 +946,9 @@ DTSTART;TZID=Europe/Istanbul:20261027T090000
 DTEND;TZID=Europe/Istanbul:20261027T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -945,8 +965,8 @@ DTSTART;TZID=Europe/Istanbul:20261029T090000
 DTEND;TZID=Europe/Istanbul:20261029T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -963,8 +983,9 @@ DTSTART;TZID=Europe/Istanbul:20261030T124000
 DTEND;TZID=Europe/Istanbul:20261030T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -981,8 +1002,8 @@ DTSTART;TZID=Europe/Istanbul:20261102T090000
 DTEND;TZID=Europe/Istanbul:20261102T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -999,8 +1020,9 @@ DTSTART;TZID=Europe/Istanbul:20261103T090000
 DTEND;TZID=Europe/Istanbul:20261103T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1017,8 +1039,8 @@ DTSTART;TZID=Europe/Istanbul:20261105T090000
 DTEND;TZID=Europe/Istanbul:20261105T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1035,8 +1057,9 @@ DTSTART;TZID=Europe/Istanbul:20261106T124000
 DTEND;TZID=Europe/Istanbul:20261106T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1053,8 +1076,8 @@ DTSTART;TZID=Europe/Istanbul:20261109T090000
 DTEND;TZID=Europe/Istanbul:20261109T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1071,8 +1094,9 @@ DTSTART;TZID=Europe/Istanbul:20261110T090000
 DTEND;TZID=Europe/Istanbul:20261110T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1089,8 +1113,8 @@ DTSTART;TZID=Europe/Istanbul:20261112T090000
 DTEND;TZID=Europe/Istanbul:20261112T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1107,8 +1131,9 @@ DTSTART;TZID=Europe/Istanbul:20261113T124000
 DTEND;TZID=Europe/Istanbul:20261113T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1125,8 +1150,8 @@ DTSTART;TZID=Europe/Istanbul:20261116T090000
 DTEND;TZID=Europe/Istanbul:20261116T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1143,8 +1168,9 @@ DTSTART;TZID=Europe/Istanbul:20261117T090000
 DTEND;TZID=Europe/Istanbul:20261117T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1161,8 +1187,8 @@ DTSTART;TZID=Europe/Istanbul:20261119T090000
 DTEND;TZID=Europe/Istanbul:20261119T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1179,8 +1205,9 @@ DTSTART;TZID=Europe/Istanbul:20261120T124000
 DTEND;TZID=Europe/Istanbul:20261120T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1197,8 +1224,8 @@ DTSTART;TZID=Europe/Istanbul:20261123T090000
 DTEND;TZID=Europe/Istanbul:20261123T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1215,8 +1242,9 @@ DTSTART;TZID=Europe/Istanbul:20261124T090000
 DTEND;TZID=Europe/Istanbul:20261124T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1233,8 +1261,8 @@ DTSTART;TZID=Europe/Istanbul:20261126T090000
 DTEND;TZID=Europe/Istanbul:20261126T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1251,8 +1279,9 @@ DTSTART;TZID=Europe/Istanbul:20261127T124000
 DTEND;TZID=Europe/Istanbul:20261127T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1269,8 +1298,8 @@ DTSTART;TZID=Europe/Istanbul:20261130T090000
 DTEND;TZID=Europe/Istanbul:20261130T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1287,8 +1316,9 @@ DTSTART;TZID=Europe/Istanbul:20261201T090000
 DTEND;TZID=Europe/Istanbul:20261201T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1305,8 +1335,8 @@ DTSTART;TZID=Europe/Istanbul:20261203T090000
 DTEND;TZID=Europe/Istanbul:20261203T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1323,8 +1353,9 @@ DTSTART;TZID=Europe/Istanbul:20261204T124000
 DTEND;TZID=Europe/Istanbul:20261204T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1341,8 +1372,8 @@ DTSTART;TZID=Europe/Istanbul:20261207T090000
 DTEND;TZID=Europe/Istanbul:20261207T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1359,8 +1390,9 @@ DTSTART;TZID=Europe/Istanbul:20261208T090000
 DTEND;TZID=Europe/Istanbul:20261208T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1377,8 +1409,8 @@ DTSTART;TZID=Europe/Istanbul:20261210T090000
 DTEND;TZID=Europe/Istanbul:20261210T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1395,8 +1427,9 @@ DTSTART;TZID=Europe/Istanbul:20261211T124000
 DTEND;TZID=Europe/Istanbul:20261211T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1413,8 +1446,8 @@ DTSTART;TZID=Europe/Istanbul:20261214T090000
 DTEND;TZID=Europe/Istanbul:20261214T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1431,8 +1464,9 @@ DTSTART;TZID=Europe/Istanbul:20261215T090000
 DTEND;TZID=Europe/Istanbul:20261215T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1449,8 +1483,8 @@ DTSTART;TZID=Europe/Istanbul:20261217T090000
 DTEND;TZID=Europe/Istanbul:20261217T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1467,8 +1501,9 @@ DTSTART;TZID=Europe/Istanbul:20261218T124000
 DTEND;TZID=Europe/Istanbul:20261218T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1485,8 +1520,8 @@ DTSTART;TZID=Europe/Istanbul:20261221T090000
 DTEND;TZID=Europe/Istanbul:20261221T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1503,8 +1538,9 @@ DTSTART;TZID=Europe/Istanbul:20261222T090000
 DTEND;TZID=Europe/Istanbul:20261222T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1521,8 +1557,8 @@ DTSTART;TZID=Europe/Istanbul:20261224T090000
 DTEND;TZID=Europe/Istanbul:20261224T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1539,8 +1575,9 @@ DTSTART;TZID=Europe/Istanbul:20261225T124000
 DTEND;TZID=Europe/Istanbul:20261225T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1557,8 +1594,8 @@ DTSTART;TZID=Europe/Istanbul:20261228T090000
 DTEND;TZID=Europe/Istanbul:20261228T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1575,8 +1612,9 @@ DTSTART;TZID=Europe/Istanbul:20261229T090000
 DTEND;TZID=Europe/Istanbul:20261229T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
+ t
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1593,8 +1631,8 @@ DTSTART;TZID=Europe/Istanbul:20261231T090000
 DTEND;TZID=Europe/Istanbul:20261231T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1615,8 +1653,8 @@ DESCRIPTION:Pellet for RNA\nPellet for Protein\nFreeze 2026-08-10 CANCELLED
   planned cell lines died after puromycin selection\; Umut will substitute 
  from a previous replicate once back. Do not delete\; regenerate SRB chain 
  (seeding -> treatment -> TCA fixation) once a return date is picked.\nActi
- ve — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ ve — needs you there\nGroup: SRB assay\nCategory: experiment
+CATEGORIES:SRB assay,experiment
 STATUS:CANCELLED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -1636,8 +1674,8 @@ DESCRIPTION:SRB assay drug treatment\, 24h after seeding. Placed after the
  died after puromycin selection\; Umut will substitute from a previous repl
  icate once back. Do not delete\; regenerate SRB chain (seeding -> treatmen
  t -> TCA fixation) once a return date is picked.\nActive — needs you the
- re\nCategory: experiment
-CATEGORIES:experiment
+ re\nGroup: SRB assay\nCategory: experiment
+CATEGORIES:SRB assay,experiment
 STATUS:CANCELLED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -1657,8 +1695,9 @@ DESCRIPTION:SRB assay fixation\, add-TCA step only (protocols.md SRB Assay
  ic date yet) — one of the planned cell lines died after puromycin select
  ion\; Umut will substitute from a previous replicate once back. Do not del
  ete\; regenerate SRB chain (seeding -> treatment -> TCA fixation) once a r
- eturn date is picked.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ eturn date is picked.\nActive — needs you there\nGroup: SRB assay\nCateg
+ ory: experiment
+CATEGORIES:SRB assay,experiment
 STATUS:CANCELLED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -1676,8 +1715,8 @@ DESCRIPTION:3h passive incubation following the active TCA add/wash step. D
  selection\; Umut will substitute from a previous replicate once back. Do n
  ot delete\; regenerate SRB chain (seeding -> treatment -> TCA fixation) on
  ce a return date is picked.\nPassive — runs unattended\, does not block 
- time\nCategory: experiment
-CATEGORIES:experiment
+ time\nGroup: SRB assay\nCategory: experiment
+CATEGORIES:SRB assay,experiment
 STATUS:CANCELLED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2411,8 +2450,9 @@ DTSTART;TZID=Europe/Istanbul:20260812T094500
 DTEND;TZID=Europe/Istanbul:20260812T101500
 SUMMARY:Virus Medium Change
 DESCRIPTION:2026-08-11: Add 6.5 mL medium per vessel. Done during the SDS-P
- AGE run.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ AGE run.\nActive — needs you there\nGroup: Virus prep\nCategory: experim
+ ent
+CATEGORIES:Virus prep,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2428,8 +2468,9 @@ SEQUENCE:29774273
 DTSTART;TZID=Europe/Istanbul:20260813T120000
 DTEND;TZID=Europe/Istanbul:20260813T140000
 SUMMARY:qPCR ATF3 rep 3
-DESCRIPTION:Active — needs you there\nCategory: experiment
-CATEGORIES:experiment
+DESCRIPTION:Active — needs you there\nGroup: ATF3 qPCR\nCategory: experim
+ ent
+CATEGORIES:ATF3 qPCR,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2445,8 +2486,9 @@ SEQUENCE:29774273
 DTSTART;TZID=Europe/Istanbul:20260831T100000
 DTEND;TZID=Europe/Istanbul:20260831T110000
 SUMMARY:LNCX and LUCX thaw
-DESCRIPTION:Active — needs you there\nCategory: experiment
-CATEGORIES:experiment
+DESCRIPTION:Active — needs you there\nGroup: LNCX/LUCX\nCategory: experim
+ ent
+CATEGORIES:LNCX/LUCX,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2464,8 +2506,8 @@ DTEND;TZID=Europe/Istanbul:20260902T110000
 SUMMARY:Seed LNCX and LUCX
 DESCRIPTION:Seeding density: 100k per well (corrected from initial 100-150k
   range\, 2026-08-10). Day 2 after thaw ("the other day" per thaw-cell rule
- ).\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ ).\nActive — needs you there\nGroup: LNCX/LUCX\nCategory: experiment
+CATEGORIES:LNCX/LUCX,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2486,8 +2528,8 @@ DESCRIPTION:Renamed from "medium change" (2026-08-10) — this is "next day
   after seeding\, with viruses frozen before vacation. Day 1 of the 6-day t
  ransduction+hygromycin-selection window (2026-09-03 to 2026-09-08)\, which
   ends on a Tuesday (not Fri/Sat/Sun) per Umut's constraint.\nActive — ne
- eds you there\nCategory: experiment
-CATEGORIES:experiment
+ eds you there\nGroup: LNCX/LUCX\nCategory: experiment
+CATEGORIES:LNCX/LUCX,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2506,8 +2548,8 @@ SUMMARY:LNCX and LUCX Hygromycin
 DESCRIPTION:Day 2 of the 6-day transduction+selection window (2026-09-03 tr
  ansduction through 2026-09-08). Selection window end (2026-09-08) is a Tue
  sday\, satisfying "shouldn't end on a Friday or weekend."\nActive — need
- s you there\nCategory: experiment
-CATEGORIES:experiment
+ s you there\nGroup: LNCX/LUCX\nCategory: experiment
+CATEGORIES:LNCX/LUCX,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2527,8 +2569,9 @@ DESCRIPTION:2026-08-10: this replaced today's SRB seeding — Umut pelleted
   and froze the cells he was going to seed for SRB (rather than seeding)\, 
  since the SRB experiment itself is postponed to after vacation. Not a base
  line-from-plate pellet\; it is the preservation step for the postponed bat
- ch.\nActive — needs you there\nCategory: experiment\nMarked done.
-CATEGORIES:experiment
+ ch.\nActive — needs you there\nGroup: SRB assay\nCategory: experiment\nM
+ arked done.
+CATEGORIES:SRB assay,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2541,9 +2584,9 @@ DTEND;TZID=Europe/Istanbul:20260811T114000
 SUMMARY:✓ RNA isolation (ATF3 rep 3\, cells seeded 08-10)
 DESCRIPTION:2026-08-11: RNA isolation (ATF3 rep 3) — done on 08-11 as ori
  ginally scheduled. Umut confirmed it was completed\, so it was not carried
-  into 08-12.\nActive — needs you there\nCategory: experiment\nMarked don
- e.
-CATEGORIES:experiment
+  into 08-12.\nActive — needs you there\nGroup: ATF3 qPCR\nCategory: expe
+ riment\nMarked done.
+CATEGORIES:ATF3 qPCR,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2556,9 +2599,9 @@ DTEND;TZID=Europe/Istanbul:20260811T125000
 SUMMARY:✓ LunaScript cDNA conversion (ATF3 rep 3)
 DESCRIPTION:2026-08-11: LunaScript cDNA conversion (ATF3 rep 3) — done on
   08-11\, straight off the RNA isolation. Umut confirmed it was completed\,
-  so it was not carried into 08-12.\nActive — needs you there\nCategory: 
- experiment\nMarked done.
-CATEGORIES:experiment
+  so it was not carried into 08-12.\nActive — needs you there\nGroup: ATF
+ 3 qPCR\nCategory: experiment\nMarked done.
+CATEGORIES:ATF3 qPCR,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2571,8 +2614,8 @@ DTEND;TZID=Europe/Istanbul:20260831T121000
 SUMMARY:Thaw cells (Hek and Huh7 ATF3 mutants)
 DESCRIPTION:From -80C. No experiment same day (thaw-cell rule). Mandatory m
  edium change next day (2026-09-01). Duration defaulted to 1h.\nActive — 
- needs you there\nCategory: experiment
-CATEGORIES:experiment
+ needs you there\nGroup: ATF3 mutants\nCategory: experiment
+CATEGORIES:ATF3 mutants,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2591,8 +2634,8 @@ SUMMARY:Thaw cells (CuAdapts)
 DESCRIPTION:From -80C. No experiment same day (thaw-cell rule). Mandatory m
  edium change next day (2026-09-01). Duration defaulted to 1h. Separate fro
  m the ongoing recurring CuAdapt passage/copper-feeding routine.\nActive 
- — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ — needs you there\nGroup: CuAdapt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2609,9 +2652,9 @@ DTSTART;TZID=Europe/Istanbul:20260901T094000
 DTEND;TZID=Europe/Istanbul:20260901T104000
 SUMMARY:Medium change (Hek and Huh7 ATF3 mutants)
 DESCRIPTION:Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell 
- rule). Duration defaulted to 1h.\nActive — needs you there\nCategory: ex
- periment
-CATEGORIES:experiment
+ rule). Duration defaulted to 1h.\nActive — needs you there\nGroup: ATF3 
+ mutants\nCategory: experiment
+CATEGORIES:ATF3 mutants,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2628,9 +2671,9 @@ DTSTART;TZID=Europe/Istanbul:20260901T105000
 DTEND;TZID=Europe/Istanbul:20260901T115000
 SUMMARY:Medium change (CuAdapts\, newly thawed)
 DESCRIPTION:Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell 
- rule). Duration defaulted to 1h.\nActive — needs you there\nCategory: ex
- periment
-CATEGORIES:experiment
+ rule). Duration defaulted to 1h.\nActive — needs you there\nGroup: CuAda
+ pt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2649,8 +2692,8 @@ SUMMARY:LNCX and LUCX medium change (post-thaw recovery)
 DESCRIPTION:Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell 
  rule) — this is the recovery-flask medium change\, separate from the 202
  6-09-02 seeding into assay wells at 100k/well. Duration defaulted to 1h.\n
- Active — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ Active — needs you there\nGroup: LNCX/LUCX\nCategory: experiment
+CATEGORIES:LNCX/LUCX,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2669,8 +2712,8 @@ SUMMARY:LNCX and LUCX hygromycin selection — day 6 check
 DESCRIPTION:End of the 6-day transduction+selection window (2026-09-03 - 20
  26-09-08). Falls on a Tuesday\, satisfying the no-Friday/weekend-end const
  raint. Duration is a short checkpoint\, not a full protocol step.\nActive 
- — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ — needs you there\nGroup: LNCX/LUCX\nCategory: experiment
+CATEGORIES:LNCX/LUCX,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2693,8 +2736,9 @@ DESCRIPTION:2026-08-10 correction: previously missing — TCA fixation need
   — one of the planned cell lines died after puromycin selection\; Umut w
  ill substitute from a previous replicate once back. Do not delete\; regene
  rate SRB chain (seeding -> treatment -> TCA fixation) once a return date i
- s picked.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ s picked.\nActive — needs you there\nGroup: SRB assay\nCategory: experim
+ ent
+CATEGORIES:SRB assay,experiment
 STATUS:CANCELLED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2706,9 +2750,9 @@ DTSTART;TZID=Europe/Istanbul:20260812T113000
 DTEND;TZID=Europe/Istanbul:20260812T123000
 SUMMARY:qPCR prep
 DESCRIPTION:2026-08-11: Sits inside the 2 h wet transfer. Plate is fridged 
- overnight for the 08-13 qPCR.\nActive — needs you there\nCategory: exper
- iment
-CATEGORIES:experiment
+ overnight for the 08-13 qPCR.\nActive — needs you there\nGroup: ATF3 qPC
+ R\nCategory: experiment
+CATEGORIES:ATF3 qPCR,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2728,8 +2772,8 @@ DESCRIPTION:One-off catch-up for the passage skipped on Monday 08-10. Place
  d after the copper treatment (ends 13:30) with the required 10-min gap. Do
  es not affect the recurring Mon/Thu passage schedule. 2026-08-11: marked d
  one by Umut from the app — not carried into 08-12.\nActive — needs you
-  there\nCategory: experiment\nMarked done.
-CATEGORIES:experiment
+  there\nGroup: CuAdapt\nCategory: experiment\nMarked done.
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2742,8 +2786,9 @@ DTEND;TZID=Europe/Istanbul:20260812T091500
 SUMMARY:Boil protein samples — setup
 DESCRIPTION:2026-08-11: Hands-on half of the 30 min boil: calculate concent
  rations\, add loading buffer\, set the heat block. The 15 min at 95 C that
-  follows is unattended.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+  follows is unattended.\nActive — needs you there\nGroup: Western — bi
+ otin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2760,9 +2805,9 @@ DTSTART;TZID=Europe/Istanbul:20260812T091500
 DTEND;TZID=Europe/Istanbul:20260812T093000
 SUMMARY:Send plasmids to sequencing
 DESCRIPTION:2026-08-11: Fits exactly into the 15 unattended minutes while t
- he samples are at 95 C\, per Umut.\nActive — needs you there\nCategory: 
- experiment
-CATEGORIES:experiment
+ he samples are at 95 C\, per Umut.\nActive — needs you there\nGroup: Clo
+ ning\nCategory: experiment
+CATEGORIES:Cloning,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2780,8 +2825,8 @@ DTEND;TZID=Europe/Istanbul:20260812T093000
 SUMMARY:Western — samples at 95 °C
 DESCRIPTION:2026-08-11: Unattended 15 min of the boil. Cool on ice afterwar
  ds. Plasmids go to sequencing in this window.\nPassive — runs unattended
- \, does not block time\nCategory: experiment
-CATEGORIES:experiment
+ \, does not block time\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2794,8 +2839,8 @@ DTEND;TZID=Europe/Istanbul:20260812T094500
 SUMMARY:Western — load gel
 DESCRIPTION:2026-08-11: Last hands-on step before the run\; everything afte
  r this is unattended until the transfer is assembled.\nActive — needs yo
- u there\nCategory: experiment
-CATEGORIES:experiment
+ u there\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2814,8 +2859,9 @@ SUMMARY:Western — SDS-PAGE run
 DESCRIPTION:2026-08-11: A standard run\, ~1.5 h. Real endpoint is the dye f
  ront reaching the bottom of the gel\, so treat the clock as a guide. Virus
   medium change and CuAdapt copper happen in this window.\nPassive — runs
-  unattended\, does not block time\nCategory: experiment
-CATEGORIES:experiment
+  unattended\, does not block time\nGroup: Western — biotin\nCategory: ex
+ periment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2827,8 +2873,9 @@ DTSTART;TZID=Europe/Istanbul:20260812T111500
 DTEND;TZID=Europe/Istanbul:20260812T113000
 SUMMARY:Western — assemble wet transfer
 DESCRIPTION:2026-08-11: Build the sandwich\, cold buffer and ice pack\, sta
- rt the transfer.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ rt the transfer.\nActive — needs you there\nGroup: Western — biotin\nC
+ ategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2846,8 +2893,8 @@ DTEND;TZID=Europe/Istanbul:20260812T133000
 SUMMARY:Western — wet transfer (2 h)
 DESCRIPTION:2026-08-11: Unattended. qPCR prep runs in this window. No antib
  ody step can start until this finishes.\nPassive — runs unattended\, doe
- s not block time\nCategory: experiment
-CATEGORIES:experiment
+ s not block time\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2860,8 +2907,9 @@ DTEND;TZID=Europe/Istanbul:20260812T143000
 SUMMARY:Western — block (BSA\, not milk)
 DESCRIPTION:2026-08-11: 1 h at room temperature. BSA/TBS-T — milk carries
   endogenous biotin and would compete with the target for streptavidin.\nPa
- ssive — runs unattended\, does not block time\nCategory: experiment
-CATEGORIES:experiment
+ ssive — runs unattended\, does not block time\nGroup: Western — biotin
+ \nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2874,8 +2922,8 @@ DTEND;TZID=Europe/Istanbul:20260812T153000
 SUMMARY:Western — streptavidin-HRP
 DESCRIPTION:2026-08-11: 1 h at room temperature. Conjugated\, so there is n
  o secondary antibody step today.\nPassive — runs unattended\, does not b
- lock time\nCategory: experiment
-CATEGORIES:experiment
+ lock time\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2886,9 +2934,9 @@ SEQUENCE:29774273
 DTSTART;TZID=Europe/Istanbul:20260812T153000
 DTEND;TZID=Europe/Istanbul:20260812T160000
 SUMMARY:Western — washes
-DESCRIPTION:2026-08-11: 3 x 10 min TBS-T.\nActive — needs you there\nCate
- gory: experiment
-CATEGORIES:experiment
+DESCRIPTION:2026-08-11: 3 x 10 min TBS-T.\nActive — needs you there\nGrou
+ p: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2906,8 +2954,8 @@ DTEND;TZID=Europe/Istanbul:20260812T162000
 SUMMARY:Western — ECL + image (biotin)
 DESCRIPTION:2026-08-11: Mix the substrate\, 1-5 min on the membrane\, image
   straight away — the signal fades within the hour.\nActive — needs you
-  there\nCategory: experiment
-CATEGORIES:experiment
+  there\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2924,8 +2972,9 @@ DTSTART;TZID=Europe/Istanbul:20260812T162000
 DTEND;TZID=Europe/Istanbul:20260812T163000
 SUMMARY:Western — membrane to 4 °C
 DESCRIPTION:2026-08-11: Store in TBS-T at 4 C overnight\; stripping happens
-  tomorrow morning.\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+  tomorrow morning.\nActive — needs you there\nGroup: Western — biotin\
+ nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2943,8 +2992,8 @@ DTEND;TZID=Europe/Istanbul:20260813T095000
 SUMMARY:Western — strip (20 min)
 DESCRIPTION:2026-08-11: Mild stripping buffer\, 20 min\, swapping in fresh 
  buffer at the 10 min mark. Rinse well before blocking.\nActive — needs y
- ou there\nCategory: experiment
-CATEGORIES:experiment
+ ou there\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2961,8 +3010,8 @@ DTSTART;TZID=Europe/Istanbul:20260813T095000
 DTEND;TZID=Europe/Istanbul:20260813T105000
 SUMMARY:Western — block
 DESCRIPTION:2026-08-11: 1 h.\nPassive — runs unattended\, does not block 
- time\nCategory: experiment
-CATEGORIES:experiment
+ time\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2975,9 +3024,9 @@ DTEND;TZID=Europe/Istanbul:20260813T115000
 SUMMARY:Western — primary antibody
 DESCRIPTION:2026-08-11: 1 h. Pour off and give a quick rinse at the end —
   the membrane then rests in TBS-T through the qPCR and the full washes pic
- k up at 14:00.\nPassive — runs unattended\, does not block time\nCategor
- y: experiment
-CATEGORIES:experiment
+ k up at 14:00.\nPassive — runs unattended\, does not block time\nGroup: 
+ Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -2989,9 +3038,9 @@ DTSTART;TZID=Europe/Istanbul:20260813T140000
 DTEND;TZID=Europe/Istanbul:20260813T141500
 SUMMARY:Western — washes (after primary)
 DESCRIPTION:2026-08-11: 3 x 5 min TBS-T. Held until after the qPCR so no tw
- o hands-on steps collide.\nActive — needs you there\nCategory: experimen
- t
-CATEGORIES:experiment
+ o hands-on steps collide.\nActive — needs you there\nGroup: Western — 
+ biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -3008,8 +3057,8 @@ DTSTART;TZID=Europe/Istanbul:20260813T141500
 DTEND;TZID=Europe/Istanbul:20260813T151500
 SUMMARY:Western — secondary antibody
 DESCRIPTION:2026-08-11: 1 h at room temperature.\nPassive — runs unattend
- ed\, does not block time\nCategory: experiment
-CATEGORIES:experiment
+ ed\, does not block time\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -3020,9 +3069,9 @@ SEQUENCE:29774273
 DTSTART;TZID=Europe/Istanbul:20260813T151500
 DTEND;TZID=Europe/Istanbul:20260813T153000
 SUMMARY:Western — washes (after secondary)
-DESCRIPTION:2026-08-11: 3 x 5 min TBS-T.\nActive — needs you there\nCateg
- ory: experiment
-CATEGORIES:experiment
+DESCRIPTION:2026-08-11: 3 x 5 min TBS-T.\nActive — needs you there\nGroup
+ : Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -3039,8 +3088,9 @@ DTSTART;TZID=Europe/Istanbul:20260813T153000
 DTEND;TZID=Europe/Istanbul:20260813T155000
 SUMMARY:Western — ECL + image (2nd target)
 DESCRIPTION:2026-08-11: Second target. Closes out the blot started on 08-12
- .\nActive — needs you there\nCategory: experiment
-CATEGORIES:experiment
+ .\nActive — needs you there\nGroup: Western — biotin\nCategory: experi
+ ment
+CATEGORIES:Western — biotin,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM

@@ -1758,62 +1758,95 @@
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-11: First target: biotin."
+      "notes": "2026-08-11: first target (biotin), streptavidin-HRP. Last hands-on step of 08-12 — the membrane goes to 4 C straight after."
     },
     {
-      "id": "e-western-strip-2026-08-12",
+      "id": "e-western-store-2026-08-12",
       "date": "2026-08-12",
       "start": "17:35",
-      "end": "18:05",
-      "title": "Western — strip",
+      "end": "17:45",
+      "title": "Western — membrane to 4 °C",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-11: Strip buffer, then rinse well before re-blocking."
+      "notes": "2026-08-11: Store the membrane in TBS-T at 4 C overnight per Umut, instead of stripping tonight. The second target is probed on 08-13 by cutting the membrane."
     },
     {
-      "id": "e-western-block-2-2026-08-12",
-      "date": "2026-08-12",
-      "start": "18:05",
-      "end": "19:05",
-      "title": "Western — re-block",
+      "id": "e-western-cut-2026-08-13",
+      "date": "2026-08-13",
+      "start": "09:30",
+      "end": "09:45",
+      "title": "Western — cut membrane",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: Cut the second target out of the membrane per Umut. No stripping needed — the biotin lane was already imaged on 08-12."
+    },
+    {
+      "id": "e-western-block-2026-08-13",
+      "date": "2026-08-13",
+      "start": "09:45",
+      "end": "10:15",
+      "title": "Western — block",
       "category": "experiment",
       "type": "passive",
       "status": "pending",
-      "notes": "2026-08-11: Second block after stripping, 1 h."
+      "notes": "2026-08-11: Short re-block after overnight storage, 30 min. Milk is fine here — no streptavidin involved on this piece."
     },
     {
-      "id": "e-western-ab-2-2026-08-12",
-      "date": "2026-08-12",
-      "start": "19:05",
-      "end": "20:05",
-      "title": "Western — 2nd target antibody",
+      "id": "e-western-primary-2026-08-13",
+      "date": "2026-08-13",
+      "start": "10:15",
+      "end": "11:15",
+      "title": "Western — primary antibody",
       "category": "experiment",
       "type": "passive",
       "status": "pending",
-      "notes": "2026-08-11: ASSUMPTION: this antibody is also HRP-conjugated, 1 h at room temperature. If it needs a separate secondary, add ~1.5 h (wash + secondary); if it wants an overnight 4 C incubation, the imaging moves to Thursday morning."
+      "notes": "2026-08-11: Primary for the second target, 1 h at room temperature. Stretch this if the antibody sheet asks for longer or for 4 C."
     },
     {
-      "id": "e-western-wash-2-2026-08-12",
-      "date": "2026-08-12",
-      "start": "20:05",
-      "end": "20:35",
-      "title": "Western — washes (2nd round)",
+      "id": "e-western-wash-a-2026-08-13",
+      "date": "2026-08-13",
+      "start": "11:15",
+      "end": "11:45",
+      "title": "Western — washes (after primary)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: 3 x 10 min TBS-T. The membrane then sits in wash buffer through the qPCR — harmless."
+    },
+    {
+      "id": "e-western-secondary-2026-08-13",
+      "date": "2026-08-13",
+      "start": "14:00",
+      "end": "15:00",
+      "title": "Western — secondary antibody",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "2026-08-11: Picked up after the qPCR so the secondary is not left on longer than needed, which would raise background. 1 h at room temperature."
+    },
+    {
+      "id": "e-western-wash-b-2026-08-13",
+      "date": "2026-08-13",
+      "start": "15:00",
+      "end": "15:30",
+      "title": "Western — washes (after secondary)",
       "category": "experiment",
       "type": "active",
       "status": "pending",
       "notes": "2026-08-11: 3 x 10 min TBS-T."
     },
     {
-      "id": "e-western-image-2-2026-08-12",
-      "date": "2026-08-12",
-      "start": "20:35",
-      "end": "20:55",
+      "id": "e-western-image-2026-08-13",
+      "date": "2026-08-13",
+      "start": "15:30",
+      "end": "15:50",
       "title": "Western — ECL + image (2nd target)",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-11: Second target after stripping."
+      "notes": "2026-08-11: Second target imaged. Ends the Western started on 08-12."
     }
   ],
   "_meta": {

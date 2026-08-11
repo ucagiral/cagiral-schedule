@@ -2894,8 +2894,9 @@ SEQUENCE:29774273
 DTSTART;TZID=Europe/Istanbul:20260812T171500
 DTEND;TZID=Europe/Istanbul:20260812T173500
 SUMMARY:Western — ECL + image (biotin)
-DESCRIPTION:2026-08-11: First target: biotin.\nActive — needs you there\n
- Category: experiment
+DESCRIPTION:2026-08-11: first target (biotin)\, streptavidin-HRP. Last hand
+ s-on step of 08-12 — the membrane goes to 4 C straight after.\nActive 
+ — needs you there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -2906,59 +2907,112 @@ TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:e-western-strip-2026-08-12@cagiral-schedule
+UID:e-western-store-2026-08-12@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
 DTSTART;TZID=Europe/Istanbul:20260812T173500
-DTEND;TZID=Europe/Istanbul:20260812T180500
-SUMMARY:Western — strip
-DESCRIPTION:2026-08-11: Strip buffer\, then rinse well before re-blocking.\
- nActive — needs you there\nCategory: experiment
+DTEND;TZID=Europe/Istanbul:20260812T174500
+SUMMARY:Western — membrane to 4 °C
+DESCRIPTION:2026-08-11: Store the membrane in TBS-T at 4 C overnight per Um
+ ut\, instead of stripping tonight. The second target is probed on 08-13 by
+  cutting the membrane.\nActive — needs you there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Western — strip
+DESCRIPTION:Western — membrane to 4 °C
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:e-western-block-2-2026-08-12@cagiral-schedule
+UID:e-western-cut-2026-08-13@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
-DTSTART;TZID=Europe/Istanbul:20260812T180500
-DTEND;TZID=Europe/Istanbul:20260812T190500
-SUMMARY:Western — re-block
-DESCRIPTION:2026-08-11: Second block after stripping\, 1 h.\nPassive — ru
- ns unattended\, does not block time\nCategory: experiment
+DTSTART;TZID=Europe/Istanbul:20260813T093000
+DTEND;TZID=Europe/Istanbul:20260813T094500
+SUMMARY:Western — cut membrane
+DESCRIPTION:2026-08-11: Cut the second target out of the membrane per Umut.
+  No stripping needed — the biotin lane was already imaged on 08-12.\nAct
+ ive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — cut membrane
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-block-2026-08-13@cagiral-schedule
+DTSTAMP:20260811T135320Z
+SEQUENCE:29774273
+DTSTART;TZID=Europe/Istanbul:20260813T094500
+DTEND;TZID=Europe/Istanbul:20260813T101500
+SUMMARY:Western — block
+DESCRIPTION:2026-08-11: Short re-block after overnight storage\, 30 min. Mi
+ lk is fine here — no streptavidin involved on this piece.\nPassive — r
+ uns unattended\, does not block time\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:e-western-ab-2-2026-08-12@cagiral-schedule
+UID:e-western-primary-2026-08-13@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
-DTSTART;TZID=Europe/Istanbul:20260812T190500
-DTEND;TZID=Europe/Istanbul:20260812T200500
-SUMMARY:Western — 2nd target antibody
-DESCRIPTION:2026-08-11: ASSUMPTION: this antibody is also HRP-conjugated\, 
- 1 h at room temperature. If it needs a separate secondary\, add ~1.5 h (wa
- sh + secondary)\; if it wants an overnight 4 C incubation\, the imaging mo
- ves to Thursday morning.\nPassive — runs unattended\, does not block tim
- e\nCategory: experiment
+DTSTART;TZID=Europe/Istanbul:20260813T101500
+DTEND;TZID=Europe/Istanbul:20260813T111500
+SUMMARY:Western — primary antibody
+DESCRIPTION:2026-08-11: Primary for the second target\, 1 h at room tempera
+ ture. Stretch this if the antibody sheet asks for longer or for 4 C.\nPass
+ ive — runs unattended\, does not block time\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:e-western-wash-2-2026-08-12@cagiral-schedule
+UID:e-western-wash-a-2026-08-13@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
-DTSTART;TZID=Europe/Istanbul:20260812T200500
-DTEND;TZID=Europe/Istanbul:20260812T203500
-SUMMARY:Western — washes (2nd round)
+DTSTART;TZID=Europe/Istanbul:20260813T111500
+DTEND;TZID=Europe/Istanbul:20260813T114500
+SUMMARY:Western — washes (after primary)
+DESCRIPTION:2026-08-11: 3 x 10 min TBS-T. The membrane then sits in wash bu
+ ffer through the qPCR — harmless.\nActive — needs you there\nCategory:
+  experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — washes (after primary)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-secondary-2026-08-13@cagiral-schedule
+DTSTAMP:20260811T135320Z
+SEQUENCE:29774273
+DTSTART;TZID=Europe/Istanbul:20260813T140000
+DTEND;TZID=Europe/Istanbul:20260813T150000
+SUMMARY:Western — secondary antibody
+DESCRIPTION:2026-08-11: Picked up after the qPCR so the secondary is not le
+ ft on longer than needed\, which would raise background. 1 h at room tempe
+ rature.\nPassive — runs unattended\, does not block time\nCategory: expe
+ riment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-wash-b-2026-08-13@cagiral-schedule
+DTSTAMP:20260811T135320Z
+SEQUENCE:29774273
+DTSTART;TZID=Europe/Istanbul:20260813T150000
+DTEND;TZID=Europe/Istanbul:20260813T153000
+SUMMARY:Western — washes (after secondary)
 DESCRIPTION:2026-08-11: 3 x 10 min TBS-T.\nActive — needs you there\nCate
  gory: experiment
 CATEGORIES:experiment
@@ -2966,19 +3020,19 @@ STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Western — washes (2nd round)
+DESCRIPTION:Western — washes (after secondary)
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:e-western-image-2-2026-08-12@cagiral-schedule
+UID:e-western-image-2026-08-13@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
-DTSTART;TZID=Europe/Istanbul:20260812T203500
-DTEND;TZID=Europe/Istanbul:20260812T205500
+DTSTART;TZID=Europe/Istanbul:20260813T153000
+DTEND;TZID=Europe/Istanbul:20260813T155000
 SUMMARY:Western — ECL + image (2nd target)
-DESCRIPTION:2026-08-11: Second target after stripping.\nActive — needs yo
- u there\nCategory: experiment
+DESCRIPTION:2026-08-11: Second target imaged. Ends the Western started on 0
+ 8-12.\nActive — needs you there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE

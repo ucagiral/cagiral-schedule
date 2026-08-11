@@ -66,12 +66,12 @@ BEGIN:VEVENT
 UID:e-transfection@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260811T093000
-DTEND;TZID=Europe/Istanbul:20260811T103000
+DTSTART;TZID=Europe/Istanbul:20260812T124500
+DTEND;TZID=Europe/Istanbul:20260812T134500
 SUMMARY:pLentiGuide Plasmid Transfection
-DESCRIPTION:protocols.md Transfection (viral particle production)\, PEI. Ta
- rget DNA = today's miniprep product. Add dropwise to HEK dish after ~15-20
-  min RT incubation.\nActive — needs you there\nCategory: experiment
+DESCRIPTION:2026-08-11: Carried over from Tue 08-11 per Umut. Slotted into 
+ the 2 h wet transfer\, which is unattended once running.\nActive — needs
+  you there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -316,13 +316,12 @@ BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-08-11@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260811T130000
-DTEND;TZID=Europe/Istanbul:20260811T133000
+DTSTART;TZID=Europe/Istanbul:20260812T113000
+DTEND;TZID=Europe/Istanbul:20260812T120000
 SUMMARY:CuAdapt cells — copper treatment
-DESCRIPTION:Recurring Tue/Fri copper feeding. 2026-08-10: the "back-to-back
-  with SRB copper treatment" reason no longer applies (SRB treatment cancel
- led/postponed) but time is left as-is\, no conflict.\nActive — needs you
-  there\nCategory: experiment
+DESCRIPTION:2026-08-11: Carried over from Tue 08-11 per Umut — done durin
+ g the SDS-PAGE run\, as requested.\nActive — needs you there\nCategory: 
+ experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -2414,10 +2413,12 @@ BEGIN:VEVENT
 UID:emsm99uvd9u3c3@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260812T090000
-DTEND;TZID=Europe/Istanbul:20260812T093000
+DTSTART;TZID=Europe/Istanbul:20260812T110000
+DTEND;TZID=Europe/Istanbul:20260812T113000
 SUMMARY:Virus Medium Change
-DESCRIPTION:Active — needs you there\nCategory: experiment
+DESCRIPTION:2026-08-11: Add 6.5 mL medium per dish/flask. Done during the S
+ DS-PAGE run\, which is unattended.\nActive — needs you there\nCategory: 
+ experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -2542,13 +2543,12 @@ BEGIN:VEVENT
 UID:e-qpcr-rna-isolation-2026-08-11@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260811T104000
-DTEND;TZID=Europe/Istanbul:20260811T114000
+DTSTART;TZID=Europe/Istanbul:20260812T134500
+DTEND;TZID=Europe/Istanbul:20260812T144500
 SUMMARY:RNA isolation (ATF3 rep 3\, cells seeded 08-10)
-DESCRIPTION:For qPCR ATF3 rep 3 (2026-08-13 12:00-14:00). Cells seeded 2026
- -08-10 (Monday). 2026-08-10: moved from Wed 08-12 to Tue 08-11 per Umut. P
- laced after pLentiGuide Transfection (09:30-10:30).\nActive — needs you 
- there\nCategory: experiment
+DESCRIPTION:2026-08-11: Carried over from Tue 08-11 per Umut. Also inside t
+ he wet transfer window. Cells were seeded 08-10.\nActive — needs you the
+ re\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -2562,12 +2562,12 @@ BEGIN:VEVENT
 UID:e-qpcr-cdna-2026-08-11@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260811T115000
-DTEND;TZID=Europe/Istanbul:20260811T125000
+DTSTART;TZID=Europe/Istanbul:20260812T144500
+DTEND;TZID=Europe/Istanbul:20260812T154500
 SUMMARY:LunaScript cDNA conversion (ATF3 rep 3)
-DESCRIPTION:Follows RNA isolation same day. For qPCR ATF3 rep 3 (2026-08-13
- ). 2026-08-10: moved from Wed 08-12 to Tue 08-11 per Umut.\nActive — nee
- ds you there\nCategory: experiment
+DESCRIPTION:2026-08-11: Carried over from Tue 08-11 per Umut. Runs straight
+  off the RNA isolation\, during the membrane blocking step.\nActive — ne
+ eds you there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -2717,14 +2717,13 @@ BEGIN:VEVENT
 UID:emsmbiis5h5tbj@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260812T110000
-DTEND;TZID=Europe/Istanbul:20260812T120000
+DTSTART;TZID=Europe/Istanbul:20260812T154500
+DTEND;TZID=Europe/Istanbul:20260812T164500
 SUMMARY:qPCR prep
-DESCRIPTION:2026-08-11: moved later in the day per Umut (was 09:40-10:40)\;
-  slot freed by the protein boil moving to Tue 08-11. Prepared a day early 
- and kept in the fridge for Thursday's 12:00-14:00 qPCR. Sits after Virus M
- edium Change (09:00-09:30).\nActive — needs you there\nCategory: experim
- ent
+DESCRIPTION:2026-08-11: Moved again to sit after the cDNA conversion it dep
+ ends on\, during the streptavidin-HRP incubation. Plate is fridged overnig
+ ht for Thursday's 12:00-14:00 qPCR.\nActive — needs you there\nCategory:
+  experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -2738,13 +2737,12 @@ BEGIN:VEVENT
 UID:e-cuadapt-passage-onetime-2026-08-11@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260811T134000
-DTEND;TZID=Europe/Istanbul:20260811T141000
+DTSTART;TZID=Europe/Istanbul:20260812T120000
+DTEND;TZID=Europe/Istanbul:20260812T123000
 SUMMARY:CuAdapt cells — passage (one-off\, missed Monday)
-DESCRIPTION:One-off catch-up for the passage skipped on Monday 08-10. Place
- d after the copper treatment (ends 13:30) with the required 10-min gap. Do
- es not affect the recurring Mon/Thu passage schedule.\nActive — needs yo
- u there\nCategory: experiment
+DESCRIPTION:2026-08-11: Carried over from Tue 08-11 (originally a missed Mo
+ nday passage). Fits in the tail of the SDS-PAGE run.\nActive — needs you
+  there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -2758,20 +2756,18 @@ BEGIN:VEVENT
 UID:e-western-protein-boil-2026-08-12@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260811T142000
-DTEND;TZID=Europe/Istanbul:20260811T152000
-SUMMARY:Boil protein samples (for Wednesday Western)
-DESCRIPTION:2026-08-11: moved from Wed 08-12 to Tue 08-11 per Umut\, follow
- ing the Western run moving to Wed 08-12 — boil the day before\, after ca
- lculating concentrations. Placed after the CuAdapt passage (13:40-14:10). 
- Duration 1h (not specified).\nActive — needs you there\nCategory: experi
- ment
+DTSTART;TZID=Europe/Istanbul:20260812T090000
+DTEND;TZID=Europe/Istanbul:20260812T100000
+SUMMARY:Boil protein samples (for Western)
+DESCRIPTION:2026-08-11: First task of the day per Umut. Calculate concentra
+ tions\, then boil. Feeds the Western gel loaded at 10:30.\nActive — need
+ s you there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Boil protein samples (for Wednesday Western)
+DESCRIPTION:Boil protein samples (for Western)
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
@@ -2779,14 +2775,13 @@ BEGIN:VEVENT
 UID:e-western-run-2026-08-13@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260812T093000
-DTEND;TZID=Europe/Istanbul:20260812T151000
-SUMMARY:Western (run)
-DESCRIPTION:2026-08-11: moved from Thu 08-13 to Wed 08-12 per Umut. Separat
- e track from the ATF3 qPCR\; protein boiled the day before (Tue 08-11). Pa
- ssive run\, so it doesn't block the day. Duration defaulted to 1h original
- ly\, kept at the 09:30-15:10 span. Needs a booked appointment/reservation 
- — see workflows.md standing to-do.\nPassive — runs unattended\, does n
+DTSTART;TZID=Europe/Istanbul:20260812T110000
+DTEND;TZID=Europe/Istanbul:20260812T123000
+SUMMARY:Western — SDS-PAGE run
+DESCRIPTION:2026-08-11: Split into stages per Umut (biotin target\, strepta
+ vidin-HRP conjugate\, so no secondary step). 1.5 h is an estimate — adju
+ st to your gel percentage and voltage. Unattended: virus medium change and
+  CuAdapt work happen in this window.\nPassive — runs unattended\, does n
  ot block time\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
@@ -2796,16 +2791,216 @@ BEGIN:VEVENT
 UID:emso5imd6jbx1w@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260811T090000
-DTEND;TZID=Europe/Istanbul:20260811T093000
+DTSTART;TZID=Europe/Istanbul:20260812T100000
+DTEND;TZID=Europe/Istanbul:20260812T103000
 SUMMARY:Send plasmids to sequencing
-DESCRIPTION:Active — needs you there\nCategory: experiment
+DESCRIPTION:2026-08-11: Carried over from Tue 08-11 per Umut. Second task o
+ f the day\, between the protein boil and Western loading.\nActive — need
+ s you there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Send plasmids to sequencing
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-load-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T103000
+DTEND;TZID=Europe/Istanbul:20260812T110000
+SUMMARY:Western — load gel
+DESCRIPTION:2026-08-11: Load the boiled samples and start the run.\nActive 
+ — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — load gel
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-transfer-setup-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T123000
+DTEND;TZID=Europe/Istanbul:20260812T124500
+SUMMARY:Western — assemble wet transfer
+DESCRIPTION:2026-08-11: Build the sandwich\, add cold buffer and ice pack\,
+  start the transfer.\nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — assemble wet transfer
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-transfer-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T124500
+DTEND;TZID=Europe/Istanbul:20260812T144500
+SUMMARY:Western — wet transfer (2 h)
+DESCRIPTION:2026-08-11: 2 h as specified by Umut. Unattended — transfecti
+ on and RNA isolation run in this window.\nPassive — runs unattended\, do
+ es not block time\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-block-1-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T144500
+DTEND;TZID=Europe/Istanbul:20260812T154500
+SUMMARY:Western — block (BSA\, biotin-free)
+DESCRIPTION:2026-08-11: Block in BSA/TBS-T\, NOT milk — milk carries endo
+ genous biotin and will give high background with streptavidin-HRP. 1 h at 
+ room temperature.\nPassive — runs unattended\, does not block time\nCate
+ gory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-strep-hrp-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T154500
+DTEND;TZID=Europe/Istanbul:20260812T164500
+SUMMARY:Western — streptavidin-HRP incubation
+DESCRIPTION:2026-08-11: Conjugated\, so no secondary antibody needed. 1 h a
+ t room temperature.\nPassive — runs unattended\, does not block time\nCa
+ tegory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-wash-1-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T164500
+DTEND;TZID=Europe/Istanbul:20260812T171500
+SUMMARY:Western — washes
+DESCRIPTION:2026-08-11: 3 x 10 min TBS-T.\nActive — needs you there\nCate
+ gory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — washes
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-image-1-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T171500
+DTEND;TZID=Europe/Istanbul:20260812T173500
+SUMMARY:Western — ECL + image (biotin)
+DESCRIPTION:2026-08-11: First target: biotin.\nActive — needs you there\n
+ Category: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — ECL + image (biotin)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-strip-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T173500
+DTEND;TZID=Europe/Istanbul:20260812T180500
+SUMMARY:Western — strip
+DESCRIPTION:2026-08-11: Strip buffer\, then rinse well before re-blocking.\
+ nActive — needs you there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — strip
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-block-2-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T180500
+DTEND;TZID=Europe/Istanbul:20260812T190500
+SUMMARY:Western — re-block
+DESCRIPTION:2026-08-11: Second block after stripping\, 1 h.\nPassive — ru
+ ns unattended\, does not block time\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-ab-2-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T190500
+DTEND;TZID=Europe/Istanbul:20260812T200500
+SUMMARY:Western — 2nd target antibody
+DESCRIPTION:2026-08-11: ASSUMPTION: this antibody is also HRP-conjugated\, 
+ 1 h at room temperature. If it needs a separate secondary\, add ~1.5 h (wa
+ sh + secondary)\; if it wants an overnight 4 C incubation\, the imaging mo
+ ves to Thursday morning.\nPassive — runs unattended\, does not block tim
+ e\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-wash-2-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T200500
+DTEND;TZID=Europe/Istanbul:20260812T203500
+SUMMARY:Western — washes (2nd round)
+DESCRIPTION:2026-08-11: 3 x 10 min TBS-T.\nActive — needs you there\nCate
+ gory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — washes (2nd round)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-western-image-2-2026-08-12@cagiral-schedule
+DTSTAMP:20260811T041946Z
+SEQUENCE:29773699
+DTSTART;TZID=Europe/Istanbul:20260812T203500
+DTEND;TZID=Europe/Istanbul:20260812T205500
+SUMMARY:Western — ECL + image (2nd target)
+DESCRIPTION:2026-08-11: Second target after stripping.\nActive — needs yo
+ u there\nCategory: experiment
+CATEGORIES:experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — ECL + image (2nd target)
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT

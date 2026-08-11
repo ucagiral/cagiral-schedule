@@ -35,14 +35,14 @@
     },
     {
       "id": "e-transfection",
-      "date": "2026-08-11",
-      "start": "09:30",
-      "end": "10:30",
+      "date": "2026-08-12",
+      "start": "12:45",
+      "end": "13:45",
       "title": "pLentiGuide Plasmid Transfection",
       "category": "experiment",
       "type": "active",
-      "status": "done",
-      "notes": "protocols.md Transfection (viral particle production), PEI. Target DNA = today's miniprep product. Add dropwise to HEK dish after ~15-20 min RT incubation."
+      "status": "pending",
+      "notes": "2026-08-11: Carried over from Tue 08-11 per Umut. Slotted into the 2 h wet transfer, which is unattended once running."
     },
     {
       "id": "e-harvest-2",
@@ -222,14 +222,14 @@
     },
     {
       "id": "e-cuadapt-copper-2026-08-11",
-      "date": "2026-08-11",
-      "start": "13:00",
-      "end": "13:30",
+      "date": "2026-08-12",
+      "start": "11:30",
+      "end": "12:00",
       "title": "CuAdapt cells — copper treatment",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Tue/Fri copper feeding. 2026-08-10: the \"back-to-back with SRB copper treatment\" reason no longer applies (SRB treatment cancelled/postponed) but time is left as-is, no conflict."
+      "notes": "2026-08-11: Carried over from Tue 08-11 per Umut — done during the SDS-PAGE run, as requested."
     },
     {
       "id": "e-cuadapt-passage-2026-08-13",
@@ -1455,13 +1455,13 @@
     {
       "id": "emsm99uvd9u3c3",
       "date": "2026-08-12",
-      "start": "09:00",
-      "end": "09:30",
+      "start": "11:00",
+      "end": "11:30",
       "title": "Virus Medium Change",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": ""
+      "notes": "2026-08-11: Add 6.5 mL medium per dish/flask. Done during the SDS-PAGE run, which is unattended."
     },
     {
       "id": "emsm9x1qoiioh8",
@@ -1531,25 +1531,25 @@
     },
     {
       "id": "e-qpcr-rna-isolation-2026-08-11",
-      "date": "2026-08-11",
-      "start": "10:40",
-      "end": "11:40",
+      "date": "2026-08-12",
+      "start": "13:45",
+      "end": "14:45",
       "title": "RNA isolation (ATF3 rep 3, cells seeded 08-10)",
       "category": "experiment",
       "type": "active",
-      "status": "done",
-      "notes": "For qPCR ATF3 rep 3 (2026-08-13 12:00-14:00). Cells seeded 2026-08-10 (Monday). 2026-08-10: moved from Wed 08-12 to Tue 08-11 per Umut. Placed after pLentiGuide Transfection (09:30-10:30)."
+      "status": "pending",
+      "notes": "2026-08-11: Carried over from Tue 08-11 per Umut. Also inside the wet transfer window. Cells were seeded 08-10."
     },
     {
       "id": "e-qpcr-cdna-2026-08-11",
-      "date": "2026-08-11",
-      "start": "11:50",
-      "end": "12:50",
+      "date": "2026-08-12",
+      "start": "14:45",
+      "end": "15:45",
       "title": "LunaScript cDNA conversion (ATF3 rep 3)",
       "category": "experiment",
       "type": "active",
-      "status": "done",
-      "notes": "Follows RNA isolation same day. For qPCR ATF3 rep 3 (2026-08-13). 2026-08-10: moved from Wed 08-12 to Tue 08-11 per Umut."
+      "status": "pending",
+      "notes": "2026-08-11: Carried over from Tue 08-11 per Umut. Runs straight off the RNA isolation, during the membrane blocking step."
     },
     {
       "id": "e-thaw-hekhuh7-atf3-2026-08-31",
@@ -1631,13 +1631,13 @@
     {
       "id": "emsmbiis5h5tbj",
       "date": "2026-08-12",
-      "start": "11:00",
-      "end": "12:00",
+      "start": "15:45",
+      "end": "16:45",
       "title": "qPCR prep",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-11: moved later in the day per Umut (was 09:40-10:40); slot freed by the protein boil moving to Tue 08-11. Prepared a day early and kept in the fridge for Thursday's 12:00-14:00 qPCR. Sits after Virus Medium Change (09:00-09:30)."
+      "notes": "2026-08-11: Moved again to sit after the cDNA conversion it depends on, during the streptavidin-HRP incubation. Plate is fridged overnight for Thursday's 12:00-14:00 qPCR."
     },
     {
       "id": "e-cuadapt-passage-onetime-2026-08-11",
@@ -1648,40 +1648,172 @@
       "category": "experiment",
       "type": "active",
       "status": "done",
-      "notes": "One-off catch-up for the passage skipped on Monday 08-10. Placed after the copper treatment (ends 13:30) with the required 10-min gap. Does not affect the recurring Mon/Thu passage schedule."
+      "notes": "One-off catch-up for the passage skipped on Monday 08-10. Placed after the copper treatment (ends 13:30) with the required 10-min gap. Does not affect the recurring Mon/Thu passage schedule. 2026-08-11: marked done by Umut from the app — not carried into 08-12."
     },
     {
       "id": "e-western-protein-boil-2026-08-12",
-      "date": "2026-08-11",
-      "start": "14:20",
-      "end": "15:20",
-      "title": "Boil protein samples (for Wednesday Western)",
+      "date": "2026-08-12",
+      "start": "09:00",
+      "end": "10:00",
+      "title": "Boil protein samples (for Western)",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-11: moved from Wed 08-12 to Tue 08-11 per Umut, following the Western run moving to Wed 08-12 — boil the day before, after calculating concentrations. Placed after the CuAdapt passage (13:40-14:10). Duration 1h (not specified)."
+      "notes": "2026-08-11: First task of the day per Umut. Calculate concentrations, then boil. Feeds the Western gel loaded at 10:30."
     },
     {
       "id": "e-western-run-2026-08-13",
       "date": "2026-08-12",
-      "start": "09:30",
-      "end": "15:10",
-      "title": "Western (run)",
+      "start": "11:00",
+      "end": "12:30",
+      "title": "Western — SDS-PAGE run",
       "category": "experiment",
       "type": "passive",
       "status": "pending",
-      "notes": "2026-08-11: moved from Thu 08-13 to Wed 08-12 per Umut. Separate track from the ATF3 qPCR; protein boiled the day before (Tue 08-11). Passive run, so it doesn't block the day. Duration defaulted to 1h originally, kept at the 09:30-15:10 span. Needs a booked appointment/reservation — see workflows.md standing to-do."
+      "notes": "2026-08-11: Split into stages per Umut (biotin target, streptavidin-HRP conjugate, so no secondary step). 1.5 h is an estimate — adjust to your gel percentage and voltage. Unattended: virus medium change and CuAdapt work happen in this window."
     },
     {
       "id": "emso5imd6jbx1w",
-      "date": "2026-08-11",
-      "start": "09:00",
-      "end": "09:30",
+      "date": "2026-08-12",
+      "start": "10:00",
+      "end": "10:30",
       "title": "Send plasmids to sequencing",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": ""
+      "notes": "2026-08-11: Carried over from Tue 08-11 per Umut. Second task of the day, between the protein boil and Western loading."
+    },
+    {
+      "id": "e-western-load-2026-08-12",
+      "date": "2026-08-12",
+      "start": "10:30",
+      "end": "11:00",
+      "title": "Western — load gel",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: Load the boiled samples and start the run."
+    },
+    {
+      "id": "e-western-transfer-setup-2026-08-12",
+      "date": "2026-08-12",
+      "start": "12:30",
+      "end": "12:45",
+      "title": "Western — assemble wet transfer",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: Build the sandwich, add cold buffer and ice pack, start the transfer."
+    },
+    {
+      "id": "e-western-transfer-2026-08-12",
+      "date": "2026-08-12",
+      "start": "12:45",
+      "end": "14:45",
+      "title": "Western — wet transfer (2 h)",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "2026-08-11: 2 h as specified by Umut. Unattended — transfection and RNA isolation run in this window."
+    },
+    {
+      "id": "e-western-block-1-2026-08-12",
+      "date": "2026-08-12",
+      "start": "14:45",
+      "end": "15:45",
+      "title": "Western — block (BSA, biotin-free)",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "2026-08-11: Block in BSA/TBS-T, NOT milk — milk carries endogenous biotin and will give high background with streptavidin-HRP. 1 h at room temperature."
+    },
+    {
+      "id": "e-western-strep-hrp-2026-08-12",
+      "date": "2026-08-12",
+      "start": "15:45",
+      "end": "16:45",
+      "title": "Western — streptavidin-HRP incubation",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "2026-08-11: Conjugated, so no secondary antibody needed. 1 h at room temperature."
+    },
+    {
+      "id": "e-western-wash-1-2026-08-12",
+      "date": "2026-08-12",
+      "start": "16:45",
+      "end": "17:15",
+      "title": "Western — washes",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: 3 x 10 min TBS-T."
+    },
+    {
+      "id": "e-western-image-1-2026-08-12",
+      "date": "2026-08-12",
+      "start": "17:15",
+      "end": "17:35",
+      "title": "Western — ECL + image (biotin)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: First target: biotin."
+    },
+    {
+      "id": "e-western-strip-2026-08-12",
+      "date": "2026-08-12",
+      "start": "17:35",
+      "end": "18:05",
+      "title": "Western — strip",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: Strip buffer, then rinse well before re-blocking."
+    },
+    {
+      "id": "e-western-block-2-2026-08-12",
+      "date": "2026-08-12",
+      "start": "18:05",
+      "end": "19:05",
+      "title": "Western — re-block",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "2026-08-11: Second block after stripping, 1 h."
+    },
+    {
+      "id": "e-western-ab-2-2026-08-12",
+      "date": "2026-08-12",
+      "start": "19:05",
+      "end": "20:05",
+      "title": "Western — 2nd target antibody",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "2026-08-11: ASSUMPTION: this antibody is also HRP-conjugated, 1 h at room temperature. If it needs a separate secondary, add ~1.5 h (wash + secondary); if it wants an overnight 4 C incubation, the imaging moves to Thursday morning."
+    },
+    {
+      "id": "e-western-wash-2-2026-08-12",
+      "date": "2026-08-12",
+      "start": "20:05",
+      "end": "20:35",
+      "title": "Western — washes (2nd round)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: 3 x 10 min TBS-T."
+    },
+    {
+      "id": "e-western-image-2-2026-08-12",
+      "date": "2026-08-12",
+      "start": "20:35",
+      "end": "20:55",
+      "title": "Western — ECL + image (2nd target)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "2026-08-11: Second target after stripping."
     }
   ],
   "_meta": {

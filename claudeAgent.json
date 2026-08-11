@@ -1575,11 +1575,11 @@
       "date": "2026-09-02",
       "start": "10:00",
       "end": "11:00",
-      "title": "Seed LNCX and LUCX",
+      "title": "LNCX and LUCX medium change",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "Seeding density: 100k per well (corrected from initial 100-150k range, 2026-08-10). Day 2 after thaw (\"the other day\" per thaw-cell rule).",
+      "notes": "",
       "group": "LNCX/LUCX"
     },
     {
@@ -2006,7 +2006,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-11T19:57:51.370Z",
+    "lastModified": "2026-08-11T19:58:04.196Z",
     "modifiedBy": "Windows PC"
   }
 }

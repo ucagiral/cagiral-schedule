@@ -1954,8 +1954,8 @@
     {
       "id": "e-wb-strip-2026-08-13",
       "date": "2026-08-13",
-      "start": "09:00",
-      "end": "09:20",
+      "start": "09:30",
+      "end": "09:50",
       "title": "Western — strip (20 min)",
       "category": "experiment",
       "type": "active",
@@ -2072,7 +2072,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-11T20:20:07.456Z",
+    "lastModified": "2026-08-11T20:20:09.220Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

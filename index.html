@@ -70,6 +70,14 @@
   .banner button{margin-left:8px; padding:3px 9px; font-size:12px}
   #legend{display:flex; gap:12px; padding:6px 12px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; align-items:center}
   #legend .swatch{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; vertical-align:-1px}
+  #groupLegend{
+    display:flex; gap:10px; padding:0 12px 8px; font-size:11.5px; flex-wrap:wrap; align-items:center;
+  }
+  #groupLegend:empty{display:none}
+  #groupLegend .gchip{
+    display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:99px;
+    font-weight:650; font-size:11px;
+  }
   main{padding:12px; overflow-x:auto}
 
   /* ---------- carryover ---------- */
@@ -109,7 +117,23 @@
   .cell.halfhourline{border-top:1px solid var(--halfhour-line)}
   .event{
     border-radius:5px; padding:3px 6px; font-size:11px; color:#fff; overflow:hidden;
-    cursor:pointer; z-index:2; box-shadow:0 1px 2px rgba(0,0,0,.15); line-height:1.25; position:relative;
+    cursor:grab; z-index:2; box-shadow:0 1px 2px rgba(0,0,0,.15); line-height:1.25; position:relative;
+    /* the week grid only renders above 820px, so claiming the gesture here doesn't
+       cost phone scrolling — and it's what lets a drag work on a touch screen */
+    touch-action:none;
+  }
+  .event.dragging{
+    cursor:grabbing; opacity:.9; box-shadow:0 6px 18px rgba(0,0,0,.4);
+    outline:2px solid var(--accent); outline-offset:1px; z-index:6;
+  }
+  .drop-hint{
+    border-radius:5px; border:2px dashed var(--accent); background:rgba(37,99,235,.12);
+    z-index:5; pointer-events:none;
+  }
+  .drop-label{
+    position:absolute; top:-1px; left:0; right:0; text-align:center; font-size:10px;
+    font-weight:700; color:var(--accent); background:var(--panel); border-radius:3px;
+    padding:1px 0; margin:0 4px;
   }
   .event b{display:block; font-size:11px; padding-right:16px; font-weight:600}
   .event span{opacity:.85; font-size:10px}
@@ -134,6 +158,15 @@
   .ag-tags{font-size:11px; color:var(--muted); margin-top:3px}
   .ag-notes{font-size:12px; color:var(--muted); margin-top:5px; line-height:1.4; white-space:pre-wrap; word-break:break-word}
   .ag-chk{width:24px; height:24px; margin:0; flex:none; cursor:pointer}
+  .ag-group{
+    display:inline-block; font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:99px;
+    margin-bottom:4px; letter-spacing:.02em;
+  }
+  /* Phones get a list, which has no time axis to drag along — so nudge buttons instead. */
+  .ag-nudge{display:flex; flex-direction:column; gap:4px; flex:none}
+  .ag-nudge button{padding:5px 8px; font-size:12px; line-height:1; min-width:42px; font-variant-numeric:tabular-nums}
+  .ag-move{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap}
+  .ag-move button{padding:6px 10px; font-size:12px}
   .ag-empty{padding:26px 12px; text-align:center; color:var(--muted); font-size:13.5px}
   .daybar{display:flex; align-items:center; gap:8px; margin-bottom:10px}
   .daybar button{padding:8px 13px}
@@ -215,6 +248,11 @@
   <button id="conflictForce">Keep mine instead</button>
 </div>
 
+<div id="bannerWarn" class="banner">
+  <span id="warnText"></span>
+  <button id="warnDismiss">OK</button>
+</div>
+
 <header class="nav" style="border-top:none">
   <button id="btnPrev">‹ Prev</button>
   <button id="btnToday">Today</button>
@@ -230,8 +268,10 @@
   <span><span class="swatch" style="background:var(--cat-personal)"></span>Personal</span>
   <span><span class="swatch" style="background:var(--cat-other)"></span>Other</span>
   <span><span class="swatch" style="background:var(--cat-experiment); opacity:.35; border:1px dashed currentColor"></span>Passive — doesn't block time</span>
-  <span style="margin-left:auto">Drag on the grid to add. Click an event to edit.</span>
+  <span style="opacity:.8">(category colours apply only to events with no group)</span>
+  <span style="margin-left:auto">Drag empty grid to add · drag an event to move it · click to edit</span>
 </div>
+<div id="groupLegend"></div>
 
 <main>
   <div id="carryover" class="empty">
@@ -297,6 +337,17 @@
         <option value="active">Active — needs you there, blocks time</option>
         <option value="passive">Passive — runs unattended</option>
       </select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Group — related work shares a colour</label>
+        <input type="text" id="fGroup" list="groupList" placeholder="e.g. Virus prep" autocomplete="off">
+        <datalist id="groupList"></datalist>
+      </div>
+      <div class="field">
+        <label>Colour</label>
+        <select id="fColor"></select>
+      </div>
     </div>
     <div class="field">
       <label>Notes</label>
@@ -418,6 +469,11 @@
 
   var state = {
     events: [], sha: null, meta: null,
+    groups: {},              // group name -> {color} — only for explicit overrides
+    // Set after a drag so the drop doesn't also open the editor. A deadline rather than a
+    // flag, because re-rendering replaces the element the click would have landed on — so
+    // the click often never arrives, and a boolean would stay armed and eat the next one.
+    suppressClickUntil: 0,
     weekStart: getMonday(new Date()),
     dayDate: startOfDay(new Date()),
     view: null,              // "week" | "day"
@@ -470,6 +526,60 @@
   var ROWS = (END_HOUR - START_HOUR) * 60 / SLOT_MIN;
   var CAT_VAR = {experiment:"--cat-experiment", meeting:"--cat-meeting",
                  writing:"--cat-writing", personal:"--cat-personal", other:"--cat-other"};
+
+  // ---- group colours --------------------------------------------------
+  // A group's colour is derived from its name, so the same group looks identical on
+  // every device with nothing to keep in sync. An explicit override in _groups wins,
+  // and an ungrouped event can still carry its own one-off colour.
+  var PALETTE = [
+    {name:"Blue",   hex:"#3b82f6"}, {name:"Red",     hex:"#ef4444"},
+    {name:"Green",  hex:"#22c55e"}, {name:"Violet",  hex:"#8b5cf6"},
+    {name:"Amber",  hex:"#f59e0b"}, {name:"Cyan",    hex:"#06b6d4"},
+    {name:"Pink",   hex:"#ec4899"}, {name:"Lime",    hex:"#84cc16"},
+    {name:"Orange", hex:"#f97316"}, {name:"Indigo",  hex:"#6366f1"},
+    {name:"Teal",   hex:"#14b8a6"}, {name:"Purple",  hex:"#a855f7"},
+    {name:"Slate",  hex:"#64748b"}, {name:"Rose",    hex:"#f43f5e"}
+  ];
+  function hashString(s){
+    var h = 0;
+    for (var i = 0; i < s.length; i++){ h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+    return Math.abs(h);
+  }
+  function autoGroupColor(name){ return PALETTE[hashString(name) % PALETTE.length].hex; }
+  function groupColor(name){
+    if (!name) return null;
+    var g = state.groups[name];
+    return (g && g.color) ? g.color : autoGroupColor(name);
+  }
+  function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function eventColor(ev){
+    if (ev.color) return ev.color;
+    var gc = groupColor(ev.group);
+    if (gc) return gc;
+    return cssVar(CAT_VAR[ev.category] || CAT_VAR.other) || "#6b7280";
+  }
+  // Pick readable text for a filled block — amber and lime need dark text, blue needs white.
+  function textOn(hex){
+    var c = String(hex||"").trim().replace("#","");
+    if (c.length === 3) c = c.split("").map(function(x){ return x + x; }).join("");
+    if (!/^[0-9a-f]{6}$/i.test(c)) return "#ffffff";
+    var lin = function(v){ v = v/255; return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); };
+    var L = 0.2126*lin(parseInt(c.slice(0,2),16)) + 0.7152*lin(parseInt(c.slice(2,4),16)) + 0.0722*lin(parseInt(c.slice(4,6),16));
+    return L > 0.5 ? "#111827" : "#ffffff";
+  }
+  function allGroupNames(){
+    var seen = {};
+    state.events.forEach(function(e){ if (e.group) seen[e.group] = 1; });
+    Object.keys(state.groups || {}).forEach(function(g){ seen[g] = 1; });
+    return Object.keys(seen).sort();
+  }
+
+  function timeToMin(t){ var p = String(t||"00:00").split(":"); return (+p[0])*60 + (+p[1]); }
+  function minToTime(m){
+    m = Math.max(0, Math.round(m));
+    return String(Math.floor(m/60)).padStart(2,"0") + ":" + String(m%60).padStart(2,"0");
+  }
+  function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
 
   function timeToRow(t){
     var p = String(t||"00:00").split(":");
@@ -577,6 +687,7 @@
     var data = JSON.parse(text);
     return {
       events: Array.isArray(data.events) ? data.events : [],
+      groups: (data._groups && typeof data._groups === "object") ? data._groups : {},
       meta: data._meta || null
     };
   }
@@ -596,6 +707,7 @@
       }
 
       state.events = parsed.events;
+      state.groups = parsed.groups;
       state.meta = parsed.meta;
       state.sha = got.sha;
       state.dirty = false;
@@ -631,13 +743,19 @@
   // Saving — optimistic concurrency via the blob sha
   // =====================================================================
   function buildPayload(){
-    return JSON.stringify({
-      events: state.events,
-      _meta: {
-        lastModified: new Date().toISOString(),
-        modifiedBy: getDevice()
-      }
-    }, null, 2) + "\n";
+    // Drop colour overrides for groups nothing uses any more, so the file doesn't
+    // accumulate settings for groups that no longer exist.
+    var used = {};
+    state.events.forEach(function(e){ if (e.group) used[e.group] = 1; });
+    var groups = {};
+    Object.keys(state.groups || {}).forEach(function(g){
+      if (used[g] && state.groups[g] && state.groups[g].color) groups[g] = state.groups[g];
+    });
+
+    var out = { events: state.events };
+    if (Object.keys(groups).length) out._groups = groups;
+    out._meta = { lastModified: new Date().toISOString(), modifiedBy: getDevice() };
+    return JSON.stringify(out, null, 2) + "\n";
   }
 
   function scheduleSave(){
@@ -789,9 +907,10 @@
     }
     items.forEach(function(ev){
       var isPassive = ev.type === "passive", isDone = ev.status === "done";
+      var color = eventColor(ev);
       var el = document.createElement("div");
       el.className = "ag-item" + (isPassive ? " passive" : "") + (isDone ? " done" : "");
-      el.style.borderLeftColor = "var(" + (CAT_VAR[ev.category] || CAT_VAR.other) + ")";
+      el.style.borderLeftColor = color;
 
       var chk = document.createElement("input");
       chk.type = "checkbox"; chk.className = "ag-chk"; chk.checked = isDone;
@@ -809,14 +928,60 @@
       mainDiv.className = "ag-main";
       var tags = [ev.category || "other"];
       if (isPassive) tags.push("passive");
-      mainDiv.innerHTML = '<div class="ag-title">' + escapeHtml(ev.title || "(untitled)") + "</div>" +
+      var groupPill = ev.group
+        ? '<span class="ag-group" style="background:' + escapeHtml(color) + ";color:" + textOn(color) + '">' +
+          escapeHtml(ev.group) + "</span><br>"
+        : "";
+      mainDiv.innerHTML = groupPill +
+        '<div class="ag-title">' + escapeHtml(ev.title || "(untitled)") + "</div>" +
         '<div class="ag-tags">' + escapeHtml(tags.join(" · ")) + "</div>" +
         (ev.notes ? '<div class="ag-notes">' + escapeHtml(ev.notes) + "</div>" : "");
       mainDiv.addEventListener("click", function(){ openDialog(ev); });
 
+      // A list has no time axis to drag along, so moving happens with explicit steps.
+      var moveRow = document.createElement("div");
+      moveRow.className = "ag-move";
+      [["−15 min", -15], ["+15 min", 15]].forEach(function(pair){
+        var b = document.createElement("button");
+        b.textContent = pair[0];
+        b.title = "Shift this event, keeping its length";
+        b.addEventListener("click", function(e){
+          e.stopPropagation();
+          shiftEvent(ev, pair[1]);
+          render(); scheduleSave(); warnIfConflicting(ev);
+        });
+        moveRow.appendChild(b);
+      });
+      [["◀ day", -1], ["day ▶", 1]].forEach(function(pair){
+        var b = document.createElement("button");
+        b.textContent = pair[0];
+        b.title = "Move to another day at the same time";
+        b.addEventListener("click", function(e){
+          e.stopPropagation();
+          ev.date = isoDate(addDays(new Date(ev.date + "T00:00:00"), pair[1]));
+          state.dayDate = startOfDay(new Date(ev.date + "T00:00:00"));
+          state.weekStart = getMonday(state.dayDate);
+          render(); scheduleSave(); warnIfConflicting(ev);
+        });
+        moveRow.appendChild(b);
+      });
+      mainDiv.appendChild(moveRow);
+
       el.appendChild(chk); el.appendChild(time); el.appendChild(mainDiv);
       box.appendChild(el);
     });
+    renderGroupLegend();
+  }
+
+  // Shift start and end together, keeping the length, without leaving the 07:00–23:00 grid.
+  function shiftEvent(ev, mins){
+    var s = timeToMin(ev.start), e = timeToMin(ev.end);
+    var dur = Math.max(SLOT_MIN, e - s);
+    var lo = START_HOUR * 60, hi = END_HOUR * 60;
+    s += mins;
+    if (s < lo) s = lo;
+    if (s + dur > hi) s = hi - dur;
+    ev.start = minToTime(s); ev.end = minToTime(s + dur);
   }
 
   // ---- week grid (desktop) ----
@@ -868,14 +1033,20 @@
       var idx = isoWeek.indexOf(ev.date);
       if (idx === -1) return;
       var isPassive = ev.type === "passive", isDone = ev.status === "done";
-      var catVar = CAT_VAR[ev.category] || CAT_VAR.other;
+      var color = eventColor(ev);
       var el = document.createElement("div");
       el.className = "event" + (isPassive ? " passive" : "") + (isDone ? " done" : "");
+      el.dataset.eventId = ev.id;
       el.style.gridColumn = idx+2;
       el.style.gridRow = timeToRow(ev.start) + " / " + Math.max(timeToRow(ev.end), timeToRow(ev.start)+1);
+      // Passive work stays pale so it reads as background, whatever colour its group is.
       el.style.background = isPassive
-        ? "color-mix(in srgb, var(" + catVar + ") 28%, var(--panel))"
-        : "var(" + catVar + ")";
+        ? "color-mix(in srgb, " + color + " 28%, var(--panel))"
+        : color;
+      if (!isPassive) el.style.color = textOn(color);
+      el.title = (ev.group ? "[" + ev.group + "] " : "") + (ev.title || "(untitled)") +
+        "\n" + ev.start + "–" + ev.end + (isPassive ? " · passive" : "") +
+        (ev.notes ? "\n\n" + ev.notes : "");
       el.innerHTML = '<input type="checkbox" class="chk"' + (isDone ? " checked" : "") + ">" +
         "<b>" + escapeHtml(ev.title || "(untitled)") + "</b><span>" + escapeHtml(ev.start + "–" + ev.end + (isPassive ? " · passive" : "")) + "</span>";
       el.querySelector(".chk").addEventListener("click", function(e){
@@ -883,8 +1054,39 @@
         ev.status = e.target.checked ? "done" : "pending";
         render(); scheduleSave();
       });
-      el.addEventListener("click", function(){ openDialog(ev); });
+      el.addEventListener("click", function(){
+        // A drag that just ended must not also open the editor.
+        if (Date.now() < state.suppressClickUntil){ state.suppressClickUntil = 0; return; }
+        openDialog(ev);
+      });
       gridEl.appendChild(el);
+    });
+    renderGroupLegend();
+  }
+
+  // Only shows groups actually present in what's on screen, so it stays short.
+  function renderGroupLegend(){
+    var box = $("groupLegend");
+    if (!box) return;
+    box.innerHTML = "";
+    var inView;
+    if (state.view === "day"){
+      var iso = isoDate(state.dayDate);
+      inView = visibleEvents().filter(function(e){ return e.date === iso; });
+    } else {
+      var week = weekDates().map(isoDate);
+      inView = visibleEvents().filter(function(e){ return week.indexOf(e.date) !== -1; });
+    }
+    var names = [];
+    inView.forEach(function(e){ if (e.group && names.indexOf(e.group) === -1) names.push(e.group); });
+    names.sort().forEach(function(g){
+      var c = groupColor(g);
+      var chip = document.createElement("span");
+      chip.className = "gchip";
+      chip.style.background = c;
+      chip.style.color = textOn(c);
+      chip.textContent = g;
+      box.appendChild(chip);
     });
   }
 
@@ -943,10 +1145,148 @@
   $("btnRefresh").addEventListener("click", function(){ setStatus("Checking…", "saving"); load(); });
 
   // =====================================================================
+  // Advisory conflict check — schedule.md wants 10+ minutes between consecutive
+  // active events. This warns; it never refuses or silently rearranges anything.
+  // =====================================================================
+  function conflictNote(ev){
+    if (!ev || ev.type === "passive" || ev.status === "cancelled") return null;
+    var others = state.events.filter(function(o){
+      return o !== ev && o.date === ev.date && o.status !== "cancelled" && o.type !== "passive";
+    });
+    var s = timeToMin(ev.start), e = timeToMin(ev.end);
+    for (var i = 0; i < others.length; i++){
+      var os = timeToMin(others[i].start), oe = timeToMin(others[i].end);
+      if (s < oe && os < e) return "it overlaps “" + (others[i].title || "untitled") + "”";
+    }
+    var tightest = null;
+    others.forEach(function(o){
+      var os = timeToMin(o.start), oe = timeToMin(o.end);
+      var gap = (os >= e) ? os - e : (s >= oe ? s - oe : null);
+      if (gap !== null && gap < 10 && (tightest === null || gap < tightest.gap)) tightest = {gap: gap, title: o.title};
+    });
+    if (tightest) return "only " + tightest.gap + " min from “" + (tightest.title || "untitled") +
+      "” — your rule asks for 10";
+    return null;
+  }
+  function warnIfConflicting(ev){
+    var note = conflictNote(ev);
+    if (!note){ $("bannerWarn").classList.remove("show"); return; }
+    $("warnText").innerHTML = "<b>Heads up:</b> " + escapeHtml(note) + ". Saved anyway — move it again if that's wrong.";
+    $("bannerWarn").classList.add("show");
+  }
+  $("warnDismiss").addEventListener("click", function(){ $("bannerWarn").classList.remove("show"); });
+
+  // =====================================================================
+  // Drag an existing event to a new day/time (mouse, trackpad or touch).
+  // Snaps to the 5-minute grid, keeps the event's length, and reads its target
+  // from grid geometry rather than hit-testing, so it can't be thrown off by
+  // whatever element happens to sit under the cursor.
+  // =====================================================================
+  var moveDrag = null;
+
+  function gridGeometry(){
+    var r = gridEl.getBoundingClientRect();
+    var cs = getComputedStyle(gridEl);
+    var rows = cs.gridTemplateRows.split(" ").map(parseFloat);
+    var cols = cs.gridTemplateColumns.split(" ").map(parseFloat);
+    return {
+      left: r.left, top: r.top,
+      headH: rows[0] || 34, rowH: rows[1] || 8,
+      timeW: cols[0] || 56, colW: cols[1] || 110
+    };
+  }
+  function pointToCell(g, x, y){
+    return {
+      dayIdx: Math.floor((x - g.left - g.timeW) / g.colW),
+      row: 2 + Math.floor((y - g.top - g.headH) / g.rowH)
+    };
+  }
+  function paintDragTarget(){
+    var m = moveDrag;
+    var top = m.newTopRow, bottom = top + m.durRows;
+    m.el.style.gridColumn = m.newDayIdx + 2;
+    m.el.style.gridRow = top + " / " + bottom;
+    var span = m.el.querySelector("span");
+    if (span) span.textContent = rowToTime(top) + "–" + rowToTime(bottom) +
+      (m.ev.type === "passive" ? " · passive" : "");
+  }
+
+  gridEl.addEventListener("pointerdown", function(e){
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    var el = e.target.closest ? e.target.closest(".event") : null;
+    if (!el) return;                              // empty grid → the create-drag below handles it
+    if (e.target.closest(".chk")) return;         // ticking something off is not a drag
+    var ev = state.events.find(function(x){ return x.id === el.dataset.eventId; });
+    if (!ev) return;
+    var dayIdx = weekDates().map(isoDate).indexOf(ev.date);
+    if (dayIdx === -1) return;
+
+    var g = gridGeometry();
+    var topRow = timeToRow(ev.start);
+    var durRows = Math.max(1, Math.max(timeToRow(ev.end), topRow + 1) - topRow);
+    moveDrag = {
+      ev: ev, el: el, g: g, pointerId: e.pointerId, moved: false,
+      startX: e.clientX, startY: e.clientY,
+      durRows: durRows,
+      grabRowOffset: topRow - pointToCell(g, e.clientX, e.clientY).row,
+      origDate: ev.date, origStart: ev.start, origEnd: ev.end,
+      newDayIdx: dayIdx, newTopRow: topRow
+    };
+    try { el.setPointerCapture(e.pointerId); } catch(err){}
+  });
+
+  document.addEventListener("pointermove", function(e){
+    var m = moveDrag;
+    if (!m || e.pointerId !== m.pointerId) return;
+    if (!m.moved){
+      if (Math.abs(e.clientX - m.startX) + Math.abs(e.clientY - m.startY) < 5) return;
+      m.moved = true;
+      m.el.classList.add("dragging");
+    }
+    var c = pointToCell(m.g, e.clientX, e.clientY);
+    m.newDayIdx = clamp(c.dayIdx, 0, 6);
+    m.newTopRow = clamp(c.row + m.grabRowOffset, 2, ROWS + 2 - m.durRows);
+    paintDragTarget();
+    e.preventDefault();
+  });
+
+  function finishMoveDrag(commit){
+    var m = moveDrag;
+    if (!m) return;
+    moveDrag = null;
+    m.el.classList.remove("dragging");
+    if (!m.moved) return;                 // never moved: let the click open the editor
+    state.suppressClickUntil = Date.now() + 400;
+
+    if (!commit){ render(); return; }
+    var newDate = isoDate(addDays(state.weekStart, m.newDayIdx));
+    var newStart = rowToTime(m.newTopRow);
+    var newEnd = rowToTime(m.newTopRow + m.durRows);
+    if (newDate === m.origDate && newStart === m.origStart){ render(); return; }
+
+    m.ev.date = newDate; m.ev.start = newStart; m.ev.end = newEnd;
+    render();
+    scheduleSave();
+    warnIfConflicting(m.ev);
+  }
+
+  document.addEventListener("pointerup", function(e){
+    if (moveDrag && e.pointerId === moveDrag.pointerId) finishMoveDrag(true);
+  });
+  document.addEventListener("pointercancel", function(e){
+    if (moveDrag && e.pointerId === moveDrag.pointerId) finishMoveDrag(false);
+  });
+  document.addEventListener("keydown", function(e){
+    if (moveDrag && e.key === "Escape") finishMoveDrag(false);
+  });
+
+  // =====================================================================
   // Drag-to-create on the week grid (desktop)
   // =====================================================================
   var previewEl = null;
   gridEl.addEventListener("mousedown", function(e){
+    if (moveDrag) return;                                          // moving an event, not creating one
+    if (e.target.closest && e.target.closest(".event")) return;
     var cell = e.target.closest && e.target.closest(".cell");
     if (!cell) return;
     state.drag = { dayIdx:+cell.dataset.dayIdx, startRow:+cell.dataset.row, curRow:+cell.dataset.row };
@@ -986,7 +1326,29 @@
   var dlg = $("dlg");
   var fTitle=$("fTitle"), fDate=$("fDate"), fStart=$("fStart"), fEnd=$("fEnd"),
       fCategory=$("fCategory"), fType=$("fType"), fStatus=$("fStatus"), fNotes=$("fNotes"),
-      btnDelete=$("btnDelete");
+      fGroup=$("fGroup"), fColor=$("fColor"), btnDelete=$("btnDelete");
+
+  // "Automatic" means: take the group's derived colour, or the category colour if ungrouped.
+  (function buildColorOptions(){
+    var auto = document.createElement("option");
+    auto.value = ""; auto.textContent = "Automatic";
+    fColor.appendChild(auto);
+    PALETTE.forEach(function(p){
+      var o = document.createElement("option");
+      o.value = p.hex; o.textContent = p.name;
+      fColor.appendChild(o);
+    });
+  })();
+
+  function refreshGroupOptions(){
+    var dl = $("groupList");
+    dl.innerHTML = "";
+    allGroupNames().forEach(function(g){
+      var o = document.createElement("option");
+      o.value = g;
+      dl.appendChild(o);
+    });
+  }
 
   for (var row = 2; row <= ROWS + 1; row++){
     var t = rowToTime(row);
@@ -997,7 +1359,12 @@
 
   function openDialog(ev){
     state.editingId = ev.id;
+    refreshGroupOptions();
     $("dlgTitle").textContent = ev.id ? "Edit event" : "New event";
+    fGroup.value = ev.group || "";
+    // Show whichever override is actually in force: the group's, or this event's own.
+    var override = ev.color || (ev.group && state.groups[ev.group] && state.groups[ev.group].color) || "";
+    fColor.value = PALETTE.some(function(p){ return p.hex === override; }) ? override : "";
     fTitle.value = ev.title || "";
     fDate.value = ev.date;
     fStart.value = ev.start; fEnd.value = ev.end;
@@ -1029,17 +1396,30 @@
     var date = fDate.value.trim();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)){ alert("Date must look like 2026-08-14."); return; }
     if (fEnd.value <= fStart.value){ alert("End time must be after start time."); return; }
+    var group = fGroup.value.trim();
+    var chosen = fColor.value;
     var payload = {
       id: state.editingId || uid(), date: date, start: fStart.value, end: fEnd.value,
       title: fTitle.value.trim(), category: fCategory.value, type: fType.value,
       status: fStatus.value, notes: fNotes.value.trim()
     };
+    if (group) payload.group = group;
+
+    if (group){
+      // A colour picked for a grouped event applies to the whole group, which is the
+      // point — related work should stay visually together without per-event fiddling.
+      if (chosen) state.groups[group] = Object.assign({}, state.groups[group], {color: chosen});
+      else if (state.groups[group]) delete state.groups[group].color;
+    } else if (chosen){
+      payload.color = chosen;      // ungrouped: colour belongs to this one event
+    }
+
     var idx = state.events.findIndex(function(e){ return e.id === payload.id; });
     if (idx >= 0) state.events[idx] = payload; else state.events.push(payload);
     dlg.close();
     if (state.view === "day") state.dayDate = startOfDay(new Date(date + "T00:00:00"));
     state.weekStart = getMonday(new Date(date + "T00:00:00"));
-    render(); scheduleSave();
+    render(); scheduleSave(); warnIfConflicting(payload);
   });
 
   btnDelete.addEventListener("click", function(){

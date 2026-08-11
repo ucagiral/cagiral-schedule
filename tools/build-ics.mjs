@@ -152,6 +152,7 @@ for (const ev of events) {
   const descParts = [];
   if (ev.notes) descParts.push(ev.notes);
   descParts.push((isPassive ? "Passive — runs unattended, does not block time" : "Active — needs you there"));
+  if (ev.group) descParts.push("Group: " + ev.group);
   if (ev.category) descParts.push("Category: " + ev.category);
   if (isDone) descParts.push("Marked done.");
 
@@ -163,7 +164,16 @@ for (const ev of events) {
   lines.push("DTEND;TZID=" + TZID + ":" + localStamp(endDate, endTime));
   lines.push("SUMMARY:" + esc((isDone ? "✓ " : "") + (ev.title || "(untitled)")));
   lines.push("DESCRIPTION:" + esc(descParts.join("\n")));
-  if (ev.category) lines.push("CATEGORIES:" + esc(ev.category));
+  // Both the group and the category become CATEGORIES values, so Calendar clients that
+  // support filtering can pick out a whole experiment thread (e.g. "Virus prep").
+  // Each value is escaped separately — the comma between them is the list separator
+  // and must stay unescaped, unlike commas inside a value.
+  {
+    const cats = [];
+    if (ev.group) cats.push(esc(ev.group));
+    if (ev.category) cats.push(esc(ev.category));
+    if (cats.length) lines.push("CATEGORIES:" + cats.join(","));
+  }
   lines.push("STATUS:" + (isCancelled ? "CANCELLED" : "CONFIRMED"));
   // Passive incubations shouldn't make you look busy.
   lines.push("TRANSP:" + (isPassive || isCancelled || isDone ? "TRANSPARENT" : "OPAQUE"));

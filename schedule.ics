@@ -2717,13 +2717,14 @@ BEGIN:VEVENT
 UID:emsmbiis5h5tbj@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260812T094000
-DTEND;TZID=Europe/Istanbul:20260812T104000
+DTSTART;TZID=Europe/Istanbul:20260812T110000
+DTEND;TZID=Europe/Istanbul:20260812T120000
 SUMMARY:qPCR prep
-DESCRIPTION:2026-08-10: moved from Thu 08-13 to Wed 08-12 per Umut — prep
- are the plate a day early and keep it in the fridge\, so Thursday (qPCR + 
- Western day) is lighter. Placed after Virus Medium Change (09:00-09:30).\n
- Active — needs you there\nCategory: experiment
+DESCRIPTION:2026-08-11: moved later in the day per Umut (was 09:40-10:40)\;
+  slot freed by the protein boil moving to Tue 08-11. Prepared a day early 
+ and kept in the fridge for Thursday's 12:00-14:00 qPCR. Sits after Virus M
+ edium Change (09:00-09:30).\nActive — needs you there\nCategory: experim
+ ent
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -2757,18 +2758,20 @@ BEGIN:VEVENT
 UID:e-western-protein-boil-2026-08-12@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260812T105000
-DTEND;TZID=Europe/Istanbul:20260812T115000
-SUMMARY:Boil protein samples (for Thursday Western)
-DESCRIPTION:2026-08-10: prep for Thursday (08-13) Western run — boil afte
- r calculating concentrations. Duration defaulted to 1h (not specified).\nA
- ctive — needs you there\nCategory: experiment
+DTSTART;TZID=Europe/Istanbul:20260811T142000
+DTEND;TZID=Europe/Istanbul:20260811T152000
+SUMMARY:Boil protein samples (for Wednesday Western)
+DESCRIPTION:2026-08-11: moved from Wed 08-12 to Tue 08-11 per Umut\, follow
+ ing the Western run moving to Wed 08-12 — boil the day before\, after ca
+ lculating concentrations. Placed after the CuAdapt passage (13:40-14:10). 
+ Duration 1h (not specified).\nActive — needs you there\nCategory: experi
+ ment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Boil protein samples (for Thursday Western)
+DESCRIPTION:Boil protein samples (for Wednesday Western)
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
@@ -2776,14 +2779,15 @@ BEGIN:VEVENT
 UID:e-western-run-2026-08-13@cagiral-schedule
 DTSTAMP:20260811T041946Z
 SEQUENCE:29773699
-DTSTART;TZID=Europe/Istanbul:20260813T093000
-DTEND;TZID=Europe/Istanbul:20260813T151000
+DTSTART;TZID=Europe/Istanbul:20260812T093000
+DTEND;TZID=Europe/Istanbul:20260812T151000
 SUMMARY:Western (run)
-DESCRIPTION:2026-08-10: separate track from the ATF3 qPCR\, protein boiled 
- the day before (08-12). Placed after the 12:00-14:00 qPCR. Duration defaul
- ted to 1h (not specified). Needs a booked appointment/reservation — see 
- workflows.md standing to-do.\nPassive — runs unattended\, does not block
-  time\nCategory: experiment
+DESCRIPTION:2026-08-11: moved from Thu 08-13 to Wed 08-12 per Umut. Separat
+ e track from the ATF3 qPCR\; protein boiled the day before (Tue 08-11). Pa
+ ssive run\, so it doesn't block the day. Duration defaulted to 1h original
+ ly\, kept at the 09:30-15:10 span. Needs a booked appointment/reservation 
+ — see workflows.md standing to-do.\nPassive — runs unattended\, does n
+ ot block time\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT

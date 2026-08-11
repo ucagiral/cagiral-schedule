@@ -13,6 +13,8 @@ file, and a calendar feed that keeps Apple Calendar up to date by itself.
 | `claudeAgent.json` | **The source of truth.** Every event lives here. Nothing else is authoritative. |
 | `index.html` | The app. Reads the JSON from GitHub, writes it back through the GitHub API. |
 | `schedule.ics` | Generated. Apple Calendar subscribes to this and refreshes itself. Never edit by hand. |
+| `workflows.md` | How Umut actually runs each protocol — durations, volumes, what blocks what. Kept up to date from conversations, and what the schedule is built from. |
+| `protocols/western-blot.md` | Consensus timings from a survey of published Western blot protocols, with sources. The outside reference `workflows.md` is measured against. |
 | `tools/build-ics.mjs` | Builds `schedule.ics` from `claudeAgent.json`. |
 | `.github/workflows/ics.yml` | Runs that generator automatically on every schedule change. |
 | `tools/make-icons.mjs` | Regenerates the app icons. Only needed if the icon design changes. |

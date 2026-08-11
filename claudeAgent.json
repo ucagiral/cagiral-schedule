@@ -1561,8 +1561,8 @@
     {
       "id": "emsma0r8nygas7",
       "date": "2026-08-31",
-      "start": "10:30",
-      "end": "11:00",
+      "start": "10:05",
+      "end": "10:35",
       "title": "LNCX and LUCX seed",
       "category": "experiment",
       "type": "active",
@@ -2006,7 +2006,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-11T19:58:55.803Z",
+    "lastModified": "2026-08-11T19:58:58.073Z",
     "modifiedBy": "Windows PC"
   }
 }

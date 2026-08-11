@@ -1857,9 +1857,9 @@
     },
     {
       "id": "e-wb-run-2026-08-12",
-      "date": "2026-08-12",
-      "start": "09:45",
-      "end": "11:15",
+      "date": "2026-08-13",
+      "start": "08:15",
+      "end": "09:45",
       "title": "Western — SDS-PAGE run",
       "category": "experiment",
       "type": "passive",
@@ -2072,7 +2072,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-11T20:19:47.671Z",
+    "lastModified": "2026-08-11T20:19:49.462Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

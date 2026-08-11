@@ -95,8 +95,39 @@ Times are Europe/Istanbul, declared as a fixed UTC+3 offset (Turkey has had no D
 The token is stored only in that device's browser. Set an expiry you're comfortable with; when it
 lapses the app says so and drops to read-only rather than losing anything.
 
-**Home-screen app (iPhone):** open the URL in Safari → Share → Add to Home Screen. It then launches
-without browser chrome.
+## Installing it as an app
+
+The app is a full PWA — `manifest.webmanifest` declares `display: standalone` with 192 and 512 px
+maskable icons, and `sw.js` registers a service worker with a fetch handler. So every platform can
+install it as a standalone app with its own icon and window, no browser tabs and no extra code. It
+is the same web app either way; installing only changes how it is launched and framed.
+
+**macOS — Safari, no Chrome needed** (macOS Sonoma 14 or newer):
+
+1. Open the app URL in Safari
+2. Menu bar → **File** → **Add to Dock** (or the Share button → **Add to Dock**)
+3. Name it, click **Add**
+
+It lands in `~/Applications` and opens from the Dock or Spotlight. It keeps its own cookies and
+storage, separate from Safari — so its GitHub token is stored per app, not shared with the browser.
+
+**Windows — Chrome or Edge:**
+
+1. Open the app URL
+2. Click the install icon at the right of the address bar — or ⋮ menu → **Install**
+3. Confirm
+
+It appears in the Start menu and can be pinned to the taskbar. Manage or remove installed apps at
+`chrome://apps`.
+
+**macOS with Chrome:** same as Windows. It installs into Launchpad and the Applications folder.
+
+**iPhone:** open the URL in Safari → Share → **Add to Home Screen**.
+
+Installing is per device — it isn't something iCloud can carry across machines, since iCloud Drive
+syncs files rather than installed apps. Nothing is lost by that: the schedule itself syncs through
+GitHub, so every device reads the same `claudeAgent.json` regardless of how the app was launched.
+The GitHub token is per device either way.
 
 ## Editing by hand or from a script
 

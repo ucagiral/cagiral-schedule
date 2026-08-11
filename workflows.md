@@ -137,6 +137,29 @@ reference; it is a record of what was found, not a substitute for looking again.
   what else can be scheduled on top.
 - Events already on the calendar are left alone — this applies to new and re-timed events only.
 
+## Projects and the planner
+
+A project is a research goal written down in [`projects.md`](projects.md) as an ordered set of
+phases — each with what it achieves, what verifies it, its sub-steps, and its sources. The app's
+**Project** button turns one phase at a time into calendar events.
+
+What the planner guarantees, checked in code rather than by eye:
+
+- Nothing is placed on top of an **active** block already on the calendar, with 10 minutes of
+  clearance either side so it doesn't trip the conflict warning.
+- Nothing lands **before tomorrow** — today is already part-spent.
+- Nothing runs past **18:00**, and no more than three generated blocks land on one day.
+- A step whose hands-on share is under half its total is created as **passive**, so it doesn't
+  block the day.
+
+Durations come from [`protocols/durations.md`](protocols/durations.md), matched against the
+sub-step's wording, and the top of a published range is taken so a day is never under-booked. A
+step with no row there is given a **placeholder hour and flagged in the dialog** — the planner says
+so rather than quietly inventing a number. Those flagged steps are the queue for the next research
+pass; once looked up they go into `durations.md` and the planner stops guessing.
+
+The planner proposes; nothing is written until the events are reviewed and accepted.
+
 ## Scheduling conventions
 
 - `active` = has to be attended, blocks the day. `passive` = runs unattended, does not block.

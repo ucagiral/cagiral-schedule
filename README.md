@@ -85,6 +85,23 @@ passive incubations appear but don't mark you busy.
 
 Times are Europe/Istanbul, declared as a fixed UTC+3 offset (Turkey has had no DST since 2016).
 
+## Project Planning
+
+**Plan Project** button in the header breaks research goals into phases and auto-generates calendar
+events. It's the "elevator" to your calendar: describe your goal once, and the planner maps each phase
+into a week's worth of concrete lab tasks.
+
+1. Write your project in `projects.md` with phases and sub-steps
+2. Click **Plan Project** → select your project and phase
+3. Review auto-generated events, tweak dates, confirm
+4. Events land in your calendar with a shared group colour
+
+Example: "GATA6 KO HEK293T cells" breaks into 6 phases (guide design → cloning → virus → transduction
+→ validation → further work). Each phase becomes a week of events. As you mark events done, you can
+re-run the planner to generate the next phase.
+
+See `projects.md` for the template and a worked example.
+
 ## Setting up a new device
 
 **Just looking:** open the app URL. Nothing to install, nothing to sign in to.

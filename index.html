@@ -228,6 +228,7 @@
 <header>
   <h1>Cagiral Schedule</h1>
   <button id="btnView" title="Switch between week grid and day list">Day</button>
+  <button id="btnProject" title="Plan and track projects">📋 Project</button>
   <button id="btnConnect">Connect</button>
   <button id="btnFeed" title="Calendar subscription link">Feed</button>
   <button id="btnPI" title="Turkish summary for your PI">PI</button>
@@ -437,6 +438,62 @@
     <div class="right">
       <button id="btnPIClose">Close</button>
       <button class="primary" id="btnPICopy">Copy</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ---------- project planning ---------- -->
+<dialog id="dlgProject">
+  <div class="dlg-body">
+    <h2>Plan a Project Phase</h2>
+    <div id="projectState" style="display:none">
+      <div class="field">
+        <label>Project name</label>
+        <select id="projectName" style="width:100%">
+          <option value="">-- Select a project --</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Phase to plan</label>
+        <select id="projectPhase" style="width:100%">
+          <option value="">-- Loading phases... --</option>
+        </select>
+      </div>
+      <div id="projectInfo" class="hint" style="margin-top:12px; display:none"></div>
+      <div id="projectEvents" style="margin-top:12px; display:none">
+        <h3 style="font-size:14px; margin:0 0 8px">Suggested events</h3>
+        <div id="eventsList" style="max-height:40vh; overflow-y:auto; border:1px solid var(--border); border-radius:6px; padding:8px"></div>
+      </div>
+    </div>
+    <div id="projectNew">
+      <div class="hint">
+        <p style="margin-top:0">Describe your goal. The agent will research methods, ask clarifying questions, and break it into phases with timings and verification steps.</p>
+      </div>
+      <div class="field">
+        <label>What do you want to build or validate? (e.g., "GATA6 KO HEK293T cells")</label>
+        <textarea id="projectGoal" placeholder="Be specific: include the cell line, target, or research question" style="height:80px"></textarea>
+      </div>
+      <div class="field">
+        <label>Any constraints? (equipment, timeline, existing materials)</label>
+        <textarea id="projectConstraints" placeholder="Optional: e.g., 'Need to finish by Dec 1', 'No lentiviral facility'" style="height:60px"></textarea>
+      </div>
+      <div id="projectLoading" style="display:none; color:var(--muted); font-size:13px">
+        Agent is researching and planning... (this may take a minute)
+      </div>
+    </div>
+    <div id="projectReview" style="display:none">
+      <div class="hint">
+        <p style="margin-top:0"><b>Review the breakdown below.</b> The agent has researched methods and proposed phases. Edit directly in <code>projects.md</code> if you want changes.</p>
+      </div>
+      <div style="max-height:40vh; overflow-y:auto; border:1px solid var(--border); border-radius:6px; padding:8px; font-size:12px; white-space:pre-wrap; word-break:break-word; font-family:ui-monospace,monospace" id="projectBreakdown"></div>
+    </div>
+  </div>
+  <div class="dlg-actions">
+    <span></span>
+    <div class="right">
+      <button id="btnProjectCancel">Close</button>
+      <button class="primary" id="btnProjectStart" style="display:none">Create &amp; continue</button>
+      <button class="primary" id="btnProjectPlan" style="display:none">Plan this phase</button>
     </div>
   </div>
 </dialog>
@@ -1572,6 +1629,357 @@
   $("btnPICopy").addEventListener("click", async function(){
     try { await navigator.clipboard.writeText($("piText").value); $("piCopyStatus").textContent = "Copied."; }
     catch(e){ $("piText").select(); $("piCopyStatus").textContent = "Selected — copy it."; }
+  });
+
+  // =====================================================================
+  // Project planning — break down research goals into phases and calendar events
+  // =====================================================================
+
+  // Parse projects.md to extract project names and phases.
+  // Read straight from raw.githubusercontent — projects.md isn't part of the
+  // schedule payload, and nothing here writes it back.
+  async function loadProjects(){
+    if (!CFG.owner) return {};
+    try {
+      var url = "https://raw.githubusercontent.com/" + CFG.owner + "/" + CFG.repo +
+        "/" + (CFG.branch || "main") + "/projects.md?t=" + Date.now();
+      var resp = await fetch(url, {cache: "no-store"});
+      if (!resp.ok) return {};
+      return parseProjectsMarkdown(await resp.text());
+    } catch(e){
+      console.warn("Could not load projects.md:", e);
+      return {};
+    }
+  }
+
+  function parseProjectsMarkdown(md){
+    var projects = {};
+    var lines = md.split('\n');
+    var currentProject = null;
+    var inProjectSection = false;
+    var phaseNum = 0;
+
+    for (var i = 0; i < lines.length; i++){
+      var line = lines[i];
+
+      // Project header: ## Name (real projects have **Goal** nearby)
+      if (line.startsWith('## ')){
+        var header = line.replace('## ', '').trim();
+        if (!header.includes('Template') && !header.startsWith('How to')){
+          // Check if Goal line appears within next 3 lines
+          var hasGoal = false;
+          for (var k = 1; k <= 3 && i + k < lines.length; k++){
+            if (lines[i+k].startsWith('**Goal**')){
+              hasGoal = true;
+              break;
+            }
+          }
+          if (hasGoal){
+            currentProject = header;
+            projects[currentProject] = { phases: [], goal: '' };
+            inProjectSection = true;
+            phaseNum = 0;
+          } else {
+            currentProject = null;
+            inProjectSection = false;
+          }
+        } else {
+          currentProject = null;
+          inProjectSection = false;
+        }
+      }
+
+      if (!currentProject) continue;
+
+      // Goal line
+      if (line.startsWith('**Goal**:')){
+        projects[currentProject].goal = line.replace('**Goal**:', '').trim();
+      }
+
+      // Phase header: ### Phase N: Title
+      if (line.match(/^### Phase \d+/)){
+        phaseNum++;
+        var phaseTitle = line.replace(/^### Phase \d+:\s*/, '').trim();
+        var substeps = [];
+        var j = i + 1;
+
+        // Collect substeps until we hit a non-substep line
+        while (j < lines.length){
+          var nextLine = lines[j];
+          if (nextLine.match(/^###|^##|^Duration|^---/) || (!nextLine.trim() && lines[j+1] && lines[j+1].match(/^###|^##/))){
+            break;
+          }
+          if (nextLine.match(/^\s*-\s+/) && !nextLine.includes('Sources')){
+            var step = nextLine.replace(/^\s*-\s+/, '').trim();
+            // Skip if it looks like a source
+            if (!step.match(/^https?:/) && !step.includes('://') && step.length < 150){
+              substeps.push(step);
+            }
+          }
+          j++;
+        }
+
+        projects[currentProject].phases.push({
+          number: phaseNum,
+          title: phaseTitle,
+          substeps: substeps
+        });
+      }
+    }
+    return projects;
+  }
+
+  // ---- durations -------------------------------------------------------
+  // protocols/durations.md is the recorded result of the duration research, so
+  // the planner reads it rather than inventing round numbers. A step with no row
+  // there falls back to an hour and is flagged, because an unresearched duration
+  // is a guess and should be treated as one.
+  var DURATIONS = null;
+
+  async function loadDurations(){
+    if (DURATIONS) return DURATIONS;
+    DURATIONS = [];
+    if (!CFG.owner) return DURATIONS;
+    try {
+      var url = "https://raw.githubusercontent.com/" + CFG.owner + "/" + CFG.repo +
+        "/" + (CFG.branch || "main") + "/protocols/durations.md?t=" + Date.now();
+      var resp = await fetch(url, {cache: "no-store"});
+      if (!resp.ok) return DURATIONS;
+      DURATIONS = parseDurations(await resp.text());
+    } catch(e){ console.warn("Could not load durations.md:", e); }
+    return DURATIONS;
+  }
+
+  // "30–45 min" / "~2 h" / "12–16 h" -> minutes, taking the top of a range so a
+  // day is never under-booked.
+  function parseSpan(cell){
+    var s = String(cell).toLowerCase();
+    var nums = s.match(/\d+(?:\.\d+)?/g);
+    if (!nums) return null;
+    var v = parseFloat(nums[nums.length - 1]);
+    return /\bh\b|hour/.test(s) ? Math.round(v * 60) : Math.round(v);
+  }
+
+  function parseDurations(md){
+    var out = [];
+    md.split("\n").forEach(function(line){
+      if (line.indexOf("|") !== 0) return;
+      var c = line.split("|").map(function(s){ return s.trim(); }).filter(function(s){ return s.length; });
+      if (c.length < 3 || /^-+$/.test(c[0]) || /^procedure$/i.test(c[0])) return;
+      var total = parseSpan(c[1]);
+      if (!total) return;
+      var handsOn = /all/i.test(c[2]) ? total : (parseSpan(c[2]) || total);
+      // Distinctive words to match a sub-step against, stemmed lightly so
+      // "transfection" in the table still catches "Transfect HEK293T…".
+      var stems = c[0].toLowerCase().replace(/\(.*?\)/g, " ").split(/[^a-z]+/)
+        .filter(function(w){ return w.length >= 5; })
+        .map(function(w){ return w.replace(/(ation|ing|ion|es|s)$/, ""); })
+        .filter(function(w){ return w.length >= 4; });
+      if (stems.length) out.push({ name: c[0], stems: stems, total: total, handsOn: handsOn });
+    });
+    return out;
+  }
+
+  function durationFor(step){
+    var s = step.toLowerCase(), best = null, bestLen = 0;
+    (DURATIONS || []).forEach(function(row){
+      row.stems.forEach(function(stem){
+        if (s.indexOf(stem) !== -1 && stem.length > bestLen){ best = row; bestLen = stem.length; }
+      });
+    });
+    if (!best) return { total: 60, handsOn: 60, researched: false, name: null };
+    return { total: best.total, handsOn: best.handsOn, researched: true, name: best.name };
+  }
+
+  // ---- placement -------------------------------------------------------
+  // An active event blocks the day, so a generated block may not land on top of
+  // one — CLAUDE.md asks for that to be checked programmatically rather than
+  // eyeballed. Keeps the 10-minute clearance the conflict warning wants, ends by
+  // 18:00, and never books a day that has already started.
+  var DAY_START = 9 * 60, DAY_END = 18 * 60, CLEARANCE = 10, MAX_PER_DAY = 3;
+
+  function blockersOn(iso, extra){
+    return state.events.concat(extra)
+      .filter(function(e){ return e.date === iso && e.status !== "cancelled" && e.type !== "passive"; })
+      .map(function(e){ return { s: timeToMin(e.start), e: timeToMin(e.end) }; })
+      .sort(function(a,b){ return a.s - b.s; });
+  }
+
+  function findSlot(iso, mins, extra){
+    var busy = blockersOn(iso, extra);
+    for (var t = DAY_START; t + mins <= DAY_END; t += 15){
+      var ok = busy.every(function(b){
+        return t + mins + CLEARANCE <= b.s || t >= b.e + CLEARANCE;
+      });
+      if (ok) return t;
+    }
+    return null;
+  }
+
+  // Generate calendar events from project phase sub-steps.
+  function generatePhaseEvents(projectName, phaseNum, phase){
+    var placed = [], unplaced = [], unresearched = [];
+    var slug = projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    // Never backdate: start from tomorrow, since today is already part-spent.
+    var cursor = addDays(startOfDay(new Date()), 1);
+    var perDay = {};
+
+    phase.substeps.forEach(function(step, idx){
+      var d = durationFor(step);
+      if (!d.researched) unresearched.push(step);
+
+      var day = new Date(cursor), slot = null, iso = null;
+      for (var tries = 0; tries < 28; tries++){
+        iso = isoDate(day);
+        if ((perDay[iso] || 0) < MAX_PER_DAY) slot = findSlot(iso, d.total, placed);
+        if (slot !== null) break;
+        day = addDays(day, 1);
+      }
+      if (slot === null){ unplaced.push(step); return; }
+
+      perDay[iso] = (perDay[iso] || 0) + 1;
+      if ((perDay[iso] || 0) >= MAX_PER_DAY) cursor = addDays(day, 1);
+
+      placed.push({
+        id: "proj-" + slug + "-" + phaseNum + "-" + idx,
+        date: iso,
+        start: minToTime(slot),
+        end: minToTime(slot + d.total),
+        title: step,
+        category: "experiment",
+        // A step whose hands-on share is small runs unattended, so it must not
+        // block the day the way an attended step does.
+        type: d.handsOn < d.total / 2 ? "passive" : "active",
+        status: "pending",
+        group: projectName,
+        project: projectName,
+        phase: phaseNum,
+        notes: "Phase " + phaseNum + ": " + phase.title +
+          (d.researched ? "\nDuration from protocols/durations.md — " + d.name
+                        : "\nDuration NOT researched — placeholder, check it.")
+      });
+    });
+
+    return { events: placed, unplaced: unplaced, unresearched: unresearched };
+  }
+
+  var dlgProject = $("dlgProject");
+  var currentProject = null;
+
+  var allProjects = {};
+  var suggestedEvents = [];
+
+  function updateProjectPhases(){
+    var pname = $("projectName").value;
+    if (!pname){ $("projectPhase").innerHTML = "<option>-- Select a phase --</option>"; return; }
+    var project = allProjects[pname];
+    $("projectPhase").innerHTML = "<option value=\"\">-- Select a phase --</option>";
+    project.phases.forEach(function(phase){
+      var opt = document.createElement("option");
+      opt.value = phase.number;
+      opt.textContent = "Phase " + phase.number + ": " + phase.title;
+      $("projectPhase").appendChild(opt);
+    });
+  }
+
+  function updatePhaseEvents(){
+    var pname = $("projectName").value;
+    var phaseNum = parseInt($("projectPhase").value);
+    if (!pname || !phaseNum || !allProjects[pname]){
+      $("projectInfo").style.display = "none";
+      $("projectEvents").style.display = "none";
+      $("btnProjectPlan").style.display = "none";
+      return;
+    }
+
+    var phase = allProjects[pname].phases.find(function(p){ return p.number === phaseNum; });
+    if (!phase) return;
+
+    var result = generatePhaseEvents(pname, phaseNum, phase);
+    suggestedEvents = result.events;
+
+    var html = "";
+    suggestedEvents.forEach(function(ev){
+      var dayName = new Date(ev.date + "T00:00:00").toLocaleDateString(undefined, {weekday:"short"});
+      html += "<div style='padding:6px 4px; border-bottom:1px solid var(--border); font-size:12px'>" +
+        "<b>" + escapeHtml(ev.title) + "</b><br>" +
+        "<span style='color:var(--muted)'>" + dayName + " " + escapeHtml(ev.date) + " · " +
+        ev.start + "–" + ev.end + (ev.type === "passive" ? " · passive" : "") + "</span>" +
+        "</div>";
+    });
+    $("eventsList").innerHTML = html || "<div style='padding:10px; color:var(--muted)'>No events</div>";
+    $("projectEvents").style.display = "block";
+
+    var notes = ["Placed around what's already on the calendar — nothing overlaps an active block, " +
+                 "everything ends by 18:00, and none of it lands before tomorrow."];
+    if (result.unresearched.length)
+      notes.push("<b>No researched duration for " + result.unresearched.length + " step(s)</b> — " +
+        "given a placeholder hour: " + escapeHtml(result.unresearched.join("; ")) +
+        ". Ask me to look these up and they'll be added to protocols/durations.md.");
+    if (result.unplaced.length)
+      notes.push("<b>Couldn't place " + result.unplaced.length + " step(s)</b> within the next four weeks: " +
+        escapeHtml(result.unplaced.join("; ")) + ".");
+    $("projectInfo").innerHTML = notes.map(function(n){ return "<p>" + n + "</p>"; }).join("");
+    $("projectInfo").style.display = "block";
+
+    $("btnProjectPlan").style.display = suggestedEvents.length ? "inline-block" : "none";
+  }
+
+  $("btnProject").addEventListener("click", async function(){
+    $("btnProject").disabled = true;
+    setStatus("Loading projects…", "saving");
+    var loaded = await Promise.all([loadProjects(), loadDurations()]);
+    allProjects = loaded[0];
+
+    if (Object.keys(allProjects).length === 0){
+      alert("No projects found in projects.md.\n\nAdd your first project there, then come back.");
+      $("btnProject").disabled = false;
+      dlgProject.close();
+      return;
+    }
+
+    // Show project selector
+    $("projectState").style.display = "block";
+    $("projectNew").style.display = "none";
+    $("projectReview").style.display = "none";
+    $("projectInfo").style.display = "none";
+    $("projectEvents").style.display = "none";
+    $("btnProjectPlan").style.display = "none";
+    $("projectName").innerHTML = "<option value=\"\">-- Select a project --</option>";
+    $("projectPhase").innerHTML = "<option value=\"\">-- Select a phase --</option>";
+    suggestedEvents = [];
+
+    Object.keys(allProjects).forEach(function(pname){
+      var opt = document.createElement("option");
+      opt.value = pname;
+      opt.textContent = pname;
+      $("projectName").appendChild(opt);
+    });
+
+    dlgProject.showModal();
+    setStatus("Ready.", "saved");
+    $("btnProject").disabled = false;
+  });
+
+  $("btnProjectCancel").addEventListener("click", function(){ dlgProject.close(); });
+  $("projectName").addEventListener("change", updateProjectPhases);
+  $("projectPhase").addEventListener("change", updatePhaseEvents);
+
+  $("btnProjectPlan").addEventListener("click", function(){
+    if (suggestedEvents.length === 0){ alert("No events to add."); return; }
+
+    // Add events to calendar
+    suggestedEvents.forEach(function(ev){
+      // Check if event already exists
+      if (!state.events.find(function(e){ return e.id === ev.id; })){
+        state.events.push(ev);
+      }
+    });
+
+    render();
+    scheduleSave();
+    setStatus("Added " + suggestedEvents.length + " event(s).", "saved");
+    dlgProject.close();
   });
 
   // =====================================================================

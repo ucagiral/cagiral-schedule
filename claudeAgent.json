@@ -1645,8 +1645,8 @@
     {
       "id": "e-thaw-hekhuh7-atf3-2026-08-31",
       "date": "2026-08-31",
-      "start": "11:10",
-      "end": "12:10",
+      "start": "09:45",
+      "end": "10:45",
       "title": "Thaw cells (Hek and Huh7 ATF3 mutants)",
       "category": "experiment",
       "type": "active",
@@ -2006,7 +2006,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-11T19:58:45.546Z",
+    "lastModified": "2026-08-11T19:58:48.563Z",
     "modifiedBy": "Windows PC"
   }
 }

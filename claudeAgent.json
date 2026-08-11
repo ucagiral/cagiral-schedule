@@ -41,7 +41,7 @@
       "title": "pLentiGuide Plasmid Transfection",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "protocols.md Transfection (viral particle production), PEI. Target DNA = today's miniprep product. Add dropwise to HEK dish after ~15-20 min RT incubation."
     },
     {
@@ -1685,7 +1685,7 @@
     }
   ],
   "_meta": {
-    "lastModified": "2026-08-11T11:59:30.249Z",
-    "modifiedBy": "Umut MacBook Pro"
+    "lastModified": "2026-08-11T13:53:15.241Z",
+    "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

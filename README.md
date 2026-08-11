@@ -48,6 +48,11 @@ rebuilds `schedule.ics` → Apple Calendar picks it up on its next refresh.
   seeding, virus medium change and harvest all reading as one thread. The colour comes from the
   group's *name*, so it's identical on every device with nothing to keep in sync. Groups also become
   `CATEGORIES` values in the feed, so Apple Calendar can filter by them.
+- `autoDone` (optional): `true` marks the event `done` by itself once its **end time** has passed —
+  for commitments that are finished simply by the hour arriving, like the standing Wednesday Zoom.
+  Two guards: only a device that can save will flip anything, so a read-only phone can't disagree
+  with the file; and an `autoDoneAt` stamp records that it happened, so un-ticking one by hand
+  sticks instead of being flipped straight back.
 - Anything still `pending` with a date in the past shows up in the app's "Carried over" list until
   it's done, cancelled, or moved. Nothing is auto-deleted.
 

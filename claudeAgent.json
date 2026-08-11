@@ -69,7 +69,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-18",
@@ -80,7 +81,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-19",
@@ -91,7 +93,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-20",
@@ -102,7 +105,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-21",
@@ -113,7 +117,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-22",
@@ -124,7 +129,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-23",
@@ -135,7 +141,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-24",
@@ -146,7 +153,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-25",
@@ -157,7 +165,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-26",
@@ -168,7 +177,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-27",
@@ -179,7 +189,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-28",
@@ -190,7 +201,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-29",
@@ -201,7 +213,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-vacation-2026-08-30",
@@ -212,7 +225,8 @@
       "category": "personal",
       "type": "active",
       "status": "done",
-      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over."
+      "notes": "Vacation Aug 15–31, 2026 — marked done so it doesn't accumulate in weekly carry-over.",
+      "group": "Vacation"
     },
     {
       "id": "e-cuadapt-passage-2026-08-10",
@@ -1147,7 +1161,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-zoom-weekly-2026-09-02",
@@ -1158,7 +1174,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-09-04",
@@ -1169,7 +1187,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-09-09",
@@ -1180,7 +1199,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-09-11",
@@ -1191,7 +1212,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-09-16",
@@ -1202,7 +1224,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-09-18",
@@ -1213,7 +1237,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-09-23",
@@ -1224,7 +1249,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-09-25",
@@ -1235,7 +1262,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-09-30",
@@ -1246,7 +1274,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-10-02",
@@ -1257,7 +1287,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-10-07",
@@ -1268,7 +1299,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-10-09",
@@ -1279,7 +1312,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-10-14",
@@ -1290,7 +1324,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-10-16",
@@ -1301,7 +1337,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-10-21",
@@ -1312,7 +1349,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-10-23",
@@ -1323,7 +1362,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-10-28",
@@ -1334,7 +1374,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-10-30",
@@ -1345,7 +1387,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-11-04",
@@ -1356,7 +1399,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-11-06",
@@ -1367,7 +1412,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-11-11",
@@ -1378,7 +1424,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-11-13",
@@ -1389,7 +1437,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-11-18",
@@ -1400,7 +1449,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-11-20",
@@ -1411,7 +1462,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-11-25",
@@ -1422,7 +1474,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-11-27",
@@ -1433,7 +1487,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-12-02",
@@ -1444,7 +1499,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-12-04",
@@ -1455,7 +1512,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-12-09",
@@ -1466,7 +1524,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-12-11",
@@ -1477,7 +1537,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-12-16",
@@ -1488,7 +1549,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-12-18",
@@ -1499,7 +1562,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-12-23",
@@ -1510,7 +1574,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "e-meeting-weekly-2026-12-25",
@@ -1521,7 +1587,8 @@
       "category": "meeting",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule."
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "group": "Weekly meeting"
     },
     {
       "id": "e-zoom-weekly-2026-12-30",
@@ -1532,7 +1599,9 @@
       "category": "personal",
       "type": "active",
       "status": "pending",
-      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md."
+      "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
+      "group": "Zoom — Wednesday",
+      "autoDone": true
     },
     {
       "id": "emsm99uvd9u3c3",
@@ -1990,6 +2059,15 @@
       "color": "#6366f1"
     },
     "ATF3 mutants": {
+      "color": "#06b6d4"
+    },
+    "Zoom — Wednesday": {
+      "color": "#a855f7"
+    },
+    "Weekly meeting": {
+      "color": "#84cc16"
+    },
+    "Vacation": {
       "color": "#64748b"
     }
   },

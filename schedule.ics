@@ -103,9 +103,9 @@ DTSTART;TZID=Europe/Istanbul:20260817T081500
 DTEND;TZID=Europe/Istanbul:20260817T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -117,9 +117,9 @@ DTSTART;TZID=Europe/Istanbul:20260818T081500
 DTEND;TZID=Europe/Istanbul:20260818T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -131,9 +131,9 @@ DTSTART;TZID=Europe/Istanbul:20260819T081500
 DTEND;TZID=Europe/Istanbul:20260819T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -145,9 +145,9 @@ DTSTART;TZID=Europe/Istanbul:20260820T081500
 DTEND;TZID=Europe/Istanbul:20260820T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -159,9 +159,9 @@ DTSTART;TZID=Europe/Istanbul:20260821T081500
 DTEND;TZID=Europe/Istanbul:20260821T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -173,9 +173,9 @@ DTSTART;TZID=Europe/Istanbul:20260822T081500
 DTEND;TZID=Europe/Istanbul:20260822T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -187,9 +187,9 @@ DTSTART;TZID=Europe/Istanbul:20260823T081500
 DTEND;TZID=Europe/Istanbul:20260823T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -201,9 +201,9 @@ DTSTART;TZID=Europe/Istanbul:20260824T081500
 DTEND;TZID=Europe/Istanbul:20260824T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -215,9 +215,9 @@ DTSTART;TZID=Europe/Istanbul:20260825T081500
 DTEND;TZID=Europe/Istanbul:20260825T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -229,9 +229,9 @@ DTSTART;TZID=Europe/Istanbul:20260826T081500
 DTEND;TZID=Europe/Istanbul:20260826T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -243,9 +243,9 @@ DTSTART;TZID=Europe/Istanbul:20260827T081500
 DTEND;TZID=Europe/Istanbul:20260827T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -257,9 +257,9 @@ DTSTART;TZID=Europe/Istanbul:20260828T081500
 DTEND;TZID=Europe/Istanbul:20260828T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -271,9 +271,9 @@ DTSTART;TZID=Europe/Istanbul:20260829T081500
 DTEND;TZID=Europe/Istanbul:20260829T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -285,9 +285,9 @@ DTSTART;TZID=Europe/Istanbul:20260830T081500
 DTEND;TZID=Europe/Istanbul:20260830T192000
 SUMMARY:✓ Vacation
 DESCRIPTION:Vacation Aug 15–31\, 2026 — marked done so it doesn't accum
- ulate in weekly carry-over.\nActive — needs you there\nCategory: persona
- l\nMarked done.
-CATEGORIES:personal
+ ulate in weekly carry-over.\nActive — needs you there\nGroup: Vacation\n
+ Category: personal\nMarked done.
+CATEGORIES:Vacation,personal
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -1730,9 +1730,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1751,9 +1751,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1771,8 +1771,9 @@ DTEND;TZID=Europe/Istanbul:20260904T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1791,9 +1792,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1811,8 +1812,9 @@ DTEND;TZID=Europe/Istanbul:20260911T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1831,9 +1833,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1851,8 +1853,9 @@ DTEND;TZID=Europe/Istanbul:20260918T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1871,9 +1874,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1891,8 +1894,9 @@ DTEND;TZID=Europe/Istanbul:20260925T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1911,9 +1915,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1931,8 +1935,9 @@ DTEND;TZID=Europe/Istanbul:20261002T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1951,9 +1956,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1971,8 +1976,9 @@ DTEND;TZID=Europe/Istanbul:20261009T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -1991,9 +1997,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2011,8 +2017,9 @@ DTEND;TZID=Europe/Istanbul:20261016T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2031,9 +2038,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2051,8 +2058,9 @@ DTEND;TZID=Europe/Istanbul:20261023T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2071,9 +2079,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2091,8 +2099,9 @@ DTEND;TZID=Europe/Istanbul:20261030T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2111,9 +2120,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2131,8 +2140,9 @@ DTEND;TZID=Europe/Istanbul:20261106T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2151,9 +2161,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2171,8 +2181,9 @@ DTEND;TZID=Europe/Istanbul:20261113T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2191,9 +2202,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2211,8 +2222,9 @@ DTEND;TZID=Europe/Istanbul:20261120T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2231,9 +2243,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2251,8 +2263,9 @@ DTEND;TZID=Europe/Istanbul:20261127T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2271,9 +2284,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2291,8 +2304,9 @@ DTEND;TZID=Europe/Istanbul:20261204T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2311,9 +2325,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2331,8 +2345,9 @@ DTEND;TZID=Europe/Istanbul:20261211T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2351,9 +2366,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2371,8 +2386,9 @@ DTEND;TZID=Europe/Istanbul:20261218T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2391,9 +2407,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2411,8 +2427,9 @@ DTEND;TZID=Europe/Istanbul:20261225T123000
 SUMMARY:Weekly meeting
 DESCRIPTION:Recurring Friday meeting per schedule.md. No experiments during
   this time. Materialized as a calendar entry (2026-08-09 rule change) inst
- ead of an implicit rule.\nActive — needs you there\nCategory: meeting
-CATEGORIES:meeting
+ ead of an implicit rule.\nActive — needs you there\nGroup: Weekly meetin
+ g\nCategory: meeting
+CATEGORIES:Weekly meeting,meeting
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
@@ -2431,9 +2448,9 @@ SUMMARY:Zoom meeting
 DESCRIPTION:Recurring Wednesday Zoom meeting\, personal commitment\, every 
  week without exception (2026-08-09: Umut clarified this is personal\, not 
  a work meeting\, and happens even during vacation). Wednesday schedule sho
- uld finish at most 19:20 per schedule.md.\nActive — needs you there\nCat
- egory: personal
-CATEGORIES:personal
+ uld finish at most 19:20 per schedule.md.\nActive — needs you there\nGro
+ up: Zoom — Wednesday\nCategory: personal
+CATEGORIES:Zoom — Wednesday,personal
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM

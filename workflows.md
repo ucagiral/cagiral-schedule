@@ -95,20 +95,35 @@ experiment thread reads as a single strand on the grid. The eight in use:
 
 | Group | Colour | Covers |
 |---|---|---|
-| Virus prep | teal | HEK293T seeding, pLentiGuide transfection, virus medium change, harvest |
-| Western — biotin | red | every `Western — …` step plus the protein boil |
-| ATF3 qPCR | amber | RNA isolation, cDNA conversion, qPCR prep, qPCR run |
-| CuAdapt | green | copper treatment, passage, freeze, thaw, medium change |
-| Cloning | violet | bacterial culture, miniprep, plasmids to sequencing |
-| SRB assay | pink | seeding, copper/cisplatin treatment, TCA fixation and wash, pelleting |
-| LNCX/LUCX | indigo | thaw, seed, transduction, hygromycin selection |
-| ATF3 mutants | slate | thaw and medium change for the HEK/Huh7 mutants |
+| Virus prep | teal `#14b8a6` | HEK293T seeding, pLentiGuide transfection, virus medium change, harvest |
+| Western — biotin | red `#ef4444` | every `Western — …` step plus the protein boil |
+| ATF3 qPCR | amber `#f59e0b` | RNA isolation, cDNA conversion, qPCR prep, qPCR run |
+| CuAdapt | green `#22c55e` | copper treatment, passage, freeze, thaw, medium change |
+| Cloning | violet `#8b5cf6` | bacterial culture, miniprep, plasmids to sequencing |
+| SRB assay | pink `#ec4899` | seeding, copper/cisplatin treatment, TCA fixation and wash, pelleting |
+| LNCX/LUCX | indigo `#6366f1` | thaw, seed, transduction, hygromycin selection |
+| ATF3 mutants | cyan `#06b6d4` | thaw and medium change for the HEK/Huh7 mutants |
+| Zoom — Wednesday | purple `#a855f7` | the standing Wednesday 21:10 Zoom |
+| Weekly meeting | lime `#84cc16` | the standing Friday 09:30 meeting |
+| Vacation | slate `#64748b` | vacation days |
 
-Colours are pinned in `_groups` rather than left to the name hash, because *Cloning* would otherwise
-collide with *CuAdapt* and *SRB assay* with *ATF3 qPCR*. Any of them can be changed in the app's
-colour dropdown. Passive events keep their pale treatment, tinted with the group's colour.
+**Every event carries a group, so no block falls back to a category colour.** That matters because
+the category palette overlaps the group palette — `personal` green is CuAdapt's green and `meeting`
+red is the Western red, which is exactly how the Wednesday Zoom and the Friday meeting ended up
+looking like experiments. Grouping them fixes it at the root.
 
-Meetings, Zoom calls and vacation stay ungrouped and keep their category colours.
+All eleven colours are pinned in `_groups` and are distinct from one another. The Wednesday Zoom's
+purple and the Friday meeting's lime are used by nothing else. Any of them can be changed from the
+app's colour dropdown. Passive events keep their pale treatment, tinted with the group's colour.
+
+**A new recurring commitment gets its own group and its own unused colour**, rather than being left
+on a category colour where it will collide with an experiment.
+
+## Things that complete themselves
+
+The Wednesday Zoom carries `autoDone`, so it flips to done once 22:10 passes — it happens whether or
+not it gets ticked, so ticking it is busywork. Nothing else is set up this way; ask before adding it
+to anything where "the hour passed" doesn't actually mean "the work is finished".
 
 ## Estimating durations
 

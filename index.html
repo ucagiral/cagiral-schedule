@@ -714,6 +714,8 @@
       state.lastLoadedAt = new Date();
       cacheSave();
       $("bannerOffline").classList.remove("show");
+      // Catch up on anything whose hour passed while this device wasn't looking.
+      if (applyAutoDone()) scheduleSave();
       render();
       setStatus(canWrite() ? ("Up to date · " + state.lastLoadedAt.toLocaleTimeString()) : "Read-only · up to date", "");
     } catch(err){
@@ -1115,6 +1117,38 @@
       li.appendChild(chk); li.appendChild(d); li.appendChild(t); li.appendChild(c);
       list.appendChild(li);
     });
+  }
+
+  // =====================================================================
+  // Auto-complete
+  // =====================================================================
+  // Some commitments are finished simply by the hour passing — the standing Wednesday
+  // Zoom, for one. Those carry autoDone, and tick over to done once their end time is
+  // behind us. Two deliberate limits:
+  //
+  //   - only a device that can save may flip anything, so a read-only phone can't
+  //     silently disagree with the file;
+  //   - autoDoneAt records that we did it, so un-ticking one by hand sticks instead of
+  //     being flipped straight back on the next pass.
+  function eventEndsAt(ev){
+    return new Date(ev.date + "T" + (ev.end || "00:00") + ":00");
+  }
+  function applyAutoDone(){
+    if (!canWrite()) return false;
+    var now = new Date(), changed = false;
+    state.events.forEach(function(ev){
+      if (!ev.autoDone || ev.autoDoneAt) return;
+      if (ev.status !== "pending") return;
+      if (eventEndsAt(ev) > now) return;
+      ev.status = "done";
+      ev.autoDoneAt = new Date().toISOString();
+      changed = true;
+    });
+    return changed;
+  }
+  function autoDoneTick(){
+    if (state.saving || state.conflict) return;
+    if (applyAutoDone()){ render(); scheduleSave(); }
   }
 
   // =====================================================================
@@ -1551,8 +1585,12 @@
       load({quiet:true});
     }, pollInterval());
   }
+  // Separate from polling: this has to keep running while the tab sits open and idle,
+  // which is exactly when an event's end time slides past.
+  setInterval(autoDoneTick, 30000);
   document.addEventListener("visibilitychange", function(){
     if (document.hidden || state.saving || state.conflict) return;
+    autoDoneTick();
     // A save that failed while the app was in the background gets another go here,
     // rather than sitting unsaved until the next edit.
     if (state.dirty && canWrite()) save(); else load({quiet:true});

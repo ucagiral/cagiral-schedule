@@ -1641,14 +1641,14 @@
     },
     {
       "id": "e-cuadapt-passage-onetime-2026-08-11",
-      "date": "2026-08-12",
-      "start": "12:00",
-      "end": "12:30",
+      "date": "2026-08-11",
+      "start": "13:40",
+      "end": "14:10",
       "title": "CuAdapt cells — passage (one-off, missed Monday)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: Carried over from Tue 08-11 (originally a missed Monday passage). Fits in the tail of the SDS-PAGE run."
+      "status": "done",
+      "notes": "One-off catch-up for the passage skipped on Monday 08-10. Placed after the copper treatment (ends 13:30) with the required 10-min gap. Does not affect the recurring Mon/Thu passage schedule. 2026-08-11: marked done by Umut from the app — not carried into 08-12."
     },
     {
       "id": "e-western-protein-boil-2026-08-12",
@@ -1817,7 +1817,7 @@
     }
   ],
   "_meta": {
-    "lastModified": "2026-08-11T04:19:46.500Z",
+    "lastModified": "2026-08-11T13:53:20.184Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

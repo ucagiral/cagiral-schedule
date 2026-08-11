@@ -35,6 +35,7 @@ rebuilds `schedule.ics` → Apple Calendar picks it up on its next refresh.
   "category": "experiment",
   "type": "active",
   "status": "pending",
+  "group": "Virus prep",
   "notes": "From overnight bacterial culture."
 }
 ```
@@ -43,8 +44,30 @@ rebuilds `schedule.ics` → Apple Calendar picks it up on its next refresh.
 - `type`: `active` (needs you there, blocks time) · `passive` (runs unattended, doesn't block time)
 - `status`: `pending` · `done` · `cancelled` — cancelled events stay in the file as a record but
   disappear from the app and stop alarming.
+- `group` (optional): ties related work together so it shares one colour across the week — e.g. HEK
+  seeding, virus medium change and harvest all reading as one thread. The colour comes from the
+  group's *name*, so it's identical on every device with nothing to keep in sync. Groups also become
+  `CATEGORIES` values in the feed, so Apple Calendar can filter by them.
 - Anything still `pending` with a date in the past shows up in the app's "Carried over" list until
   it's done, cancelled, or moved. Nothing is auto-deleted.
+
+An optional top-level `_groups` map pins a specific colour to a group, overriding the automatic one:
+
+```json
+"_groups": { "Virus prep": { "color": "#14b8a6" } }
+```
+
+Entries for groups no longer used by any event are dropped automatically when the app saves.
+
+## Using the app
+
+- **Week grid (desktop):** drag empty grid to create an event; **drag an existing event to move it**
+  to another day or time — it snaps to 5 minutes, keeps its length, and shows the new times as you
+  drag. Escape cancels. Click an event to edit it.
+- **Day list (phones):** tap to edit, tick to complete, and use **−15 min / +15 min** and
+  **◀ day / day ▶** to move things — a list has no time axis to drag along.
+- Moving an event that lands within 10 minutes of another active event, or overlapping one, shows a
+  warning. It's advisory: the move is still saved.
 
 There is no recurrence engine: repeating commitments are stored as individual dated events, so they
 need regenerating when they run past their last date (currently 2026-12-31).

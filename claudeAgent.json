@@ -1631,13 +1631,13 @@
     {
       "id": "emsmbiis5h5tbj",
       "date": "2026-08-12",
-      "start": "09:40",
-      "end": "10:40",
+      "start": "11:00",
+      "end": "12:00",
       "title": "qPCR prep",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-10: moved from Thu 08-13 to Wed 08-12 per Umut — prepare the plate a day early and keep it in the fridge, so Thursday (qPCR + Western day) is lighter. Placed after Virus Medium Change (09:00-09:30)."
+      "notes": "2026-08-11: moved later in the day per Umut (was 09:40-10:40); slot freed by the protein boil moving to Tue 08-11. Prepared a day early and kept in the fridge for Thursday's 12:00-14:00 qPCR. Sits after Virus Medium Change (09:00-09:30)."
     },
     {
       "id": "e-cuadapt-passage-onetime-2026-08-11",
@@ -1652,25 +1652,25 @@
     },
     {
       "id": "e-western-protein-boil-2026-08-12",
-      "date": "2026-08-12",
-      "start": "10:50",
-      "end": "11:50",
-      "title": "Boil protein samples (for Thursday Western)",
+      "date": "2026-08-11",
+      "start": "14:20",
+      "end": "15:20",
+      "title": "Boil protein samples (for Wednesday Western)",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-10: prep for Thursday (08-13) Western run — boil after calculating concentrations. Duration defaulted to 1h (not specified)."
+      "notes": "2026-08-11: moved from Wed 08-12 to Tue 08-11 per Umut, following the Western run moving to Wed 08-12 — boil the day before, after calculating concentrations. Placed after the CuAdapt passage (13:40-14:10). Duration 1h (not specified)."
     },
     {
       "id": "e-western-run-2026-08-13",
-      "date": "2026-08-13",
+      "date": "2026-08-12",
       "start": "09:30",
       "end": "15:10",
       "title": "Western (run)",
       "category": "experiment",
       "type": "passive",
       "status": "pending",
-      "notes": "2026-08-10: separate track from the ATF3 qPCR, protein boiled the day before (08-12). Placed after the 12:00-14:00 qPCR. Duration defaulted to 1h (not specified). Needs a booked appointment/reservation — see workflows.md standing to-do."
+      "notes": "2026-08-11: moved from Thu 08-13 to Wed 08-12 per Umut. Separate track from the ATF3 qPCR; protein boiled the day before (Tue 08-11). Passive run, so it doesn't block the day. Duration defaulted to 1h originally, kept at the 09:30-15:10 span. Needs a booked appointment/reservation — see workflows.md standing to-do."
     },
     {
       "id": "emso5imd6jbx1w",

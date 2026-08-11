@@ -1563,7 +1563,7 @@
       "date": "2026-08-31",
       "start": "10:00",
       "end": "11:00",
-      "title": "LNCX and LUCX thaw",
+      "title": "LNCX and LUCX seed",
       "category": "experiment",
       "type": "active",
       "status": "pending",
@@ -2006,7 +2006,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-11T13:53:20.184Z",
-    "modifiedBy": "Umut iPhone 16 Plus"
+    "lastModified": "2026-08-11T19:57:40.346Z",
+    "modifiedBy": "Windows PC"
   }
 }

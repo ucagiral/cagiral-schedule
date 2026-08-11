@@ -1595,18 +1595,6 @@
       "group": "LNCX/LUCX"
     },
     {
-      "id": "emsma1mm8ixuwv",
-      "date": "2026-09-04",
-      "start": "14:00",
-      "end": "15:00",
-      "title": "LNCX and LUCX Hygromycin",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "Day 2 of the 6-day transduction+selection window (2026-09-03 transduction through 2026-09-08). Selection window end (2026-09-08) is a Tuesday, satisfying \"shouldn't end on a Friday or weekend.\"",
-      "group": "LNCX/LUCX"
-    },
-    {
       "id": "e-srb-pellet-rna-2026-08-10",
       "date": "2026-08-10",
       "start": "14:10",
@@ -2006,7 +1994,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-11T20:00:04.307Z",
+    "lastModified": "2026-08-11T20:00:07.900Z",
     "modifiedBy": "Windows PC"
   }
 }

@@ -66,20 +66,15 @@ BEGIN:VEVENT
 UID:e-transfection@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
-DTSTART;TZID=Europe/Istanbul:20260812T124500
-DTEND;TZID=Europe/Istanbul:20260812T134500
-SUMMARY:pLentiGuide Plasmid Transfection
-DESCRIPTION:2026-08-11: Carried over from Tue 08-11 per Umut. Slotted into 
- the 2 h wet transfer\, which is unattended once running.\nActive — needs
-  you there\nCategory: experiment
+DTSTART;TZID=Europe/Istanbul:20260811T093000
+DTEND;TZID=Europe/Istanbul:20260811T103000
+SUMMARY:✓ pLentiGuide Plasmid Transfection
+DESCRIPTION:2026-08-11: pLentiGuide transfection — done on 08-11 as origi
+ nally scheduled. Umut confirmed it was completed\, so it was not carried i
+ nto 08-12.\nActive — needs you there\nCategory: experiment\nMarked done.
 CATEGORIES:experiment
 STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:pLentiGuide Plasmid Transfection
-TRIGGER:-PT15M
-END:VALARM
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-harvest-2@cagiral-schedule
@@ -2543,39 +2538,31 @@ BEGIN:VEVENT
 UID:e-qpcr-rna-isolation-2026-08-11@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
-DTSTART;TZID=Europe/Istanbul:20260812T134500
-DTEND;TZID=Europe/Istanbul:20260812T144500
-SUMMARY:RNA isolation (ATF3 rep 3\, cells seeded 08-10)
-DESCRIPTION:2026-08-11: Carried over from Tue 08-11 per Umut. Also inside t
- he wet transfer window. Cells were seeded 08-10.\nActive — needs you the
- re\nCategory: experiment
+DTSTART;TZID=Europe/Istanbul:20260811T104000
+DTEND;TZID=Europe/Istanbul:20260811T114000
+SUMMARY:✓ RNA isolation (ATF3 rep 3\, cells seeded 08-10)
+DESCRIPTION:2026-08-11: RNA isolation (ATF3 rep 3) — done on 08-11 as ori
+ ginally scheduled. Umut confirmed it was completed\, so it was not carried
+  into 08-12.\nActive — needs you there\nCategory: experiment\nMarked don
+ e.
 CATEGORIES:experiment
 STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:RNA isolation (ATF3 rep 3\, cells seeded 08-10)
-TRIGGER:-PT15M
-END:VALARM
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-qpcr-cdna-2026-08-11@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
-DTSTART;TZID=Europe/Istanbul:20260812T144500
-DTEND;TZID=Europe/Istanbul:20260812T154500
-SUMMARY:LunaScript cDNA conversion (ATF3 rep 3)
-DESCRIPTION:2026-08-11: Carried over from Tue 08-11 per Umut. Runs straight
-  off the RNA isolation\, during the membrane blocking step.\nActive — ne
- eds you there\nCategory: experiment
+DTSTART;TZID=Europe/Istanbul:20260811T115000
+DTEND;TZID=Europe/Istanbul:20260811T125000
+SUMMARY:✓ LunaScript cDNA conversion (ATF3 rep 3)
+DESCRIPTION:2026-08-11: LunaScript cDNA conversion (ATF3 rep 3) — done on
+  08-11\, straight off the RNA isolation. Umut confirmed it was completed\,
+  so it was not carried into 08-12.\nActive — needs you there\nCategory: 
+ experiment\nMarked done.
 CATEGORIES:experiment
 STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:LunaScript cDNA conversion (ATF3 rep 3)
-TRIGGER:-PT15M
-END:VALARM
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-thaw-hekhuh7-atf3-2026-08-31@cagiral-schedule
@@ -2717,13 +2704,13 @@ BEGIN:VEVENT
 UID:emsmbiis5h5tbj@cagiral-schedule
 DTSTAMP:20260811T135320Z
 SEQUENCE:29774273
-DTSTART;TZID=Europe/Istanbul:20260812T154500
-DTEND;TZID=Europe/Istanbul:20260812T164500
+DTSTART;TZID=Europe/Istanbul:20260812T124500
+DTEND;TZID=Europe/Istanbul:20260812T134500
 SUMMARY:qPCR prep
-DESCRIPTION:2026-08-11: Moved again to sit after the cDNA conversion it dep
- ends on\, during the streptavidin-HRP incubation. Plate is fridged overnig
- ht for Thursday's 12:00-14:00 qPCR.\nActive — needs you there\nCategory:
-  experiment
+DESCRIPTION:2026-08-11: moved up into the wet transfer window — the cDNA 
+ it depends on was finished on 08-11\, so it no longer has to wait until th
+ e afternoon. Plate is fridged overnight for Thursday's 12:00-14:00 qPCR.\n
+ Active — needs you there\nCategory: experiment
 CATEGORIES:experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE

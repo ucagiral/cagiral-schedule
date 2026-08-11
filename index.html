@@ -1654,27 +1654,69 @@
     var projects = {};
     var lines = md.split('\n');
     var currentProject = null;
+    var inProjectSection = false;
     var phaseNum = 0;
 
     for (var i = 0; i < lines.length; i++){
       var line = lines[i];
-      if (line.startsWith('## ') && !line.includes('Template')){
-        currentProject = line.replace('## ', '').trim();
-        projects[currentProject] = { phases: [], goal: '' };
-        phaseNum = 0;
-      } else if (line.startsWith('**Goal**:') && currentProject){
+
+      // Project header: ## Name (real projects have **Goal** nearby)
+      if (line.startsWith('## ')){
+        var header = line.replace('## ', '').trim();
+        if (!header.includes('Template') && !header.startsWith('How to')){
+          // Check if Goal line appears within next 3 lines
+          var hasGoal = false;
+          for (var k = 1; k <= 3 && i + k < lines.length; k++){
+            if (lines[i+k].startsWith('**Goal**')){
+              hasGoal = true;
+              break;
+            }
+          }
+          if (hasGoal){
+            currentProject = header;
+            projects[currentProject] = { phases: [], goal: '' };
+            inProjectSection = true;
+            phaseNum = 0;
+          } else {
+            currentProject = null;
+            inProjectSection = false;
+          }
+        } else {
+          currentProject = null;
+          inProjectSection = false;
+        }
+      }
+
+      if (!currentProject) continue;
+
+      // Goal line
+      if (line.startsWith('**Goal**:')){
         projects[currentProject].goal = line.replace('**Goal**:', '').trim();
-      } else if (line.match(/^### Phase \d+/) && currentProject){
+      }
+
+      // Phase header: ### Phase N: Title
+      if (line.match(/^### Phase \d+/)){
         phaseNum++;
-        var phaseTitle = line.replace('### Phase ', '').trim();
+        var phaseTitle = line.replace(/^### Phase \d+:\s*/, '').trim();
         var substeps = [];
         var j = i + 1;
-        while (j < lines.length && !lines[j].match(/^###|^##|^Duration/)){
-          if (lines[j].match(/^\s*-\s+/)){
-            substeps.push(lines[j].replace(/^\s*-\s+/, '').trim());
+
+        // Collect substeps until we hit a non-substep line
+        while (j < lines.length){
+          var nextLine = lines[j];
+          if (nextLine.match(/^###|^##|^Duration|^---/) || (!nextLine.trim() && lines[j+1] && lines[j+1].match(/^###|^##/))){
+            break;
+          }
+          if (nextLine.match(/^\s*-\s+/) && !nextLine.includes('Sources')){
+            var step = nextLine.replace(/^\s*-\s+/, '').trim();
+            // Skip if it looks like a source
+            if (!step.match(/^https?:/) && !step.includes('://') && step.length < 150){
+              substeps.push(step);
+            }
           }
           j++;
         }
+
         projects[currentProject].phases.push({
           number: phaseNum,
           title: phaseTitle,

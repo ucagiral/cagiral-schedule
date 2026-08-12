@@ -2724,27 +2724,6 @@ STATUS:CANCELLED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:emsmbiis5h5tbj@cagiral-schedule
-DTSTAMP:20260812T193855Z
-SEQUENCE:29776058
-DTSTART;TZID=Europe/Istanbul:20260813T093500
-DTEND;TZID=Europe/Istanbul:20260813T103500
-SUMMARY:qPCR prep
-DESCRIPTION:2026-08-11: Sits inside the 2 h wet transfer. Plate is fridged 
- overnight for the 08-13 qPCR.\nMoved from 2026-08-12 (not done that day). 
- Sits before the 12:00 run it feeds — same day rather than the usual day-
- before\, so the plate goes straight in.\nActive — needs you there\nGroup
- : ATF3 qPCR\nCategory: experiment
-CATEGORIES:ATF3 qPCR,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:qPCR prep
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
 UID:e-cuadapt-passage-onetime-2026-08-11@cagiral-schedule
 DTSTAMP:20260812T193855Z
 SEQUENCE:29776058
@@ -2934,122 +2913,6 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:e-wb-strip-2026-08-13@cagiral-schedule
-DTSTAMP:20260812T193855Z
-SEQUENCE:29776058
-DTSTART;TZID=Europe/Istanbul:20260813T090000
-DTEND;TZID=Europe/Istanbul:20260813T092000
-SUMMARY:Western — strip (20 min)
-DESCRIPTION:2026-08-11: Mild stripping buffer\, 20 min\, swapping in fresh 
- buffer at the 10 min mark. Rinse well before blocking.\nActive — needs y
- ou there\nGroup: Western — biotin\nCategory: experiment
-CATEGORIES:Western — biotin,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Western — strip (20 min)
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-wb-block-2026-08-13@cagiral-schedule
-DTSTAMP:20260812T193855Z
-SEQUENCE:29776058
-DTSTART;TZID=Europe/Istanbul:20260813T092000
-DTEND;TZID=Europe/Istanbul:20260813T102000
-SUMMARY:Western — block
-DESCRIPTION:2026-08-11: 1 h.\nPassive — runs unattended\, does not block 
- time\nGroup: Western — biotin\nCategory: experiment
-CATEGORIES:Western — biotin,experiment
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:e-wb-primary-2026-08-13@cagiral-schedule
-DTSTAMP:20260812T193855Z
-SEQUENCE:29776058
-DTSTART;TZID=Europe/Istanbul:20260813T102000
-DTEND;TZID=Europe/Istanbul:20260813T112000
-SUMMARY:Western — primary antibody
-DESCRIPTION:2026-08-11: 1 h. Pour off and give a quick rinse at the end —
-  the membrane then rests in TBS-T through the qPCR and the full washes pic
- k up at 14:00.\nPassive — runs unattended\, does not block time\nGroup: 
- Western — biotin\nCategory: experiment
-CATEGORIES:Western — biotin,experiment
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:e-wb-wash-a-2026-08-13@cagiral-schedule
-DTSTAMP:20260812T193855Z
-SEQUENCE:29776058
-DTSTART;TZID=Europe/Istanbul:20260813T140000
-DTEND;TZID=Europe/Istanbul:20260813T141500
-SUMMARY:Western — washes (after primary)
-DESCRIPTION:2026-08-11: 3 x 5 min TBS-T. Held until after the qPCR so no tw
- o hands-on steps collide.\nActive — needs you there\nGroup: Western — 
- biotin\nCategory: experiment
-CATEGORIES:Western — biotin,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Western — washes (after primary)
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-wb-secondary-2026-08-13@cagiral-schedule
-DTSTAMP:20260812T193855Z
-SEQUENCE:29776058
-DTSTART;TZID=Europe/Istanbul:20260813T141500
-DTEND;TZID=Europe/Istanbul:20260813T151500
-SUMMARY:Western — secondary antibody
-DESCRIPTION:2026-08-11: 1 h at room temperature.\nPassive — runs unattend
- ed\, does not block time\nGroup: Western — biotin\nCategory: experiment
-CATEGORIES:Western — biotin,experiment
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:e-wb-wash-b-2026-08-13@cagiral-schedule
-DTSTAMP:20260812T193855Z
-SEQUENCE:29776058
-DTSTART;TZID=Europe/Istanbul:20260813T151500
-DTEND;TZID=Europe/Istanbul:20260813T153000
-SUMMARY:Western — washes (after secondary)
-DESCRIPTION:2026-08-11: 3 x 5 min TBS-T.\nActive — needs you there\nGroup
- : Western — biotin\nCategory: experiment
-CATEGORIES:Western — biotin,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Western — washes (after secondary)
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-wb-image-2026-08-13@cagiral-schedule
-DTSTAMP:20260812T193855Z
-SEQUENCE:29776058
-DTSTART;TZID=Europe/Istanbul:20260813T153000
-DTEND;TZID=Europe/Istanbul:20260813T155000
-SUMMARY:Western — ECL + image (2nd target)
-DESCRIPTION:2026-08-11: Second target. Closes out the blot started on 08-12
- .\nActive — needs you there\nGroup: Western — biotin\nCategory: experi
- ment
-CATEGORIES:Western — biotin,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Western — ECL + image (2nd target)
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
 UID:emspnirimx8ogn@cagiral-schedule
 DTSTAMP:20260812T193855Z
 SEQUENCE:29776058
@@ -3113,5 +2976,185 @@ DESCRIPTION:Air-dry at room temperature. Protocols quote ~4 h\, and plates
 CATEGORIES:Colony formation,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-strip1-2026-08-13@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260813T090000
+DTEND;TZID=Europe/Istanbul:20260813T092000
+SUMMARY:Western — strip #1 (20 min)
+DESCRIPTION:First of two strip cycles today. 20 min\, Umut's value.\nActive
+  — needs you there\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — strip #1 (20 min)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-block-bsa-2026-08-13@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260813T092000
+DTEND;TZID=Europe/Istanbul:20260813T102000
+SUMMARY:Western — block (BSA in PBS)
+DESCRIPTION:BSA\, not milk — same biotin/streptavidin rule as day 1.\nPas
+ sive — runs unattended\, does not block time\nGroup: Western — biotin\
+ nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-strepblot-2026-08-13@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260813T102000
+DTEND;TZID=Europe/Istanbul:20260813T112000
+SUMMARY:Western — streptavidin blot (2nd probe)
+DESCRIPTION:Re-probing with streptavidin before moving to the second target
+ .\nPassive — runs unattended\, does not block time\nGroup: Western — b
+ iotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-visual1-2026-08-13@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260813T112000
+DTEND;TZID=Europe/Istanbul:20260813T114000
+SUMMARY:Western — visualization (streptavidin)
+DESCRIPTION:= ECL + image\, 20 min.\nActive — needs you there\nGroup: Wes
+ tern — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — visualization (streptavidin)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-strip2-2026-08-13@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260813T141000
+DTEND;TZID=Europe/Istanbul:20260813T143000
+SUMMARY:Western — strip #2 (20 min)
+DESCRIPTION:Second strip\, same membrane\, for the new primary target.\nAct
+ ive — needs you there\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — strip #2 (20 min)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-block-milk-2026-08-13@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260813T143000
+DTEND;TZID=Europe/Istanbul:20260813T153000
+SUMMARY:Western — block (5% milk in TBST)
+DESCRIPTION:Milk is fine here — this target is not biotin/streptavidin de
+ tection.\nPassive — runs unattended\, does not block time\nGroup: Wester
+ n — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-primary2-2026-08-13@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260813T153000
+DTEND;TZID=Europe/Istanbul:20260813T220000
+SUMMARY:Western — primary antibody (overnight\, +4 °C)
+DESCRIPTION:Starts 15:30\, continues overnight at 4 °C past this window 
+ — block marks the start\, not the real finish (same convention as Colony
+  formation drying). Wash + secondary begin ~08:00 the next morning.\nPassi
+ ve — runs unattended\, does not block time\nGroup: Western — biotin\nC
+ ategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-wash-primary-2026-08-14@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260814T080000
+DTEND;TZID=Europe/Istanbul:20260814T081500
+SUMMARY:Western — washes (after primary)
+DESCRIPTION:Continuation of the overnight primary from 13 Aug.\nActive — 
+ needs you there\nGroup: Western — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — washes (after primary)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-secondary2-2026-08-14@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260814T081500
+DTEND;TZID=Europe/Istanbul:20260814T091500
+SUMMARY:Western — secondary antibody
+DESCRIPTION:Passive — runs unattended\, does not block time\nGroup: Weste
+ rn — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-wash-secondary-2026-08-14@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260814T094000
+DTEND;TZID=Europe/Istanbul:20260814T095500
+SUMMARY:Western — washes (after secondary)
+DESCRIPTION:Starts after CuAdapt FREEZE (09:00-09:30) clears\, with 10 min 
+ to spare.\nActive — needs you there\nGroup: Western — biotin\nCategory
+ : experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — washes (after secondary)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-wb-visual2-2026-08-14@cagiral-schedule
+DTSTAMP:20260812T193855Z
+SEQUENCE:29776058
+DTSTART;TZID=Europe/Istanbul:20260814T095500
+DTEND;TZID=Europe/Istanbul:20260814T101500
+SUMMARY:Western — visualization (2nd target)
+DESCRIPTION:= ECL + image\, 20 min.\nActive — needs you there\nGroup: Wes
+ tern — biotin\nCategory: experiment
+CATEGORIES:Western — biotin,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Western — visualization (2nd target)
+TRIGGER:-PT15M
+END:VALARM
 END:VEVENT
 END:VCALENDAR

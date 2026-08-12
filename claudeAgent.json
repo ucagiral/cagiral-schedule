@@ -1967,8 +1967,8 @@
     {
       "id": "e-wb-block-2026-08-13",
       "date": "2026-08-13",
-      "start": "09:50",
-      "end": "10:50",
+      "start": "09:20",
+      "end": "10:20",
       "title": "Western — block",
       "category": "experiment",
       "type": "passive",
@@ -2135,7 +2135,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T19:38:13.834Z",
+    "lastModified": "2026-08-12T19:38:17.972Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

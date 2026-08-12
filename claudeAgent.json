@@ -2062,8 +2062,8 @@
     {
       "id": "e-colony-fix-2026-08-13",
       "date": "2026-08-13",
-      "start": "11:15",
-      "end": "11:30",
+      "start": "10:45",
+      "end": "11:00",
       "title": "Colony formation — fixation",
       "category": "experiment",
       "type": "active",
@@ -2135,7 +2135,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T19:38:36.521Z",
+    "lastModified": "2026-08-12T19:38:39.473Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

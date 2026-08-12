@@ -1911,7 +1911,7 @@
       "title": "Western — streptavidin-HRP",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "2026-08-11: 1 h at room temperature. Conjugated, so there is no secondary antibody step today.",
       "group": "Western — biotin"
     },
@@ -1923,7 +1923,7 @@
       "title": "Western — washes",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "2026-08-11: 3 x 10 min TBS-T.",
       "group": "Western — biotin"
     },
@@ -1935,7 +1935,7 @@
       "title": "Western — ECL + image (biotin)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "2026-08-11: Mix the substrate, 1-5 min on the membrane, image straight away — the signal fades within the hour.",
       "group": "Western — biotin"
     },
@@ -2083,7 +2083,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T12:27:29.474Z",
+    "lastModified": "2026-08-12T14:32:55.984Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

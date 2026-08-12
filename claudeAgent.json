@@ -2037,9 +2037,9 @@
     },
     {
       "id": "emspnirimx8ogn",
-      "date": "2026-08-13",
-      "start": "15:50",
-      "end": "17:30",
+      "date": "2026-08-12",
+      "start": "11:15",
+      "end": "12:55",
       "title": "Ezgi veda",
       "category": "experiment",
       "type": "active",
@@ -2094,7 +2094,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T05:31:51.562Z",
+    "lastModified": "2026-08-12T05:31:53.868Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

@@ -56,11 +56,14 @@ Sub-steps:
 
 ---
 
-## AR locus CasPEx proteomics (LNCX / LUCX)
+## AR-CasPEx
 
 **Goal**: Name the proteins sitting at the AR promoter and AR enhancer in LNCaP and LuCaP-35CR, by
 dCas9–APEX2 proximity labelling, and find what differs between the androgen-sensitive and the
 castration-resistant line.
+
+**Also called**: the LNCX/LUCX work — `LNCX` and `LUCX` are the two cell lines *inside* this
+project, not a separate project. One thing, one name: **AR-CasPEx**.
 
 **Status**: Phase 1 in progress — guide virus due 14 Aug 2026
 
@@ -69,8 +72,14 @@ castration-resistant line.
 
 **Why this shape**: the expensive, irreversible step is the mass spec. Everything before it exists
 to make sure that when samples are submitted, the guides are the right ones and the fusion is
-demonstrably at the locus. The two gates before Phase 6 are deliberate — a negative proteomics
-result is only worth having if occupancy was proven first.
+demonstrably at the locus — a negative proteomics result is only worth having if occupancy was
+proven first.
+
+**Biotinylation happens once, in replicate 3.** Replicates 1 and 2 need only doxycycline and
+Shield-1: the fusion has to be *expressed* to be immunoprecipitated, but it does not have to have
+*labelled* anything for ChIP-qPCR to report where it sits. Guides are therefore chosen on occupancy,
+not on blot signal, and the whole APEX2 reaction — with its exact one-minute H₂O₂ step — is run only
+on the material that is actually going to the facility.
 
 ### Phase 1: Guide virus in hand
 **What it achieves**: 8 guide viruses — 4 AR promoter, 4 AR enhancer — ready to transduce.
@@ -116,53 +125,56 @@ Sub-steps:
 **Duration estimate**: 1–2 weeks after selection
 **Depends on**: Phase 2
 
-### Phase 4: Replicate 1 — choose the guides
+### Phase 4: Replicate 1 — occupancy screen, all 8 guides
 **What it achieves**: The two best promoter guides and two best enhancer guides, per line.
-**Verification**: Guide-dependent shift on the streptavidin blot, above the non-targeting control.
-**This replicate does not go to mass spec.** It exists only to pick guides.
+**Verification**: FLAG ChIP-qPCR enrichment at target over the non-targeting guide and a control region.
+**No biotinylation.** Dox and Shield-1 only — the fusion has to be expressed to be pulled down, not
+to have labelled. **This replicate does not go to mass spec**; it exists to pick guides.
 
 Sub-steps:
-- [ ] Add doxycycline + Shield-1, 2 days before labelling
-- [ ] Biotin-phenol 30 min, H₂O₂ exactly 1 min, immediate quench — all 8 guides, both lines
-- [ ] Run the no-H₂O₂ and no-Shield-1 controls alongside
-- [ ] Streptavidin blot on every condition, blocked in BSA
-- [ ] Rank guides and pick 2 promoter + 2 enhancer
-
-**Duration estimate**: ~1 week including the 2-day induction lead-in
-**Depends on**: Phase 3
-**Sources**: [`protocols/caspex.md`](protocols/caspex.md)
-
-### Phase 5: Occupancy gate — ChIP-qPCR
-**What it achieves**: Direct evidence that dCas9–APEX2 is at the AR locus with the chosen guides.
-**Verification**: FLAG ChIP-qPCR enriched at target over the non-targeting guide and a control region.
-
-Sub-steps:
-- [ ] Crosslink, lyse and sonicate to 150–200 bp
+- [ ] Add doxycycline + Shield-1
+- [ ] Crosslink, lyse and sonicate to 150–200 bp — all 8 guides, both lines
 - [ ] FLAG immunoprecipitation, overnight at 4 °C
 - [ ] Elute and reverse-crosslink
-- [ ] qPCR across target and control regions
-- [ ] Decide go/no-go for mass spec
+- [ ] qPCR across AR promoter, AR enhancer and a control region
+- [ ] Rank guides and pick 2 promoter + 2 enhancer per line
 
-**Duration estimate**: 2–3 days per round, two overnights
-**Depends on**: Phase 4
+**Duration estimate**: ~1 week — ChIP is 2–3 days with two overnights, plus the induction lead-in
+**Depends on**: Phase 3
 **Sources**: [`protocols/durations.md`](protocols/durations.md)
 
-### Phase 6: Replicates 2 and 3, and mass spec
-**What it achieves**: Three biological replicates of the 4 chosen guides per line, enriched and
-submitted.
-**Verification**: Blot confirms labelling in every replicate before it is enriched.
+### Phase 5: Replicate 2 — confirm the chosen guides
+**What it achieves**: The guide choice from replicate 1 holds up on a second independent run.
+**Verification**: Same enrichment pattern as replicate 1.
+**No biotinylation** — dox and Shield-1 only, as in replicate 1.
 
 Sub-steps:
-- [ ] Replicate 2 — 2 promoter + 2 enhancer guides, both lines
-- [ ] Replicate 3 — run concurrently with submission
+- [ ] Add doxycycline + Shield-1
+- [ ] ChIP-qPCR on the 4 chosen guides, both lines
+- [ ] Compare against replicate 1 and confirm the choice
+- [ ] Decide go/no-go for mass spec
+
+**Duration estimate**: ~1 week
+**Depends on**: Phase 4
+
+### Phase 6: Replicate 3 — labelling, nuclear fraction, mass spec
+**What it achieves**: The only APEX2 labelling of the project, enriched from nuclei and submitted.
+**Verification**: Labelling confirmed before anything is committed to the facility.
+**This is the one replicate that is biotinylated**, and it runs concurrently with submission.
+
+Sub-steps:
+- [ ] Add doxycycline + Shield-1, 2 days ahead
+- [ ] Biotin-phenol 30 min, H₂O₂ exactly 1 min, immediate quench
+- [ ] Run the no-H₂O₂ / no-biotin-phenol and no-Shield-1 controls alongside
+- [ ] Isolate the nuclear fraction
 - [ ] Streptavidin pulldown, in-house
 - [ ] On-bead digest, overnight
 - [ ] Submit peptides to the core facility
 - [ ] Wait on the facility queue
 
-**Duration estimate**: several weeks of bench work, then weeks of facility turnaround
-**Depends on**: Phase 5 passing both gates
-**Sources**: [`workflows.md`](workflows.md)
+**Duration estimate**: labelling day plus a long enrichment day, then weeks of facility turnaround
+**Depends on**: Phase 5
+**Sources**: [`protocols/caspex.md`](protocols/caspex.md), [`workflows.md`](workflows.md)
 
 ### Phase 7: Analysis and the actual question
 **What it achieves**: The AR-locus proteome of each line, and the difference between them.
@@ -178,6 +190,11 @@ Sub-steps:
 
 **Duration estimate**: ongoing
 **Depends on**: Phase 6
+
+**Open question, flagged rather than assumed**: replicate 3 is both the labelling and the
+submission, so there is no separate labelled round standing between it and the facility. Whether a
+streptavidin blot on replicate-3 material gates the submission — or whether the no-guide biotin
+Western already shown is sufficient blot evidence — is not settled here.
 
 ---
 

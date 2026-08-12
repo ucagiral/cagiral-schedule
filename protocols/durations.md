@@ -32,6 +32,7 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | Streptavidin pulldown + on-bead digest | ~1 day hands-on, overnight digest | ~4–5 h | overnight | Bead capture and washes are a long bench day; the tryptic digest runs overnight. |
 | ChIP-qPCR (to the plate) | **2–3 days** | ~5–6 h total | 2 overnights | 10 min formaldehyde crosslink + glycine, lysis, sonication to 150–200 bp, **overnight IP at 4 °C**, elution 65 °C, then reverse-crosslink ≥5 h or overnight, cleanup, qPCR. Not a one-day assay. |
 | FACS sorting (mCherry) | ~2–4 h | all | — | Instrument time plus prep; needs booking, and cells need recovery afterwards. |
+| Nuclear / cytoplasmic fractionation | ~2–3 h | ~2.5 h | — | Kit protocols quote under 2 h; a full stepwise fractionation runs to ~3 h with ~2.5 h hands-on. Ice incubations of 15–20 min and low-speed spins throughout. |
 
 ## Protocol-specific timings we've fixed
 
@@ -73,3 +74,6 @@ These came from Umut directly and override any published range — see
 - [STAR Protocols — APEX2 biotin-labeling in mammalian cells](https://www.cell.com/star-protocols/fulltext/S2666-1667(24)00533-1)
 - [Rockland — chromatin immunoprecipitation (ChIP) protocol](https://www.rockland.com/globalassets/documents/protocols/chromatin-immunoprecipitation-chip-protocol.pdf)
 - [Antibodies.com — ChIP protocol](https://www.antibodies.com/applications/chromatin-immunoprecipitation/chip-protocol)
+- [Thermo Fisher — NE-PER nuclear and cytoplasmic extraction reagents](https://www.thermofisher.com/order/catalog/product/78833)
+- [Abcam — nuclear extraction and fractionation protocol](https://www.abcam.com/en-us/technical-resources/protocols/nuclear-extraction-and-fractionation)
+- [STAR Protocols — nucleo-cytoplasmic fractionation of mammalian cells](https://www.cell.com/star-protocols/fulltext/S2666-1667(25)00671-9)

@@ -1772,17 +1772,17 @@
     for (var i = 0; i < lines.length; i++){
       var line = lines[i];
 
-      // Project header: ## Name (real projects have **Goal** nearby)
+      // Project header: ## Name. A real project states a **Goal** somewhere in its
+      // preamble — scan to the next heading rather than a fixed number of lines,
+      // so adding a note above the goal doesn't make the project disappear.
       if (line.startsWith('## ')){
         var header = line.replace('## ', '').trim();
         if (!header.includes('Template') && !header.startsWith('How to')){
-          // Check if Goal line appears within next 3 lines
           var hasGoal = false;
-          for (var k = 1; k <= 3 && i + k < lines.length; k++){
-            if (lines[i+k].startsWith('**Goal**')){
-              hasGoal = true;
-              break;
-            }
+          for (var k = 1; i + k < lines.length; k++){
+            var la = lines[i+k];
+            if (la.startsWith('##') || la.startsWith('### ')) break;
+            if (la.startsWith('**Goal**')){ hasGoal = true; break; }
           }
           if (hasGoal){
             currentProject = header;

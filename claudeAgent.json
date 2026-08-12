@@ -1611,7 +1611,7 @@
       "title": "Virus Medium Change",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "2026-08-11: Add 6.5 mL medium per vessel. Done during the SDS-PAGE run.",
       "group": "Virus prep"
     },
@@ -2083,7 +2083,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T08:22:04.829Z",
+    "lastModified": "2026-08-12T12:27:21.571Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

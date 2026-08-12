@@ -1947,7 +1947,7 @@
       "title": "Western — membrane to 4 °C",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "2026-08-11: Store in TBS-T at 4 C overnight; stripping happens tomorrow morning.",
       "group": "Western — biotin"
     },
@@ -2083,7 +2083,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T14:32:55.984Z",
+    "lastModified": "2026-08-12T14:32:59.166Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

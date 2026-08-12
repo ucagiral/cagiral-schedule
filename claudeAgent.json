@@ -1827,7 +1827,7 @@
       "title": "Send plasmids to sequencing",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "2026-08-11: Fits exactly into the 15 unattended minutes while the samples are at 95 C, per Umut.",
       "group": "Cloning"
     },
@@ -1851,7 +1851,7 @@
       "title": "Western — load gel",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "2026-08-11: Last hands-on step before the run; everything after this is unattended until the transfer is assembled.",
       "group": "Western — biotin"
     },
@@ -2094,7 +2094,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T07:48:17.513Z",
+    "lastModified": "2026-08-12T07:48:19.432Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

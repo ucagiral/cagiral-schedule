@@ -56,6 +56,131 @@ Sub-steps:
 
 ---
 
+## AR locus CasPEx proteomics (LNCX / LUCX)
+
+**Goal**: Name the proteins sitting at the AR promoter and AR enhancer in LNCaP and LuCaP-35CR, by
+dCas9–APEX2 proximity labelling, and find what differs between the androgen-sensitive and the
+castration-resistant line.
+
+**Status**: Phase 1 in progress — guide virus due 14 Aug 2026
+
+**Method**: [`protocols/caspex.md`](protocols/caspex.md) · **Practice**:
+[`workflows.md`](workflows.md)
+
+**Why this shape**: the expensive, irreversible step is the mass spec. Everything before it exists
+to make sure that when samples are submitted, the guides are the right ones and the fusion is
+demonstrably at the locus. The two gates before Phase 6 are deliberate — a negative proteomics
+result is only worth having if occupancy was proven first.
+
+### Phase 1: Guide virus in hand
+**What it achieves**: 8 guide viruses — 4 AR promoter, 4 AR enhancer — ready to transduce.
+**Verification**: Virus collected and stored; guides sequence-confirmed in the hygro vector.
+
+Sub-steps:
+- [x] Design 8 guides (4 promoter, 4 enhancer)
+- [x] Clone guides into the hygromycin guide vector
+- [ ] Generate and harvest guide virus
+- [ ] Aliquot and store virus at −80 °C
+
+**Duration estimate**: complete by 14 Aug 2026
+**Depends on**: nothing outstanding
+**Sources**: existing Virus prep thread on the calendar
+
+### Phase 2: Transduce and select the guide lines
+**What it achieves**: LNCX and LUCX each carrying each of the 8 guides — 16 selected populations.
+**Verification**: Untransduced control dead by the day-6 hygromycin check.
+
+Sub-steps:
+- [ ] Thaw LNCX and LUCX (labmate, ~28 Aug)
+- [ ] Count and seed for transduction (31 Aug)
+- [ ] Transduce both lines with all 8 guide viruses
+- [ ] Day-1 medium change after transduction
+- [ ] Start hygromycin selection
+- [ ] Day-6 hygromycin check against the untransduced control
+- [ ] Freeze a backup vial of every selected line
+
+**Duration estimate**: ~2 weeks — selection is 5–7 days, 6 standard
+**Depends on**: Phase 1
+**Sources**: [`workflows.md`](workflows.md) — hygromycin 5–7 days is our value, not the published 10–14
+
+### Phase 3: Expand to labelling scale
+**What it achieves**: Enough cells of all 16 populations, plus controls, to label at a few 15 cm
+dishes per condition.
+**Verification**: Dish counts reached with cells still in healthy passage range.
+
+Sub-steps:
+- [ ] Expand all 16 selected populations
+- [ ] Expand the non-targeting sgRNA control lines
+- [ ] Confirm mCherry still positive after selection
+
+**Duration estimate**: 1–2 weeks after selection
+**Depends on**: Phase 2
+
+### Phase 4: Replicate 1 — choose the guides
+**What it achieves**: The two best promoter guides and two best enhancer guides, per line.
+**Verification**: Guide-dependent shift on the streptavidin blot, above the non-targeting control.
+**This replicate does not go to mass spec.** It exists only to pick guides.
+
+Sub-steps:
+- [ ] Add doxycycline + Shield-1, 2 days before labelling
+- [ ] Biotin-phenol 30 min, H₂O₂ exactly 1 min, immediate quench — all 8 guides, both lines
+- [ ] Run the no-H₂O₂ and no-Shield-1 controls alongside
+- [ ] Streptavidin blot on every condition, blocked in BSA
+- [ ] Rank guides and pick 2 promoter + 2 enhancer
+
+**Duration estimate**: ~1 week including the 2-day induction lead-in
+**Depends on**: Phase 3
+**Sources**: [`protocols/caspex.md`](protocols/caspex.md)
+
+### Phase 5: Occupancy gate — ChIP-qPCR
+**What it achieves**: Direct evidence that dCas9–APEX2 is at the AR locus with the chosen guides.
+**Verification**: FLAG ChIP-qPCR enriched at target over the non-targeting guide and a control region.
+
+Sub-steps:
+- [ ] Crosslink, lyse and sonicate to 150–200 bp
+- [ ] FLAG immunoprecipitation, overnight at 4 °C
+- [ ] Elute and reverse-crosslink
+- [ ] qPCR across target and control regions
+- [ ] Decide go/no-go for mass spec
+
+**Duration estimate**: 2–3 days per round, two overnights
+**Depends on**: Phase 4
+**Sources**: [`protocols/durations.md`](protocols/durations.md)
+
+### Phase 6: Replicates 2 and 3, and mass spec
+**What it achieves**: Three biological replicates of the 4 chosen guides per line, enriched and
+submitted.
+**Verification**: Blot confirms labelling in every replicate before it is enriched.
+
+Sub-steps:
+- [ ] Replicate 2 — 2 promoter + 2 enhancer guides, both lines
+- [ ] Replicate 3 — run concurrently with submission
+- [ ] Streptavidin pulldown, in-house
+- [ ] On-bead digest, overnight
+- [ ] Submit peptides to the core facility
+- [ ] Wait on the facility queue
+
+**Duration estimate**: several weeks of bench work, then weeks of facility turnaround
+**Depends on**: Phase 5 passing both gates
+**Sources**: [`workflows.md`](workflows.md)
+
+### Phase 7: Analysis and the actual question
+**What it achieves**: The AR-locus proteome of each line, and the difference between them.
+**Verification**: Known AR-locus factors recovered in the targeted samples and absent from
+non-targeting — the internal check that the whole thing worked.
+
+Sub-steps:
+- [ ] Filter against non-targeting and no-H₂O₂ backgrounds
+- [ ] Remove endogenous biotinylated carboxylases
+- [ ] Compare LNCaP against LuCaP-35CR
+- [ ] Pick candidates worth validating
+- [ ] Validate the strongest candidates independently
+
+**Duration estimate**: ongoing
+**Depends on**: Phase 6
+
+---
+
 ## GATA6 KO HEK293T cells
 
 **Goal**: Create stable GATA6 knockout HEK293T cell line for downstream ATF3 studies.

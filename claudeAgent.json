@@ -51,8 +51,8 @@
     {
       "id": "e-harvest-2",
       "date": "2026-08-14",
-      "start": "14:00",
-      "end": "15:00",
+      "start": "11:45",
+      "end": "12:45",
       "title": "Virus Medium Harvest",
       "category": "experiment",
       "type": "active",
@@ -2171,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T20:42:38.600Z",
+    "lastModified": "2026-08-12T20:48:57.774Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

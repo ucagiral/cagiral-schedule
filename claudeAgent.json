@@ -248,7 +248,7 @@
       "title": "CuAdapt cells — copper treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "2026-08-11: Carried over from 08-11. Done during the SDS-PAGE run, as requested.",
       "group": "CuAdapt"
     },
@@ -2083,7 +2083,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T12:27:21.571Z",
+    "lastModified": "2026-08-12T12:27:24.160Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -1955,8 +1955,8 @@
     {
       "id": "e-wb-strip-2026-08-13",
       "date": "2026-08-13",
-      "start": "09:30",
-      "end": "09:50",
+      "start": "09:00",
+      "end": "09:20",
       "title": "Western — strip (20 min)",
       "category": "experiment",
       "type": "active",
@@ -2135,7 +2135,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T19:37:53.839Z",
+    "lastModified": "2026-08-12T19:38:13.834Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

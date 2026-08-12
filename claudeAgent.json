@@ -1785,18 +1785,6 @@
       "group": "SRB assay"
     },
     {
-      "id": "emsmbiis5h5tbj",
-      "date": "2026-08-13",
-      "start": "09:35",
-      "end": "10:35",
-      "title": "qPCR prep",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: Sits inside the 2 h wet transfer. Plate is fridged overnight for the 08-13 qPCR.\nMoved from 2026-08-12 (not done that day). Sits before the 12:00 run it feeds — same day rather than the usual day-before, so the plate goes straight in.",
-      "group": "ATF3 qPCR"
-    },
-    {
       "id": "e-cuadapt-passage-onetime-2026-08-11",
       "date": "2026-08-11",
       "start": "13:40",
@@ -1953,90 +1941,6 @@
       "group": "Western — biotin"
     },
     {
-      "id": "e-wb-strip-2026-08-13",
-      "date": "2026-08-13",
-      "start": "09:00",
-      "end": "09:20",
-      "title": "Western — strip (20 min)",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: Mild stripping buffer, 20 min, swapping in fresh buffer at the 10 min mark. Rinse well before blocking.",
-      "group": "Western — biotin"
-    },
-    {
-      "id": "e-wb-block-2026-08-13",
-      "date": "2026-08-13",
-      "start": "09:20",
-      "end": "10:20",
-      "title": "Western — block",
-      "category": "experiment",
-      "type": "passive",
-      "status": "pending",
-      "notes": "2026-08-11: 1 h.",
-      "group": "Western — biotin"
-    },
-    {
-      "id": "e-wb-primary-2026-08-13",
-      "date": "2026-08-13",
-      "start": "10:20",
-      "end": "11:20",
-      "title": "Western — primary antibody",
-      "category": "experiment",
-      "type": "passive",
-      "status": "pending",
-      "notes": "2026-08-11: 1 h. Pour off and give a quick rinse at the end — the membrane then rests in TBS-T through the qPCR and the full washes pick up at 14:00.",
-      "group": "Western — biotin"
-    },
-    {
-      "id": "e-wb-wash-a-2026-08-13",
-      "date": "2026-08-13",
-      "start": "14:00",
-      "end": "14:15",
-      "title": "Western — washes (after primary)",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: 3 x 5 min TBS-T. Held until after the qPCR so no two hands-on steps collide.",
-      "group": "Western — biotin"
-    },
-    {
-      "id": "e-wb-secondary-2026-08-13",
-      "date": "2026-08-13",
-      "start": "14:15",
-      "end": "15:15",
-      "title": "Western — secondary antibody",
-      "category": "experiment",
-      "type": "passive",
-      "status": "pending",
-      "notes": "2026-08-11: 1 h at room temperature.",
-      "group": "Western — biotin"
-    },
-    {
-      "id": "e-wb-wash-b-2026-08-13",
-      "date": "2026-08-13",
-      "start": "15:15",
-      "end": "15:30",
-      "title": "Western — washes (after secondary)",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: 3 x 5 min TBS-T.",
-      "group": "Western — biotin"
-    },
-    {
-      "id": "e-wb-image-2026-08-13",
-      "date": "2026-08-13",
-      "start": "15:30",
-      "end": "15:50",
-      "title": "Western — ECL + image (2nd target)",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "2026-08-11: Second target. Closes out the blot started on 08-12.",
-      "group": "Western — biotin"
-    },
-    {
       "id": "emspnirimx8ogn",
       "date": "2026-08-13",
       "start": "16:30",
@@ -2082,6 +1986,138 @@
       "status": "pending",
       "group": "Colony formation",
       "notes": "Air-dry at room temperature. Protocols quote ~4 h, and plates can be left longer or overnight without harm — the block is a placeholder for the day, not a deadline."
+    },
+    {
+      "id": "e-wb-strip1-2026-08-13",
+      "date": "2026-08-13",
+      "start": "09:00",
+      "end": "09:20",
+      "title": "Western — strip #1 (20 min)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "First of two strip cycles today. 20 min, Umut's value."
+    },
+    {
+      "id": "e-wb-block-bsa-2026-08-13",
+      "date": "2026-08-13",
+      "start": "09:20",
+      "end": "10:20",
+      "title": "Western — block (BSA in PBS)",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "BSA, not milk — same biotin/streptavidin rule as day 1."
+    },
+    {
+      "id": "e-wb-strepblot-2026-08-13",
+      "date": "2026-08-13",
+      "start": "10:20",
+      "end": "11:20",
+      "title": "Western — streptavidin blot (2nd probe)",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "Re-probing with streptavidin before moving to the second target."
+    },
+    {
+      "id": "e-wb-visual1-2026-08-13",
+      "date": "2026-08-13",
+      "start": "11:20",
+      "end": "11:40",
+      "title": "Western — visualization (streptavidin)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "= ECL + image, 20 min."
+    },
+    {
+      "id": "e-wb-strip2-2026-08-13",
+      "date": "2026-08-13",
+      "start": "14:10",
+      "end": "14:30",
+      "title": "Western — strip #2 (20 min)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "Second strip, same membrane, for the new primary target."
+    },
+    {
+      "id": "e-wb-block-milk-2026-08-13",
+      "date": "2026-08-13",
+      "start": "14:30",
+      "end": "15:30",
+      "title": "Western — block (5% milk in TBST)",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "Milk is fine here — this target is not biotin/streptavidin detection."
+    },
+    {
+      "id": "e-wb-primary2-2026-08-13",
+      "date": "2026-08-13",
+      "start": "15:30",
+      "end": "22:00",
+      "title": "Western — primary antibody (overnight, +4 °C)",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "Starts 15:30, continues overnight at 4 °C past this window — block marks the start, not the real finish (same convention as Colony formation drying). Wash + secondary begin ~08:00 the next morning."
+    },
+    {
+      "id": "e-wb-wash-primary-2026-08-14",
+      "date": "2026-08-14",
+      "start": "08:00",
+      "end": "08:15",
+      "title": "Western — washes (after primary)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "Continuation of the overnight primary from 13 Aug."
+    },
+    {
+      "id": "e-wb-secondary2-2026-08-14",
+      "date": "2026-08-14",
+      "start": "08:15",
+      "end": "09:15",
+      "title": "Western — secondary antibody",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": ""
+    },
+    {
+      "id": "e-wb-wash-secondary-2026-08-14",
+      "date": "2026-08-14",
+      "start": "09:40",
+      "end": "09:55",
+      "title": "Western — washes (after secondary)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "Starts after CuAdapt FREEZE (09:00-09:30) clears, with 10 min to spare."
+    },
+    {
+      "id": "e-wb-visual2-2026-08-14",
+      "date": "2026-08-14",
+      "start": "09:55",
+      "end": "10:15",
+      "title": "Western — visualization (2nd target)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "group": "Western — biotin",
+      "notes": "= ECL + image, 20 min."
     }
   ],
   "_groups": {
@@ -2124,6 +2160,8 @@
   },
   "_meta": {
     "lastModified": "2026-08-12T19:38:55.387Z",
-    "modifiedBy": "Umut MacBook Pro"
+    "modifiedBy": "Umut MacBook Pro",
+    "savedBy": "Claude",
+    "savedAt": "2026-08-12T19:49:56.062Z"
   }
 }

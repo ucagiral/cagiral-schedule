@@ -2079,8 +2079,8 @@
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "group": "Colony formation",
-      "notes": "15 min, Umut's value. Fixation only; staining and counting are separate."
+      "notes": "15 min, Umut's value. Fixation only; staining and counting are separate.",
+      "group": "Colony formation"
     },
     {
       "id": "e-colony-dry-2026-08-14",
@@ -2134,9 +2134,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T14:32:59.166Z",
-    "modifiedBy": "Umut iPhone 16 Plus",
-    "savedBy": "Claude",
-    "savedAt": "2026-08-12T14:38:14.030Z"
+    "lastModified": "2026-08-12T14:51:59.307Z",
+    "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

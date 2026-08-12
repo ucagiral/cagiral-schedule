@@ -2118,6 +2118,17 @@
       "status": "pending",
       "group": "Western — biotin",
       "notes": "= ECL + image, 20 min."
+    },
+    {
+      "id": "emsqk2586ijbrq",
+      "date": "2026-08-15",
+      "start": "10:25",
+      "end": "10:30",
+      "title": "qPCR Prep",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": ""
     }
   ],
   "_groups": {
@@ -2159,9 +2170,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T19:38:55.387Z",
-    "modifiedBy": "Umut MacBook Pro",
-    "savedBy": "Claude",
-    "savedAt": "2026-08-12T19:49:56.062Z"
+    "lastModified": "2026-08-12T20:42:09.423Z",
+    "modifiedBy": "Umut MacBook Pro"
   }
 }

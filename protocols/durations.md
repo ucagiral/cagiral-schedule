@@ -23,6 +23,10 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | Lentivirus — medium change | ~30 min | all | — | 6 h post-transfection in most protocols; some at ~42 h. |
 | Lentivirus — harvest | ~1 h | all | — | 48–72 h post-transfection is the usual window; often harvested twice. |
 | Western blot | see [`western-blot.md`](western-blot.md) | | | Surveyed separately, 16 protocols. |
+| gRNA design (in silico) | ~3–4 h | all | — | Desk work, no measured bench figure published. Current Protocols' CHOPCHOP walkthrough runs design → off-target review → oligo ordering as one sitting. Treat as a half-day, not an hour. |
+| In vitro Cas9 cleavage assay | ~2.5 h | ~1 h | ~1.5 h | 60 min RNP + target at 37 °C is the common incubation (10 min at the fast end), then Proteinase K and an agarose gel. The incubation and the gel run are unattended. |
+| Lentiviral transduction | ~1 h | all | 48–72 h after | Hands-on is adding virus; the infection itself sits 48–72 h before selection starts. |
+| Antibiotic selection (puro/blast/hygro) | **10–14 days** | ~30 min per feed | rest | Selection begins 48 h post-transduction and runs 3–10 days, re-fed every 2–3 days until the untransduced control is dead. Schedule the feeds, not one block. |
 
 ## Protocol-specific timings we've fixed
 
@@ -53,3 +57,9 @@ These came from Umut directly and override any published range — see
 - [Current Protocols in Molecular Biology — optimized transgene delivery using third-generation lentiviruses](https://currentprotocols.onlinelibrary.wiley.com/doi/10.1002/cpmb.125)
 - [Acta Biochim Biophys Sin — simple protocol for producing high-titer lentivirus](https://academic.oup.com/abbs/article/45/12/1079/1198)
 - [Roswell Park — SOP for lentivirus production using HEK293T cells](https://www.roswellpark.org/sites/default/files/2021-11/sop-for-lentiviral-packaging.doc)
+- [Current Protocols — CRISPR genome editing made easy through the CHOPCHOP website](https://currentprotocols.onlinelibrary.wiley.com/doi/10.1002/cpz1.46)
+- [Bio-protocol — in vitro cleavage and electrophoretic mobility shift assays](https://bio-protocol.org/en/bpdetail?id=4138&type=0)
+- [Chemical Science — Cas9 cleavage assay for pre-screening of sgRNAs](https://pubs.rsc.org/sc/article/7/8/4951/545870/Cas9-cleavage-assay-for-pre-screening-of-sgRNAs)
+- [Addgene — generating stable cell lines](https://www.addgene.org/protocols/generating-stable-cell-lines/)
+- [Creative Biogene — guide to stable lentiviral cell line construction](https://www.creative-biogene.com/support/comprehensive-guide-to-stable-lentiviral-cell-line-construction.html)
+- [GeneMedi — lentivirus infection protocol for stable cell line development](https://www.genemedi.net/i/lentivirus-infection-protocol-for-cld)

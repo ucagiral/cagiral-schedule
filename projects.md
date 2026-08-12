@@ -67,11 +67,11 @@ Sub-steps:
 **Verification**: Off-target assessment passed, in vitro cutting efficiency >70%.
 
 Sub-steps:
-- Design 3–5 gRNA candidates (Cas-OFFinder, CHOPCHOP)
-- Order oligos and receive them
-- Test cutting efficiency in vitro (guide + Cas9 + target DNA)
-- Assess off-target binding (CHOPCHOP analysis)
-- Select best guide (highest efficiency, lowest off-targets)
+- [ ] Design 3–5 gRNA candidates (Cas-OFFinder, CHOPCHOP)
+- [ ] Order oligos and receive them
+- [ ] Test cutting efficiency in vitro (guide + Cas9 + target DNA)
+- [ ] Assess off-target binding (CHOPCHOP analysis)
+- [ ] Select best guide (highest efficiency, lowest off-targets)
 
 **Duration estimate**: 1–2 weeks  
 **Depends on**: None (starting point)  
@@ -84,12 +84,12 @@ Sub-steps:
 **Verification**: Plasmid sequencing confirms construct, no unwanted deletions.
 
 Sub-steps:
-- Order or synthesize gRNA insert
-- Clone into lentiviral backbone (pLentiCRISPR-v2 or equivalent)
-- Verify with restriction digest
-- Transform into competent bacteria
-- Miniprep and send for sequencing
-- Maxiprep for packaging
+- [ ] Order or synthesize gRNA insert
+- [ ] Clone into lentiviral backbone (pLentiCRISPR-v2 or equivalent)
+- [ ] Verify with restriction digest
+- [ ] Transform into competent bacteria
+- [ ] Miniprep and send for sequencing
+- [ ] Maxiprep for packaging
 
 **Duration estimate**: 1–2 weeks  
 **Depends on**: Phase 1  
@@ -100,10 +100,10 @@ Sub-steps:
 **Verification**: Viral titer ≥10^7 TU/mL, no contamination.
 
 Sub-steps:
-- Transfect HEK293T with packaging plasmids (Gag/Pol, Rev, VSV-G, construct)
-- Collect media 48h and 72h post-transfection
-- Concentrate and titer virus
-- Store aliquots at −80 °C
+- [ ] Transfect HEK293T with packaging plasmids (Gag/Pol, Rev, VSV-G, construct)
+- [ ] Collect media 48h and 72h post-transfection
+- [ ] Concentrate and titer virus
+- [ ] Store aliquots at −80 °C
 
 **Duration estimate**: 3–5 days active, 2 weeks passive (incubations)  
 **Depends on**: Phase 2  
@@ -114,10 +114,10 @@ Sub-steps:
 **Verification**: PCR of genomic DNA shows Cas9-induced cuts.
 
 Sub-steps:
-- Transduce HEK293T with GATA6 lentivirus (MOI 1–5)
-- Select with blasticidin (10 µg/mL) or hygromycin (100 µg/mL)
-- Expand selected population
-- Freeze backup stock
+- [ ] Transduce HEK293T with GATA6 lentivirus (MOI 1–5)
+- [ ] Select with blasticidin (10 µg/mL) or hygromycin (100 µg/mL)
+- [ ] Expand selected population
+- [ ] Freeze backup stock
 
 **Duration estimate**: 2–3 weeks (selection takes time)  
 **Depends on**: Phase 3  
@@ -128,10 +128,10 @@ Sub-steps:
 **Verification**: No GATA6 protein by Western; no WT DNA sequence at edit site.
 
 Sub-steps:
-- Extract genomic DNA, PCR across Cas9 cut site
-- Sequence PCR product (GATA6 junction)
-- Extract protein, run Western blot for GATA6
-- qPCR for off-target sites (if available)
+- [ ] Extract genomic DNA, PCR across Cas9 cut site
+- [ ] Sequence PCR product (GATA6 junction)
+- [ ] Extract protein, run Western blot for GATA6
+- [ ] qPCR for off-target sites (if available)
 
 **Duration estimate**: 1–2 weeks  
 **Depends on**: Phase 4  
@@ -142,9 +142,9 @@ Sub-steps:
 **Verification**: Project-specific; update as needed.
 
 Sub-steps:
-- Cell viability and growth assays
-- Cytokine profiling if relevant
-- ATF3 induction experiments
+- [ ] Cell viability and growth assays
+- [ ] Cytokine profiling if relevant
+- [ ] ATF3 induction experiments
 
 **Duration estimate**: Ongoing  
 **Depends on**: Phase 5  

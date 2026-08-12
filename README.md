@@ -69,6 +69,9 @@ Entries for groups no longer used by any event are dropped automatically when th
 - **Week grid (desktop):** drag empty grid to create an event; **drag an existing event to move it**
   to another day or time — it snaps to 5 minutes, keeps its length, and shows the new times as you
   drag. Escape cancels. Click an event to edit it.
+- **Week grid on a touch screen:** an ordinary swipe scrolls the page, even when it starts on an
+  event. To move one, **press and hold it for about a third of a second first** — it lifts and
+  buzzes, and from then on the drag moves the event instead of scrolling.
 - **Day list (phones):** tap to edit, tick to complete, and use **−15 min / +15 min** and
   **◀ day / day ▶** to move things — a list has no time axis to drag along.
 - Moving an event that lands within 10 minutes of another active event, or overlapping one, shows a
@@ -91,10 +94,15 @@ Times are Europe/Istanbul, declared as a fixed UTC+3 offset (Turkey has had no D
 events. It's the "elevator" to your calendar: describe your goal once, and the planner maps each phase
 into a week's worth of concrete lab tasks.
 
-1. Write your project in `projects.md` with phases and sub-steps
-2. Click **Plan Project** → select your project and phase
-3. Review auto-generated events, tweak dates, confirm
-4. Events land in your calendar with a shared group colour
+1. Write your project in `projects.md` with phases and sub-steps as `- [ ]` checkboxes
+2. Click **Project** → select your project and phase
+3. Tick off anything already done — the tick is saved back to `projects.md`
+4. Review the events proposed for what's left, then confirm
+5. Events land in your calendar with a shared group colour
+
+Proposed events are placed around what's already booked: never overlapping an active block, never
+before tomorrow, never past 18:00. Durations come from `protocols/durations.md`; a step with no
+researched duration gets a placeholder hour and is flagged as such rather than passed off as real.
 
 Example: "GATA6 KO HEK293T cells" breaks into 6 phases (guide design → cloning → virus → transduction
 → validation → further work). Each phase becomes a week of events. As you mark events done, you can

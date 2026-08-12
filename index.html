@@ -118,9 +118,17 @@
   .event{
     border-radius:5px; padding:3px 6px; font-size:11px; color:#fff; overflow:hidden;
     cursor:grab; z-index:2; box-shadow:0 1px 2px rgba(0,0,0,.15); line-height:1.25; position:relative;
-    /* the week grid only renders above 820px, so claiming the gesture here doesn't
-       cost phone scrolling — and it's what lets a drag work on a touch screen */
-    touch-action:none;
+    /* pan-y leaves an ordinary swipe to the page, so scrolling past an event doesn't
+       re-time it. A touch drag has to be armed by holding first (see LONG_PRESS_MS),
+       and from then on touchmove is prevented so the gesture stays ours. Mouse and
+       trackpad ignore touch-action entirely, so dragging there is unaffected. */
+    touch-action:pan-y;
+  }
+  /* the hold registered — the block lifts off the grid so it's clear the next
+     movement will move it rather than scroll */
+  .event.lifted{
+    outline:2px solid var(--accent); outline-offset:1px; z-index:6;
+    box-shadow:0 6px 18px rgba(0,0,0,.4); transform:scale(1.03);
   }
   .event.dragging{
     cursor:grabbing; opacity:.9; box-shadow:0 6px 18px rgba(0,0,0,.4);
@@ -196,6 +204,13 @@
   .hint code{background:var(--bg); padding:1px 4px; border-radius:4px; font-size:11.5px}
   .hint ol{padding-left:18px; margin:8px 0}
   .hint li{margin-bottom:5px}
+  .step-row{
+    display:flex; align-items:flex-start; gap:9px; padding:7px 6px; font-size:13px;
+    border-bottom:1px solid var(--border); line-height:1.35; cursor:pointer;
+  }
+  .step-row:last-child{border-bottom:none}
+  .step-row input{width:19px; height:19px; margin:0; flex:none; cursor:pointer}
+  .step-row.done span{text-decoration:line-through; opacity:.55}
   .urlbox{
     width:100%; padding:8px; border:1px solid var(--border); border-radius:7px;
     background:var(--bg); font-size:11.5px; word-break:break-all; font-family:ui-monospace,Consolas,monospace;
@@ -458,6 +473,11 @@
         <select id="projectPhase" style="width:100%">
           <option value="">-- Loading phases... --</option>
         </select>
+      </div>
+      <div id="phaseStepsWrap" style="margin-top:12px; display:none">
+        <h3 style="font-size:13px; margin:0 0 6px">Steps in this phase</h3>
+        <div id="phaseSteps"></div>
+        <div class="hint" id="stepsHint" style="margin-top:5px"></div>
       </div>
       <div id="projectInfo" class="hint" style="margin-top:12px; display:none"></div>
       <div id="projectEvents" style="margin-top:12px; display:none">
@@ -1302,6 +1322,36 @@
       (m.ev.type === "passive" ? " · passive" : "");
   }
 
+  // On a touch screen a swipe that happens to start on an event has to stay a
+  // swipe — the page scrolls, the event doesn't move. So a touch drag is armed by
+  // holding still first; moving before that hands the gesture back to the page.
+  // A mouse or trackpad drag has no such ambiguity and starts immediately.
+  var LONG_PRESS_MS = 350, TOUCH_SLOP = 10;
+  var pendingPress = null;
+
+  function clearPendingPress(){
+    if (!pendingPress) return;
+    clearTimeout(pendingPress.timer);
+    pendingPress = null;
+  }
+
+  function beginMoveDrag(p){
+    var dayIdx = weekDates().map(isoDate).indexOf(p.ev.date);
+    if (dayIdx === -1) return;
+    var g = gridGeometry();
+    var topRow = timeToRow(p.ev.start);
+    var durRows = Math.max(1, Math.max(timeToRow(p.ev.end), topRow + 1) - topRow);
+    moveDrag = {
+      ev: p.ev, el: p.el, g: g, pointerId: p.pointerId, moved: false,
+      startX: p.x, startY: p.y,
+      durRows: durRows,
+      grabRowOffset: topRow - pointToCell(g, p.x, p.y).row,
+      origDate: p.ev.date, origStart: p.ev.start, origEnd: p.ev.end,
+      newDayIdx: dayIdx, newTopRow: topRow
+    };
+    try { p.el.setPointerCapture(p.pointerId); } catch(err){}
+  }
+
   gridEl.addEventListener("pointerdown", function(e){
     if (e.pointerType === "mouse" && e.button !== 0) return;
     var el = e.target.closest ? e.target.closest(".event") : null;
@@ -1309,24 +1359,41 @@
     if (e.target.closest(".chk")) return;         // ticking something off is not a drag
     var ev = state.events.find(function(x){ return x.id === el.dataset.eventId; });
     if (!ev) return;
-    var dayIdx = weekDates().map(isoDate).indexOf(ev.date);
-    if (dayIdx === -1) return;
 
-    var g = gridGeometry();
-    var topRow = timeToRow(ev.start);
-    var durRows = Math.max(1, Math.max(timeToRow(ev.end), topRow + 1) - topRow);
-    moveDrag = {
-      ev: ev, el: el, g: g, pointerId: e.pointerId, moved: false,
-      startX: e.clientX, startY: e.clientY,
-      durRows: durRows,
-      grabRowOffset: topRow - pointToCell(g, e.clientX, e.clientY).row,
-      origDate: ev.date, origStart: ev.start, origEnd: ev.end,
-      newDayIdx: dayIdx, newTopRow: topRow
-    };
-    try { el.setPointerCapture(e.pointerId); } catch(err){}
+    var p = { ev: ev, el: el, pointerId: e.pointerId, x: e.clientX, y: e.clientY };
+
+    if (e.pointerType === "touch"){
+      clearPendingPress();
+      pendingPress = p;
+      p.timer = setTimeout(function(){
+        pendingPress = null;
+        beginMoveDrag(p);
+        if (!moveDrag) return;
+        p.el.classList.add("lifted");
+        // a short buzz is the only signal that the hold registered, since nothing
+        // has moved yet
+        if (navigator.vibrate){ try { navigator.vibrate(15); } catch(err){} }
+      }, LONG_PRESS_MS);
+      return;
+    }
+
+    beginMoveDrag(p);
   });
 
+  // Once a touch drag is armed the page must stop scrolling under it. touch-action
+  // alone can't express "only after a hold", so the gesture is claimed here — the
+  // listener has to be non-passive for preventDefault to count.
+  gridEl.addEventListener("touchmove", function(e){
+    if (moveDrag) e.preventDefault();
+  }, { passive: false });
+
   document.addEventListener("pointermove", function(e){
+    if (pendingPress && e.pointerId === pendingPress.pointerId){
+      // moved before the hold completed → the user is scrolling, not dragging
+      if (Math.abs(e.clientX - pendingPress.x) + Math.abs(e.clientY - pendingPress.y) > TOUCH_SLOP)
+        clearPendingPress();
+      return;
+    }
     var m = moveDrag;
     if (!m || e.pointerId !== m.pointerId) return;
     if (!m.moved){
@@ -1346,6 +1413,7 @@
     if (!m) return;
     moveDrag = null;
     m.el.classList.remove("dragging");
+    m.el.classList.remove("lifted");
     if (!m.moved) return;                 // never moved: let the click open the editor
     state.suppressClickUntil = Date.now() + 400;
 
@@ -1362,9 +1430,13 @@
   }
 
   document.addEventListener("pointerup", function(e){
+    if (pendingPress && e.pointerId === pendingPress.pointerId) clearPendingPress();
     if (moveDrag && e.pointerId === moveDrag.pointerId) finishMoveDrag(true);
   });
   document.addEventListener("pointercancel", function(e){
+    // the browser took the gesture for a scroll — that's the swipe case, and the
+    // armed drag has to let go with nothing changed
+    if (pendingPress && e.pointerId === pendingPress.pointerId) clearPendingPress();
     if (moveDrag && e.pointerId === moveDrag.pointerId) finishMoveDrag(false);
   });
   document.addEventListener("keydown", function(e){
@@ -1635,21 +1707,59 @@
   // Project planning — break down research goals into phases and calendar events
   // =====================================================================
 
-  // Parse projects.md to extract project names and phases.
-  // Read straight from raw.githubusercontent — projects.md isn't part of the
-  // schedule payload, and nothing here writes it back.
+  // projects.md is read through the contents API when this device can write, so
+  // ticking a step back has a blob sha to write against; a read-only device falls
+  // back to raw and gets checkboxes it can look at but not change.
+  var PROJECTS_API = CFG.owner
+    ? "https://api.github.com/repos/" + CFG.owner + "/" + CFG.repo + "/contents/projects.md" : null;
+  var projectsDoc = { text: "", sha: null };
+
   async function loadProjects(){
     if (!CFG.owner) return {};
     try {
+      if (canWrite()){
+        var r = await fetch(PROJECTS_API + "?ref=" + (CFG.branch || "main"), { headers: ghHeaders(), cache: "no-store" });
+        if (r.ok){
+          var j = await r.json();
+          projectsDoc = { text: base64ToUtf8(j.content || ""), sha: j.sha };
+          return parseProjectsMarkdown(projectsDoc.text);
+        }
+      }
       var url = "https://raw.githubusercontent.com/" + CFG.owner + "/" + CFG.repo +
         "/" + (CFG.branch || "main") + "/projects.md?t=" + Date.now();
       var resp = await fetch(url, {cache: "no-store"});
       if (!resp.ok) return {};
-      return parseProjectsMarkdown(await resp.text());
+      projectsDoc = { text: await resp.text(), sha: null };
+      return parseProjectsMarkdown(projectsDoc.text);
     } catch(e){
       console.warn("Could not load projects.md:", e);
       return {};
     }
+  }
+
+  // Tick or untick one sub-step and push projects.md back. The line index comes
+  // from the parse, so the exact line is rewritten and nothing else in the file
+  // is touched.
+  async function setStepDone(lineIdx, done){
+    if (!projectsDoc.sha) throw new Error("read-only on this device");
+    var lines = projectsDoc.text.split("\n");
+    var line = lines[lineIdx];
+    if (line === undefined) throw new Error("projects.md changed underneath — reopen the dialog");
+    var m = line.match(/^(\s*-\s+)(\[[ xX]\]\s*)?(.*)$/);
+    if (!m) throw new Error("could not read that line");
+    lines[lineIdx] = m[1] + (done ? "[x] " : "[ ] ") + m[3];
+    var next = lines.join("\n");
+
+    var r = await fetch(PROJECTS_API, {
+      method: "PUT", headers: ghHeaders(),
+      body: JSON.stringify({
+        message: (done ? "Tick off" : "Reopen") + " a project step from " + getDevice(),
+        content: utf8ToBase64(next), sha: projectsDoc.sha, branch: CFG.branch || "main"
+      })
+    });
+    if (!r.ok) throw new Error("GitHub said " + r.status + (r.status === 409 ? " — projects.md changed elsewhere" : ""));
+    var out = await r.json();
+    projectsDoc = { text: next, sha: out.content && out.content.sha };
   }
 
   function parseProjectsMarkdown(md){
@@ -1711,9 +1821,14 @@
           }
           if (nextLine.match(/^\s*-\s+/) && !nextLine.includes('Sources')){
             var step = nextLine.replace(/^\s*-\s+/, '').trim();
+            // "- [x] thing" is a finished step; "- [ ] thing" is still to do. A
+            // bare "- thing" predates the checkboxes and counts as unfinished.
+            var box = step.match(/^\[([ xX])\]\s*/);
+            var done = false;
+            if (box){ done = box[1].toLowerCase() === "x"; step = step.slice(box[0].length).trim(); }
             // Skip if it looks like a source
             if (!step.match(/^https?:/) && !step.includes('://') && step.length < 150){
-              substeps.push(step);
+              substeps.push({ text: step, done: done, line: j });
             }
           }
           j++;
@@ -1751,13 +1866,16 @@
   }
 
   // "30–45 min" / "~2 h" / "12–16 h" -> minutes, taking the top of a range so a
-  // day is never under-booked.
+  // day is never under-booked. Anything measured in days is reported as such
+  // rather than converted: a 10–14 day selection is a series of feeds, not a
+  // block, and turning it into a number here would quietly invent one.
   function parseSpan(cell){
     var s = String(cell).toLowerCase();
     var nums = s.match(/\d+(?:\.\d+)?/g);
     if (!nums) return null;
     var v = parseFloat(nums[nums.length - 1]);
-    return /\bh\b|hour/.test(s) ? Math.round(v * 60) : Math.round(v);
+    if (/\bday|\bweek/.test(s)) return { days: true };
+    return { mins: Math.round(/\bh\b|hour/.test(s) ? v * 60 : v) };
   }
 
   function parseDurations(md){
@@ -1768,26 +1886,54 @@
       if (c.length < 3 || /^-+$/.test(c[0]) || /^procedure$/i.test(c[0])) return;
       var total = parseSpan(c[1]);
       if (!total) return;
-      var handsOn = /all/i.test(c[2]) ? total : (parseSpan(c[2]) || total);
+      var hands = /all/i.test(c[2]) ? total : (parseSpan(c[2]) || total);
       // Distinctive words to match a sub-step against, stemmed lightly so
       // "transfection" in the table still catches "Transfect HEK293T…".
       var stems = c[0].toLowerCase().replace(/\(.*?\)/g, " ").split(/[^a-z]+/)
         .filter(function(w){ return w.length >= 5; })
         .map(function(w){ return w.replace(/(ation|ing|ion|es|s)$/, ""); })
         .filter(function(w){ return w.length >= 4; });
-      if (stems.length) out.push({ name: c[0], stems: stems, total: total, handsOn: handsOn });
+      if (stems.length) out.push({
+        name: c[0], stems: stems,
+        spansDays: !!total.days,
+        total: total.mins || 0,
+        handsOn: hands.days ? (total.mins || 0) : hands.mins
+      });
     });
     return out;
   }
 
+  // A row wins a sub-step on one of two grounds: it matched a word distinctive
+  // enough to stand alone (STRONG_STEM characters), or the words it did match
+  // account for most of what makes that row's name specific (COVERAGE).
+  //
+  // Length alone can't do this. "Select best guide" and "Antibiotic selection"
+  // share only "select"; "Design gRNAs" and "gRNA design (in silico)" share only
+  // "design" — both six letters, but the first is a collision and the second is
+  // the whole name. Coverage separates them: 6 of 16 characters against 6 of 6.
+  // Ties go to flagging the step, because a borrowed duration reads as researched
+  // when it isn't.
+  var STRONG_STEM = 8, COVERAGE = 0.6;
+
   function durationFor(step){
-    var s = step.toLowerCase(), best = null, bestLen = 0;
+    var s = step.toLowerCase(), best = null, bestScore = 0;
     (DURATIONS || []).forEach(function(row){
+      var score = 0, longest = 0, whole = 0;
       row.stems.forEach(function(stem){
-        if (s.indexOf(stem) !== -1 && stem.length > bestLen){ best = row; bestLen = stem.length; }
+        whole += stem.length;
+        if (s.indexOf(stem) === -1) return;
+        score += stem.length;
+        if (stem.length > longest) longest = stem.length;
       });
+      if (!score) return;
+      if (longest < STRONG_STEM && score / whole < COVERAGE) return;
+      if (score > bestScore){ best = row; bestScore = score; }
     });
     if (!best) return { total: 60, handsOn: 60, researched: false, name: null };
+    // Measured in days: a series of visits, not a block. The planner can't place
+    // it honestly, so it says so instead of inventing a length.
+    if (best.spansDays || !best.total)
+      return { total: 60, handsOn: 60, researched: false, name: best.name, spansDays: true };
     return { total: best.total, handsOn: best.handsOn, researched: true, name: best.name };
   }
 
@@ -1816,17 +1962,21 @@
     return null;
   }
 
-  // Generate calendar events from project phase sub-steps.
+  // Generate calendar events from project phase sub-steps. Steps already ticked
+  // off in projects.md are skipped — planning is for what's left to do.
   function generatePhaseEvents(projectName, phaseNum, phase){
-    var placed = [], unplaced = [], unresearched = [];
+    var placed = [], unplaced = [], unresearched = [], multiDay = [];
     var slug = projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     // Never backdate: start from tomorrow, since today is already part-spent.
     var cursor = addDays(startOfDay(new Date()), 1);
     var perDay = {};
 
-    phase.substeps.forEach(function(step, idx){
+    phase.substeps.forEach(function(sub, idx){
+      if (sub.done) return;
+      var step = sub.text;
       var d = durationFor(step);
-      if (!d.researched) unresearched.push(step);
+      if (d.spansDays) multiDay.push(step + " (" + d.name + ")");
+      else if (!d.researched) unresearched.push(step);
 
       var day = new Date(cursor), slot = null, iso = null;
       for (var tries = 0; tries < 28; tries++){
@@ -1855,12 +2005,14 @@
         project: projectName,
         phase: phaseNum,
         notes: "Phase " + phaseNum + ": " + phase.title +
-          (d.researched ? "\nDuration from protocols/durations.md — " + d.name
-                        : "\nDuration NOT researched — placeholder, check it.")
+          (d.spansDays
+            ? "\nRuns over days (" + d.name + ") — this block is a placeholder for the first visit."
+            : d.researched ? "\nDuration from protocols/durations.md — " + d.name
+                           : "\nDuration NOT researched — placeholder, check it.")
       });
     });
 
-    return { events: placed, unplaced: unplaced, unresearched: unresearched };
+    return { events: placed, unplaced: unplaced, unresearched: unresearched, multiDay: multiDay };
   }
 
   var dlgProject = $("dlgProject");
@@ -1882,18 +2034,65 @@
     });
   }
 
+  // The phase's steps, tickable. Ticking writes straight back to projects.md, then
+  // re-plans — so what's left to schedule always reflects what's actually done.
+  function renderPhaseSteps(phase){
+    var box = $("phaseSteps");
+    box.innerHTML = "";
+    var writable = canWrite() && projectsDoc.sha;
+
+    phase.substeps.forEach(function(sub){
+      var row = document.createElement("label");
+      row.className = "step-row" + (sub.done ? " done" : "");
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = sub.done;
+      cb.disabled = !writable;
+      var span = document.createElement("span");
+      span.textContent = sub.text;
+      row.appendChild(cb);
+      row.appendChild(span);
+      box.appendChild(row);
+
+      cb.addEventListener("change", async function(){
+        var want = cb.checked;
+        cb.disabled = true;
+        setStatus("Saving step…", "saving");
+        try {
+          await setStepDone(sub.line, want);
+          sub.done = want;
+          row.classList.toggle("done", want);
+          setStatus("Saved.", "saved");
+          updatePhaseEvents();            // re-plan what's left
+        } catch(err){
+          cb.checked = !want;             // put it back — nothing was written
+          setStatus(String(err.message || err), "error");
+        }
+        cb.disabled = !writable;
+      });
+    });
+
+    $("phaseStepsWrap").style.display = phase.substeps.length ? "block" : "none";
+    $("stepsHint").textContent = writable
+      ? "Ticked steps are skipped when planning."
+      : "Read-only on this device — connect a token to tick these off.";
+  }
+
   function updatePhaseEvents(){
     var pname = $("projectName").value;
     var phaseNum = parseInt($("projectPhase").value);
     if (!pname || !phaseNum || !allProjects[pname]){
       $("projectInfo").style.display = "none";
       $("projectEvents").style.display = "none";
+      $("phaseStepsWrap").style.display = "none";
       $("btnProjectPlan").style.display = "none";
       return;
     }
 
     var phase = allProjects[pname].phases.find(function(p){ return p.number === phaseNum; });
     if (!phase) return;
+
+    renderPhaseSteps(phase);
 
     var result = generatePhaseEvents(pname, phaseNum, phase);
     suggestedEvents = result.events;
@@ -1916,6 +2115,10 @@
       notes.push("<b>No researched duration for " + result.unresearched.length + " step(s)</b> — " +
         "given a placeholder hour: " + escapeHtml(result.unresearched.join("; ")) +
         ". Ask me to look these up and they'll be added to protocols/durations.md.");
+    if (result.multiDay.length)
+      notes.push("<b>" + result.multiDay.length + " step(s) run over days, not hours</b> — " +
+        escapeHtml(result.multiDay.join("; ")) + ". Each is a placeholder for the first visit; " +
+        "the repeat visits need scheduling separately.");
     if (result.unplaced.length)
       notes.push("<b>Couldn't place " + result.unplaced.length + " step(s)</b> within the next four weeks: " +
         escapeHtml(result.unplaced.join("; ")) + ".");
@@ -1944,6 +2147,7 @@
     $("projectReview").style.display = "none";
     $("projectInfo").style.display = "none";
     $("projectEvents").style.display = "none";
+    $("phaseStepsWrap").style.display = "none";
     $("btnProjectPlan").style.display = "none";
     $("projectName").innerHTML = "<option value=\"\">-- Select a project --</option>";
     $("projectPhase").innerHTML = "<option value=\"\">-- Select a phase --</option>";

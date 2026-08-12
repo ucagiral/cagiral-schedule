@@ -158,6 +158,19 @@ step with no row there is given a **placeholder hour and flagged in the dialog**
 so rather than quietly inventing a number. Those flagged steps are the queue for the next research
 pass; once looked up they go into `durations.md` and the planner stops guessing.
 
+A row wins a step only on real overlap: either a word distinctive enough to stand alone, or words
+covering most of what makes that row's name specific. Six letters of "select" shared between
+*Select best guide* and *Antibiotic selection* is a collision, not a match, and inheriting the
+wrong timing there would read as researched when it isn't — so ties go to flagging.
+
+**Anything measured in days is not a block.** A 10–14 day antibiotic selection is a series of feeds;
+the planner places a placeholder for the first visit and says the repeats still need scheduling,
+rather than drawing a two-week bar across the calendar.
+
+Steps are **ticked off in the app**, and the tick is written straight back to `projects.md` as
+`- [x]`. Ticked steps are skipped the next time that phase is planned, so re-planning always
+proposes only what is actually left. A device with no token shows the boxes but can't change them.
+
 The planner proposes; nothing is written until the events are reviewed and accepted.
 
 ## Scheduling conventions

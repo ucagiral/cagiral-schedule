@@ -65,7 +65,78 @@ Day 2 uses a **primary + secondary** pair, unlike day 1's conjugated streptavidi
 
 ---
 
+## CasPEx — the AR locus project (LNCX / LUCX)
+
+The published method is in [`protocols/caspex.md`](protocols/caspex.md). This is how Umut runs it.
+
+### The system
+
+- **Construct:** `dd-CasPEx-mCherry` — dCas9–APEX2, FLAG-tagged, carrying a destabilising domain,
+  with mCherry as the sort marker.
+- **Two switches, not one.** Expression needs **doxycycline *and* Shield-1**, both added
+  **2 days before biotinylation**. Every labelling day therefore has a fixed two-day lead-in, and
+  a labelling date is really a three-day commitment.
+- **Lines:** `LNCX` = LNCaP-CasPEx, `LUCX` = LuCaP-35CR-CasPEx. Both grow in **standard 2D
+  culture** and both sit at the same stage. Names are the shorthand used on the calendar.
+- **Two independent markers:** CasPEx came in with mCherry and was **sorted**; the guide vector
+  carries **hygromycin**. So a guide-transduced line is sorted once and selected once.
+
+### Target and guides
+
+The target is the **AR locus** — androgen receptor, the axis that separates LNCaP from the
+castration-resistant LuCaP-35CR.
+
+**8 guides: 4 against the promoter, 4 against the enhancer.** The replicates are a funnel, not
+three repeats of the same thing:
+
+| Replicate | What runs | Purpose |
+|---|---|---|
+| 1 | **all 8 guides**, full scale | Choose the guides. **Not sent to mass spec.** |
+| 2 | **2 best promoter + 2 best enhancer** | Confirm the choice |
+| 3 | the same 4 | Runs **at the same time as the mass spec submission** |
+
+Three biological replicates per condition for the proteomics. A few 15 cm dishes per condition.
+Batch size is not a constraint — there are people to help on labelling days.
+
+### Labelling
+
+Standard APEX2: biotin-phenol 30 min, then H₂O₂ for **exactly 1 minute**, then immediate quench.
+
+Controls run alongside every round: **non-targeting sgRNA**, **no H₂O₂ / no biotin-phenol**, and
+**no Shield-1**.
+
+### Before any sample goes to mass spec
+
+Two things must both be true, not either:
+
+1. a **guide-dependent shift on the streptavidin blot**, and
+2. **occupancy confirmed by ChIP-qPCR against the FLAG tag**.
+
+A negative proteomics result is only interpretable if occupancy was demonstrated first, and the
+core facility is too expensive to spend on an untested guide.
+
+### Downstream
+
+- **Streptavidin pulldown and digest are done in-house**; peptides or beads go to the facility.
+- Mass spec is an **external core facility**, rolling submission, **weeks** of turnaround.
+- **Freeze a backup of every selected line before experiments.** Everything upstream —
+  transduction, selection, expansion — is weeks of work to recreate.
+
+### Timings that bind the schedule
+
+| Step | Our value |
+|---|---|
+| Doxycycline + Shield-1 before biotinylation | **2 days** |
+| Hygromycin selection | **5–7 days, 6 standard** — not the 10–14 day published range |
+| Expansion after selection, before labelling | **1–2 weeks** |
+
 ## Cell culture
+
+### The thaw-cell rule
+
+**Nothing is scheduled on a thaw day, and the day after a thaw is a mandatory medium change.**
+Cells coming out of storage are recovering; an experiment on top of that is wasted. This rule is
+already why several calendar events sit where they do.
 
 - **Virus medium change:** add **6.5 mL** per vessel.
 - **CuAdapt line:** recurring passage on **Mondays and Thursdays**. Copper treatment and passage are

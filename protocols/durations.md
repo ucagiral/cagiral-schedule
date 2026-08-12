@@ -26,7 +26,12 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | gRNA design (in silico) | ~3–4 h | all | — | Desk work, no measured bench figure published. Current Protocols' CHOPCHOP walkthrough runs design → off-target review → oligo ordering as one sitting. Treat as a half-day, not an hour. |
 | In vitro Cas9 cleavage assay | ~2.5 h | ~1 h | ~1.5 h | 60 min RNP + target at 37 °C is the common incubation (10 min at the fast end), then Proteinase K and an agarose gel. The incubation and the gel run are unattended. |
 | Lentiviral transduction | ~1 h | all | 48–72 h after | Hands-on is adding virus; the infection itself sits 48–72 h before selection starts. |
-| Antibiotic selection (puro/blast/hygro) | **10–14 days** | ~30 min per feed | rest | Selection begins 48 h post-transduction and runs 3–10 days, re-fed every 2–3 days until the untransduced control is dead. Schedule the feeds, not one block. |
+| Antibiotic selection (puro/blast/hygro) | **10–14 days** | ~30 min per feed | rest | Selection begins 48 h post-transduction and runs 3–10 days, re-fed every 2–3 days until the untransduced control is dead. Schedule the feeds, not one block. **Umut's hygromycin window is 5–7 days, 6 standard** — his value wins. |
+| APEX2 biotinylation (labelling day) | ~1.5 h | all | — | 30 min biotin-phenol at 37 °C, H₂O₂ for 30 s–1 min, immediate quench, then washes. The H₂O₂ minute is exact and the quench can't be late. Scale multiplies the hands-on, not the clock. |
+| Dox + Shield-1 induction | **2 days before labelling** | ~20 min to dose | rest | Umut's value. Makes a labelling date a three-day commitment. |
+| Streptavidin pulldown + on-bead digest | ~1 day hands-on, overnight digest | ~4–5 h | overnight | Bead capture and washes are a long bench day; the tryptic digest runs overnight. |
+| ChIP-qPCR (to the plate) | **2–3 days** | ~5–6 h total | 2 overnights | 10 min formaldehyde crosslink + glycine, lysis, sonication to 150–200 bp, **overnight IP at 4 °C**, elution 65 °C, then reverse-crosslink ≥5 h or overnight, cleanup, qPCR. Not a one-day assay. |
+| FACS sorting (mCherry) | ~2–4 h | all | — | Instrument time plus prep; needs booking, and cells need recovery afterwards. |
 
 ## Protocol-specific timings we've fixed
 
@@ -63,3 +68,8 @@ These came from Umut directly and override any published range — see
 - [Addgene — generating stable cell lines](https://www.addgene.org/protocols/generating-stable-cell-lines/)
 - [Creative Biogene — guide to stable lentiviral cell line construction](https://www.creative-biogene.com/support/comprehensive-guide-to-stable-lentiviral-cell-line-construction.html)
 - [GeneMedi — lentivirus infection protocol for stable cell line development](https://www.genemedi.net/i/lentivirus-infection-protocol-for-cld)
+- [Nature Methods — dCas9–APEX proximity labeling at a predefined genomic locus (CasPEx / GLoPro)](https://www.nature.com/articles/s41592-018-0007-1)
+- [An optimized protocol for proximity biotinylation using APEX2](https://www.sciencedirect.com/science/article/pii/S2666166720300617)
+- [STAR Protocols — APEX2 biotin-labeling in mammalian cells](https://www.cell.com/star-protocols/fulltext/S2666-1667(24)00533-1)
+- [Rockland — chromatin immunoprecipitation (ChIP) protocol](https://www.rockland.com/globalassets/documents/protocols/chromatin-immunoprecipitation-chip-protocol.pdf)
+- [Antibodies.com — ChIP protocol](https://www.antibodies.com/applications/chromatin-immunoprecipitation/chip-protocol)

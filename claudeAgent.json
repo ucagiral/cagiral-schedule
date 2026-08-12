@@ -1979,8 +1979,8 @@
     {
       "id": "e-wb-primary-2026-08-13",
       "date": "2026-08-13",
-      "start": "10:55",
-      "end": "11:55",
+      "start": "10:20",
+      "end": "11:20",
       "title": "Western — primary antibody",
       "category": "experiment",
       "type": "passive",
@@ -2135,7 +2135,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T19:38:25.290Z",
+    "lastModified": "2026-08-12T19:38:29.772Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

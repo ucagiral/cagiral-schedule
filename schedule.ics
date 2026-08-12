@@ -2732,12 +2732,14 @@ BEGIN:VEVENT
 UID:emsmbiis5h5tbj@cagiral-schedule
 DTSTAMP:20260812T143259Z
 SEQUENCE:29775752
-DTSTART;TZID=Europe/Istanbul:20260812T113000
-DTEND;TZID=Europe/Istanbul:20260812T123000
+DTSTART;TZID=Europe/Istanbul:20260813T100000
+DTEND;TZID=Europe/Istanbul:20260813T110000
 SUMMARY:qPCR prep
 DESCRIPTION:2026-08-11: Sits inside the 2 h wet transfer. Plate is fridged 
- overnight for the 08-13 qPCR.\nActive — needs you there\nGroup: ATF3 qPC
- R\nCategory: experiment
+ overnight for the 08-13 qPCR.\nMoved from 2026-08-12 (not done that day). 
+ Sits before the 12:00 run it feeds — same day rather than the usual day-
+ before\, so the plate goes straight in.\nActive — needs you there\nGroup
+ : ATF3 qPCR\nCategory: experiment
 CATEGORIES:ATF3 qPCR,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3068,5 +3070,72 @@ ACTION:DISPLAY
 DESCRIPTION:Ezgi veda
 TRIGGER:-PT15M
 END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-colony-fix-2026-08-12@cagiral-schedule
+DTSTAMP:20260812T143259Z
+SEQUENCE:29775752
+DTSTART;TZID=Europe/Istanbul:20260812T124500
+DTEND;TZID=Europe/Istanbul:20260812T130000
+SUMMARY:✓ Colony formation — fixation
+DESCRIPTION:15 min\, Umut's value. Fixation only\; staining and counting ar
+ e separate.\nActive — needs you there\nGroup: Colony formation\nCategory
+ : experiment\nMarked done.
+CATEGORIES:Colony formation,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-colony-fix-2026-08-13@cagiral-schedule
+DTSTAMP:20260812T143259Z
+SEQUENCE:29775752
+DTSTART;TZID=Europe/Istanbul:20260813T111500
+DTEND;TZID=Europe/Istanbul:20260813T113000
+SUMMARY:Colony formation — fixation
+DESCRIPTION:15 min\, Umut's value. Fixation only\; staining and counting ar
+ e separate.\nActive — needs you there\nGroup: Colony formation\nCategory
+ : experiment
+CATEGORIES:Colony formation,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Colony formation — fixation
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-colony-fix-2026-08-14@cagiral-schedule
+DTSTAMP:20260812T143259Z
+SEQUENCE:29775752
+DTSTART;TZID=Europe/Istanbul:20260814T110000
+DTEND;TZID=Europe/Istanbul:20260814T111500
+SUMMARY:Colony formation — fixation
+DESCRIPTION:15 min\, Umut's value. Fixation only\; staining and counting ar
+ e separate.\nActive — needs you there\nGroup: Colony formation\nCategory
+ : experiment
+CATEGORIES:Colony formation,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Colony formation — fixation
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-colony-dry-2026-08-14@cagiral-schedule
+DTSTAMP:20260812T143259Z
+SEQUENCE:29775752
+DTSTART;TZID=Europe/Istanbul:20260814T111500
+DTEND;TZID=Europe/Istanbul:20260814T151500
+SUMMARY:Colony formation — drying
+DESCRIPTION:Air-dry at room temperature. Protocols quote ~4 h\, and plates 
+ can be left longer or overnight without harm — the block is a placeholde
+ r for the day\, not a deadline.\nPassive — runs unattended\, does not bl
+ ock time\nGroup: Colony formation\nCategory: experiment
+CATEGORIES:Colony formation,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
 END:VEVENT
 END:VCALENDAR

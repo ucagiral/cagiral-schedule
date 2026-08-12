@@ -162,6 +162,15 @@ already why several calendar events sit where they do.
 
 ---
 
+## Colony formation
+
+- **Fixation is 15 minutes**, and it repeats across consecutive days as plates come due — not one
+  block at the end.
+- **Drying happens once**, after the last fixation, and is unattended. Room temperature; protocols
+  quote about 4 hours but plates keep for days, so the block marks the day rather than a deadline.
+- Staining and counting are separate steps and are not assumed — they go on the calendar when Umut
+  says so.
+
 ## qPCR track
 
 Dependency chain, each step feeding the next:
@@ -172,6 +181,9 @@ Dependency chain, each step feeding the next:
 - LunaScript cDNA conversion: 1 h, run straight off the isolation
 - qPCR prep: 1 h. Done **the day before** the run and the plate kept in the fridge, so the run day
   stays light. It must fall after the cDNA conversion it depends on.
+  - When a prep slips, it moves to the run day and goes **before** the run rather than being
+    dropped — the dependency is what matters, the day-before is only the preference. This happened
+    on 13 Aug 2026.
 - qPCR run: 2 h
 
 ---
@@ -193,6 +205,7 @@ experiment thread reads as a single strand on the grid. The eight in use:
 | ATF3 mutants | cyan `#06b6d4` | thaw and medium change for the HEK/Huh7 mutants |
 | Zoom — Wednesday | purple `#a855f7` | the standing Wednesday 21:10 Zoom |
 | Weekly meeting | lime `#84cc16` | the standing Friday 09:30 meeting |
+| Colony formation | orange `#f97316` | fixation across consecutive days, then drying |
 | Vacation | slate `#64748b` | vacation days |
 
 **Every event carries a group, so no block falls back to a category colour.** That matters because

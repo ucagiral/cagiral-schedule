@@ -1785,14 +1785,14 @@
     },
     {
       "id": "emsmbiis5h5tbj",
-      "date": "2026-08-12",
-      "start": "11:30",
-      "end": "12:30",
+      "date": "2026-08-13",
+      "start": "10:00",
+      "end": "11:00",
       "title": "qPCR prep",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "2026-08-11: Sits inside the 2 h wet transfer. Plate is fridged overnight for the 08-13 qPCR.",
+      "notes": "2026-08-11: Sits inside the 2 h wet transfer. Plate is fridged overnight for the 08-13 qPCR.\nMoved from 2026-08-12 (not done that day). Sits before the 12:00 run it feeds — same day rather than the usual day-before, so the plate goes straight in.",
       "group": "ATF3 qPCR"
     },
     {
@@ -2045,6 +2045,54 @@
       "type": "active",
       "status": "pending",
       "notes": ""
+    },
+    {
+      "id": "e-colony-fix-2026-08-12",
+      "date": "2026-08-12",
+      "start": "12:45",
+      "end": "13:00",
+      "title": "Colony formation — fixation",
+      "category": "experiment",
+      "type": "active",
+      "status": "done",
+      "group": "Colony formation",
+      "notes": "15 min, Umut's value. Fixation only; staining and counting are separate."
+    },
+    {
+      "id": "e-colony-fix-2026-08-13",
+      "date": "2026-08-13",
+      "start": "11:15",
+      "end": "11:30",
+      "title": "Colony formation — fixation",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "group": "Colony formation",
+      "notes": "15 min, Umut's value. Fixation only; staining and counting are separate."
+    },
+    {
+      "id": "e-colony-fix-2026-08-14",
+      "date": "2026-08-14",
+      "start": "11:00",
+      "end": "11:15",
+      "title": "Colony formation — fixation",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "group": "Colony formation",
+      "notes": "15 min, Umut's value. Fixation only; staining and counting are separate."
+    },
+    {
+      "id": "e-colony-dry-2026-08-14",
+      "date": "2026-08-14",
+      "start": "11:15",
+      "end": "15:15",
+      "title": "Colony formation — drying",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "group": "Colony formation",
+      "notes": "Air-dry at room temperature. Protocols quote ~4 h, and plates can be left longer or overnight without harm — the block is a placeholder for the day, not a deadline."
     }
   ],
   "_groups": {
@@ -2080,10 +2128,15 @@
     },
     "Vacation": {
       "color": "#64748b"
+    },
+    "Colony formation": {
+      "color": "#f97316"
     }
   },
   "_meta": {
     "lastModified": "2026-08-12T14:32:59.166Z",
-    "modifiedBy": "Umut iPhone 16 Plus"
+    "modifiedBy": "Umut iPhone 16 Plus",
+    "savedBy": "Claude",
+    "savedAt": "2026-08-12T14:38:14.030Z"
   }
 }

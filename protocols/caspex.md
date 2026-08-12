@@ -1,6 +1,6 @@
 # CasPEx — locus-specific proximity labelling
 
-The method behind the LNCX/LUCX project: a catalytically dead Cas9 fused to the engineered
+The method behind the **AR-CasPEx** project: a catalytically dead Cas9 fused to the engineered
 ascorbate peroxidase APEX2, guided to one genomic locus, biotinylating whatever protein sits near
 it. Streptavidin then enriches those proteins and mass spectrometry names them.
 

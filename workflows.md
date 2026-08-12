@@ -65,7 +65,11 @@ Day 2 uses a **primary + secondary** pair, unlike day 1's conjugated streptavidi
 
 ---
 
-## CasPEx — the AR locus project (LNCX / LUCX)
+## AR-CasPEx
+
+**One project, one name.** "LNCX/LUCX" and "the AR-CasPEx project" are the same thing — `LNCX` and
+`LUCX` are the two cell lines inside it, not a separate piece of work. The calendar still carries
+the older group name.
 
 The published method is in [`protocols/caspex.md`](protocols/caspex.md). This is how Umut runs it.
 
@@ -86,38 +90,49 @@ The published method is in [`protocols/caspex.md`](protocols/caspex.md). This is
 The target is the **AR locus** — androgen receptor, the axis that separates LNCaP from the
 castration-resistant LuCaP-35CR.
 
-**8 guides: 4 against the promoter, 4 against the enhancer.** The replicates are a funnel, not
-three repeats of the same thing:
+**8 guides: 4 against the promoter, 4 against the enhancer.** The replicates are a funnel, and —
+importantly — **they are not the same assay**:
 
-| Replicate | What runs | Purpose |
-|---|---|---|
-| 1 | **all 8 guides**, full scale | Choose the guides. **Not sent to mass spec.** |
-| 2 | **2 best promoter + 2 best enhancer** | Confirm the choice |
-| 3 | the same 4 | Runs **at the same time as the mass spec submission** |
+| Replicate | Induction | Biotinylation? | Readout | Purpose |
+|---|---|---|---|---|
+| 1 | dox + Shield-1 | **no** | ChIP-qPCR | Choose the guides. **Not sent to mass spec.** |
+| 2 | dox + Shield-1 | **no** | ChIP-qPCR | Confirm the choice: 2 best promoter + 2 best enhancer |
+| 3 | dox + Shield-1 | **yes** | Nuclear fraction → streptavidin → MS | Runs **at the same time as the submission** |
+
+**Biotinylation is not needed before ChIP-qPCR.** The fusion has to be *expressed* to be
+immunoprecipitated; it does not have to have *labelled* anything for ChIP to report where it sits.
+So replicates 1 and 2 need only dox and Shield-1, and guides are chosen on **occupancy**, not on
+blot signal.
+
+This matters for the calendar as much as for the biology: the APEX2 reaction, with its exact
+one-minute H₂O₂ step and immediate quench, is run **once**, on replicate 3 only. Screening 8 guides
+across 2 lines is a ChIP week, not a labelling marathon.
 
 Three biological replicates per condition for the proteomics. A few 15 cm dishes per condition.
-Batch size is not a constraint — there are people to help on labelling days.
+Batch size is not a constraint — there are people to help.
 
-### Labelling
+### Labelling — replicate 3 only
 
 Standard APEX2: biotin-phenol 30 min, then H₂O₂ for **exactly 1 minute**, then immediate quench.
 
-Controls run alongside every round: **non-targeting sgRNA**, **no H₂O₂ / no biotin-phenol**, and
-**no Shield-1**.
+**The nuclear fraction is isolated before the streptavidin pulldown.** The question is about
+proteins at a genomic locus, so carrying the cytoplasm into the enrichment only adds background —
+including the endogenous biotinylated carboxylases, which are largely mitochondrial and cytosolic.
 
-### Before any sample goes to mass spec
+Controls alongside: **non-targeting sgRNA**, **no H₂O₂ / no biotin-phenol**, **no Shield-1**.
 
-Two things must both be true, not either:
+### Before samples go to mass spec
 
-1. a **guide-dependent shift on the streptavidin blot**, and
-2. **occupancy confirmed by ChIP-qPCR against the FLAG tag**.
+**Occupancy must be confirmed by FLAG ChIP-qPCR** — that is what replicates 1 and 2 are for. The
+core facility is too expensive to spend on a guide that was never shown to be at the locus, and a
+negative result from an unverified guide says nothing.
 
-A negative proteomics result is only interpretable if occupancy was demonstrated first, and the
-core facility is too expensive to spend on an untested guide.
+APEX2 activity itself is already established: the **no-guide biotin Western** has been shown.
 
 ### Downstream
 
-- **Streptavidin pulldown and digest are done in-house**; peptides or beads go to the facility.
+- **Nuclear fractionation, streptavidin pulldown and digest are done in-house**; peptides or beads
+  go to the facility.
 - Mass spec is an **external core facility**, rolling submission, **weeks** of turnaround.
 - **Freeze a backup of every selected line before experiments.** Everything upstream —
   transduction, selection, expansion — is weeks of work to recreate.
@@ -129,6 +144,8 @@ core facility is too expensive to spend on an untested guide.
 | Doxycycline + Shield-1 before biotinylation | **2 days** |
 | Hygromycin selection | **5–7 days, 6 standard** — not the 10–14 day published range |
 | Expansion after selection, before labelling | **1–2 weeks** |
+| Biotinylation | **replicate 3 only** — replicates 1 and 2 are ChIP-qPCR on dox + Shield-1 alone |
+| Nuclear fractionation | before the streptavidin pulldown, replicate 3 |
 
 ## Cell culture
 
@@ -172,7 +189,7 @@ experiment thread reads as a single strand on the grid. The eight in use:
 | CuAdapt | green `#22c55e` | copper treatment, passage, freeze, thaw, medium change |
 | Cloning | violet `#8b5cf6` | bacterial culture, miniprep, plasmids to sequencing |
 | SRB assay | pink `#ec4899` | seeding, copper/cisplatin treatment, TCA fixation and wash, pelleting |
-| LNCX/LUCX | indigo `#6366f1` | thaw, seed, transduction, hygromycin selection |
+| LNCX/LUCX | indigo `#6366f1` | the **AR-CasPEx** work — thaw, seed, transduction, hygromycin selection. The group still carries the old name on the calendar; renaming it would retag the five existing events and change the feed, so it is left until asked. |
 | ATF3 mutants | cyan `#06b6d4` | thaw and medium change for the HEK/Huh7 mutants |
 | Zoom — Wednesday | purple `#a855f7` | the standing Wednesday 21:10 Zoom |
 | Weekly meeting | lime `#84cc16` | the standing Friday 09:30 meeting |

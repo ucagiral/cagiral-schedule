@@ -5,7 +5,7 @@
 // The app keeps its own last-known copy in localStorage for the offline case.
 //
 // Bump CACHE when index.html / sw.js / icons change, so clients pick up the new shell.
-const CACHE = "cagiral-schedule-v5";
+const CACHE = "cagiral-schedule-v6";
 
 const SHELL = [
   ".",

@@ -2122,8 +2122,8 @@
     {
       "id": "emsqk2586ijbrq",
       "date": "2026-08-15",
-      "start": "10:25",
-      "end": "10:30",
+      "start": "10:00",
+      "end": "10:45",
       "title": "qPCR Prep",
       "category": "experiment",
       "type": "active",
@@ -2170,7 +2170,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T20:42:09.423Z",
+    "lastModified": "2026-08-12T20:42:17.692Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

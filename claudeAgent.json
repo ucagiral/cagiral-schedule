@@ -2045,17 +2045,6 @@
       "type": "active",
       "status": "pending",
       "notes": ""
-    },
-    {
-      "id": "emspnjhtbloxa5",
-      "date": "2026-08-12",
-      "start": "15:40",
-      "end": "16:05",
-      "title": "Nesliyle dondurma otomati",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": ""
     }
   ],
   "_groups": {
@@ -2094,7 +2083,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T07:48:36.715Z",
+    "lastModified": "2026-08-12T07:48:43.333Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

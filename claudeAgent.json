@@ -2128,7 +2128,8 @@
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": ""
+      "notes": "",
+      "color": "#f59e0b"
     }
   ],
   "_groups": {
@@ -2170,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T20:42:17.692Z",
+    "lastModified": "2026-08-12T20:42:29.527Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

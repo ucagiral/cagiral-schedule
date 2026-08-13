@@ -2074,8 +2074,8 @@
     {
       "id": "e-wb-wash-primary-2026-08-14",
       "date": "2026-08-14",
-      "start": "08:00",
-      "end": "08:15",
+      "start": "09:00",
+      "end": "09:15",
       "title": "Western — washes (after primary)",
       "category": "experiment",
       "type": "active",
@@ -2193,7 +2193,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:28:22.467Z",
+    "lastModified": "2026-08-13T20:28:26.852Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

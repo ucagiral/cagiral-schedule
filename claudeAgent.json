@@ -1976,18 +1976,6 @@
       "group": "Colony formation"
     },
     {
-      "id": "e-colony-dry-2026-08-14",
-      "date": "2026-08-14",
-      "start": "11:15",
-      "end": "15:15",
-      "title": "Colony formation — drying",
-      "category": "experiment",
-      "type": "passive",
-      "status": "pending",
-      "group": "Colony formation",
-      "notes": "Air-dry at room temperature. Protocols quote ~4 h, and plates can be left longer or overnight without harm — the block is a placeholder for the day, not a deadline."
-    },
-    {
       "id": "e-wb-strip1-2026-08-13",
       "date": "2026-08-13",
       "start": "09:00",
@@ -2193,7 +2181,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:28:32.707Z",
+    "lastModified": "2026-08-13T20:28:49.051Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

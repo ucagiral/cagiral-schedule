@@ -2043,7 +2043,7 @@
       "title": "Western — strip #2 (20 min)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "Second strip, same membrane, for the new primary target."
     },
@@ -2171,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T12:18:44.340Z",
+    "lastModified": "2026-08-13T12:18:47.030Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

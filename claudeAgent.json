@@ -1995,7 +1995,7 @@
       "title": "Western — strip #1 (20 min)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "First of two strip cycles today. 20 min, Umut's value."
     },
@@ -2171,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-12T20:48:57.774Z",
+    "lastModified": "2026-08-13T09:06:20.333Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

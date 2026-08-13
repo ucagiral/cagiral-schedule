@@ -254,9 +254,9 @@
     },
     {
       "id": "e-cuadapt-passage-2026-08-13",
-      "date": "2026-08-14",
-      "start": "09:00",
-      "end": "09:30",
+      "date": "2026-08-15",
+      "start": "09:20",
+      "end": "09:50",
       "title": "CuAdapt cells — FREEZE",
       "category": "experiment",
       "type": "active",
@@ -2182,7 +2182,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:27:55.226Z",
+    "lastModified": "2026-08-13T20:27:57.756Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2031,7 +2031,7 @@
       "title": "Western — visualization (streptavidin)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "= ECL + image, 20 min."
     },
@@ -2171,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T09:06:24.058Z",
+    "lastModified": "2026-08-13T09:06:25.633Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

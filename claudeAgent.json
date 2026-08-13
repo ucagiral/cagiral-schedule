@@ -51,8 +51,8 @@
     {
       "id": "e-harvest-2",
       "date": "2026-08-14",
-      "start": "11:45",
-      "end": "12:45",
+      "start": "11:55",
+      "end": "12:55",
       "title": "Virus Medium Harvest",
       "category": "experiment",
       "type": "active",
@@ -2181,7 +2181,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:29:15.847Z",
+    "lastModified": "2026-08-13T20:29:18.877Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

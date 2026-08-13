@@ -1624,7 +1624,7 @@
       "title": "qPCR ATF3 rep 3",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "group": "ATF3 qPCR"
     },
@@ -2171,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T09:06:22.323Z",
+    "lastModified": "2026-08-13T09:06:24.058Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

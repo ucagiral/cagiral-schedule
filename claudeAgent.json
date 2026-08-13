@@ -2110,8 +2110,8 @@
     {
       "id": "e-wb-visual2-2026-08-14",
       "date": "2026-08-14",
-      "start": "09:55",
-      "end": "10:15",
+      "start": "10:25",
+      "end": "10:45",
       "title": "Western — visualization (2nd target)",
       "category": "experiment",
       "type": "active",
@@ -2182,7 +2182,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:27:31.282Z",
+    "lastModified": "2026-08-13T20:27:35.189Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

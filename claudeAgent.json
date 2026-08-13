@@ -2151,6 +2151,17 @@
       "type": "active",
       "status": "pending",
       "notes": ""
+    },
+    {
+      "id": "emsrzg46k5f64p",
+      "date": "2026-08-14",
+      "start": "13:05",
+      "end": "13:30",
+      "title": "Yeterlilik kitaplarını al",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": ""
     }
   ],
   "_groups": {
@@ -2192,7 +2203,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:40:26.680Z",
+    "lastModified": "2026-08-13T20:40:41.675Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

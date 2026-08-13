@@ -2130,6 +2130,17 @@
       "status": "done",
       "notes": "",
       "color": "#f59e0b"
+    },
+    {
+      "id": "emsrhjhyd3vvim",
+      "date": "2026-08-14",
+      "start": "10:25",
+      "end": "10:30",
+      "title": "Büşra’ya hücreleri çıkar",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": ""
     }
   ],
   "_groups": {
@@ -2171,7 +2182,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T12:18:50.511Z",
+    "lastModified": "2026-08-13T12:19:26.403Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

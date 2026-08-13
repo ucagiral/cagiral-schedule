@@ -1948,7 +1948,7 @@
       "title": "Ezgi veda",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": ""
     },
     {
@@ -2181,7 +2181,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:28:49.051Z",
+    "lastModified": "2026-08-13T20:28:53.940Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

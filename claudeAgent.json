@@ -2007,7 +2007,7 @@
       "title": "Western — block (BSA in PBS)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "BSA, not milk — same biotin/streptavidin rule as day 1."
     },
@@ -2127,7 +2127,7 @@
       "title": "qPCR Prep",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "color": "#f59e0b"
     }
@@ -2171,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T09:06:20.333Z",
+    "lastModified": "2026-08-13T09:06:22.323Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

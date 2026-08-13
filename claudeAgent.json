@@ -2055,7 +2055,7 @@
       "title": "Western — block (5% milk in TBST)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "Milk is fine here — this target is not biotin/streptavidin detection."
     },
@@ -2171,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T12:18:47.030Z",
+    "lastModified": "2026-08-13T12:18:48.869Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

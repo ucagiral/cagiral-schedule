@@ -2141,6 +2141,17 @@
       "type": "active",
       "status": "pending",
       "notes": ""
+    },
+    {
+      "id": "emsrz09t4vbzty",
+      "date": "2026-08-14",
+      "start": "08:30",
+      "end": "09:00",
+      "title": "RPMI çıkart",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": ""
     }
   ],
   "_groups": {
@@ -2182,7 +2193,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:27:57.756Z",
+    "lastModified": "2026-08-13T20:28:22.467Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

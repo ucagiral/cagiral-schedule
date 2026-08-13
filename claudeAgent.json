@@ -2140,6 +2140,17 @@
       "type": "active",
       "status": "pending",
       "notes": ""
+    },
+    {
+      "id": "emsrz48kq7f9vv",
+      "date": "2026-08-15",
+      "start": "09:40",
+      "end": "09:45",
+      "title": "Burs belgeleri",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": ""
     }
   ],
   "_groups": {
@@ -2181,7 +2192,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:29:18.877Z",
+    "lastModified": "2026-08-13T20:31:27.500Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

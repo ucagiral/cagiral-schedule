@@ -2067,7 +2067,7 @@
       "title": "Western — primary antibody (overnight, +4 °C)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "Starts 15:30, continues overnight at 4 °C past this window — block marks the start, not the real finish (same convention as Colony formation drying). Wash + secondary begin ~08:00 the next morning."
     },
@@ -2171,7 +2171,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T12:18:48.869Z",
+    "lastModified": "2026-08-13T12:18:50.511Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2085,9 +2085,9 @@
     },
     {
       "id": "e-wb-secondary2-2026-08-14",
-      "date": "2026-08-15",
-      "start": "08:15",
-      "end": "09:15",
+      "date": "2026-08-14",
+      "start": "09:20",
+      "end": "10:20",
       "title": "Western — secondary antibody",
       "category": "experiment",
       "type": "passive",
@@ -2193,7 +2193,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:28:26.852Z",
+    "lastModified": "2026-08-13T20:28:32.707Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

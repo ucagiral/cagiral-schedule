@@ -21,6 +21,9 @@
     --cat-personal:#22c55e; --cat-other:#6b7280;
     --accent:#2563eb; --warn-bg:#fff7ed; --warn-border:#fde68a; --warn-text:#7c2d12;
     --ok:#15803d; --bad:#b91c1c;
+    /* Fixed and neutral on purpose — a reminder's whole point is to be visually distinct
+       from every category/group colour, not join their system. */
+    --reminder-bg:#78716c; --reminder-border:#57534e;
     --safe-b:env(safe-area-inset-bottom,0px);
   }
   @media (prefers-color-scheme: dark){
@@ -29,6 +32,7 @@
       --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
       --accent:#5b8def; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
       --ok:#4ade80; --bad:#f87171;
+      --reminder-bg:#8a8580; --reminder-border:#a8a29e;
     }
   }
   html[data-theme="dark"]{
@@ -36,6 +40,7 @@
     --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
     --accent:#5b8def; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
     --ok:#4ade80; --bad:#f87171;
+    --reminder-bg:#8a8580; --reminder-border:#a8a29e;
   }
   *{box-sizing:border-box}
   html,body{overscroll-behavior-y:contain}
@@ -107,6 +112,19 @@
   }
   .head .datepart{font-weight:400; color:var(--muted); font-size:10px}
   .head.today{color:var(--accent)}
+  /* Row 2 — reminders with no hour sit here, above the timed grid, one strip per day
+     column. auto-height so it grows with however many stack up and collapses to
+     nothing on a day with none. */
+  .alldayrow{
+    grid-row:2; border-bottom:1px solid var(--grid-line); padding:2px;
+    display:flex; flex-direction:column; gap:2px; min-height:0;
+  }
+  .reminder-chip{
+    background:var(--reminder-bg); border:1px solid var(--reminder-border); color:#fff;
+    border-radius:4px; padding:2px 6px; font-size:10.5px; font-weight:600; cursor:pointer;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.3;
+  }
+  .reminder-chip.done{opacity:.5; text-decoration:line-through}
   .timelabel{
     font-size:10px; color:var(--muted); text-align:right; padding-right:6px;
     border-top:1px solid var(--grid-line); position:relative; top:-5px;
@@ -159,6 +177,7 @@
     border-radius:9px; padding:10px 11px;
   }
   .ag-item.passive{border-style:dashed}
+  .ag-item.reminder{border-left-color:var(--reminder-bg)}
   .ag-time{font-size:12px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; padding-top:1px; min-width:82px}
   .ag-main{flex:1; min-width:0; cursor:pointer}
   .ag-title{font-size:14.5px; font-weight:600; line-height:1.3; word-break:break-word}
@@ -284,6 +303,7 @@
   <span><span class="swatch" style="background:var(--cat-personal)"></span>Personal</span>
   <span><span class="swatch" style="background:var(--cat-other)"></span>Other</span>
   <span><span class="swatch" style="background:var(--cat-experiment); opacity:.35; border:1px dashed currentColor"></span>Passive — doesn't block time</span>
+  <span><span class="swatch" style="background:var(--reminder-bg)"></span>📌 Reminder — no fixed hour</span>
   <span style="opacity:.8">(category colours apply only to events with no group)</span>
   <span style="margin-left:auto">Drag empty grid to add · drag an event to move it · click to edit</span>
 </div>
@@ -323,7 +343,7 @@
       <label>Date</label>
       <input type="text" id="fDate" inputmode="numeric" placeholder="YYYY-MM-DD">
     </div>
-    <div class="row2">
+    <div class="row2" id="fStartEndRow">
       <div class="field"><label>Start</label><select id="fStart"></select></div>
       <div class="field"><label>End</label><select id="fEnd"></select></div>
     </div>
@@ -352,6 +372,7 @@
       <select id="fType">
         <option value="active">Active — needs you there, blocks time</option>
         <option value="passive">Passive — runs unattended</option>
+        <option value="reminder">Reminder — no fixed hour, just a flag for the day</option>
       </select>
     </div>
     <div class="row2">
@@ -630,6 +651,9 @@
   }
   function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
   function eventColor(ev){
+    // Fixed and neutral by design — a reminder stays outside the group/category colour
+    // system entirely, regardless of what either field happens to be set to.
+    if (ev.type === "reminder") return cssVar("--reminder-bg") || "#78716c";
     if (ev.color) return ev.color;
     var gc = groupColor(ev.group);
     if (gc) return gc;
@@ -658,13 +682,16 @@
   }
   function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
 
+  // Row 1 is the day header, row 2 is the all-day reminder strip, so the timed grid
+  // starts at row 3.
+  var FIRST_HOUR_ROW = 3;
   function timeToRow(t){
     var p = String(t||"00:00").split(":");
     var mins = (+p[0] - START_HOUR)*60 + (+p[1]);
-    return 2 + Math.round(mins / SLOT_MIN);
+    return FIRST_HOUR_ROW + Math.round(mins / SLOT_MIN);
   }
   function rowToTime(row){
-    var mins = (row - 2) * SLOT_MIN;
+    var mins = (row - FIRST_HOUR_ROW) * SLOT_MIN;
     var h = START_HOUR + Math.floor(mins/60), m = ((mins % 60) + 60) % 60;
     return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0");
   }
@@ -978,17 +1005,24 @@
     var iso = isoDate(state.dayDate);
     var items = visibleEvents()
       .filter(function(e){ return e.date === iso; })
-      .sort(function(a,b){ return String(a.start).localeCompare(String(b.start)); });
+      // Reminders have no start time to sort by, and belong at the top regardless —
+      // they're the first things worth seeing when the day opens.
+      .sort(function(a,b){
+        var ar = a.type === "reminder" ? 0 : 1, br = b.type === "reminder" ? 0 : 1;
+        if (ar !== br) return ar - br;
+        return String(a.start).localeCompare(String(b.start));
+      });
 
     if (!items.length){
       box.innerHTML = '<div class="ag-empty">Nothing scheduled.<br>Tap + to add something.</div>';
       return;
     }
     items.forEach(function(ev){
+      var isReminder = ev.type === "reminder";
       var isPassive = ev.type === "passive", isDone = ev.status === "done";
       var color = eventColor(ev);
       var el = document.createElement("div");
-      el.className = "ag-item" + (isPassive ? " passive" : "") + (isDone ? " done" : "");
+      el.className = "ag-item" + (isPassive ? " passive" : "") + (isReminder ? " reminder" : "") + (isDone ? " done" : "");
       el.style.borderLeftColor = color;
 
       var chk = document.createElement("input");
@@ -1001,40 +1035,50 @@
 
       var time = document.createElement("div");
       time.className = "ag-time";
-      time.textContent = ev.start + "–" + ev.end;
+      time.textContent = isReminder ? "📌" : ev.start + "–" + ev.end;
 
       var mainDiv = document.createElement("div");
       mainDiv.className = "ag-main";
-      var tags = [ev.category || "other"];
-      if (isPassive) tags.push("passive");
-      var groupPill = ev.group
-        ? '<span class="ag-group" style="background:' + escapeHtml(color) + ";color:" + textOn(color) + '">' +
-          escapeHtml(ev.group) + "</span><br>"
-        : "";
-      mainDiv.innerHTML = groupPill +
-        '<div class="ag-title">' + escapeHtml(ev.title || "(untitled)") + "</div>" +
-        '<div class="ag-tags">' + escapeHtml(tags.join(" · ")) + "</div>" +
-        (ev.notes ? '<div class="ag-notes">' + escapeHtml(ev.notes) + "</div>" : "");
+      if (isReminder){
+        mainDiv.innerHTML =
+          '<div class="ag-title">' + escapeHtml(ev.title || "(untitled)") + "</div>" +
+          '<div class="ag-tags">reminder — no fixed hour</div>' +
+          (ev.notes ? '<div class="ag-notes">' + escapeHtml(ev.notes) + "</div>" : "");
+      } else {
+        var tags = [ev.category || "other"];
+        if (isPassive) tags.push("passive");
+        var groupPill = ev.group
+          ? '<span class="ag-group" style="background:' + escapeHtml(color) + ";color:" + textOn(color) + '">' +
+            escapeHtml(ev.group) + "</span><br>"
+          : "";
+        mainDiv.innerHTML = groupPill +
+          '<div class="ag-title">' + escapeHtml(ev.title || "(untitled)") + "</div>" +
+          '<div class="ag-tags">' + escapeHtml(tags.join(" · ")) + "</div>" +
+          (ev.notes ? '<div class="ag-notes">' + escapeHtml(ev.notes) + "</div>" : "");
+      }
       mainDiv.addEventListener("click", function(){ openDialog(ev); });
 
       // A list has no time axis to drag along, so moving happens with explicit steps.
+      // A reminder has no time to nudge, only a day to move it to.
       var moveRow = document.createElement("div");
       moveRow.className = "ag-move";
-      [["−15 min", -15], ["+15 min", 15]].forEach(function(pair){
-        var b = document.createElement("button");
-        b.textContent = pair[0];
-        b.title = "Shift this event, keeping its length";
-        b.addEventListener("click", function(e){
-          e.stopPropagation();
-          shiftEvent(ev, pair[1]);
-          render(); scheduleSave(); warnIfConflicting(ev);
+      if (!isReminder){
+        [["−15 min", -15], ["+15 min", 15]].forEach(function(pair){
+          var b = document.createElement("button");
+          b.textContent = pair[0];
+          b.title = "Shift this event, keeping its length";
+          b.addEventListener("click", function(e){
+            e.stopPropagation();
+            shiftEvent(ev, pair[1]);
+            render(); scheduleSave(); warnIfConflicting(ev);
+          });
+          moveRow.appendChild(b);
         });
-        moveRow.appendChild(b);
-      });
+      }
       [["◀ day", -1], ["day ▶", 1]].forEach(function(pair){
         var b = document.createElement("button");
         b.textContent = pair[0];
-        b.title = "Move to another day at the same time";
+        b.title = "Move to another day" + (isReminder ? "" : " at the same time");
         b.addEventListener("click", function(e){
           e.stopPropagation();
           ev.date = isoDate(addDays(new Date(ev.date + "T00:00:00"), pair[1]));
@@ -1065,7 +1109,7 @@
 
   // ---- week grid (desktop) ----
   function buildStaticGrid(){
-    gridEl.style.gridTemplateRows = "34px repeat(" + ROWS + ", 8px)";
+    gridEl.style.gridTemplateRows = "34px auto repeat(" + ROWS + ", 8px)";
     gridEl.innerHTML = "";
 
     var corner = document.createElement("div");
@@ -1079,10 +1123,17 @@
       h.style.gridColumn = i+2; h.style.gridRow = 1;
       h.innerHTML = DAY_NAMES[i] + '<div class="datepart">' + displayDate(dt) + "</div>";
       gridEl.appendChild(h);
+
+      // One reminder strip per day column, row 2 — its own cell so a click on empty
+      // space there doesn't fall through to the create-drag handler underneath.
+      var ad = document.createElement("div");
+      ad.className = "alldayrow"; ad.style.gridColumn = i+2; ad.style.gridRow = 2;
+      ad.dataset.dayIdx = i;
+      gridEl.appendChild(ad);
     });
 
     for (var r = 0; r < ROWS; r++){
-      var row = 2 + r;
+      var row = FIRST_HOUR_ROW + r;
       var isHour = (r % (60/SLOT_MIN)) === 0;
       var isHalf = !isHour && (r % (30/SLOT_MIN)) === 0;
       if (isHour || isHalf){
@@ -1102,10 +1153,31 @@
     }
   }
 
+  // Reminders have no hour, so they never enter the timed grid — they live in the
+  // all-day strip (row 2), one stack per day column.
+  function renderReminders(){
+    Array.prototype.slice.call(gridEl.querySelectorAll(".alldayrow")).forEach(function(row){ row.innerHTML = ""; });
+    var isoWeek = weekDates().map(isoDate);
+    visibleEvents().filter(function(e){ return e.type === "reminder"; }).forEach(function(ev){
+      var idx = isoWeek.indexOf(ev.date);
+      if (idx === -1) return;
+      var row = gridEl.querySelector('.alldayrow[data-day-idx="' + idx + '"]');
+      if (!row) return;
+      var isDone = ev.status === "done";
+      var chip = document.createElement("div");
+      chip.className = "reminder-chip" + (isDone ? " done" : "");
+      chip.textContent = "📌 " + (ev.title || "(untitled)");
+      chip.title = (ev.notes ? ev.notes : ev.title || "(untitled)");
+      chip.addEventListener("click", function(){ openDialog(ev); });
+      row.appendChild(chip);
+    });
+  }
+
   function renderEvents(){
     Array.prototype.slice.call(gridEl.querySelectorAll(".event")).forEach(function(n){ n.remove(); });
+    renderReminders();
     var isoWeek = weekDates().map(isoDate);
-    var ordered = visibleEvents().slice().sort(function(a,b){
+    var ordered = visibleEvents().slice().filter(function(e){ return e.type !== "reminder"; }).sort(function(a,b){
       return (a.type === "passive" ? 0 : 1) - (b.type === "passive" ? 0 : 1);
     });
     ordered.forEach(function(ev){
@@ -1260,9 +1332,11 @@
   // active events. This warns; it never refuses or silently rearranges anything.
   // =====================================================================
   function conflictNote(ev){
-    if (!ev || ev.type === "passive" || ev.status === "cancelled") return null;
+    // A reminder has no hour, so it can't overlap or crowd anything.
+    if (!ev || ev.type === "passive" || ev.type === "reminder" || ev.status === "cancelled") return null;
     var others = state.events.filter(function(o){
-      return o !== ev && o.date === ev.date && o.status !== "cancelled" && o.type !== "passive";
+      return o !== ev && o.date === ev.date && o.status !== "cancelled" &&
+        o.type !== "passive" && o.type !== "reminder";
     });
     var s = timeToMin(ev.start), e = timeToMin(ev.end);
     for (var i = 0; i < others.length; i++){
@@ -1300,16 +1374,20 @@
     var cs = getComputedStyle(gridEl);
     var rows = cs.gridTemplateRows.split(" ").map(parseFloat);
     var cols = cs.gridTemplateColumns.split(" ").map(parseFloat);
+    // rows[1] is the all-day strip — its height is "auto" and varies with how many
+    // reminders are stacked in it, so it can't stand in for the fixed hourly row
+    // height. headH has to cover header + strip together, and rowH comes from
+    // rows[2], the first guaranteed 8px hour row.
     return {
       left: r.left, top: r.top,
-      headH: rows[0] || 34, rowH: rows[1] || 8,
+      headH: (rows[0] || 34) + (rows[1] || 0), rowH: rows[2] || 8,
       timeW: cols[0] || 56, colW: cols[1] || 110
     };
   }
   function pointToCell(g, x, y){
     return {
       dayIdx: Math.floor((x - g.left - g.timeW) / g.colW),
-      row: 2 + Math.floor((y - g.top - g.headH) / g.rowH)
+      row: FIRST_HOUR_ROW + Math.floor((y - g.top - g.headH) / g.rowH)
     };
   }
   function paintDragTarget(){
@@ -1403,7 +1481,7 @@
     }
     var c = pointToCell(m.g, e.clientX, e.clientY);
     m.newDayIdx = clamp(c.dayIdx, 0, 6);
-    m.newTopRow = clamp(c.row + m.grabRowOffset, 2, ROWS + 2 - m.durRows);
+    m.newTopRow = clamp(c.row + m.grabRowOffset, FIRST_HOUR_ROW, ROWS + FIRST_HOUR_ROW - m.durRows);
     paintDragTarget();
     e.preventDefault();
   });
@@ -1513,12 +1591,19 @@
     });
   }
 
-  for (var row = 2; row <= ROWS + 1; row++){
+  for (var row = FIRST_HOUR_ROW; row < FIRST_HOUR_ROW + ROWS; row++){
     var t = rowToTime(row);
     [fStart, fEnd].forEach(function(sel){
       var o = document.createElement("option"); o.value = t; o.textContent = t; sel.appendChild(o);
     });
   }
+
+  // A reminder has no hour, so the Start/End row is meaningless for it — hide it
+  // rather than show fields that don't apply.
+  function updateStartEndVisibility(){
+    $("fStartEndRow").style.display = fType.value === "reminder" ? "none" : "";
+  }
+  fType.addEventListener("change", updateStartEndVisibility);
 
   function openDialog(ev){
     state.editingId = ev.id;
@@ -1531,13 +1616,14 @@
     fTitle.value = ev.title || "";
     fDate.value = ev.date;
     fStart.value = ev.start; fEnd.value = ev.end;
-    if (fStart.value !== ev.start) addLooseOption(fStart, ev.start);
-    if (fEnd.value !== ev.end) addLooseOption(fEnd, ev.end);
+    if (ev.start && fStart.value !== ev.start) addLooseOption(fStart, ev.start);
+    if (ev.end && fEnd.value !== ev.end) addLooseOption(fEnd, ev.end);
     fCategory.value = ev.category || "experiment";
     fType.value = ev.type || "active";
     fStatus.value = ev.status || "pending";
     fNotes.value = ev.notes || "";
     btnDelete.style.display = ev.id ? "" : "none";
+    updateStartEndVisibility();
     dlg.showModal();
   }
   // Times that aren't on the 5-minute grid (or outside 07:00–23:00) must stay editable, not be silently rewritten.
@@ -1558,14 +1644,18 @@
   $("btnSaveEvent").addEventListener("click", function(){
     var date = fDate.value.trim();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)){ alert("Date must look like 2026-08-14."); return; }
-    if (fEnd.value <= fStart.value){ alert("End time must be after start time."); return; }
+    var isReminder = fType.value === "reminder";
+    if (!isReminder && fEnd.value <= fStart.value){ alert("End time must be after start time."); return; }
     var group = fGroup.value.trim();
     var chosen = fColor.value;
     var payload = {
-      id: state.editingId || uid(), date: date, start: fStart.value, end: fEnd.value,
+      id: state.editingId || uid(), date: date,
       title: fTitle.value.trim(), category: fCategory.value, type: fType.value,
       status: fStatus.value, notes: fNotes.value.trim()
     };
+    // A reminder has no hour, so start/end simply don't apply — omitted rather than
+    // carrying a leftover time that would be misleading if ever read.
+    if (!isReminder){ payload.start = fStart.value; payload.end = fEnd.value; }
     if (group) payload.group = group;
 
     if (group){
@@ -1946,7 +2036,9 @@
 
   function blockersOn(iso, extra){
     return state.events.concat(extra)
-      .filter(function(e){ return e.date === iso && e.status !== "cancelled" && e.type !== "passive"; })
+      .filter(function(e){
+        return e.date === iso && e.status !== "cancelled" && e.type !== "passive" && e.type !== "reminder";
+      })
       .map(function(e){ return { s: timeToMin(e.start), e: timeToMin(e.end) }; })
       .sort(function(a,b){ return a.s - b.s; });
   }

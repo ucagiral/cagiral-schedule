@@ -132,26 +132,42 @@ const lines = [
   "END:VTIMEZONE"
 ];
 
+// A reminder has no hour in claudeAgent.json — that's the point of the type — but a
+// VEVENT needs a concrete time to hang a notification on. This is where one gets made
+// up, purely for the feed; it is never written back to the source data.
+const REMINDER_TIME = "10:00";
+const REMINDER_SPAN_MIN = 1;
+
 let counts = { total: 0, alarms: 0, cancelled: 0, done: 0, skipped: 0 };
 
 for (const ev of events) {
-  if (!ev || !ev.id || !ev.date || !ev.start || !ev.end) { counts.skipped++; continue; }
+  const isReminder = ev.type === "reminder";
+  if (!ev || !ev.id || !ev.date) { counts.skipped++; continue; }
+  if (!isReminder && (!ev.start || !ev.end)) { counts.skipped++; continue; }
 
   const isCancelled = ev.status === "cancelled";
   const isDone = ev.status === "done";
   const isPassive = ev.type === "passive";
   const isFuture = ev.date >= today;
 
-  // Guard against zero-length or inverted spans so clients don't discard the event.
-  let endDate = ev.date, endTime = ev.end;
-  if (String(ev.end) <= String(ev.start)) {
-    const bumped = addMinutes(ev.date, ev.start, 15);
+  const startTime = isReminder ? REMINDER_TIME : ev.start;
+  let endDate = ev.date, endTime;
+  if (isReminder) {
+    const bumped = addMinutes(ev.date, REMINDER_TIME, REMINDER_SPAN_MIN);
     endDate = bumped.date; endTime = bumped.time;
+  } else {
+    // Guard against zero-length or inverted spans so clients don't discard the event.
+    endTime = ev.end;
+    if (String(ev.end) <= String(ev.start)) {
+      const bumped = addMinutes(ev.date, ev.start, 15);
+      endDate = bumped.date; endTime = bumped.time;
+    }
   }
 
   const descParts = [];
   if (ev.notes) descParts.push(ev.notes);
-  descParts.push((isPassive ? "Passive — runs unattended, does not block time" : "Active — needs you there"));
+  descParts.push(isReminder ? "Reminder — no fixed hour, flagged for this day" :
+    (isPassive ? "Passive — runs unattended, does not block time" : "Active — needs you there"));
   if (ev.group) descParts.push("Group: " + ev.group);
   if (ev.category) descParts.push("Category: " + ev.category);
   if (isDone) descParts.push("Marked done.");
@@ -160,9 +176,9 @@ for (const ev of events) {
   lines.push("UID:" + ev.id + "@" + UID_DOMAIN);
   lines.push("DTSTAMP:" + stamp(revision));
   lines.push("SEQUENCE:" + sequence);
-  lines.push("DTSTART;TZID=" + TZID + ":" + localStamp(ev.date, ev.start));
+  lines.push("DTSTART;TZID=" + TZID + ":" + localStamp(ev.date, startTime));
   lines.push("DTEND;TZID=" + TZID + ":" + localStamp(endDate, endTime));
-  lines.push("SUMMARY:" + esc((isDone ? "✓ " : "") + (ev.title || "(untitled)")));
+  lines.push("SUMMARY:" + esc((isDone ? "✓ " : "") + (isReminder ? "📌 " : "") + (ev.title || "(untitled)")));
   lines.push("DESCRIPTION:" + esc(descParts.join("\n")));
   // Both the group and the category become CATEGORIES values, so Calendar clients that
   // support filtering can pick out a whole experiment thread (e.g. "Virus prep").
@@ -175,16 +191,17 @@ for (const ev of events) {
     if (cats.length) lines.push("CATEGORIES:" + cats.join(","));
   }
   lines.push("STATUS:" + (isCancelled ? "CANCELLED" : "CONFIRMED"));
-  // Passive incubations shouldn't make you look busy.
-  lines.push("TRANSP:" + (isPassive || isCancelled || isDone ? "TRANSPARENT" : "OPAQUE"));
+  // Passive incubations and reminders shouldn't make you look busy.
+  lines.push("TRANSP:" + (isPassive || isReminder || isCancelled || isDone ? "TRANSPARENT" : "OPAQUE"));
 
-  // Alarms only on hands-on work still ahead of us — otherwise subscribing would
-  // fire a burst of notifications for months of history.
-  if (!isCancelled && !isDone && !isPassive && isFuture) {
+  // Alarms only on things still ahead of us — otherwise subscribing would fire a
+  // burst of notifications for months of history. A reminder fires once, right at
+  // its made-up anchor time, rather than the lead-time active work gets.
+  if (!isCancelled && !isDone && isFuture && (isReminder || !isPassive)) {
     lines.push("BEGIN:VALARM");
     lines.push("ACTION:DISPLAY");
-    lines.push("DESCRIPTION:" + esc(ev.title || "Scheduled work"));
-    lines.push("TRIGGER:-PT" + ALARM_MINUTES + "M");
+    lines.push("DESCRIPTION:" + esc(ev.title || (isReminder ? "Reminder" : "Scheduled work")));
+    lines.push("TRIGGER:" + (isReminder ? "PT0M" : "-PT" + ALARM_MINUTES + "M"));
     lines.push("END:VALARM");
     counts.alarms++;
   }

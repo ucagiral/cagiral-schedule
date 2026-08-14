@@ -41,9 +41,23 @@ rebuilds `schedule.ics` → Apple Calendar picks it up on its next refresh.
 ```
 
 - `category`: `experiment` · `meeting` · `writing` · `personal` · `other`
-- `type`: `active` (needs you there, blocks time) · `passive` (runs unattended, doesn't block time)
+- `type`: `active` (needs you there, blocks time) · `passive` (runs unattended, doesn't block time) ·
+  `reminder` (no fixed hour — a flag for the day, not a booking)
 - `status`: `pending` · `done` · `cancelled` — cancelled events stay in the file as a record but
   disappear from the app and stop alarming.
+
+### Reminders
+
+A `reminder` has no `start` or `end` — those keys are simply absent, not zeroed. It shows as a
+small pinned chip above the timed grid (week view) or at the top of the day, ahead of anything
+timed (day view), always in a fixed neutral colour rather than its category or group colour, so it
+never gets mistaken for a booking. It can still be ticked done and moved between days; it just has
+nothing to drag along a time axis, so it's edited through the dialog rather than dragged.
+
+In the calendar feed it still needs a concrete time to hang a notification on, so `build-ics.mjs`
+gives it one — a fixed 10:00 slot, invented purely for the feed and never written back to
+`claudeAgent.json`. The alarm fires once, right at that time, instead of the 15-minutes-before lead
+time active work gets.
 - `group` (optional): ties related work together so it shares one colour across the week — e.g. HEK
   seeding, virus medium change and harvest all reading as one thread. The colour comes from the
   group's *name*, so it's identical on every device with nothing to keep in sync. Groups also become

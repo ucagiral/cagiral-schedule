@@ -260,7 +260,7 @@
       "title": "CuAdapt cells — FREEZE",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -1971,7 +1971,7 @@
       "title": "Colony formation — fixation",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "15 min, Umut's value. Fixation only; staining and counting are separate.",
       "group": "Colony formation"
     },
@@ -2091,7 +2091,7 @@
       "title": "Western — washes (after secondary)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "Starts after CuAdapt FREEZE (09:00-09:30) clears, with 10 min to spare."
     },
@@ -2103,7 +2103,7 @@
       "title": "Western — visualization (2nd target)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "= ECL + image, 20 min."
     },
@@ -2127,7 +2127,7 @@
       "title": "Büşra’ya hücreleri çıkar",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": ""
     },
     {
@@ -2203,7 +2203,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-14T12:17:24.566Z",
+    "lastModified": "2026-08-14T12:17:28.360Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

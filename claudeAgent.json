@@ -56,7 +56,7 @@
       "title": "Virus Medium Harvest",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Scheduled after the 9:30-12:30 Friday meeting, not before it.",
       "group": "Virus prep"
     },
@@ -2203,7 +2203,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-14T12:17:28.360Z",
+    "lastModified": "2026-08-14T12:17:30.283Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2171,7 +2171,7 @@
       "title": "NMR maili at",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": ""
     }
   ],
@@ -2214,7 +2214,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-14T14:57:58.190Z",
+    "lastModified": "2026-08-14T14:58:02.340Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

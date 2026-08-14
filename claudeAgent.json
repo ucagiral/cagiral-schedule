@@ -2067,7 +2067,7 @@
       "title": "Western — washes (after primary)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": "Continuation of the overnight primary from 13 Aug."
     },
@@ -2079,7 +2079,7 @@
       "title": "Western — secondary antibody",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "group": "Western — biotin",
       "notes": ""
     },
@@ -2138,7 +2138,7 @@
       "title": "RPMI çıkart",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": ""
     },
     {
@@ -2149,7 +2149,7 @@
       "title": "Burs belgeleri",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": ""
     },
     {
@@ -2203,7 +2203,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-13T20:40:41.675Z",
+    "lastModified": "2026-08-14T12:17:24.566Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -88,7 +88,7 @@ on the material that is actually going to the facility.
 Sub-steps:
 - [x] Design 8 guides (4 promoter, 4 enhancer)
 - [x] Clone guides into the hygromycin guide vector
-- [ ] Generate and harvest guide virus
+- [x] Generate and harvest guide virus
 - [ ] Aliquot and store virus at −80 °C
 
 **Duration estimate**: complete by 14 Aug 2026

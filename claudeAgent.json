@@ -2162,6 +2162,17 @@
       "type": "active",
       "status": "pending",
       "notes": ""
+    },
+    {
+      "id": "emssxcgqyqq57v",
+      "date": "2026-08-14",
+      "start": "13:45",
+      "end": "13:50",
+      "title": "NMR maili at",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": ""
     }
   ],
   "_groups": {
@@ -2203,7 +2214,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-14T12:17:30.283Z",
+    "lastModified": "2026-08-14T12:29:38.280Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

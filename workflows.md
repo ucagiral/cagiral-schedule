@@ -281,6 +281,3 @@ The planner proposes; nothing is written until the events are reviewed and accep
 - Repeating commitments are stored as individual dated events — there is no recurrence engine, so
   they need regenerating when they run past their last date.
 - Days should not run past roughly **18:00** unless there is no alternative.
-- **17–30 Aug 2026 is vacation.** There is no calendar event marking it — Umut found a daily
-  "Vacation" block distracting and had it removed — but the days themselves are not open. No work
-  gets scheduled in that window unless Umut explicitly asks for something in it.

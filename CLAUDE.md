@@ -80,3 +80,6 @@ Rebuild the feed with `node tools/build-ics.mjs` and commit the result alongside
   never overlapping another active step. Verify this programmatically before claiming a day works.
 - Dependencies are real: boil before loading, transfer before any antibody, cDNA before qPCR prep.
 - Don't push a day past roughly 18:00 without saying so and offering the split.
+- **17–30 Aug 2026 is vacation, with no calendar event marking it.** Umut had the daily "Vacation"
+  block removed because seeing vacation as an event bothered him — the days themselves are still
+  off-limits for scheduling. Don't place work in that window unless he explicitly asks for it there.

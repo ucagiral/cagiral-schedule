@@ -1534,12 +1534,10 @@
     },
     {
       "id": "e-thaw-hekhuh7-atf3-2026-08-31",
-      "date": "2026-08-31",
-      "start": "09:45",
-      "end": "10:00",
+      "date": "2026-08-27",
       "title": "Thaw cells (Hek and Huh7 ATF3 mutants)",
       "category": "experiment",
-      "type": "active",
+      "type": "reminder",
       "status": "pending",
       "notes": "From -80C. No experiment same day (thaw-cell rule). Mandatory medium change next day (2026-09-01). Duration defaulted to 1h.",
       "group": "ATF3 mutants"
@@ -2041,7 +2039,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-14T21:49:57.678Z",
+    "lastModified": "2026-08-15T14:26:05.597Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

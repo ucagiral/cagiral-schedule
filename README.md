@@ -102,6 +102,24 @@ passive incubations appear but don't mark you busy.
 
 Times are Europe/Istanbul, declared as a fixed UTC+3 offset (Turkey has had no DST since 2016).
 
+## Add it as a widget
+
+Neither iOS, macOS nor Windows lets a website register a true home-screen or desktop widget — that
+capability is native-app-only. But since the schedule is already subscribed as a calendar feed
+(above), each platform's own **Calendar** app can show it as a widget today, with no extra setup:
+
+- **iPhone**: long-press the Home Screen → **+** → **Calendar** → pick a size → add.
+- **Mac**: Notification Center → **Edit Widgets** → **Calendar** (macOS Sonoma and later can also
+  place it directly on the desktop).
+- **Windows**: the Calendar app can't subscribe to an ICS URL directly, so there's an extra hop —
+  subscribe via **Outlook.com** first (Calendar → Add calendar → Subscribe from web → paste the
+  feed URL); that then flows into the Windows Calendar app and the Widgets board. **Outlook's
+  refresh on a subscribed web calendar can lag over 24 hours** — much slower than Apple's roughly
+  hourly refresh, worth knowing going in rather than discovering later.
+
+For something closer to the app's own look — a compact "today" view rather than a generic calendar
+widget — see [`widgets/`](widgets/), which has a small free helper-app build for each platform.
+
 ## Project Planning
 
 **Plan Project** button in the header breaks research goals into phases and auto-generates calendar

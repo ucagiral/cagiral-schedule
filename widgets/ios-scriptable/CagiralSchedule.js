@@ -8,6 +8,12 @@
 // device without a save token already uses. iOS decides the real refresh cadence for a
 // widget; refreshAfterDate below is only a hint, not a guarantee.
 //
+// Widgets get a tight execution budget from iOS — a live fetch that's slow (weak signal,
+// a busy CDN) can eat the whole budget before it even gets to time out cleanly, which is
+// what "Received timeout when running script" actually is. So the fetch here fails fast
+// (5s) and falls back to the last successful copy, cached locally — the widget shows real,
+// recent data immediately rather than going blank because one refresh had bad timing.
+//
 // Deliberately simplified colours: this shows today's items, not a whole week, so the
 // signal that matters is active/passive/reminder/done — not full group-colour fidelity.
 // A group with an explicit override in _groups still gets its own pinned colour; a group
@@ -15,6 +21,7 @@
 // nothing here needs updating if that palette ever changes.
 
 const DATA_URL = "https://raw.githubusercontent.com/ucagiral/cagiral-schedule/main/claudeAgent.json";
+const CACHE_PATH = FileManager.local().joinPath(FileManager.local().documentsDirectory(), "CagiralSchedule.cache.json");
 
 const COLOR = {
   active: new Color("#2563eb"),
@@ -47,11 +54,41 @@ function eventColor(ev, groups) {
   return ev.type === "passive" ? COLOR.passive : COLOR.active;
 }
 
-async function fetchSchedule() {
+function readCache() {
+  const fm = FileManager.local();
+  if (!fm.fileExists(CACHE_PATH)) return null;
+  try {
+    return JSON.parse(fm.readString(CACHE_PATH));
+  } catch (e) {
+    return null; // a corrupt cache is the same as no cache
+  }
+}
+
+function writeCache(events, groups) {
+  try {
+    FileManager.local().writeString(CACHE_PATH, JSON.stringify({ events, groups, cachedAt: Date.now() }));
+  } catch (e) {
+    // best-effort — a caching failure shouldn't break the widget itself
+  }
+}
+
+async function fetchFresh() {
   const req = new Request(DATA_URL);
-  req.timeoutInterval = 15;
+  req.timeoutInterval = 5; // fail fast — a widget's whole run has to fit a much smaller budget
   const data = await req.loadJSON();
   return { events: data.events || [], groups: data._groups || {} };
+}
+
+async function fetchSchedule() {
+  try {
+    const { events, groups } = await fetchFresh();
+    writeCache(events, groups);
+    return { events, groups, stale: false, cachedAt: null };
+  } catch (e) {
+    const cached = readCache();
+    if (cached) return { events: cached.events || [], groups: cached.groups || {}, stale: true, cachedAt: cached.cachedAt };
+    throw e; // genuinely nothing to show — no fresh data and no prior cache
+  }
 }
 
 function buildRows(events) {
@@ -101,19 +138,31 @@ async function buildWidget() {
   w.setPadding(12, 12, 12, 12);
   w.url = "https://ucagiral.github.io/cagiral-schedule/"; // tap the widget to open the app
 
-  const header = w.addText("Today");
+  const headerRow = w.addStack();
+  headerRow.centerAlignContent();
+  const header = headerRow.addText("Today");
   header.font = Font.boldSystemFont(13);
   header.textColor = COLOR.text;
-  w.addSpacer(6);
 
-  let reminders = [], timed = [], errored = false;
+  let reminders = [], timed = [], errored = false, stale = false, cachedAt = null;
   try {
-    const { events, groups } = await fetchSchedule();
-    ({ reminders, timed } = buildRows(events));
-    var groupMap = groups;
+    const result = await fetchSchedule();
+    ({ reminders, timed } = buildRows(result.events));
+    var groupMap = result.groups;
+    stale = result.stale;
+    cachedAt = result.cachedAt;
   } catch (e) {
     errored = true;
   }
+
+  if (stale) {
+    headerRow.addSpacer();
+    const mins = cachedAt ? Math.max(0, Math.round((Date.now() - cachedAt) / 60000)) : null;
+    const badge = headerRow.addText(mins === null ? "cached" : (mins < 60 ? mins + "m old" : Math.round(mins / 60) + "h old"));
+    badge.font = Font.systemFont(9);
+    badge.textColor = COLOR.overdue;
+  }
+  w.addSpacer(6);
 
   if (errored) {
     const msg = w.addText("Couldn't load schedule");
@@ -149,7 +198,9 @@ async function buildWidget() {
     more.textColor = COLOR.muted;
   }
 
-  w.refreshAfterDate = new Date(Date.now() + 30 * 60 * 1000); // hint only — iOS decides the real cadence
+  // Hint only — iOS decides the real cadence. Ask sooner after a stale refresh, so a
+  // one-off slow network moment doesn't leave the widget showing old data for 30 minutes.
+  w.refreshAfterDate = new Date(Date.now() + (stale ? 10 : 30) * 60 * 1000);
   return w;
 }
 

@@ -2001,6 +2001,15 @@
       "type": "active",
       "status": "done",
       "notes": ""
+    },
+    {
+      "id": "emsuh12fy33cid",
+      "date": "2026-08-27",
+      "title": "Thaw LNCX and LUCX",
+      "category": "experiment",
+      "type": "reminder",
+      "status": "pending",
+      "notes": ""
     }
   ],
   "_groups": {
@@ -2039,7 +2048,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-15T14:26:09.586Z",
+    "lastModified": "2026-08-15T14:28:25.003Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

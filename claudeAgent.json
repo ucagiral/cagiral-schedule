@@ -2032,7 +2032,7 @@
       "status": "pending",
       "notes": "",
       "start": "11:30",
-      "end": "11:35",
+      "end": "12:00",
       "color": "#06b6d4"
     }
   ],
@@ -2072,7 +2072,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-16T09:30:47.145Z",
+    "lastModified": "2026-08-16T09:30:54.381Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

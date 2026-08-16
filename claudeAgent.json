@@ -2010,6 +2010,17 @@
       "type": "reminder",
       "status": "pending",
       "notes": ""
+    },
+    {
+      "id": "emsvlt070j2rgk",
+      "date": "2026-09-03",
+      "title": "ATF3 mutants SRB",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "11:15",
+      "end": "13:15"
     }
   ],
   "_groups": {
@@ -2048,7 +2059,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-15T14:28:25.003Z",
+    "lastModified": "2026-08-16T09:29:53.114Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

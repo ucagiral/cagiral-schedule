@@ -326,6 +326,7 @@
 
   <div id="weekWrap" class="gridwrap">
     <div class="grid" id="grid"></div>
+    <div class="grid" id="gridBody"></div>
   </div>
 </main>
 
@@ -696,9 +697,9 @@
   }
   function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
 
-  // Row 1 is the day header, row 2 is the all-day reminder strip, so the timed grid
-  // starts at row 3.
-  var FIRST_HOUR_ROW = 3;
+  // The day header and all-day reminder strip live in a separate grid (gridEl) from
+  // the hourly rows (gridBodyEl), so the timed grid's own row numbering starts at 1.
+  var FIRST_HOUR_ROW = 1;
   function timeToRow(t){
     var p = String(t||"00:00").split(":");
     var mins = (+p[0] - START_HOUR)*60 + (+p[1]);
@@ -978,7 +979,11 @@
   // =====================================================================
   // Rendering
   // =====================================================================
-  var gridEl = $("grid"), weekLabelEl = $("weekLabel");
+  // gridEl holds the sticky header (day names) + all-day reminder strip, unscaled.
+  // gridBodyEl holds only the hourly rows — the one that actually zooms, so a live
+  // pinch/scroll preview can scale it with a CSS transform without distorting the
+  // header text or breaking the header's own sticky positioning.
+  var gridEl = $("grid"), gridBodyEl = $("gridBody"), weekLabelEl = $("weekLabel");
 
   function autoView(){ return window.innerWidth <= 820 ? "day" : "week"; }
   function pickDefaultView(){
@@ -1122,8 +1127,11 @@
   }
 
   // ---- week grid (desktop) ----
+  // Head (day names + reminder strip) and body (hourly rows) are separate grid
+  // containers stacked directly on top of each other, sharing the same column
+  // template — see the gridEl/gridBodyEl comment above for why.
   function buildStaticGrid(){
-    gridEl.style.gridTemplateRows = "34px auto repeat(" + ROWS + ", " + rowH + "px)";
+    gridEl.style.gridTemplateRows = "34px auto";
     gridEl.innerHTML = "";
 
     var corner = document.createElement("div");
@@ -1146,6 +1154,10 @@
       gridEl.appendChild(ad);
     });
 
+    gridBodyEl.style.transform = ""; gridBodyEl.style.transformOrigin = "";
+    gridBodyEl.style.gridTemplateRows = "repeat(" + ROWS + ", " + rowH + "px)";
+    gridBodyEl.innerHTML = "";
+
     for (var r = 0; r < ROWS; r++){
       var row = FIRST_HOUR_ROW + r;
       var isHour = (r % (60/SLOT_MIN)) === 0;
@@ -1155,14 +1167,14 @@
         lbl.className = "timelabel" + (isHalf ? " halfhour" : "");
         lbl.style.gridColumn = 1; lbl.style.gridRow = row;
         lbl.textContent = rowToTime(row);
-        gridEl.appendChild(lbl);
+        gridBodyEl.appendChild(lbl);
       }
       for (var c = 0; c < 7; c++){
         var cell = document.createElement("div");
         cell.className = "cell" + (isHour ? " hourline" : (isHalf ? " halfhourline" : ""));
         cell.style.gridColumn = c+2; cell.style.gridRow = row;
         cell.dataset.dayIdx = c; cell.dataset.row = row;
-        gridEl.appendChild(cell);
+        gridBodyEl.appendChild(cell);
       }
     }
   }
@@ -1188,7 +1200,7 @@
   }
 
   function renderEvents(){
-    Array.prototype.slice.call(gridEl.querySelectorAll(".event")).forEach(function(n){ n.remove(); });
+    Array.prototype.slice.call(gridBodyEl.querySelectorAll(".event")).forEach(function(n){ n.remove(); });
     renderReminders();
     var isoWeek = weekDates().map(isoDate);
     var ordered = visibleEvents().slice().filter(function(e){ return e.type !== "reminder"; }).sort(function(a,b){
@@ -1224,7 +1236,7 @@
         if (Date.now() < state.suppressClickUntil){ state.suppressClickUntil = 0; return; }
         openDialog(ev);
       });
-      gridEl.appendChild(el);
+      gridBodyEl.appendChild(el);
     });
     renderGroupLegend();
   }
@@ -1384,24 +1396,23 @@
   var moveDrag = null;
 
   function gridGeometry(){
-    var r = gridEl.getBoundingClientRect();
-    var cs = getComputedStyle(gridEl);
+    // gridBodyEl holds only the hourly rows now (the header + reminder strip live
+    // in the separate gridEl), so its own top edge and first row height are the
+    // hourly grid's origin directly — no header offset to add in.
+    var r = gridBodyEl.getBoundingClientRect();
+    var cs = getComputedStyle(gridBodyEl);
     var rows = cs.gridTemplateRows.split(" ").map(parseFloat);
     var cols = cs.gridTemplateColumns.split(" ").map(parseFloat);
-    // rows[1] is the all-day strip — its height is "auto" and varies with how many
-    // reminders are stacked in it, so it can't stand in for the fixed hourly row
-    // height. headH has to cover header + strip together, and rowH comes from
-    // rows[2], the first guaranteed 8px hour row.
     return {
       left: r.left, top: r.top,
-      headH: (rows[0] || 34) + (rows[1] || 0), rowH: rows[2] || 8,
+      rowH: rows[0] || 8,
       timeW: cols[0] || 56, colW: cols[1] || 110
     };
   }
   function pointToCell(g, x, y){
     return {
       dayIdx: Math.floor((x - g.left - g.timeW) / g.colW),
-      row: FIRST_HOUR_ROW + Math.floor((y - g.top - g.headH) / g.rowH)
+      row: FIRST_HOUR_ROW + Math.floor((y - g.top) / g.rowH)
     };
   }
   function paintDragTarget(){
@@ -1444,7 +1455,7 @@
     try { p.el.setPointerCapture(p.pointerId); } catch(err){}
   }
 
-  gridEl.addEventListener("pointerdown", function(e){
+  gridBodyEl.addEventListener("pointerdown", function(e){
     if (e.pointerType === "mouse" && e.button !== 0) return;
     var el = e.target.closest ? e.target.closest(".event") : null;
     if (!el) return;                              // empty grid → the create-drag below handles it
@@ -1475,7 +1486,7 @@
   // Once a touch drag is armed the page must stop scrolling under it. touch-action
   // alone can't express "only after a hold", so the gesture is claimed here — the
   // listener has to be non-passive for preventDefault to count.
-  gridEl.addEventListener("touchmove", function(e){
+  gridBodyEl.addEventListener("touchmove", function(e){
     if (moveDrag) e.preventDefault();
   }, { passive: false });
 
@@ -1534,49 +1545,79 @@
 
   // ---- week grid zoom — pinch (touch) + Ctrl/Cmd+scroll (trackpad/mouse) --------
   // Vertical only: day columns keep their width, only the hourly row height changes.
-  // clientY is the pinch midpoint or cursor position — the time under it stays fixed
-  // on screen across the zoom step, the same way a map zooms toward the cursor.
+  //
+  // The gesture drives a live CSS transform on gridBodyEl alone — cheap, GPU-composited,
+  // no DOM rebuild, no scrolling — so it tracks fingers/scroll in real time instead of
+  // stepping. Rebuilding the whole grid on every tick (the previous approach) was both
+  // the "feels like pressing a button" lag, and — worse — on iOS, calling
+  // window.scrollTo() on every tick while touches were still down could leave native
+  // scrolling stuck for the rest of that touch session. The real layout, and the one
+  // scroll adjustment, now happen exactly once: when the gesture actually ends.
   var weekWrapEl = $("weekWrap");
+  var gesture = null;   // { startRowH, bodyTopPage, anchorClientY, liveScale } while active
 
-  function zoomGrid(factor, clientY){
-    if (state.view !== "week") return;
-    var oldRowH = rowH;
-    var newRowH = clamp(oldRowH * factor, ROW_H_MIN, ROW_H_MAX);
-    if (newRowH === oldRowH) return;
-
-    var r = gridEl.getBoundingClientRect();
-    var cs = getComputedStyle(gridEl);
-    var rows = cs.gridTemplateRows.split(" ").map(parseFloat);
-    var headH = (rows[0] || 34) + (rows[1] || 0);
-    var gridTopPage = r.top + window.scrollY;
-    var anchorPageY = clientY + window.scrollY;
-    var distIntoRows = anchorPageY - gridTopPage - headH;   // old scale, pixels below row 3's top
-
-    rowH = newRowH;
-    saveZoom(rowH);
-    buildStaticGrid();
-    renderEvents();
-
-    var scale = newRowH / oldRowH;
-    var newDesiredPageY = gridTopPage + headH + distIntoRows * scale;
-    window.scrollTo({ top: newDesiredPageY - clientY });
+  function gestureStart(clientY){
+    var r = gridBodyEl.getBoundingClientRect();   // captured before any transform this gesture
+    gesture = {
+      startRowH: rowH,
+      bodyTopPage: r.top + window.scrollY,        // page-absolute top of the hourly grid, untransformed
+      anchorClientY: clientY,
+      liveScale: 1
+    };
   }
 
-  // Trackpad pinch is delivered by every major browser as a wheel event with
-  // ctrlKey set — the same mechanism Maps/CodeMirror-style zoom relies on — which
-  // also covers an explicit Ctrl/Cmd+scroll-wheel on a plain mouse. A real wheel
-  // click's deltaY is much larger than a trackpad's continuous small steps, so it's
-  // clamped before converting to a factor — otherwise one notch would jump ~50%.
+  // Visual-only — safe to call every frame. rawScale is the cumulative scale relative
+  // to the gesture's start, not relative to the previous tick.
+  function gesturePreview(rawScale, clientY){
+    var g = gesture;
+    if (!g) return;
+    g.liveScale = clamp(rawScale, ROW_H_MIN / g.startRowH, ROW_H_MAX / g.startRowH);
+    g.anchorClientY = clientY;
+    // transform-origin is always in the element's own untransformed coordinates, so
+    // using the pre-gesture bodyTopPage here stays correct even mid-transform.
+    var anchorLocalY = (clientY + window.scrollY) - g.bodyTopPage;
+    gridBodyEl.style.transformOrigin = "0px " + anchorLocalY + "px";
+    gridBodyEl.style.transform = "scaleY(" + g.liveScale + ")";
+  }
+
+  // The only point that touches real layout or scroll position.
+  function gestureCommit(){
+    var g = gesture;
+    if (!g) return;
+    gesture = null;
+    var newRowH = clamp(g.startRowH * g.liveScale, ROW_H_MIN, ROW_H_MAX);
+    var scale = newRowH / g.startRowH;
+    var distIntoRows = (g.anchorClientY + window.scrollY) - g.bodyTopPage;
+
+    rowH = newRowH;
+    if (newRowH !== g.startRowH) saveZoom(rowH);
+    buildStaticGrid();   // also resets the live transform back to none
+    renderEvents();
+
+    var newDesiredPageY = g.bodyTopPage + distIntoRows * scale;
+    window.scrollTo({ top: newDesiredPageY - g.anchorClientY });
+  }
+
+  // Trackpad pinch is delivered by every major browser as a wheel event with ctrlKey
+  // set — the same mechanism Maps/CodeMirror-style zoom relies on — which also covers
+  // an explicit Ctrl/Cmd+scroll-wheel on a plain mouse. Wheel has no clean "gesture
+  // ended" event, so a short pause with no further wheel ticks is treated as the end.
+  var wheelCommitTimer = null;
   weekWrapEl.addEventListener("wheel", function(e){
     if (!e.ctrlKey || state.view !== "week") return;
     e.preventDefault();
+    if (!gesture) gestureStart(e.clientY);
     var d = clamp(e.deltaY, -40, 40);
-    zoomGrid(Math.exp(-d * 0.01), e.clientY);
+    gesturePreview(gesture.liveScale * Math.exp(-d * 0.01), e.clientY);
+    clearTimeout(wheelCommitTimer);
+    wheelCommitTimer = setTimeout(gestureCommit, 150);
   }, { passive: false });
 
   // Touch pinch (iPhone, any touchscreen). A second finger landing mid-drag means
-  // zoom, not a move — the drag lets go with nothing changed.
-  var pinch = null;
+  // zoom, not a move — the drag lets go with nothing changed. Committing only on
+  // touchend/touchcancel — after every finger has actually lifted — is what keeps
+  // this from fighting iOS's native scroll handling afterwards.
+  var pinchStartDist = null;
   function touchDist(t0, t1){
     var dx = t0.clientX - t1.clientX, dy = t0.clientY - t1.clientY;
     return Math.sqrt(dx*dx + dy*dy);
@@ -1585,17 +1626,22 @@
     if (state.view !== "week" || e.touches.length !== 2) return;
     clearPendingPress();
     if (moveDrag) finishMoveDrag(false);
-    pinch = { dist: touchDist(e.touches[0], e.touches[1]) };
+    pinchStartDist = touchDist(e.touches[0], e.touches[1]);
+    gestureStart((e.touches[0].clientY + e.touches[1].clientY) / 2);
   }, { passive: true });
   weekWrapEl.addEventListener("touchmove", function(e){
-    if (!pinch || e.touches.length !== 2) return;
+    if (!pinchStartDist || e.touches.length !== 2) return;
     e.preventDefault();
     var d = touchDist(e.touches[0], e.touches[1]);
     var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-    zoomGrid(d / pinch.dist, midY);
-    pinch.dist = d;
+    gesturePreview(d / pinchStartDist, midY);
   }, { passive: false });
-  function endPinch(e){ if (pinch && e.touches.length < 2) pinch = null; }
+  function endPinch(e){
+    if (pinchStartDist && e.touches.length < 2){
+      pinchStartDist = null;
+      gestureCommit();
+    }
+  }
   weekWrapEl.addEventListener("touchend", endPinch);
   weekWrapEl.addEventListener("touchcancel", endPinch);
 
@@ -1607,7 +1653,7 @@
   // Drag-to-create on the week grid (desktop)
   // =====================================================================
   var previewEl = null;
-  gridEl.addEventListener("mousedown", function(e){
+  gridBodyEl.addEventListener("mousedown", function(e){
     if (moveDrag) return;                                          // moving an event, not creating one
     if (e.target.closest && e.target.closest(".event")) return;
     var cell = e.target.closest && e.target.closest(".cell");
@@ -1617,7 +1663,7 @@
     previewEl.className = "drag-preview";
     previewEl.style.gridColumn = state.drag.dayIdx + 2;
     updatePreview();
-    gridEl.appendChild(previewEl);
+    gridBodyEl.appendChild(previewEl);
   });
   document.addEventListener("mousemove", function(e){
     if (!state.drag) return;

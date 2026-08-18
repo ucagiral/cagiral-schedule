@@ -136,11 +136,15 @@
   .event{
     border-radius:5px; padding:3px 6px; font-size:11px; color:#fff; overflow:hidden;
     cursor:grab; z-index:2; box-shadow:0 1px 2px rgba(0,0,0,.15); line-height:1.25; position:relative;
-    /* pan-y leaves an ordinary swipe to the page, so scrolling past an event doesn't
-       re-time it. A touch drag has to be armed by holding first (see LONG_PRESS_MS),
-       and from then on touchmove is prevented so the gesture stays ours. Mouse and
-       trackpad ignore touch-action entirely, so dragging there is unaffected. */
-    touch-action:pan-y;
+    /* Both pan directions are left to the browser, so an ordinary swipe that happens
+       to start on an event — vertical to scroll the day, horizontal to see another
+       day — stays a swipe rather than re-timing it. (pan-y alone blocked native
+       horizontal panning outright at the compositor level, before JS ever ran — not
+       just a slower handoff, an outright refusal.) A touch drag still has to be armed
+       by holding still first (see LONG_PRESS_MS), and only from then on does the JS
+       touchmove listener call preventDefault() to claim the gesture for itself. Mouse
+       and trackpad ignore touch-action entirely, so dragging there is unaffected. */
+    touch-action:pan-x pan-y;
   }
   /* the hold registered — the block lifts off the grid so it's clear the next
      movement will move it rather than scroll */

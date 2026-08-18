@@ -3017,4 +3017,88 @@ DESCRIPTION:Thaw ATF3 celld
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-pcr-setup@cagiral-schedule
+DTSTAMP:20260816T093054Z
+SEQUENCE:29781210
+DTSTART;TZID=Europe/Istanbul:20260831T090000
+DTEND;TZID=Europe/Istanbul:20260831T092000
+SUMMARY:Set up YY1 PCR (MORF library template)
+DESCRIPTION:Nek2(K37R) → YY1 swap in pCDH backbone. Primers already in ha
+ nd. PCR runs first\, alone — both digestions start together only once th
+ is is done.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: expe
+ riment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Set up YY1 PCR (MORF library template)
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-pcr-run@cagiral-schedule
+DTSTAMP:20260816T093054Z
+SEQUENCE:29781210
+DTSTART;TZID=Europe/Istanbul:20260831T092000
+DTEND;TZID=Europe/Istanbul:20260831T100000
+SUMMARY:YY1 PCR run (thermocycler)
+DESCRIPTION:Nek2(K37R) → YY1 swap. Q5/HF-style run\, ~1.3 kb product.\nPa
+ ssive — runs unattended\, does not block time\nGroup: Nek2→YY1\nCatego
+ ry: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-digest-setup@cagiral-schedule
+DTSTAMP:20260816T093054Z
+SEQUENCE:29781210
+DTSTART;TZID=Europe/Istanbul:20260831T104000
+DTEND;TZID=Europe/Istanbul:20260831T105500
+SUMMARY:Set up YY1 insert + pCDH backbone digestion
+DESCRIPTION:Nek2(K37R) → YY1 swap. BamHI-EcoRI double digest\, both react
+ ions set up together so they run in parallel — per Umut. Starts after th
+ e 10:00-10:30 block plus clearance.\nActive — needs you there\nGroup: Ne
+ k2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Set up YY1 insert + pCDH backbone digestion
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-insert-digest@cagiral-schedule
+DTSTAMP:20260816T093054Z
+SEQUENCE:29781210
+DTSTART;TZID=Europe/Istanbul:20260831T105500
+DTEND;TZID=Europe/Istanbul:20260831T145500
+SUMMARY:YY1 insert digestion (BamHI-EcoRI)
+DESCRIPTION:Nek2(K37R) → YY1 swap. 4h digest of the PCR product — durat
+ ion per Umut\, overrides the ~5-15 min NEB Time-Saver default. Runs alongs
+ ide the backbone digest\, finishing together.\nPassive — runs unattended
+ \, does not block time\nGroup: Nek2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-backbone-digest@cagiral-schedule
+DTSTAMP:20260816T093054Z
+SEQUENCE:29781210
+DTSTART;TZID=Europe/Istanbul:20260831T105500
+DTEND;TZID=Europe/Istanbul:20260831T145500
+SUMMARY:pCDH-Nek2(K37R) backbone digestion (BamHI-EcoRI)
+DESCRIPTION:Nek2(K37R) → YY1 swap. 4h digest\, excises Nek2(K37R) and lin
+ earizes the vector — duration per Umut. Runs alongside the insert digest
+ \, finishing together.\nPassive — runs unattended\, does not block time\
+ nGroup: Nek2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR

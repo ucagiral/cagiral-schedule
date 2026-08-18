@@ -191,7 +191,7 @@ Dependency chain, each step feeding the next:
 ## Colour groups
 
 Related work shares one colour across the week through the event's `group` field, so a whole
-experiment thread reads as a single strand on the grid. The eleven in use:
+experiment thread reads as a single strand on the grid. The twelve in use:
 
 | Group | Colour | Covers |
 |---|---|---|
@@ -206,13 +206,14 @@ experiment thread reads as a single strand on the grid. The eleven in use:
 | Zoom — Wednesday | purple `#a855f7` | the standing Wednesday 21:10 Zoom |
 | Weekly meeting | lime `#84cc16` | the standing Friday 09:30 meeting |
 | Colony formation | orange `#f97316` | fixation across consecutive days, then drying |
+| Nek2→YY1 | fuchsia `#d946ef` | swapping Nek2(K37R) out of the pCDH backbone for a PCR-amplified YY1 insert. Standalone thread, not related to any other group — including the generic "Cloning" group above, which only tags unrelated one-off plasmid-prep steps. Not tracked as a project either. |
 
 **Every event carries a group, so no block falls back to a category colour.** That matters because
 the category palette overlaps the group palette — `personal` green is CuAdapt's green and `meeting`
 red is the Western red, which is exactly how the Wednesday Zoom and the Friday meeting ended up
 looking like experiments. Grouping them fixes it at the root.
 
-All eleven colours are pinned in `_groups` and are distinct from one another. The Wednesday Zoom's
+All twelve colours are pinned in `_groups` and are distinct from one another. The Wednesday Zoom's
 purple and the Friday meeting's lime are used by nothing else. Any of them can be changed from the
 app's colour dropdown. Passive events keep their pale treatment, tinted with the group's colour.
 

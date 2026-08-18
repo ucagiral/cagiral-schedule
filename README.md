@@ -90,6 +90,12 @@ Entries for groups no longer used by any event are dropped automatically when th
   **◀ day / day ▶** to move things — a list has no time axis to drag along.
 - Moving an event that lands within 10 minutes of another active event, or overlapping one, shows a
   warning. It's advisory: the move is still saved.
+- **Zooming the week grid:** pinch (touchscreen) or Ctrl/Cmd+scroll (trackpad or mouse wheel) to
+  stretch or compress the hourly rows — vertically only, day columns stay the same width. The time
+  under your fingers/cursor stays put on screen as you zoom, the same way a map zooms toward the
+  cursor. A plain scroll or a pinch without the modifier key is untouched — only the intercepted
+  gesture zooms. The level is remembered per device (not synced, not saved to the schedule data
+  itself) and only applies to the week grid — the phone day list has no time axis to zoom.
 
 There is no recurrence engine: repeating commitments are stored as individual dated events, so they
 need regenerating when they run past their last date (currently 2026-12-31).

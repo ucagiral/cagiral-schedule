@@ -547,7 +547,7 @@
   // Config — resolved from the URL so nothing is hardcoded to one account.
   // On GitHub Pages, https://<owner>.github.io/<repo>/ gives us both.
   // =====================================================================
-  var LS = { token:"cs_token", device:"cs_device", theme:"cs_theme", cache:"cs_cache", cfg:"cs_cfg" };
+  var LS = { token:"cs_token", device:"cs_device", theme:"cs_theme", cache:"cs_cache", cfg:"cs_cfg", zoom:"cs_zoom" };
   var DATA_FILE = "claudeAgent.json";
   var ICS_FILE = "schedule.ics";
 
@@ -622,6 +622,20 @@
   var DAY_NAMES_TR = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"];
   var START_HOUR = 7, END_HOUR = 23, SLOT_MIN = 5;
   var ROWS = (END_HOUR - START_HOUR) * 60 / SLOT_MIN;
+
+  // ---- week grid zoom — vertical only, per-device, gesture-driven --------
+  // rowH is the pixel height of one SLOT_MIN row; buildStaticGrid() writes it into
+  // gridTemplateRows, and everything else (gridGeometry, pointToCell, drag math)
+  // already reads row height back out of the live computed style, so nothing past
+  // this needs to know zoom exists.
+  var ROW_H_DEFAULT = 8, ROW_H_MIN = 4, ROW_H_MAX = 28;
+  function loadZoom(){
+    var v = ROW_H_DEFAULT;
+    try { var s = parseFloat(localStorage.getItem(LS.zoom)); if (!isNaN(s)) v = s; } catch(e){}
+    return v < ROW_H_MIN ? ROW_H_MIN : (v > ROW_H_MAX ? ROW_H_MAX : v);
+  }
+  function saveZoom(v){ try { localStorage.setItem(LS.zoom, String(v)); } catch(e){} }
+  var rowH = loadZoom();
   var CAT_VAR = {experiment:"--cat-experiment", meeting:"--cat-meeting",
                  writing:"--cat-writing", personal:"--cat-personal", other:"--cat-other"};
 
@@ -1109,7 +1123,7 @@
 
   // ---- week grid (desktop) ----
   function buildStaticGrid(){
-    gridEl.style.gridTemplateRows = "34px auto repeat(" + ROWS + ", 8px)";
+    gridEl.style.gridTemplateRows = "34px auto repeat(" + ROWS + ", " + rowH + "px)";
     gridEl.innerHTML = "";
 
     var corner = document.createElement("div");
@@ -1517,6 +1531,74 @@
     if (pendingPress && e.pointerId === pendingPress.pointerId) clearPendingPress();
     if (moveDrag && e.pointerId === moveDrag.pointerId) finishMoveDrag(false);
   });
+
+  // ---- week grid zoom — pinch (touch) + Ctrl/Cmd+scroll (trackpad/mouse) --------
+  // Vertical only: day columns keep their width, only the hourly row height changes.
+  // clientY is the pinch midpoint or cursor position — the time under it stays fixed
+  // on screen across the zoom step, the same way a map zooms toward the cursor.
+  var weekWrapEl = $("weekWrap");
+
+  function zoomGrid(factor, clientY){
+    if (state.view !== "week") return;
+    var oldRowH = rowH;
+    var newRowH = clamp(oldRowH * factor, ROW_H_MIN, ROW_H_MAX);
+    if (newRowH === oldRowH) return;
+
+    var r = gridEl.getBoundingClientRect();
+    var cs = getComputedStyle(gridEl);
+    var rows = cs.gridTemplateRows.split(" ").map(parseFloat);
+    var headH = (rows[0] || 34) + (rows[1] || 0);
+    var gridTopPage = r.top + window.scrollY;
+    var anchorPageY = clientY + window.scrollY;
+    var distIntoRows = anchorPageY - gridTopPage - headH;   // old scale, pixels below row 3's top
+
+    rowH = newRowH;
+    saveZoom(rowH);
+    buildStaticGrid();
+    renderEvents();
+
+    var scale = newRowH / oldRowH;
+    var newDesiredPageY = gridTopPage + headH + distIntoRows * scale;
+    window.scrollTo({ top: newDesiredPageY - clientY });
+  }
+
+  // Trackpad pinch is delivered by every major browser as a wheel event with
+  // ctrlKey set — the same mechanism Maps/CodeMirror-style zoom relies on — which
+  // also covers an explicit Ctrl/Cmd+scroll-wheel on a plain mouse. A real wheel
+  // click's deltaY is much larger than a trackpad's continuous small steps, so it's
+  // clamped before converting to a factor — otherwise one notch would jump ~50%.
+  weekWrapEl.addEventListener("wheel", function(e){
+    if (!e.ctrlKey || state.view !== "week") return;
+    e.preventDefault();
+    var d = clamp(e.deltaY, -40, 40);
+    zoomGrid(Math.exp(-d * 0.01), e.clientY);
+  }, { passive: false });
+
+  // Touch pinch (iPhone, any touchscreen). A second finger landing mid-drag means
+  // zoom, not a move — the drag lets go with nothing changed.
+  var pinch = null;
+  function touchDist(t0, t1){
+    var dx = t0.clientX - t1.clientX, dy = t0.clientY - t1.clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  weekWrapEl.addEventListener("touchstart", function(e){
+    if (state.view !== "week" || e.touches.length !== 2) return;
+    clearPendingPress();
+    if (moveDrag) finishMoveDrag(false);
+    pinch = { dist: touchDist(e.touches[0], e.touches[1]) };
+  }, { passive: true });
+  weekWrapEl.addEventListener("touchmove", function(e){
+    if (!pinch || e.touches.length !== 2) return;
+    e.preventDefault();
+    var d = touchDist(e.touches[0], e.touches[1]);
+    var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    zoomGrid(d / pinch.dist, midY);
+    pinch.dist = d;
+  }, { passive: false });
+  function endPinch(e){ if (pinch && e.touches.length < 2) pinch = null; }
+  weekWrapEl.addEventListener("touchend", endPinch);
+  weekWrapEl.addEventListener("touchcancel", endPinch);
+
   document.addEventListener("keydown", function(e){
     if (moveDrag && e.key === "Escape") finishMoveDrag(false);
   });

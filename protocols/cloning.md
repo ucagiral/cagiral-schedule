@@ -5,6 +5,11 @@
 Cutting Nek2(K37R) out of the `pCDH-Nek2(K37R)` plasmid and replacing it with a YY1 sequence
 PCR-amplified from a MORF library template. Started 31 Aug 2026, first day back from vacation.
 
+**Fully scheduled, 31 Aug–3 Sep**, all through in one long Monday (PCR through plating, ending
+~21:45 — flagged past the usual 18:00 cutoff and confirmed with Umut rather than split across two
+days), then colony PCR + overnight culture Tuesday, miniprep + diagnostic digest + sequencing
+submission Wednesday, and a reminder to check results Thursday.
+
 **Standalone thread.** Not related to GATA6, AR-CasPEx, or LNCX/LUCX — no shared group, no shared
 notes, nothing linking it to any of them. Also not tracked as a project: no `projects.md` entry, no
 `project`/`phase` fields on its events. It's calendar events plus its own colour group (`Nek2→YY1`,

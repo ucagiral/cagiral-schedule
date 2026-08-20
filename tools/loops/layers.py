@@ -484,8 +484,15 @@ def best_motif(sequence: str, pwm: Sequence[Sequence[float]]) -> tuple[float, in
     return best[0], best[1], best[2], relative
 
 
-def _peaks_in(pf: PortalFile, anchor: Region) -> list[tuple[int, int, float | None]]:
-    hits = []
+def _peaks_by_anchor(pf: PortalFile, anchors: dict[str, Region]
+                     ) -> dict[str, list[tuple[int, int, float | None]]]:
+    """Read one peak file once and bucket its hits by anchor.
+
+    Fetching per anchor instead would download the same file for every anchor
+    in the query -- twice over for the usual locus/partner pair.
+    """
+    hits: dict[str, list[tuple[int, int, float | None]]] = {
+        label: [] for label in anchors}
     for line in fetch_lines(pf.url):
         if not line.strip() or line.startswith(("#", "track", "browser")):
             continue
@@ -496,15 +503,15 @@ def _peaks_in(pf: PortalFile, anchor: Region) -> list[tuple[int, int, float | No
             chrom, start, end = fields[0], int(fields[1]), int(fields[2])
         except ValueError:
             continue
-        if not anchor.overlaps(chrom, start, end):
-            continue
         signal = None
         if len(fields) >= 7:
             try:
                 signal = float(fields[6])
             except ValueError:
                 signal = None
-        hits.append((start, end, signal))
+        for label, anchor in anchors.items():
+            if anchor.overlaps(chrom, start, end):
+                hits[label].append((start, end, signal))
     return hits
 
 
@@ -523,14 +530,28 @@ def layer_ctcf_anchors(files: Sequence[PortalFile], anchors: dict[str, Region],
         notes.append(f"JASPAR unreachable ({exc}); CTCF peaks are reported but "
                      f"motif orientation is left unknown rather than guessed.")
 
+    # One sequence fetch per distinct peak interval, however many files call it.
+    sequences: dict[tuple[str, int, int], str | None] = {}
+
+    def sequence_for(anchor: Region, start: int, end: int) -> str | None:
+        key = (anchor.chrom, start, end)
+        if key not in sequences:
+            try:
+                sequences[key] = fetch_sequence(anchor.chrom, start, end, build)
+            except SourceError as exc:
+                notes.append(f"No sequence for {anchor.chrom}:{start}-{end}: {exc}")
+                sequences[key] = None
+        return sequences[key]
+
     rows: list[dict[str, Any]] = []
     for pf in chosen:
-        for label, anchor in anchors.items():
-            try:
-                peaks = _peaks_in(pf, anchor)
-            except SourceError as exc:
-                notes.append(f"Skipped CTCF file {pf.accession}: {exc}")
-                break
+        try:
+            by_anchor = _peaks_by_anchor(pf, anchors)
+        except SourceError as exc:
+            notes.append(f"Skipped CTCF file {pf.accession}: {exc}")
+            continue
+        for label, peaks in by_anchor.items():
+            anchor = anchors[label]
             for start, end, signal in peaks:
                 row = {
                     "anchor": label,
@@ -550,8 +571,8 @@ def layer_ctcf_anchors(files: Sequence[PortalFile], anchors: dict[str, Region],
                     "source_url": pf.url,
                 }
                 if pwm:
-                    try:
-                        sequence = fetch_sequence(anchor.chrom, start, end, build)
+                    sequence = sequence_for(anchor, start, end)
+                    if sequence:
                         score, offset, strand, relative = best_motif(sequence, pwm)
                         if offset >= 0:
                             row.update({
@@ -561,8 +582,6 @@ def layer_ctcf_anchors(files: Sequence[PortalFile], anchors: dict[str, Region],
                                 "motif_score": round(score, 3),
                                 "motif_rel_score": round(relative, 4),
                             })
-                    except SourceError as exc:
-                        notes.append(f"No sequence for {anchor}: {exc}")
                 rows.append(row)
     rows.sort(key=lambda r: (r["anchor"], r["cell_type"].lower(),
                              -(r["motif_rel_score"] or 0)))

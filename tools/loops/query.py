@@ -19,6 +19,7 @@ import argparse
 import os
 import re
 import sys
+import time
 from datetime import datetime, timezone
 from typing import Any, Sequence
 
@@ -311,19 +312,31 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"unclassified portal file types seen: "
               f"{catalogue.unmatched_types[:40]}", file=sys.stderr)
 
-    loop_rows, loop_notes = layers.layer_called_loops(
-        catalogue.loops, query, partner, wanted_cells)
-    contact_rows, contact_notes = layers.layer_raw_contact(
+    print(f"catalogue: {len(catalogue.loops)} loop files, "
+          f"{len(catalogue.matrices)} matrices, "
+          f"{len(catalogue.boundaries)} boundary files, "
+          f"{len(catalogue.ctcf)} CTCF files", file=sys.stderr)
+
+    def timed(label: str, fn):
+        started = time.monotonic()
+        rows, layer_notes = fn()
+        print(f"{label}: {len(rows)} rows in "
+              f"{time.monotonic() - started:.1f}s", file=sys.stderr)
+        return rows, layer_notes
+
+    loop_rows, loop_notes = timed("called loops", lambda: layers.layer_called_loops(
+        catalogue.loops, query, partner, wanted_cells))
+    contact_rows, contact_notes = timed("raw contact", lambda: layers.layer_raw_contact(
         catalogue.matrices, query, partner, wanted_cells, window, resolution,
-        args.max_contact_rows)
-    tad_rows, tad_notes = layers.layer_tad_context(
-        catalogue.boundaries, query, partner, wanted_cells)
+        args.max_contact_rows))
+    tad_rows, tad_notes = timed("TAD context", lambda: layers.layer_tad_context(
+        catalogue.boundaries, query, partner, wanted_cells))
 
     anchors = {"query": query}
     if partner is not None:
         anchors["partner"] = partner
-    ctcf_rows, ctcf_notes = layers.layer_ctcf_anchors(
-        catalogue.ctcf, anchors, wanted_cells, args.build)
+    ctcf_rows, ctcf_notes = timed("CTCF anchors", lambda: layers.layer_ctcf_anchors(
+        catalogue.ctcf, anchors, wanted_cells, args.build))
 
     notes += loop_notes + contact_notes + tad_notes + ctcf_notes
 

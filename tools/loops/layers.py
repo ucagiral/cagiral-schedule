@@ -66,10 +66,37 @@ def matches_cells(pf: PortalFile, wanted: Sequence[str]) -> bool:
 
 def _select(files: Sequence[PortalFile], wanted: Sequence[str],
             cap: int) -> tuple[list[PortalFile], bool]:
-    """Pick files to download: requested cell types first, then deterministic order."""
+    """Pick files to download: requested cell types first, then spread the cap.
+
+    When the cap bites it is spread round-robin across cell types rather than
+    taken as an alphabetical prefix. A flat truncation silently drops every line
+    whose name sorts late -- which is exactly how LNCaP vanishes from an
+    unfiltered query, turning "we stopped looking" into a confident "no loop".
+    """
     chosen = [pf for pf in files if matches_cells(pf, wanted)]
     chosen.sort(key=lambda pf: (pf.cell_type.lower(), pf.accession))
-    return chosen[:cap], len(chosen) > cap
+    if len(chosen) <= cap:
+        return chosen, False
+
+    by_cell: dict[str, list[PortalFile]] = {}
+    for pf in chosen:
+        by_cell.setdefault(pf.cell_type.lower(), []).append(pf)
+
+    picked: list[PortalFile] = []
+    depth = 0
+    while len(picked) < cap:
+        added = False
+        for cell in sorted(by_cell):
+            bucket = by_cell[cell]
+            if depth < len(bucket):
+                picked.append(bucket[depth])
+                added = True
+                if len(picked) >= cap:
+                    break
+        if not added:
+            break
+        depth += 1
+    return picked, True
 
 
 # --------------------------------------------------------------------------

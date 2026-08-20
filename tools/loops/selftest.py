@@ -354,6 +354,37 @@ def test_file_classification() -> None:
 
 
 @case
+def test_cap_is_spread_across_cell_types() -> None:
+    def pf(cell: str, n: int) -> sources.PortalFile:
+        return sources.PortalFile(accession=f"{cell}{n}", portal="P", url="u",
+                                  file_format="bedpe", file_type="loops",
+                                  genome="hg38", cell_type=cell)
+
+    # A549 sorts first and LNCaP late; a prefix truncation would keep only A549.
+    files = [pf("A549", n) for n in range(20)] + [pf("LNCaP", n) for n in range(20)]
+    picked, capped = layers._select(files, [], cap=4)
+    check("cap reported", capped)
+    check("cap respected", len(picked) == 4, str(len(picked)))
+    cells = {p.cell_type for p in picked}
+    check("both cell types survive the cap", cells == {"A549", "LNCaP"}, str(cells))
+
+    # Under the cap nothing is dropped or reordered away.
+    picked, capped = layers._select(files, [], cap=100)
+    check("no cap when it fits", not capped and len(picked) == 40, str(len(picked)))
+
+    # An explicit filter still narrows to the named line.
+    picked, _ = layers._select(files, ["LNCaP"], cap=100)
+    check("filter narrows", {p.cell_type for p in picked} == {"LNCaP"})
+
+    # A lopsided pool must not starve the smaller cell type.
+    lopsided = [pf("A549", n) for n in range(50)] + [pf("LNCaP", 0)]
+    picked, _ = layers._select(lopsided, [], cap=5)
+    check("rare cell type is not starved",
+          "LNCaP" in {p.cell_type for p in picked},
+          str({p.cell_type for p in picked}))
+
+
+@case
 def test_slug_and_cells() -> None:
     check("slug of a pair",
           query.slugify("AR", "chrX:66,895,000-66,904,000")

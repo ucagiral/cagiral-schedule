@@ -16,12 +16,17 @@ mobile app, which is the point — nothing installs locally and nothing large is
 
 | Input | Example | Notes |
 |---|---|---|
-| `locus` | `AR` or `chrX:67,543,900-67,548,900` | Gene symbols resolve through Ensembl |
+| `locus` | `AR` or `chrX:67,543,900-67,548,900` | Gene symbols resolve to their **promoter** (TSS ±5 kb) |
 | `partner` | `chrX:66,895,000-66,904,000` | Optional. Given, the question becomes "do these two touch?" |
 | `cells` | `all`, or `LNCaP,GM12878` | Substring match against the portal's cell-type name |
 | `build` | `hg38` | `hg19` also works; the portals hold less for it |
 | `window` | `500kb` | Half-width of the contact submatrix around each locus |
+| `gene_anchor` | `promoter` | `whole-gene` anchors on the full span instead |
 | `resolution` | `10kb` | Bin size. Smaller means a bigger workbook, not a better answer |
+
+**A gene symbol means its promoter.** Anchoring on the whole gene body lets any contact anywhere
+in the span count as a hit — for AR that is 187 kb, and a report built that way reads as evidence
+without being any. `whole-gene` exists for when the whole locus really is the question.
 
 Two files come back, rendered from the same rows so they cannot disagree: a markdown report to
 read, and an `.xlsx` workbook to plot from. Both are attached to the run and committed to
@@ -78,6 +83,10 @@ against this; do not read a high O/E at AR as a loop on its own.
 Matching is by overlap, not midpoint: a 9 kb element read at 5 kb spans two bins, so every bin
 pair joining the two regions is considered and the strongest reported, with the count shown.
 
+**The reported O/E is a maximum, not an average** — the single strongest bin pair out of however
+many join the two regions. Read it alongside the bin-pair count: a high value drawn from twenty
+pairs is a weaker statement than the same value drawn from one.
+
 ### 3. TAD context
 
 Domain boundaries, from 4DN's precomputed insulation-score calls (cooltools, 100 kb window —
@@ -90,6 +99,9 @@ differ between cell types, and loops do cross them.
 
 A boundary between the two loci is a reason to distrust a weak call in layers 1 and 2, not a
 reason to overturn a strong one.
+
+Boundaries are counted by distinct position, not by row. The same boundary called in ten files is
+one boundary; counting rows would turn a file count into a biological claim.
 
 ### 4. CTCF anchors
 

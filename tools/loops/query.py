@@ -35,6 +35,11 @@ from sources import SourceError, load_or_discover, resolve_gene  # noqa: E402
 # background without demanding the strength of a called dot.
 ENRICHED_OE = 2.0
 
+# A looping question about a gene almost always means its promoter. Using the
+# whole gene body as an anchor lets any contact anywhere in a 187 kb span (AR,
+# for one) count as a hit, which reads as evidence and is not.
+PROMOTER_FLANK = 5_000
+
 _SPAN = re.compile(r"^\s*([\d.,]+)\s*(bp|kb|mb)?\s*$", re.I)
 _LOCUS = re.compile(r"^\s*(chr[\w]+|[\dXYMT]+)\s*[:\-]\s*([\d,_]+)\s*[-–]\s*([\d,_]+)\s*$", re.I)
 
@@ -48,8 +53,14 @@ def parse_span(text: str) -> int:
     return int(value * {"bp": 1, "kb": 1_000, "mb": 1_000_000}[unit])
 
 
-def parse_locus(text: str, build: str) -> tuple[Region, str]:
-    """Accept either explicit coordinates or a gene symbol; return the region."""
+def parse_locus(text: str, build: str,
+                gene_anchor: str = "promoter") -> tuple[Region, str]:
+    """Accept explicit coordinates or a gene symbol; return the anchor region.
+
+    A gene symbol resolves to its promoter by default -- the TSS plus or minus
+    PROMOTER_FLANK -- because that is what a looping question about a gene
+    means. Pass gene_anchor="whole-gene" to anchor on the full span instead.
+    """
     match = _LOCUS.match(text)
     if match:
         chrom = match.group(1)
@@ -60,8 +71,16 @@ def parse_locus(text: str, build: str) -> tuple[Region, str]:
         if end <= start:
             raise ValueError(f"{text!r} ends at or before it starts")
         return Region(chrom, start, end), "coordinates"
-    chrom, start, end = resolve_gene(text.strip(), build)
-    return Region(chrom, start, end), f"Ensembl gene {text.strip()}"
+
+    symbol = text.strip()
+    chrom, start, end, strand = resolve_gene(symbol, build)
+    if gene_anchor == "whole-gene":
+        return Region(chrom, start, end), f"Ensembl gene {symbol}, whole span"
+    tss = start if strand >= 0 else end
+    sign = "+" if strand >= 0 else "-"
+    return (Region(chrom, max(0, tss - PROMOTER_FLANK), tss + PROMOTER_FLANK),
+            f"Ensembl gene {symbol} promoter — TSS {tss:,} on the {sign} strand, "
+            f"±{PROMOTER_FLANK // 1000} kb")
 
 
 def slugify(locus: str, partner: str | None) -> str:
@@ -85,7 +104,8 @@ def build_verdict(loop_rows: Sequence[dict[str, Any]],
                   enrichment: Sequence[dict[str, Any]],
                   tad_rows: Sequence[dict[str, Any]],
                   ctcf_rows: Sequence[dict[str, Any]],
-                  query: Region, partner: Region | None) -> list[str]:
+                  query: Region, partner: Region | None,
+                  loop_cells_searched: Sequence[str] = ()) -> list[str]:
     lines: list[str] = []
     cells_with_loops = sorted({row["cell_type"] for row in loop_rows})
 
@@ -119,8 +139,22 @@ def build_verdict(loop_rows: Sequence[dict[str, Any]],
                     f"No called loop and no elevated contact between {query} "
                     f"and {partner} in the datasets searched.")
 
+    # Name the lines that were looked at and came back empty. Silence here
+    # reads as "no loop", when it often means "nobody has called loops in this
+    # line" — a different statement entirely.
+    empty = [cell for cell in loop_cells_searched if cell not in cells_with_loops]
+    if empty:
+        lines.append(f"No called loop in {', '.join(empty[:6])}"
+                     + ("…" if len(empty) > 6 else "")
+                     + " — their loop-call files were searched and had nothing "
+                       "at this locus.")
+
     if partner is not None:
-        between = [row for row in tad_rows if row["between_query_and_partner"]]
+        # Count distinct positions, not rows: the same boundary called in ten
+        # files is one boundary, and counting rows turns a file count into a
+        # biological claim.
+        between = {(row["chrom"], row["start"], row["end"]) for row in tad_rows
+                   if row["between_query_and_partner"]}
         shared = [row for row in tad_rows
                   if row["contains_query"] and row["contains_partner"]]
         if shared:
@@ -128,8 +162,9 @@ def build_verdict(loop_rows: Sequence[dict[str, Any]],
                          f"{len(sorted({r['cell_type'] for r in shared}))} "
                          f"cell type(s) — a loop is physically permitted.")
         elif between:
-            lines.append(f"{len(between)} domain boundary/boundaries lie between "
-                         f"the two loci — treat any loop call here with suspicion.")
+            lines.append(f"{len(between)} distinct domain boundary/boundaries lie "
+                         f"between the two loci — treat any loop call here with "
+                         f"suspicion.")
 
     orientation = orientation_verdict(ctcf_rows)
     if orientation == "convergent":
@@ -201,9 +236,12 @@ def render_markdown(*, title: str, query: Region, partner: Region | None,
     if len(loop_rows) > 25:
         lines += [f"_{len(loop_rows) - 25} further loops are in the workbook._", ""]
 
-    lines += ["## 2. Raw contact enrichment (observed / distance-expected)", ""]
+    lines += ["## 2. Raw contact enrichment (observed / distance-expected)", "",
+              "_Best O/E is the strongest single bin pair joining the two "
+              "regions, out of the bin pairs counted in the last column — a "
+              "maximum, not an average._", ""]
     lines += _table(
-        ["Cell", "Dataset", "Norm.", "Res.", "Observed", "Expected", "O/E", "Bin pairs"],
+        ["Cell", "Dataset", "Norm.", "Res.", "Observed", "Expected", "Best O/E", "Bin pairs"],
         [[r["cell_type"], r["dataset"], r["normalisation"], r["resolution_bp"],
           r["observed"], r["expected"], r["oe"], r["bin_pairs"]]
          for r in enrichment[:15]])
@@ -277,6 +315,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--cells", default="all",
                         help="comma-separated cell-type filter, or 'all'")
     parser.add_argument("--build", default="hg38", choices=["hg38", "hg19"])
+    parser.add_argument("--gene-anchor", default="promoter",
+                        choices=["promoter", "whole-gene"],
+                        help="what a gene symbol resolves to (default: its "
+                             "promoter, TSS ±5 kb)")
     parser.add_argument("--window", default="500kb",
                         help="half-width of the contact matrix around each locus")
     parser.add_argument("--resolution", default="10kb",
@@ -292,10 +334,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         window = parse_span(args.window)
         resolution = parse_span(args.resolution)
-        query, origin = parse_locus(args.locus, args.build)
+        query, origin = parse_locus(args.locus, args.build, args.gene_anchor)
         partner = None
         if args.partner.strip():
-            partner, _ = parse_locus(args.partner, args.build)
+            partner, _ = parse_locus(args.partner, args.build, args.gene_anchor)
             if layers.normalise_chrom(partner.chrom) != layers.normalise_chrom(query.chrom):
                 parser.error("cross-chromosome queries are not supported: the "
                              "contact and TAD layers are both intra-chromosomal")
@@ -370,7 +412,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
 
     title = args.locus if not args.partner else f"{args.locus} ↔ {args.partner}"
-    verdict = build_verdict(loop_rows, enrichment, tad_rows, ctcf_rows, query, partner)
+    verdict = build_verdict(loop_rows, enrichment, tad_rows, ctcf_rows, query,
+                            partner,
+                            layers.cells_scanned(catalogue.loops, wanted_cells,
+                                                 layers.MAX_LOOP_FILES))
     report = render_markdown(
         title=title, query=query, partner=partner, origin=origin,
         build=args.build, catalogue_size=len(catalogue.all_files()),

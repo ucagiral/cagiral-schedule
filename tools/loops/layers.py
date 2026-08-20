@@ -99,6 +99,13 @@ def _select(files: Sequence[PortalFile], wanted: Sequence[str],
     return picked, True
 
 
+def cells_scanned(files: Sequence[PortalFile], wanted: Sequence[str],
+                  cap: int) -> list[str]:
+    """The cell types whose files a layer would actually read, given the cap."""
+    chosen, _ = _select(files, wanted, cap)
+    return sorted({pf.cell_type for pf in chosen})
+
+
 # --------------------------------------------------------------------------
 # Layer 1 -- called loops
 # --------------------------------------------------------------------------

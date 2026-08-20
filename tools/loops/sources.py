@@ -267,20 +267,29 @@ def _4dn_to_portal_file(item: dict[str, Any], build: str) -> PortalFile | None:
 
 _ENCODE_FIELDS = [
     "accession", "file_format", "file_format_type", "output_type", "assembly",
-    "href", "file_size", "dataset", "assay_term_name",
+    "href", "file_size", "dataset", "assay_term_name", "target.label",
     "biosample_ontology.term_name", "biosample_ontology.term_id",
 ]
 
-# One search per format keeps each response small enough to parse quickly.
-_ENCODE_FORMATS = ["bedpe", "bed", "hic"]
+# One search per slice keeps each response small enough to parse quickly. The
+# bed slice is pinned to CTCF: an unrestricted bed search over ENCODE returns
+# every peak file in the project, and none of the others are of any use here.
+_ENCODE_SEARCHES: list[list[tuple[str, str]]] = [
+    [("file_format", "bedpe")],
+    [("file_format", "hic")],
+    [("file_format", "bed"), ("target.label", "CTCF")],
+    [("file_format", "bigBed"), ("target.label", "CTCF")],
+]
 
 
 def _encode_search(build: str) -> list[dict[str, Any]]:
     assembly = ASSEMBLY[build]["encode"]
     graph: list[dict[str, Any]] = []
-    for fmt in _ENCODE_FORMATS:
+    for slice_params in _ENCODE_SEARCHES:
+        fmt = dict(slice_params)["file_format"]
         params = [("type", "File"), ("status", "released"), ("assembly", assembly),
-                  ("file_format", fmt), ("limit", "all"), ("format", "json")]
+                  ("limit", "all"), ("format", "json")]
+        params += slice_params
         params += [("field", f) for f in _ENCODE_FIELDS]
         url = f"{ENCODE}/search/?" + urllib.parse.urlencode(params)
         try:
@@ -315,7 +324,12 @@ def _encode_to_portal_file(item: dict[str, Any], build: str) -> PortalFile | Non
         assay=item.get("assay_term_name") or "unknown",
         biosample_id=ontology.get("term_id") or "",
         dataset_url=ENCODE + dataset if dataset.startswith("/") else dataset,
-        description=item.get("file_format_type") or "",
+        description=" ".join(filter(None, [
+            _as_text(item.get("file_format_type")),
+            _as_text((item.get("target") or {}).get("label")
+                     if isinstance(item.get("target"), dict)
+                     else item.get("target")),
+        ])),
         size=int(item.get("file_size") or 0),
     )
 
@@ -425,8 +439,13 @@ def load_or_discover(cache_path: str, build: str = "hg38", *,
 # Coordinate and sequence services
 # --------------------------------------------------------------------------
 
-def resolve_gene(symbol: str, build: str = "hg38") -> tuple[str, int, int]:
-    """Look a gene symbol up in Ensembl and return (chrom, start, end), 0-based."""
+def resolve_gene(symbol: str, build: str = "hg38") -> tuple[str, int, int, int]:
+    """Look a gene symbol up in Ensembl.
+
+    Returns (chrom, start, end, strand) with 0-based half-open coordinates and
+    strand as +1 / -1, so a caller can anchor on the TSS instead of the whole
+    span -- which for looping is almost always what is meant.
+    """
     host = ENSEMBL if build == "hg38" else ENSEMBL_GRCH37
     url = f"{host}/lookup/symbol/homo_sapiens/{urllib.parse.quote(symbol)}?expand=0"
     payload = fetch_json(url)
@@ -436,7 +455,8 @@ def resolve_gene(symbol: str, build: str = "hg38") -> tuple[str, int, int]:
     if not chrom.startswith("chr"):
         chrom = "chr" + chrom
     # Ensembl is 1-based inclusive; the rest of this tool is 0-based half-open.
-    return chrom, int(payload["start"]) - 1, int(payload["end"])
+    strand = int(payload.get("strand", 1) or 1)
+    return chrom, int(payload["start"]) - 1, int(payload["end"]), strand
 
 
 def fetch_sequence(chrom: str, start: int, end: int, build: str = "hg38") -> str:

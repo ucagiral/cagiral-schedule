@@ -28,6 +28,12 @@ on:
         default: 'hg38'
         type: choice
         options: [hg38, hg19]
+      gene_anchor:
+        description: 'What a gene symbol means: its promoter (TSS ±5 kb) or the whole gene body'
+        required: false
+        default: 'promoter'
+        type: choice
+        options: [promoter, whole-gene]
       window:
         description: 'Half-width of the contact matrix around each locus'
         required: false
@@ -121,6 +127,7 @@ jobs:
           PARTNER: ${{ inputs.partner }}
           CELLS: ${{ inputs.cells }}
           BUILD: ${{ inputs.build }}
+          GENE_ANCHOR: ${{ inputs.gene_anchor }}
           WINDOW: ${{ inputs.window }}
           RESOLUTION: ${{ inputs.resolution }}
         run: |
@@ -129,6 +136,7 @@ jobs:
             --partner "$PARTNER" \
             --cells "$CELLS" \
             --build "$BUILD" \
+            --gene-anchor "$GENE_ANCHOR" \
             --window "$WINDOW" \
             --resolution "$RESOLUTION"
 

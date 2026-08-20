@@ -74,6 +74,36 @@ def test_span_and_locus_parsing() -> None:
 
 
 @case
+def test_gene_symbols_anchor_on_the_promoter() -> None:
+    original = query.resolve_gene
+    try:
+        # AR: plus strand, so the TSS is the start of the span.
+        query.resolve_gene = lambda symbol, build: ("chrX", 67_543_352, 67_730_619, 1)  # type: ignore[assignment]
+        region, origin = query.parse_locus("AR", "hg38")
+        check("promoter width", region.end - region.start == 2 * query.PROMOTER_FLANK,
+              str(region.end - region.start))
+        check("centred on the TSS", region.start == 67_543_352 - query.PROMOTER_FLANK,
+              str(region.start))
+        check("origin explains itself", "promoter" in origin and "+ strand" in origin,
+              origin)
+        check("not the whole gene body", region.end < 67_730_619)
+
+        whole, origin = query.parse_locus("AR", "hg38", "whole-gene")
+        check("whole-gene mode still available",
+              whole.start == 67_543_352 and whole.end == 67_730_619)
+        check("whole-gene origin says so", "whole span" in origin, origin)
+
+        # Minus strand: the TSS is the far end.
+        query.resolve_gene = lambda symbol, build: ("chr7", 1_000_000, 1_200_000, -1)  # type: ignore[assignment]
+        region, origin = query.parse_locus("SOMEGENE", "hg38")
+        check("minus-strand TSS is the end",
+              region.start == 1_200_000 - query.PROMOTER_FLANK, str(region.start))
+        check("minus strand reported", "- strand" in origin, origin)
+    finally:
+        query.resolve_gene = original  # type: ignore[assignment]
+
+
+@case
 def test_chrom_normalisation_and_overlap() -> None:
     check("chr prefix ignored", layers.normalise_chrom("chrX") == layers.normalise_chrom("X"))
     check("MT folds to M", layers.normalise_chrom("MT") == "M")
@@ -316,10 +346,32 @@ def test_verdict_wording() -> None:
     said = " ".join(query.build_verdict([], weak, [], [], q, p))
     check("weak contact is not a loop", "No called loop and no elevated" in said, said)
 
-    boundary = [{"cell_type": "LNCaP", "between_query_and_partner": True,
-                 "contains_query": False, "contains_partner": False}]
-    said = " ".join(query.build_verdict([], [], boundary, [], q, p))
+    def boundary_row(cell: str, start: int) -> dict[str, Any]:
+        return {"cell_type": cell, "chrom": "chrX", "start": start,
+                "end": start + 5_000, "between_query_and_partner": True,
+                "contains_query": False, "contains_partner": False}
+
+    said = " ".join(query.build_verdict([], [], [boundary_row("LNCaP", 67_000_000)],
+                                        [], q, p))
     check("boundary raises suspicion", "suspicion" in said, said)
+    check("one boundary counted once", "1 distinct domain" in said, said)
+
+    # The same boundary called in three files is one boundary, not three.
+    duplicated = [boundary_row(cell, 67_000_000)
+                  for cell in ("LNCaP", "GM12878", "K562")]
+    said = " ".join(query.build_verdict([], [], duplicated, [], q, p))
+    check("duplicate calls collapse", "1 distinct domain" in said, said)
+
+    distinct = [boundary_row("LNCaP", 67_000_000), boundary_row("LNCaP", 67_100_000)]
+    said = " ".join(query.build_verdict([], [], distinct, [], q, p))
+    check("distinct positions both counted", "2 distinct domain" in said, said)
+
+    # A line whose loop files were read and came back empty must be named.
+    said = " ".join(query.build_verdict(
+        [{"cell_type": "GM12878", "separation_bp": 1}], [], [], [], q, p,
+        loop_cells_searched=["GM12878", "LNCaP"]))
+    check("empty cell type is named", "No called loop in LNCaP" in said, said)
+    check("and the positive one is not", "No called loop in GM12878" not in said, said)
 
     said = " ".join(query.build_verdict([], [], [], [], q, None))
     check("no-partner wording", "No called loop has an anchor" in said, said)

@@ -157,6 +157,23 @@ Relevant to AR-CasPEx, and worth reading alongside any generated report:
 **LuCaP-35CR has no public Hi-C.** Any CRPC statement is made through a proxy line, and the report
 names which one. That substitution is an assumption, not a result.
 
+**A CRPC-relevant Hi-C dataset exists but is not wired in: [GSE118629](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE118629),**
+in situ Hi-C (MboI) for RWPE1, C4-2B and 22Rv1 — the [3D epigenomic map paper](https://www.nature.com/articles/s41467-019-12079-8)'s
+companion series. Three specific reasons it isn't in `tools/loops/sources.py` today, so the next
+attempt doesn't have to re-discover them:
+
+1. **Deposited as HiC-Pro sparse matrices** (`.matrix` + `.bed` bin files, raw and ICE-normalised,
+   10/20/40/100 kb), not `.hic` or `.cool`. `hicstraw` cannot read this format — layer 2 would
+   need a second matrix reader alongside the one it already has.
+2. **Mapped to hg19, not hg38.** Using it means lifting over either the query coordinates or the
+   whole matrix; nothing in this tool does coordinate liftOver today.
+3. **No evidence of deposited loop calls** — layer 1 would likely stay empty for these lines even
+   after the above two are solved; only layer 2 (raw contact) would gain anything.
+
+Net: this is a second matrix format plus a genome-build conversion, not another REST client like
+the 4DN/ENCODE ones — closer in size to a new source than an extra search query. Worth doing if a
+question specifically needs 22Rv1 or C4-2B contact data; not a quick add otherwise.
+
 ## Known limits
 
 - Cell types are matched by substring against portal names, which are not standardised. `LNCaP`

@@ -319,13 +319,14 @@ def test_report_and_workbook_agree() -> None:
         report = query.render_markdown(
             title="t", query=Region("chrX", 1_000, 2_000), partner=None,
             origin="coordinates", build="hg38", catalogue_size=1, cell_count=30,
-            verdict=["v"], loop_rows=loop_rows, enrichment=[], tad_rows=[],
+            catalogue_fetched="2026-08-20T10:00:00+00:00", verdict=["v"], loop_rows=loop_rows, enrichment=[], tad_rows=[],
             ctcf_rows=[], notes=[], counts=counts, workbook_name="agree.xlsx",
             generated="now")
         # The report shows the first 25 and says so; the workbook holds them all.
         check("report truncation is stated", "5 further loops" in report)
         check("workbook is linked", "agree.xlsx" in report)
         check("amplification caveat present", "Copy number inflates" in report)
+        check("catalogue age is stated", "catalogue crawled" in report)
         check("no-call caveat present", "Absence of a call" in report)
 
 

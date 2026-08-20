@@ -208,7 +208,8 @@ def _table(headers: Sequence[str], rows: Sequence[Sequence[Any]]) -> list[str]:
 
 def render_markdown(*, title: str, query: Region, partner: Region | None,
                     origin: str, build: str, catalogue_size: int,
-                    cell_count: int, verdict: Sequence[str],
+                    cell_count: int, catalogue_fetched: str,
+                    verdict: Sequence[str],
                     loop_rows: Sequence[dict[str, Any]],
                     enrichment: Sequence[dict[str, Any]],
                     tad_rows: Sequence[dict[str, Any]],
@@ -219,7 +220,8 @@ def render_markdown(*, title: str, query: Region, partner: Region | None,
     where = f"{query}" + (f"  ↔  {partner}" if partner else "")
     lines += [f"**Query**: {where}  ({build}, from {origin})",
               f"**Run**: {generated} · {catalogue_size} files searched · "
-              f"{cell_count} cell types",
+              f"{cell_count} cell types · portal catalogue crawled "
+              f"{catalogue_fetched}",
               f"**Numbers**: [`{workbook_name}`](./{workbook_name})", "",
               "## Verdict", ""]
     lines += [f"- {line}" for line in verdict] or ["- No evidence either way."]
@@ -419,7 +421,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     report = render_markdown(
         title=title, query=query, partner=partner, origin=origin,
         build=args.build, catalogue_size=len(catalogue.all_files()),
-        cell_count=len(catalogue.cell_types()), verdict=verdict,
+        cell_count=len(catalogue.cell_types()),
+        catalogue_fetched=catalogue.fetched_utc, verdict=verdict,
         loop_rows=loop_rows, enrichment=enrichment, tad_rows=tad_rows,
         ctcf_rows=ctcf_rows, notes=notes, counts=counts,
         workbook_name=os.path.basename(workbook_path), generated=generated)

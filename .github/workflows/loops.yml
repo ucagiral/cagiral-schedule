@@ -1,0 +1,200 @@
+name: Chromatin looping query
+
+# Ask whether a genomic locus takes part in chromosome looping, using public
+# Hi-C / HiChIP data from the 4DN and ENCODE portals.
+#
+# Everything heavy happens here on the runner and is thrown away with it: the
+# contact matrices are read over HTTP range requests and never downloaded whole,
+# and the only things that survive are a markdown report and an Excel workbook,
+# both a few hundred KB at most.
+on:
+  # A query is always asked for deliberately.
+  workflow_dispatch:
+    inputs:
+      locus:
+        description: 'Gene symbol or coordinates, e.g. AR or chrX:67,543,900-67,548,900'
+        required: true
+      partner:
+        description: 'Optional second locus — asks whether the two touch'
+        required: false
+        default: ''
+      cells:
+        description: "Cell-type filter, comma separated, or 'all'"
+        required: false
+        default: 'all'
+      build:
+        description: 'Genome build'
+        required: false
+        default: 'hg38'
+        type: choice
+        options: [hg38, hg19]
+      window:
+        description: 'Half-width of the contact matrix around each locus'
+        required: false
+        default: '500kb'
+      resolution:
+        description: 'Contact matrix bin size (smaller = bigger workbook)'
+        required: false
+        default: '10kb'
+
+  # The offline checks also run on every change to the tool itself, so a
+  # regression shows up on the branch rather than the first time somebody
+  # asks a real question.
+  push:
+    paths:
+      - tools/loops/**
+      - .github/workflows/loops.yml
+
+permissions:
+  contents: write
+
+# Two queries committing to the same branch would race; one at a time.
+concurrency:
+  group: loops-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Everything here is network-free, so it is fast and it cannot be flaky.
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # hic-straw ships no wheels and compiles against libcurl, so the headers
+      # have to be present before pip touches it.
+      - name: Install libcurl headers
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+
+      - name: Install Python dependencies
+        run: pip install -r tools/loops/requirements.txt
+
+      - name: Import every module
+        run: python3 -c "import sys; sys.path.insert(0, 'tools/loops'); import sources, layers, workbook, query, hicstraw; print('imports OK')"
+
+      - name: Offline self-test
+        run: python3 tools/loops/selftest.py
+
+  query:
+    needs: selftest
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # hic-straw ships no wheels and compiles against libcurl, so the headers
+      # have to be present before pip touches it.
+      # The portal crawl is expensive and its result is not a source artefact,
+      # so it lives in the Actions cache rather than in the repository. The key
+      # rotates weekly, which is how often a refresh is worth paying for.
+      - name: Restore the portal catalogue
+        uses: actions/cache@v4
+        with:
+          path: loops/_datasets.json
+          key: loops-catalogue-${{ inputs.build }}-${{ github.run_id }}
+          restore-keys: |
+            loops-catalogue-${{ inputs.build }}-
+
+      - name: Install libcurl headers
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+
+      - name: Install Python dependencies
+        run: pip install -r tools/loops/requirements.txt
+
+      # Inputs travel through the environment rather than being interpolated
+      # into the script: a locus containing a quote would otherwise break the
+      # command apart rather than being passed to it.
+      - name: Run the query
+        id: query
+        env:
+          LOCUS: ${{ inputs.locus }}
+          PARTNER: ${{ inputs.partner }}
+          CELLS: ${{ inputs.cells }}
+          BUILD: ${{ inputs.build }}
+          WINDOW: ${{ inputs.window }}
+          RESOLUTION: ${{ inputs.resolution }}
+        run: |
+          python3 tools/loops/query.py \
+            --locus "$LOCUS" \
+            --partner "$PARTNER" \
+            --cells "$CELLS" \
+            --build "$BUILD" \
+            --window "$WINDOW" \
+            --resolution "$RESOLUTION"
+
+      - name: Upload report and workbook
+        uses: actions/upload-artifact@v4
+        with:
+          name: loops-${{ steps.query.outputs.slug }}
+          path: |
+            ${{ steps.query.outputs.report }}
+            ${{ steps.query.outputs.workbook }}
+          if-no-files-found: error
+
+      - name: Commit the results
+        id: commit
+        env:
+          LOCUS: ${{ inputs.locus }}
+          PARTNER: ${{ inputs.partner }}
+          WORKBOOK: ${{ steps.query.outputs.workbook }}
+        run: |
+          # A workbook past this size bloats git history for little gain; it
+          # stays available as the build artifact uploaded above.
+          SIZE=$(stat -c%s "$WORKBOOK")
+          if [ "$SIZE" -gt 10485760 ]; then
+            echo "Workbook is $SIZE bytes (>10 MB) — leaving it as an artifact only."
+            rm "$WORKBOOK"
+            echo "committed_workbook=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "committed_workbook=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          git add "${{ steps.query.outputs.report }}"
+          if [ -f "$WORKBOOK" ]; then git add "$WORKBOOK"; fi
+          if git diff --cached --quiet; then
+            echo "Nothing changed — same query, same answer."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          MESSAGE="Looping query: $LOCUS"
+          if [ -n "$PARTNER" ]; then
+            MESSAGE="$MESSAGE vs $PARTNER"
+          fi
+          git commit -m "$MESSAGE"
+
+          # Another run may have landed a commit while this query was fetching.
+          for attempt in 1 2 3 4; do
+            if git push; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep $((2 ** attempt))
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          echo "push failed after 4 attempts" >&2
+          exit 1
+
+      # The repository normalises line endings with `* text=auto`, which would
+      # rewrite bytes inside the xlsx zip container and corrupt it. Restoring
+      # the committed copy and reopening it proves the `*.xlsx binary` rule in
+      # .gitattributes is actually holding.
+      - name: Prove the committed workbook survives git
+        if: steps.commit.outputs.changed == 'true' && steps.commit.outputs.committed_workbook == 'true'
+        env:
+          WORKBOOK: ${{ steps.query.outputs.workbook }}
+        run: |
+          rm "$WORKBOOK"
+          git checkout HEAD -- "$WORKBOOK"
+          python3 tools/loops/workbook.py --check "$WORKBOOK"

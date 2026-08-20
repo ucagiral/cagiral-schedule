@@ -74,6 +74,36 @@ def test_span_and_locus_parsing() -> None:
 
 
 @case
+def test_gene_symbols_anchor_on_the_promoter() -> None:
+    original = query.resolve_gene
+    try:
+        # AR: plus strand, so the TSS is the start of the span.
+        query.resolve_gene = lambda symbol, build: ("chrX", 67_543_352, 67_730_619, 1)  # type: ignore[assignment]
+        region, origin = query.parse_locus("AR", "hg38")
+        check("promoter width", region.end - region.start == 2 * query.PROMOTER_FLANK,
+              str(region.end - region.start))
+        check("centred on the TSS", region.start == 67_543_352 - query.PROMOTER_FLANK,
+              str(region.start))
+        check("origin explains itself", "promoter" in origin and "+ strand" in origin,
+              origin)
+        check("not the whole gene body", region.end < 67_730_619)
+
+        whole, origin = query.parse_locus("AR", "hg38", "whole-gene")
+        check("whole-gene mode still available",
+              whole.start == 67_543_352 and whole.end == 67_730_619)
+        check("whole-gene origin says so", "whole span" in origin, origin)
+
+        # Minus strand: the TSS is the far end.
+        query.resolve_gene = lambda symbol, build: ("chr7", 1_000_000, 1_200_000, -1)  # type: ignore[assignment]
+        region, origin = query.parse_locus("SOMEGENE", "hg38")
+        check("minus-strand TSS is the end",
+              region.start == 1_200_000 - query.PROMOTER_FLANK, str(region.start))
+        check("minus strand reported", "- strand" in origin, origin)
+    finally:
+        query.resolve_gene = original  # type: ignore[assignment]
+
+
+@case
 def test_chrom_normalisation_and_overlap() -> None:
     check("chr prefix ignored", layers.normalise_chrom("chrX") == layers.normalise_chrom("X"))
     check("MT folds to M", layers.normalise_chrom("MT") == "M")
@@ -289,13 +319,14 @@ def test_report_and_workbook_agree() -> None:
         report = query.render_markdown(
             title="t", query=Region("chrX", 1_000, 2_000), partner=None,
             origin="coordinates", build="hg38", catalogue_size=1, cell_count=30,
-            verdict=["v"], loop_rows=loop_rows, enrichment=[], tad_rows=[],
+            catalogue_fetched="2026-08-20T10:00:00+00:00", verdict=["v"], loop_rows=loop_rows, enrichment=[], tad_rows=[],
             ctcf_rows=[], notes=[], counts=counts, workbook_name="agree.xlsx",
             generated="now")
         # The report shows the first 25 and says so; the workbook holds them all.
         check("report truncation is stated", "5 further loops" in report)
         check("workbook is linked", "agree.xlsx" in report)
         check("amplification caveat present", "Copy number inflates" in report)
+        check("catalogue age is stated", "catalogue crawled" in report)
         check("no-call caveat present", "Absence of a call" in report)
 
 
@@ -316,13 +347,61 @@ def test_verdict_wording() -> None:
     said = " ".join(query.build_verdict([], weak, [], [], q, p))
     check("weak contact is not a loop", "No called loop and no elevated" in said, said)
 
-    boundary = [{"cell_type": "LNCaP", "between_query_and_partner": True,
-                 "contains_query": False, "contains_partner": False}]
-    said = " ".join(query.build_verdict([], [], boundary, [], q, p))
+    def boundary_row(cell: str, start: int) -> dict[str, Any]:
+        return {"cell_type": cell, "chrom": "chrX", "start": start,
+                "end": start + 5_000, "between_query_and_partner": True,
+                "contains_query": False, "contains_partner": False}
+
+    said = " ".join(query.build_verdict([], [], [boundary_row("LNCaP", 67_000_000)],
+                                        [], q, p))
     check("boundary raises suspicion", "suspicion" in said, said)
+    check("one boundary counted once", "1 distinct domain" in said, said)
+
+    # The same boundary called in three files is one boundary, not three.
+    duplicated = [boundary_row(cell, 67_000_000)
+                  for cell in ("LNCaP", "GM12878", "K562")]
+    said = " ".join(query.build_verdict([], [], duplicated, [], q, p))
+    check("duplicate calls collapse", "1 distinct domain" in said, said)
+
+    distinct = [boundary_row("LNCaP", 67_000_000), boundary_row("LNCaP", 67_100_000)]
+    said = " ".join(query.build_verdict([], [], distinct, [], q, p))
+    check("distinct positions both counted", "2 distinct domain" in said, said)
+
+    # A line whose loop files were read and came back empty must be named.
+    said = " ".join(query.build_verdict(
+        [{"cell_type": "GM12878", "separation_bp": 1}], [], [], [], q, p,
+        loop_cells_searched=["GM12878", "LNCaP"]))
+    check("empty cell type is named", "No called loop in LNCaP" in said, said)
+    check("and the positive one is not", "No called loop in GM12878" not in said, said)
 
     said = " ".join(query.build_verdict([], [], [], [], q, None))
     check("no-partner wording", "No called loop has an anchor" in said, said)
+
+
+@case
+def test_portal_fields_survive_inconsistent_arity() -> None:
+    # ENCODE returns assay_term_name as a string on some files and a list on
+    # others; the list form used to crash classification with
+    # "sequence item 2: expected str instance, list found".
+    pf = sources.PortalFile(
+        accession="ENCFF000AAA", portal="ENCODE", url="u", file_format="bedpe",
+        file_type="loops", genome="hg38", cell_type="LNCaP",
+        assay=["Hi-C", "in situ Hi-C"], description=None)  # type: ignore[arg-type]
+    check("assay list flattened", pf.assay == "Hi-C in situ Hi-C", pf.assay)
+    check("None description becomes empty", pf.description == "")
+    check("haystack builds", "hi-c" in pf.haystack, pf.haystack)
+    check("classification still works", sources.is_loop_file(pf))
+
+    sized = sources.PortalFile(accession="A", portal="P", url="u",
+                               file_format="hic", file_type="contact matrix",
+                               genome="hg38", size=None)  # type: ignore[arg-type]
+    check("None size becomes zero", sized.size == 0)
+
+    nested = sources.PortalFile(accession="A", portal="P", url="u",
+                                file_format="bed", file_type=["IDR peaks", None],
+                                genome="hg38")  # type: ignore[arg-type]
+    check("None inside a list is dropped", nested.file_type == "IDR peaks",
+          nested.file_type)
 
 
 @case
@@ -351,6 +430,37 @@ def test_file_classification() -> None:
     check("h3k27ac peaks are not ctcf", not sources.is_ctcf_peaks(
         pf(file_format="bed narrowPeak", file_type="IDR thresholded peaks",
            assay="ChIP-seq", cell_type="LNCaP", description="H3K27ac")))
+
+
+@case
+def test_cap_is_spread_across_cell_types() -> None:
+    def pf(cell: str, n: int) -> sources.PortalFile:
+        return sources.PortalFile(accession=f"{cell}{n}", portal="P", url="u",
+                                  file_format="bedpe", file_type="loops",
+                                  genome="hg38", cell_type=cell)
+
+    # A549 sorts first and LNCaP late; a prefix truncation would keep only A549.
+    files = [pf("A549", n) for n in range(20)] + [pf("LNCaP", n) for n in range(20)]
+    picked, capped = layers._select(files, [], cap=4)
+    check("cap reported", capped)
+    check("cap respected", len(picked) == 4, str(len(picked)))
+    cells = {p.cell_type for p in picked}
+    check("both cell types survive the cap", cells == {"A549", "LNCaP"}, str(cells))
+
+    # Under the cap nothing is dropped or reordered away.
+    picked, capped = layers._select(files, [], cap=100)
+    check("no cap when it fits", not capped and len(picked) == 40, str(len(picked)))
+
+    # An explicit filter still narrows to the named line.
+    picked, _ = layers._select(files, ["LNCaP"], cap=100)
+    check("filter narrows", {p.cell_type for p in picked} == {"LNCaP"})
+
+    # A lopsided pool must not starve the smaller cell type.
+    lopsided = [pf("A549", n) for n in range(50)] + [pf("LNCaP", 0)]
+    picked, _ = layers._select(lopsided, [], cap=5)
+    check("rare cell type is not starved",
+          "LNCaP" in {p.cell_type for p in picked},
+          str({p.cell_type for p in picked}))
 
 
 @case

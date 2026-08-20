@@ -28,6 +28,12 @@ on:
         default: 'hg38'
         type: choice
         options: [hg38, hg19]
+      gene_anchor:
+        description: 'What a gene symbol means: its promoter (TSS ±5 kb) or the whole gene body'
+        required: false
+        default: 'promoter'
+        type: choice
+        options: [promoter, whole-gene]
       window:
         description: 'Half-width of the contact matrix around each locus'
         required: false
@@ -95,15 +101,19 @@ jobs:
       # hic-straw ships no wheels and compiles against libcurl, so the headers
       # have to be present before pip touches it.
       # The portal crawl is expensive and its result is not a source artefact,
-      # so it lives in the Actions cache rather than in the repository. The key
-      # rotates weekly, which is how often a refresh is worth paying for.
+      # so it lives in the Actions cache rather than in the repository.
+      #
+      # The key carries a hash of the crawler: without it, changing what
+      # sources.py asks the portals for silently reuses a catalogue built by
+      # the old code. That is how the CTCF layer stayed empty for a run after
+      # the CTCF search was added.
       - name: Restore the portal catalogue
         uses: actions/cache@v4
         with:
           path: loops/_datasets.json
-          key: loops-catalogue-${{ inputs.build }}-${{ github.run_id }}
+          key: loops-catalogue-${{ inputs.build }}-${{ hashFiles('tools/loops/sources.py') }}-${{ github.run_id }}
           restore-keys: |
-            loops-catalogue-${{ inputs.build }}-
+            loops-catalogue-${{ inputs.build }}-${{ hashFiles('tools/loops/sources.py') }}-
 
       - name: Install libcurl headers
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
@@ -121,6 +131,7 @@ jobs:
           PARTNER: ${{ inputs.partner }}
           CELLS: ${{ inputs.cells }}
           BUILD: ${{ inputs.build }}
+          GENE_ANCHOR: ${{ inputs.gene_anchor }}
           WINDOW: ${{ inputs.window }}
           RESOLUTION: ${{ inputs.resolution }}
         run: |
@@ -129,6 +140,7 @@ jobs:
             --partner "$PARTNER" \
             --cells "$CELLS" \
             --build "$BUILD" \
+            --gene-anchor "$GENE_ANCHOR" \
             --window "$WINDOW" \
             --resolution "$RESOLUTION"
 

@@ -326,6 +326,32 @@ def test_verdict_wording() -> None:
 
 
 @case
+def test_portal_fields_survive_inconsistent_arity() -> None:
+    # ENCODE returns assay_term_name as a string on some files and a list on
+    # others; the list form used to crash classification with
+    # "sequence item 2: expected str instance, list found".
+    pf = sources.PortalFile(
+        accession="ENCFF000AAA", portal="ENCODE", url="u", file_format="bedpe",
+        file_type="loops", genome="hg38", cell_type="LNCaP",
+        assay=["Hi-C", "in situ Hi-C"], description=None)  # type: ignore[arg-type]
+    check("assay list flattened", pf.assay == "Hi-C in situ Hi-C", pf.assay)
+    check("None description becomes empty", pf.description == "")
+    check("haystack builds", "hi-c" in pf.haystack, pf.haystack)
+    check("classification still works", sources.is_loop_file(pf))
+
+    sized = sources.PortalFile(accession="A", portal="P", url="u",
+                               file_format="hic", file_type="contact matrix",
+                               genome="hg38", size=None)  # type: ignore[arg-type]
+    check("None size becomes zero", sized.size == 0)
+
+    nested = sources.PortalFile(accession="A", portal="P", url="u",
+                                file_format="bed", file_type=["IDR peaks", None],
+                                genome="hg38")  # type: ignore[arg-type]
+    check("None inside a list is dropped", nested.file_type == "IDR peaks",
+          nested.file_type)
+
+
+@case
 def test_file_classification() -> None:
     def pf(**kw: Any) -> sources.PortalFile:
         base = dict(accession="A", portal="P", url="u", file_format="bedpe",

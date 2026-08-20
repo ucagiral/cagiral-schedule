@@ -118,6 +118,20 @@ def fetch_lines(url: str) -> Iterable[str]:
 # Normalised record
 # --------------------------------------------------------------------------
 
+def _as_text(value: Any) -> str:
+    """Flatten a portal field to text.
+
+    The portals are inconsistent about arity -- ENCODE returns
+    `assay_term_name` as a bare string on some files and as a list on others --
+    so every text field is normalised once, here, rather than at each use.
+    """
+    if value is None:
+        return ""
+    if isinstance(value, (list, tuple, set)):
+        return " ".join(_as_text(item) for item in value if item is not None)
+    return str(value)
+
+
 @dataclass
 class PortalFile:
     """One downloadable file, described the same way whichever portal it came from."""
@@ -134,6 +148,16 @@ class PortalFile:
     dataset_url: str = ""
     description: str = ""
     size: int = 0
+
+    def __post_init__(self) -> None:
+        for name in ("accession", "portal", "url", "file_format", "file_type",
+                     "genome", "cell_type", "assay", "biosample_id",
+                     "dataset_url", "description"):
+            setattr(self, name, _as_text(getattr(self, name)))
+        try:
+            self.size = int(self.size or 0)
+        except (TypeError, ValueError):
+            self.size = 0
 
     @property
     def haystack(self) -> str:

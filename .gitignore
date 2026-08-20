@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+
+# Crawl result, not a source artefact: rebuilt on demand and cached by CI.
+loops/_datasets.json

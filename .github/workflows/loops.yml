@@ -8,6 +8,7 @@ name: Chromatin looping query
 # and the only things that survive are a markdown report and an Excel workbook,
 # both a few hundred KB at most.
 on:
+  # A query is always asked for deliberately.
   workflow_dispatch:
     inputs:
       locus:
@@ -36,6 +37,14 @@ on:
         required: false
         default: '10kb'
 
+  # The offline checks also run on every change to the tool itself, so a
+  # regression shows up on the branch rather than the first time somebody
+  # asks a real question.
+  push:
+    paths:
+      - tools/loops/**
+      - .github/workflows/loops.yml
+
 permissions:
   contents: write
 
@@ -45,7 +54,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Everything here is network-free, so it is fast and it cannot be flaky.
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # hic-straw ships no wheels and compiles against libcurl, so the headers
+      # have to be present before pip touches it.
+      - name: Install libcurl headers
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+
+      - name: Install Python dependencies
+        run: pip install -r tools/loops/requirements.txt
+
+      - name: Import every module
+        run: python3 -c "import sys; sys.path.insert(0, 'tools/loops'); import sources, layers, workbook, query, hicstraw; print('imports OK')"
+
+      - name: Offline self-test
+        run: python3 tools/loops/selftest.py
+
   query:
+    needs: selftest
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -74,10 +110,6 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install -r tools/loops/requirements.txt
-
-      # Catches parsing and rendering regressions without waiting on a portal.
-      - name: Offline self-test
-        run: python3 tools/loops/selftest.py
 
       # Inputs travel through the environment rather than being interpolated
       # into the script: a locus containing a quote would otherwise break the

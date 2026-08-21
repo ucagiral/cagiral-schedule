@@ -2008,7 +2008,7 @@
       "title": "Thaw LNCX and LUCX",
       "category": "experiment",
       "type": "reminder",
-      "status": "done",
+      "status": "pending",
       "notes": ""
     },
     {
@@ -2385,7 +2385,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-21T22:24:56.921Z",
+    "lastModified": "2026-08-21T22:24:58.561Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

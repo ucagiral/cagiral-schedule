@@ -4,8 +4,12 @@
 // GitHub API call go straight to the network — a stale schedule is worse than no schedule.
 // The app keeps its own last-known copy in localStorage for the offline case.
 //
+// This origin serves two apps -- the schedule here and the wardrobe under /wardrobe/ --
+// which means they share one Cache Storage and one scope tree. Both facts bite:
+// see the activate and fetch handlers below.
+//
 // Bump CACHE when index.html / sw.js / icons change, so clients pick up the new shell.
-const CACHE = "cagiral-schedule-v6";
+const CACHE = "cagiral-schedule-v7";
 
 const SHELL = [
   ".",
@@ -25,10 +29,17 @@ self.addEventListener("install", (event) => {
   );
 });
 
+// Drop this app's older caches -- and ONLY this app's. caches.keys() returns every
+// cache on the origin, including the wardrobe's, so an unfiltered sweep here would
+// delete the other app's offline copy every time this worker updates.
+const OWN_CACHE_PREFIX = "cagiral-schedule-";
+
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(
+        keys.filter((k) => k.startsWith(OWN_CACHE_PREFIX) && k !== CACHE).map((k) => caches.delete(k))
+      ))
       .then(() => self.clients.claim())
   );
 });
@@ -42,6 +53,13 @@ self.addEventListener("fetch", (event) => {
   // Never intercept data or API traffic.
   if (url.origin !== self.location.origin) return;
   if (/claudeAgent\.json|schedule\.ics/.test(url.pathname)) return;
+
+  // The wardrobe app sits inside this worker's scope but is not this worker's
+  // business. Without this, the very first visit to it -- before its own worker
+  // exists -- is served here, and the navigation handler below would cache the
+  // wardrobe's page under this app's "index.html" key, so opening the schedule
+  // offline afterwards would show the wardrobe.
+  if (url.pathname.includes("/wardrobe/")) return;
 
   // Navigations: prefer the network so app updates land, fall back to cache offline.
   if (req.mode === "navigate") {

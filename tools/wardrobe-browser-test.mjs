@@ -425,6 +425,74 @@ await browser.close();
 server.close();
 }
 
+// ================================================= two apps, one origin, two workers
+//
+// The schedule and the wardrobe are served from the same origin, so they share one
+// Cache Storage, and the schedule's worker scope covers the wardrobe's path. Both
+// have bitten. These are the regression tests for it -- and they need real service
+// workers, so this section drives the actual pages rather than the app harness.
+{
+  const server = await serve(8793);
+  const browser = await chromium.launch();
+  const context = await browser.newContext({ serviceWorkers: "allow" });
+  const page = await context.newPage();
+  const base = "http://127.0.0.1:8793";
+
+  const cacheKeys = () => page.evaluate(() => caches.keys());
+  const waitForCache = (prefix) =>
+    page.waitForFunction(
+      async (p) => (await caches.keys()).some((k) => k.startsWith(p)),
+      prefix, { timeout: 20000 });
+
+  // 1. Open the schedule and let its worker install and fill its cache.
+  await page.goto(`${base}/index.html`, { waitUntil: "load" });
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await waitForCache("cagiral-schedule-");
+  const afterSchedule = await cacheKeys();
+  check("the schedule worker caches its own shell",
+    afterSchedule.some((k) => k.startsWith("cagiral-schedule-")), afterSchedule.join(", "));
+
+  // 2. Open the wardrobe. Its worker activating must not take the schedule's cache
+  //    with it -- caches.keys() returns the whole origin, not just its own.
+  await page.goto(`${base}/wardrobe/index.html`, { waitUntil: "load" });
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await waitForCache("wardrobe-");
+  const afterWardrobe = await cacheKeys();
+  check("opening the wardrobe does not wipe the schedule's offline copy",
+    afterWardrobe.some((k) => k.startsWith("cagiral-schedule-")), afterWardrobe.join(", "));
+  check("both apps keep a cache of their own",
+    afterWardrobe.some((k) => k.startsWith("wardrobe-")) &&
+    afterWardrobe.some((k) => k.startsWith("cagiral-schedule-")), afterWardrobe.join(", "));
+
+  // 3. The schedule's cached shell must still be the schedule. The wardrobe sits
+  //    inside the schedule worker's scope, and the first visit to it is served by
+  //    that worker -- which used to store the wardrobe's page under this app's own
+  //    "index.html" key.
+  const shell = await page.evaluate(async () => {
+    const key = (await caches.keys()).find((k) => k.startsWith("cagiral-schedule-"));
+    if (!key) return null;
+    const hit = await (await caches.open(key)).match("/index.html");
+    return hit ? (await hit.text()).slice(0, 1200) : null;
+  });
+  check("the schedule's cached shell was not overwritten by the wardrobe",
+    shell !== null && /<title>Cagiral Schedule<\/title>/.test(shell),
+    shell === null ? "no cached shell at all" : shell.slice(0, 160));
+
+  // 4. The real test of all of it: offline, each address serves its own app.
+  await context.setOffline(true);
+  await page.goto(`${base}/index.html`, { waitUntil: "load" });
+  const offlineSchedule = await page.title();
+  await page.goto(`${base}/wardrobe/index.html`, { waitUntil: "load" });
+  const offlineWardrobe = await page.title();
+  await context.setOffline(false);
+
+  check("offline, the schedule address opens the schedule", offlineSchedule === "Cagiral Schedule", offlineSchedule);
+  check("offline, the wardrobe address opens the wardrobe", offlineWardrobe === "Wardrobe", offlineWardrobe);
+
+  await browser.close();
+  server.close();
+}
+
 // ---------------------------------------------------------------------- report
 const real = allErrors.filter((e) => !/404|Failed to load resource/.test(e));
 console.log(`\n${pass} passed, ${fails.length} failed`);

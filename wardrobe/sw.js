@@ -1,5 +1,6 @@
 // Service worker for the wardrobe app, scoped to /wardrobe/ so it can't touch
-// the schedule app sitting next to it.
+// the schedule app sitting next to it. Scope is not the whole story though: both
+// apps share one Cache Storage, which the activate handler below has to respect.
 //
 // Same reasoning as the schedule's worker: the shell is cached so the app opens
 // instantly and opens at all with no signal, but wardrobe.json is never cached —
@@ -25,10 +26,18 @@ self.addEventListener("install", (event) => {
   );
 });
 
+// Drop this app's older caches -- and ONLY this app's. caches.keys() returns every
+// cache on the origin, and the schedule app next door has its own; an unfiltered
+// sweep here would delete the schedule's offline copy the first time the wardrobe
+// is ever opened.
+const OWN_CACHE_PREFIX = "wardrobe-";
+
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(
+        keys.filter((k) => k.startsWith(OWN_CACHE_PREFIX) && k !== CACHE).map((k) => caches.delete(k))
+      ))
       .then(() => self.clients.claim())
   );
 });

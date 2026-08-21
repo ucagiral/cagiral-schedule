@@ -330,3 +330,8 @@ rather than as intent. It needs playwright; without it, it says so and exits wit
 - No travel or packing mode, no picking tomorrow's outfit tonight, no bulk upload.
 - Weather comes from a free service with no key. If it cannot be reached the app dresses for a mild
   day and says so rather than guessing silently.
+- Both apps are served from one origin, so they share a Cache Storage and the schedule's service
+  worker scope covers this one. Each worker therefore clears only caches carrying its own name
+  prefix, and the schedule's worker ignores `/wardrobe/` entirely — without that, opening one app
+  wipes the other's offline copy and can leave it serving the wrong shell. `tools/wardrobe-browser-test.mjs`
+  guards both.

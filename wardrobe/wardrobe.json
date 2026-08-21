@@ -1,0 +1,23 @@
+{
+  "items": [],
+  "log": [],
+  "swipes": [],
+  "rejected": [],
+  "taste": {
+    "weights": {},
+    "n": 0
+  },
+  "settings": {
+    "city": "Ankara",
+    "lat": null,
+    "lon": null,
+    "cloOffset": 0,
+    "repeatDays": 3,
+    "outlinePx": 6,
+    "tolScale": 1,
+    "occasionFilter": true,
+    "includeDirty": false,
+    "usePins": true,
+    "demo": true
+  }
+}

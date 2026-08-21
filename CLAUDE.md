@@ -7,6 +7,10 @@ behaviour from the first message goes here.
 The repo is Umut's lab schedule: `claudeAgent.json` is the source of truth, `index.html` is the app,
 `schedule.ics` is generated. See `README.md` for the mechanics.
 
+It also hosts a **second, unrelated app** under `wardrobe/` — it picks what to wear, and has nothing
+to do with the lab. Everything below is about the schedule unless it says otherwise; §6 covers the
+wardrobe. When a request is about clothes, weather or outfits, none of the scheduling rules apply.
+
 ---
 
 ## 1. Ask before building
@@ -45,6 +49,8 @@ Where things go:
 | Researched durations per procedure, hands-on vs. unattended | `protocols/durations.md` |
 | Standing instructions about how to work | this file |
 | App behaviour and data shape | `README.md` |
+| How warm a garment is, why, with sources | `protocols/clothing-insulation.md` |
+| What goes with what, and why | `protocols/outfit-matching.md` |
 
 New topics get a new file under `protocols/` rather than being crammed into an existing one.
 
@@ -80,3 +86,23 @@ Rebuild the feed with `node tools/build-ics.mjs` and commit the result alongside
   never overlapping another active step. Verify this programmatically before claiming a day works.
 - Dependencies are real: boil before loading, transfer before any antibody, cDNA before qPCR prep.
 - Don't push a day past roughly 18:00 without saying so and offering the split.
+
+## 6. The wardrobe app
+
+`wardrobe/` is a separate app that happens to live in this repo. It shares the Pages host, the
+GitHub token and the PWA pattern; it shares no data and no rules with the schedule. It only ever
+*reads* `claudeAgent.json`, to tell a lab day from a meeting.
+
+- **Every rule lives in `wardrobe/engine.js`**, as pure functions with no DOM and no clock. The
+  browser loads that file and `tools/wardrobe-selftest.mjs` runs the same file in node. Change a
+  rule there, not in the app, and add a check — the suite exists so claims about the rules can be
+  verified instead of believed. Run it before claiming anything works.
+- **Warmth is in clo**, from the published tables, never invented. A garment's thickness step maps
+  onto that garment type's own range. Anything Umut states about a specific garment beats the table.
+- **Say when something is a guess.** A thickness the app inferred is marked as one, on the item and
+  on the outfit card. Never present an inferred value as though it were answered.
+- **The agent never writes a field.** `tools/wardrobe-agent.mjs` writes proposals to `agentGuessed`;
+  only Umut accepting one in the app settles it. Do not add a path around that.
+- **Only the name is required** when adding a garment. Do not add a second mandatory field.
+- New wardrobe facts — a garment's real warmth, a preference about what he will and won't wear,
+  a correction — get written down the same as anything else, into the table above.

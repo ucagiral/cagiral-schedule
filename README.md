@@ -6,6 +6,10 @@ file, and a calendar feed that keeps Apple Calendar up to date by itself.
 - **App:** `https://<account>.github.io/cagiral-schedule/`
 - **Calendar feed:** `https://<account>.github.io/cagiral-schedule/schedule.ics`
 
+There is a **second, unrelated app** in here too — [Wardrobe](#wardrobe), which picks what to wear.
+It shares this repository's plumbing (Pages hosting, the GitHub token, the PWA shell) and nothing
+else: its own page, its own data file, its own service worker. See [`wardrobe/`](wardrobe/).
+
 ## How it fits together
 
 | Piece | What it does |
@@ -19,6 +23,7 @@ file, and a calendar feed that keeps Apple Calendar up to date by itself.
 | `.github/workflows/ics.yml` | Runs that generator automatically on every schedule change. |
 | `tools/make-icons.mjs` | Regenerates the app icons. Only needed if the icon design changes. |
 | `sw.js` | Lets the app open instantly, and open at all with no signal (read-only). |
+| `wardrobe/` | The **other** app — see [Wardrobe](#wardrobe). Nothing in it touches the schedule. |
 
 Data flow: edit in the app (or have Claude edit the JSON) → commit lands on `main` → the workflow
 rebuilds `schedule.ics` → Apple Calendar picks it up on its next refresh.
@@ -213,3 +218,110 @@ To rebuild the feed locally: `node tools/build-ics.mjs` (Node 18+, no dependenci
 - Devices without a token poll a CDN copy, so they can trail a couple of minutes behind.
 - Apple refreshes calendar subscriptions on its own schedule (roughly hourly), so reminders reflect
   changes with a delay. The app itself is immediate.
+
+---
+
+## Wardrobe
+
+- **App:** `https://<account>.github.io/cagiral-schedule/wardrobe/`
+
+A second app, sharing this repository and nothing else. It photographs your clothes, cuts the
+backgrounds out, and picks an outfit for the weather — learning what you actually like as you
+swipe. Install it separately: Safari → Share → **Add to Home Screen**, same as the schedule.
+
+### How it fits together
+
+| Piece | What it does |
+|---|---|
+| `wardrobe/wardrobe.json` | **The source of truth.** Every garment, what you wore, every swipe, the learned model, your settings. |
+| `wardrobe/engine.js` | Every decision the app makes, as pure functions. The browser loads it with a `<script>` tag and `tools/wardrobe-selftest.mjs` runs the same file in node — one copy of the rules, tested where it runs. |
+| `wardrobe/index.html` | The app. Reads and writes the JSON through the GitHub API. |
+| `wardrobe/items/` | Each garment twice: the cutout sticker, and the original photo so the cutout can be redone later from another device. |
+| `wardrobe/demo/` | Seventeen CC0 garments so the app works before you have photographed anything. See [`demo/SOURCES.md`](wardrobe/demo/SOURCES.md). |
+| `tools/wardrobe-agent.mjs` | Works out what the wardrobe doesn't know about its own clothes. |
+| `protocols/clothing-insulation.md` | Why the warmth numbers are what they are, with sources. |
+| `protocols/outfit-matching.md` | The colour and formality rules, with sources. |
+
+### Adding a garment
+
+Photograph it, name it, done — **the name is the only thing that is required.**
+
+The background comes out in your browser: a segmentation model is fetched once (about 45 MB, cached
+afterwards, so the second garment onwards works offline), and a brush fixes whatever it got wrong.
+A photo that already has transparency — a subject lifted out in iOS Photos — skips the model
+entirely. The cutout then gets a **white outline**, so a black coat doesn't disappear into a dark
+background.
+
+Everything else — thickness, formality, pattern — starts as a guess, and the app says so wherever it
+relies on one, including on the outfit card itself: *"8 °C outfit · 2 items' thickness is a guess"*.
+**Fill the gaps** on the Wardrobe screen lists what is still guessed, worst first.
+
+### Warmth
+
+Insulation is measured in **clo**, the real unit — see
+[`protocols/clothing-insulation.md`](protocols/clothing-insulation.md). You give each garment a
+1–5 thickness step and the app maps it onto that garment type's published range: a "very thick"
+t-shirt and a "very thick" parka are nowhere near the same number.
+
+You cannot check a clo value by looking at it, so the app shows the consequence instead — *"good
+down to 8 °C"* — which you can. And because no formula knows how warm *you* run, one tap after
+wearing an outfit (cold / just right / too warm) shifts a personal offset. After a couple of weeks
+it is fitted to you rather than to a textbook.
+
+### Two screens, two jobs
+
+- **Today** picks for the actual weather (Open-Meteo, no key), the actual forecast (rain means a
+  waterproof shell and no suede), and the actual day — it reads `claudeAgent.json` to know a lab day
+  from a meeting. On a day that warms up more than 6 °C it dresses for the morning and names the
+  layer to take off at midday.
+- **Deck** ignores the weather completely. Its job is to learn taste, and only ever showing today's
+  weather-appropriate outfits would teach it nothing about the other three seasons.
+
+Nothing you pass on is ever deleted. When a deck runs out there is a screen that says which rule
+filtered what, and offers to drop the rules one at a time, clear what you passed on, or let you set
+the criteria by hand.
+
+### Wearing things more than once
+
+Every garment has a wear count. Past its limit it drops out of suggestions until you mark it washed.
+**Pin** any piece to keep it in every outfit for a week — trousers you would rather wear all week
+than wash after one day. Pinned pieces are exempt from the don't-repeat rule, since wearing them
+several days running is the entire point.
+
+### The agent
+
+**Analyze wardrobe** looks at the clothes with gaps and works them out from the photo and the name —
+how thick that jumper is, what it is made of, whether that shell is actually waterproof.
+
+It cannot overwrite anything you entered. Everything it concludes is a proposal with a confidence
+and a one-line reason, sitting in a review list until you accept it. Two things are needed once:
+
+1. `ANTHROPIC_API_KEY` as a repository secret (Settings → Secrets and variables → Actions).
+2. **Actions: Read and write** on your token, on top of Contents — the schedule app never needed it.
+   Without it the button explains what is missing; you can also run it from the Actions tab with no
+   token change at all.
+
+It runs only when asked. There is no schedule: it costs money per run and only has work to do just
+after you add clothes.
+
+### Checking it
+
+```
+node tools/wardrobe-selftest.mjs           # 64 checks on the rules
+node tools/wardrobe-agent.mjs --dry-run    # what the agent would ask, without calling anything
+```
+
+The checks are the claims worth distrusting: no sweater at 30 °C, no bare outfit at 5 °C, a pinned
+bottom in every outfit and its rivals in none, everything inside the insulation tolerance, undo
+restoring the taste model exactly, and the agent leaving a fully specified garment byte for byte
+identical when handed a reply built to rewrite all of it.
+
+### What it deliberately doesn't do
+
+- **This repository is public**, so the clothes and their photos are readable by anyone who finds
+  it. Moving them to a private repository later only means pointing the app at a different one.
+- The cutout model is [RMBG-1.4](https://huggingface.co/briaai/RMBG-1.4), licensed for
+  non-commercial use. Fine for a personal wardrobe; not for anything sold.
+- No travel or packing mode, no picking tomorrow's outfit tonight, no bulk upload.
+- Weather comes from a free service with no key. If it cannot be reached the app dresses for a mild
+  day and says so rather than guessing silently.

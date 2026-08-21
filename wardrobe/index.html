@@ -1,0 +1,2397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Wardrobe</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wardrobe">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+<style>
+  /* Same palette as the schedule app next door, so the two read as one family. */
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
+    --accent:#7c3aed; --accent-soft:#ede9fe;
+    --warn-bg:#fff7ed; --warn-border:#fde68a; --warn-text:#7c2d12;
+    --ok:#15803d; --bad:#b91c1c; --guess:#a16207; --guess-bg:#fef9c3;
+    --card:#ffffff; --sticker-bg:#eef1f5;
+    --safe-b:env(safe-area-inset-bottom,0px);
+    --safe-t:env(safe-area-inset-top,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]){
+      --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+      --accent:#a78bfa; --accent-soft:#2e2545;
+      --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
+      --ok:#4ade80; --bad:#f87171; --guess:#fbbf24; --guess-bg:#3a2f0b;
+      --card:#1c1f26; --sticker-bg:#232830;
+    }
+  }
+  html[data-theme="dark"]{
+    --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+    --accent:#a78bfa; --accent-soft:#2e2545;
+    --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
+    --ok:#4ade80; --bad:#f87171; --guess:#fbbf24; --guess-bg:#3a2f0b;
+    --card:#1c1f26; --sticker-bg:#232830;
+  }
+
+  *{box-sizing:border-box}
+  html,body{overscroll-behavior-y:contain; height:100%}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); -webkit-text-size-adjust:100%;
+    display:flex; flex-direction:column; min-height:100%;
+  }
+  button{
+    font:inherit; padding:7px 12px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); cursor:pointer; color:var(--text);
+  }
+  button:hover:not(:disabled){border-color:var(--accent)}
+  button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+  button.danger{color:var(--bad)}
+  button:disabled{opacity:.45; cursor:not-allowed}
+  input,select,textarea{
+    font:inherit; padding:7px 9px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); color:var(--text); width:100%;
+  }
+  a{color:var(--accent)}
+
+  header{
+    display:flex; align-items:center; gap:8px; padding:calc(8px + var(--safe-t)) 12px 8px;
+    background:var(--panel); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20;
+  }
+  header h1{font-size:15px; margin:0; font-weight:650; letter-spacing:-.01em}
+  #status{font-size:12px; color:var(--muted); margin-left:auto; text-align:right}
+  #status.saving{color:var(--accent)} #status.saved{color:var(--ok)} #status.error{color:var(--bad)}
+
+  .banner{
+    padding:9px 12px; font-size:13px; background:var(--warn-bg); color:var(--warn-text);
+    border-bottom:1px solid var(--warn-border); display:none; line-height:1.5;
+  }
+  .banner.show{display:block}
+  .banner button{margin-left:8px; padding:3px 9px; font-size:12px}
+  .banner code{background:rgba(0,0,0,.08); padding:1px 4px; border-radius:4px}
+
+  main{flex:1; padding:12px; padding-bottom:calc(70px + var(--safe-b)); max-width:760px; width:100%; margin:0 auto}
+  .screen{display:none} .screen.active{display:block}
+
+  nav{
+    position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--panel);
+    border-top:1px solid var(--border); padding-bottom:var(--safe-b); z-index:20;
+  }
+  nav button{
+    flex:1; border:0; border-radius:0; background:none; padding:9px 2px 10px;
+    font-size:10.5px; color:var(--muted); display:flex; flex-direction:column; align-items:center; gap:3px;
+  }
+  nav button .ic{font-size:17px; line-height:1}
+  nav button.on{color:var(--accent); font-weight:650}
+  nav button .dot{
+    position:absolute; transform:translate(13px,-3px); width:7px; height:7px;
+    border-radius:50%; background:var(--accent);
+  }
+
+  h2{font-size:16px; margin:0 0 10px; font-weight:650}
+  h3{font-size:13px; margin:18px 0 8px; font-weight:650; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
+  p.note{font-size:12.5px; color:var(--muted); line-height:1.55; margin:8px 0}
+
+  .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:12px}
+
+  /* ---- weather strip ---- */
+  .wx{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+  .wx .temp{font-size:30px; font-weight:680; letter-spacing:-.02em}
+  .wx .meta{font-size:12.5px; color:var(--muted); line-height:1.5}
+  .spark{display:block; width:100%; height:34px; margin-top:8px}
+
+  /* ---- outfit ---- */
+  .outfit{display:flex; gap:6px; align-items:flex-end; justify-content:center; flex-wrap:wrap; min-height:150px}
+  .piece{position:relative; text-align:center; width:88px}
+  .piece img{
+    width:88px; height:88px; object-fit:contain; background:var(--sticker-bg);
+    border-radius:12px; display:block;
+  }
+  .piece .ph{
+    width:88px; height:88px; border-radius:12px; background:var(--sticker-bg); display:flex;
+    align-items:center; justify-content:center; font-size:26px;
+  }
+  .piece .nm{font-size:10.5px; color:var(--muted); margin-top:4px; line-height:1.3; word-break:break-word}
+  .piece .sw{
+    position:absolute; top:5px; left:5px; width:11px; height:11px; border-radius:50%;
+    border:1.5px solid var(--panel); box-shadow:0 0 0 1px rgba(0,0,0,.15);
+  }
+  .why{font-size:12.5px; color:var(--muted); margin-top:12px; line-height:1.55; text-align:center}
+  .why .warnbit{color:var(--guess)}
+
+  .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+  .row.tight{gap:6px}
+  .row > button{flex:1; min-width:110px}
+
+  /* ---- deck ---- */
+  #deckStage{position:relative; height:390px; margin:4px 0 8px; touch-action:pan-y}
+  .swipecard{
+    position:absolute; inset:0; background:var(--card); border:1px solid var(--border);
+    border-radius:18px; padding:14px; display:flex; flex-direction:column; justify-content:center;
+    box-shadow:0 6px 22px rgba(0,0,0,.09); will-change:transform;
+  }
+  .swipecard.back{transform:scale(.95) translateY(10px); opacity:.65; pointer-events:none}
+  .stamp{
+    position:absolute; top:16px; font-size:20px; font-weight:800; letter-spacing:.06em;
+    padding:5px 12px; border-radius:9px; border:3px solid; opacity:0; pointer-events:none;
+  }
+  .stamp.yes{left:16px; color:var(--ok); border-color:var(--ok); transform:rotate(-13deg)}
+  .stamp.no{right:16px; color:var(--bad); border-color:var(--bad); transform:rotate(13deg)}
+
+  /* ---- wardrobe grid ---- */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:10px}
+  .tile{
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:8px;
+    text-align:center; cursor:pointer; position:relative;
+  }
+  .tile:hover{border-color:var(--accent)}
+  .tile img,.tile .ph{width:100%; aspect-ratio:1; object-fit:contain; background:var(--sticker-bg); border-radius:9px}
+  .tile .ph{display:flex; align-items:center; justify-content:center; font-size:28px}
+  .tile .nm{font-size:11.5px; margin-top:6px; font-weight:600; line-height:1.3; word-break:break-word}
+  .tile .sub{font-size:10px; color:var(--muted); margin-top:2px}
+  .tile .flag{
+    position:absolute; top:6px; right:6px; font-size:9.5px; padding:1px 5px; border-radius:99px;
+    background:var(--guess-bg); color:var(--guess); font-weight:650;
+  }
+  .tile .flag.dirty{background:var(--warn-bg); color:var(--warn-text)}
+  .tile .flag.pin{background:var(--accent-soft); color:var(--accent)}
+  .bar{height:3px; border-radius:99px; background:var(--border); margin-top:6px; overflow:hidden}
+  .bar i{display:block; height:100%; background:var(--accent)}
+
+  /* ---- chips / pills ---- */
+  .chips{display:flex; gap:6px; flex-wrap:wrap}
+  .chip{
+    font-size:12px; padding:5px 10px; border-radius:99px; border:1px solid var(--border);
+    background:var(--panel); cursor:pointer; color:var(--text);
+  }
+  .chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
+  .pill{
+    display:inline-block; font-size:10.5px; padding:1px 7px; border-radius:99px;
+    background:var(--accent-soft); color:var(--accent); font-weight:650;
+  }
+  .pill.guess{background:var(--guess-bg); color:var(--guess)}
+
+  /* ---- forms ---- */
+  .field{margin-bottom:12px}
+  .field label{display:block; font-size:12px; font-weight:650; margin-bottom:5px}
+  .field .hint{font-size:11.5px; color:var(--muted); margin-top:4px; line-height:1.5}
+  .steps{display:flex; gap:4px}
+  .steps button{flex:1; padding:8px 2px; font-size:11px}
+  .steps button.on{background:var(--accent); color:#fff; border-color:var(--accent)}
+
+  /* ---- modal ---- */
+  dialog{
+    border:1px solid var(--border); border-radius:16px; background:var(--panel); color:var(--text);
+    padding:0; width:min(560px,94vw); max-height:88vh;
+  }
+  dialog::backdrop{background:rgba(0,0,0,.45)}
+  .dlg-head{display:flex; align-items:center; gap:8px; padding:13px 15px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--panel)}
+  .dlg-head h3{margin:0; font-size:15px; text-transform:none; letter-spacing:0; color:var(--text)}
+  .dlg-body{padding:15px; overflow:auto; max-height:calc(88vh - 116px)}
+  .dlg-foot{display:flex; gap:8px; padding:12px 15px; border-top:1px solid var(--border); background:var(--panel)}
+  .dlg-foot button{flex:1}
+
+  /* ---- cutout editor ---- */
+  #cutStage{position:relative; width:100%; aspect-ratio:1; background:var(--sticker-bg); border-radius:12px; overflow:hidden; touch-action:none}
+  #cutStage canvas{position:absolute; inset:0; width:100%; height:100%}
+  .cut-status{font-size:12.5px; color:var(--muted); text-align:center; padding:10px 0; line-height:1.5}
+
+  .list-row{
+    display:flex; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .list-row:last-child{border-bottom:0}
+  .list-row img,.list-row .ph{width:44px; height:44px; object-fit:contain; background:var(--sticker-bg); border-radius:8px; flex:none}
+  .list-row .ph{display:flex; align-items:center; justify-content:center; font-size:18px}
+  .list-row .body{flex:1; min-width:0}
+  .list-row .body .t{font-size:13px; font-weight:600}
+  .list-row .body .s{font-size:11.5px; color:var(--muted); margin-top:2px; line-height:1.45}
+
+  .empty{text-align:center; padding:34px 16px; color:var(--muted); font-size:13px; line-height:1.6}
+  .empty .big{font-size:34px; display:block; margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Wardrobe</h1>
+  <span id="demoBadge" class="pill" style="display:none">demo</span>
+  <div id="status"></div>
+</header>
+
+<div id="banner" class="banner"></div>
+
+<main>
+  <!-- ============================ TODAY ============================ -->
+  <section id="scr-today" class="screen active">
+    <div class="card" id="wxCard">
+      <div class="wx">
+        <div class="temp" id="wxTemp">—</div>
+        <div class="meta" id="wxMeta">Checking the weather…</div>
+      </div>
+      <canvas class="spark" id="wxSpark" width="600" height="68"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="outfit" id="todayOutfit"></div>
+      <div class="why" id="todayWhy"></div>
+      <div id="todayShed"></div>
+      <div class="row">
+        <button class="primary" id="btnWore">I wore this</button>
+        <button id="btnAnother">Show another</button>
+      </div>
+    </div>
+
+    <div id="todayCarried"></div>
+  </section>
+
+  <!-- ============================ DECK ============================ -->
+  <section id="scr-deck" class="screen">
+    <p class="note" id="deckIntro">
+      Weather is ignored here on purpose — this deck exists to learn what you like.
+      Swipe right to keep, left to pass.
+    </p>
+    <div id="deckStage"></div>
+    <div class="row" id="deckControls">
+      <button id="btnNope">✕ Pass</button>
+      <button id="btnLike" class="primary">♥ Like</button>
+    </div>
+    <p class="note" id="deckCount"></p>
+  </section>
+
+  <!-- ========================== WARDROBE ========================== -->
+  <section id="scr-wardrobe" class="screen">
+    <div class="row tight" style="margin:0 0 12px">
+      <button class="primary" id="btnAdd">+ Add item</button>
+      <button id="btnAnalyze">Analyze wardrobe</button>
+    </div>
+    <div id="gapsCard"></div>
+    <div id="agentReview"></div>
+    <div class="chips" id="slotFilter" style="margin-bottom:12px"></div>
+    <div class="grid" id="wardrobeGrid"></div>
+  </section>
+
+  <!-- =========================== JOURNAL =========================== -->
+  <section id="scr-journal" class="screen">
+    <div id="feedbackCard"></div>
+    <h3>What you wore</h3>
+    <div id="logList"></div>
+    <h3>Not worn in a long time</h3>
+    <div id="deadStock"></div>
+    <h3>Passed on</h3>
+    <div id="rejectedList"></div>
+  </section>
+
+  <!-- =========================== SETTINGS =========================== -->
+  <section id="scr-settings" class="screen">
+    <div class="card">
+      <h2>Location</h2>
+      <div class="field">
+        <label for="setCity">Fallback city</label>
+        <input id="setCity" placeholder="Ankara">
+        <div class="hint">Used when location permission is off or unavailable. Change it when you travel.</div>
+      </div>
+      <button id="btnGeo">Use my location</button>
+      <div class="hint" id="geoState" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Criteria</h2>
+      <div class="field">
+        <label>Don't repeat anything worn in the last <b id="repeatVal">3</b> days</label>
+        <input type="range" id="setRepeat" min="0" max="10" step="1">
+      </div>
+      <div class="field">
+        <label>Insulation tolerance</label>
+        <input type="range" id="setTol" min="0.5" max="2.5" step="0.1">
+        <div class="hint" id="tolHint"></div>
+      </div>
+      <div class="chips">
+        <button class="chip" id="cOccasion">Match the day's calendar</button>
+        <button class="chip" id="cDirty">Include items due a wash</button>
+        <button class="chip" id="cPins">Honour pinned items</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Calibration</h2>
+      <div class="field">
+        <label>Personal warmth offset: <b id="offsetVal">0.00</b> clo</label>
+        <div class="hint" id="offsetHint"></div>
+      </div>
+      <button id="btnResetOffset">Reset calibration</button>
+    </div>
+
+    <div class="card">
+      <h2>Cutout</h2>
+      <div class="field">
+        <label>White outline thickness: <b id="outlineVal">6</b> px</label>
+        <input type="range" id="setOutline" min="0" max="16" step="1">
+        <div class="hint">Keeps a dark garment from disappearing into a dark background.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Data</h2>
+      <div class="hint" id="tokenState" style="margin-bottom:10px"></div>
+      <div class="row tight">
+        <button id="btnConnect">Connect</button>
+        <button id="btnClearDemo">Clear demo data</button>
+      </div>
+    </div>
+
+    <p class="note" id="aboutText"></p>
+  </section>
+</main>
+
+<nav>
+  <button data-screen="today" class="on"><span class="ic">👕</span>Today</button>
+  <button data-screen="deck"><span class="ic">🃏</span>Deck</button>
+  <button data-screen="wardrobe"><span class="ic">🗄️</span>Wardrobe</button>
+  <button data-screen="journal"><span class="ic">📖</span>Journal</button>
+  <button data-screen="settings"><span class="ic">⚙️</span>Settings</button>
+</nav>
+
+<dialog id="dlg">
+  <div class="dlg-head"><h3 id="dlgTitle"></h3><button id="dlgX" style="margin-left:auto">Close</button></div>
+  <div class="dlg-body" id="dlgBody"></div>
+  <div class="dlg-foot" id="dlgFoot"></div>
+</dialog>
+
+<script src="engine.js"></script>
+<script>
+(function(){
+  "use strict";
+  var E = window.WardrobeEngine;
+
+  // Same localStorage keys as the schedule app: both are served from one origin,
+  // so opening this in Safari picks up a token that is already there. Installed
+  // to the Home Screen it gets its own storage partition and asks once more.
+  var LS = { token:"cs_token", device:"cs_device", theme:"cs_theme", cache:"wd_cache", cfg:"cs_cfg", wx:"wd_wx" };
+  var DATA_PATH = "wardrobe/wardrobe.json";
+  var DEMO_PATH = "wardrobe/demo/demo.json";
+  var SCHEDULE_PATH = "claudeAgent.json";
+  var AGENT_WORKFLOW = "wardrobe-agent.yml";
+
+  function resolveConfig(){
+    var stored = null;
+    try { stored = JSON.parse(localStorage.getItem(LS.cfg) || "null"); } catch(e){}
+    if (stored && stored.owner && stored.repo) return stored;
+    var host = location.hostname || "";
+    var m = host.match(/^([^.]+)\.github\.io$/i);
+    var seg = location.pathname.split("/").filter(Boolean);
+    if (m) return { owner: m[1], repo: seg.length ? seg[0] : (m[1] + ".github.io"), branch: "main" };
+    return { owner:null, repo:null, branch:"main" };
+  }
+  var CFG = resolveConfig();
+  var REPO = CFG.owner ? CFG.owner + "/" + CFG.repo : null;
+  var API = REPO ? "https://api.github.com/repos/" + REPO : null;
+
+  function getToken(){ try { return localStorage.getItem(LS.token) || null; } catch(e){ return null; } }
+  function getDevice(){ try { return localStorage.getItem(LS.device) || "unknown device"; } catch(e){ return "unknown device"; } }
+  function canWrite(){ return !!(getToken() && API); }
+  function ghHeaders(){
+    var h = { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
+    var t = getToken();
+    if (t) h["Authorization"] = "Bearer " + t;
+    return h;
+  }
+  function rawURL(path){
+    return "https://raw.githubusercontent.com/" + REPO + "/" + (CFG.branch||"main") + "/" + path + "?t=" + Date.now();
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, text){
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined && text !== null) n.textContent = text;
+    return n;
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function setStatus(text, cls){ $("status").textContent = text; $("status").className = cls || ""; }
+  function showBanner(html, actions){
+    var b = $("banner");
+    b.innerHTML = html;
+    (actions||[]).forEach(function(a){
+      var btn = el("button", null, a.label);
+      btn.onclick = a.onClick;
+      b.appendChild(btn);
+    });
+    b.classList.add("show");
+  }
+  function hideBanner(){ $("banner").classList.remove("show"); }
+
+  function todayISO(){
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function utf8ToBase64(str){
+    var bytes = new TextEncoder().encode(str), chunk = 0x8000, parts = [];
+    for (var i = 0; i < bytes.length; i += chunk) parts.push(String.fromCharCode.apply(null, bytes.subarray(i, i + chunk)));
+    return btoa(parts.join(""));
+  }
+  function base64ToUtf8(b64){
+    var bin = atob(String(b64).replace(/\s/g, "")), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+  function slugify(s){
+    return String(s).toLowerCase()
+      .replace(/[ıİ]/g,"i").replace(/[şŞ]/g,"s").replace(/[ğĞ]/g,"g")
+      .replace(/[üÜ]/g,"u").replace(/[öÖ]/g,"o").replace(/[çÇ]/g,"c")
+      .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40) || "item";
+  }
+
+  // =====================================================================
+  // State
+  // =====================================================================
+  var BLANK = {
+    items: [], log: [], swipes: [], rejected: [],
+    taste: { weights:{}, n:0 },
+    settings: {
+      city:"Ankara", lat:null, lon:null, cloOffset:0, repeatDays:3, outlinePx:6,
+      tolScale:1, occasionFilter:true, includeDirty:false, usePins:true, demo:true
+    }
+  };
+  var state = JSON.parse(JSON.stringify(BLANK));
+  var docSha = null;             // blob sha of wardrobe.json, for conflict detection
+  var demoItems = [];
+  var weather = null;
+  var wxCtx = null;
+  var occasion = null;
+  var screen = "today";
+  var slotFilter = "all";
+  var dirty = false;
+
+  // Items the app decides with: the real wardrobe, or the demo set while it is
+  // still empty. The two never mix — one real item and the demo stops counting.
+  function liveItems(){
+    if (state.items.length) return state.items;
+    if (state.settings.demo !== false && demoItems.length) return demoItems;
+    return [];
+  }
+  function usingDemo(){ return !state.items.length && state.settings.demo !== false && demoItems.length > 0; }
+
+  function liveState(){
+    return {
+      items: liveItems(), log: state.log, swipes: state.swipes, rejected: state.rejected,
+      taste: state.taste, settings: state.settings
+    };
+  }
+
+  function criteria(){
+    var s = state.settings;
+    return {
+      repeatDays: s.repeatDays,
+      occasionFilter: s.occasionFilter !== false,
+      includeDirty: s.includeDirty === true,
+      usePins: s.usePins !== false,
+      toleranceCold: E.TOLERANCE_COLD * (s.tolScale || 1),
+      toleranceWarm: E.TOLERANCE_WARM * (s.tolScale || 1)
+    };
+  }
+
+  // =====================================================================
+  // Loading
+  // =====================================================================
+  function cacheSave(){
+    try { localStorage.setItem(LS.cache, JSON.stringify({ state: state, at: new Date().toISOString() })); } catch(e){}
+  }
+  function cacheLoad(){
+    try {
+      var c = JSON.parse(localStorage.getItem(LS.cache) || "null");
+      if (c && c.state) { state = mergeDefaults(c.state); return c.at; }
+    } catch(e){}
+    return null;
+  }
+  function mergeDefaults(s){
+    var out = JSON.parse(JSON.stringify(BLANK));
+    ["items","log","swipes","rejected"].forEach(function(k){ if (Array.isArray(s[k])) out[k] = s[k]; });
+    if (s.taste) out.taste = s.taste;
+    if (s.settings) Object.keys(s.settings).forEach(function(k){ out.settings[k] = s.settings[k]; });
+    if (s._meta) out._meta = s._meta;
+    return out;
+  }
+
+  async function loadWardrobe(){
+    if (!REPO) { setStatus("Open from GitHub Pages", "error"); return; }
+    try {
+      var text, sha = null;
+      if (getToken()){
+        var r = await fetch(API + "/contents/" + DATA_PATH + "?ref=" + encodeURIComponent(CFG.branch||"main"),
+          { headers: ghHeaders(), cache:"no-store" });
+        if (r.status === 404) { text = null; }
+        else if (!r.ok) throw new Error("GitHub said " + r.status);
+        else { var j = await r.json(); text = base64ToUtf8(j.content||""); sha = j.sha; }
+      } else {
+        var resp = await fetch(rawURL(DATA_PATH), { cache:"no-store" });
+        text = resp.ok ? await resp.text() : null;
+      }
+      if (text !== null && text !== undefined) {
+        state = mergeDefaults(JSON.parse(text));
+        docSha = sha;
+      }
+      cacheSave();
+      setStatus(canWrite() ? "Ready" : "Read-only", "");
+    } catch(err){
+      var at = cacheLoad();
+      setStatus("Offline", "error");
+      showBanner("Couldn't reach GitHub — showing the last copy this device downloaded" +
+        (at ? " (" + esc(new Date(at).toLocaleString()) + ")" : "") + ". Changes can't be saved until it's back.");
+    }
+  }
+
+  async function loadDemo(){
+    if (!REPO) return;
+    try {
+      var r = await fetch(rawURL(DEMO_PATH), { cache:"no-store" });
+      if (!r.ok) return;
+      var j = await r.json();
+      demoItems = (j.items||[]).map(function(it){
+        var copy = JSON.parse(JSON.stringify(it));
+        copy.demo = true;
+        if (copy.image) copy.image = "demo/" + copy.image;
+        return copy;
+      });
+    } catch(e){ /* the demo is a nicety; never let it break startup */ }
+  }
+
+  // =====================================================================
+  // Saving — one commit, however many files changed
+  //
+  // Adding an item touches three paths at once (the JSON, the cutout and the
+  // original photo). The contents API would make that three commits with two
+  // moments where the JSON points at a file that isn't there yet, so this goes
+  // through the git data API instead: blobs, then a tree, then one commit.
+  // =====================================================================
+  async function gh(path, opts){
+    var r = await fetch(API + path, Object.assign({ headers: ghHeaders() }, opts||{}));
+    if (!r.ok){
+      var body = "";
+      try { body = (await r.json()).message || ""; } catch(e){}
+      var err = new Error("GitHub " + r.status + (body ? ": " + body : ""));
+      err.status = r.status;
+      throw err;
+    }
+    return r.json();
+  }
+
+  async function commitFiles(files, message){
+    var branch = CFG.branch || "main";
+    var ref = await gh("/git/ref/heads/" + branch);
+    var baseSha = ref.object.sha;
+    var baseCommit = await gh("/git/commits/" + baseSha);
+
+    var tree = [];
+    for (var i = 0; i < files.length; i++){
+      var f = files[i];
+      var blob = await gh("/git/blobs", {
+        method:"POST",
+        body: JSON.stringify(f.base64 ? { content:f.base64, encoding:"base64" } : { content:f.text, encoding:"utf-8" })
+      });
+      tree.push({ path:f.path, mode:"100644", type:"blob", sha:blob.sha });
+    }
+
+    var newTree = await gh("/git/trees", {
+      method:"POST", body: JSON.stringify({ base_tree: baseCommit.tree.sha, tree: tree })
+    });
+    var commit = await gh("/git/commits", {
+      method:"POST",
+      body: JSON.stringify({ message: message, tree: newTree.sha, parents: [baseSha] })
+    });
+    await gh("/git/refs/heads/" + branch, { method:"PATCH", body: JSON.stringify({ sha: commit.sha }) });
+    return commit.sha;
+  }
+
+  var saveTimer = null;
+  function markDirty(){
+    dirty = true;
+    cacheSave();
+    if (!canWrite()) { setStatus("Not saved — read-only", "error"); return; }
+    setStatus("Saving…", "saving");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){ save([], "Update wardrobe"); }, 900);
+  }
+
+  async function save(extraFiles, message){
+    if (!canWrite()) return;
+    clearTimeout(saveTimer);
+    setStatus("Saving…", "saving");
+    try {
+      state._meta = { savedBy: getDevice(), savedAt: new Date().toISOString() };
+      var files = (extraFiles||[]).concat([{ path: DATA_PATH, text: JSON.stringify(state, null, 2) + "\n" }]);
+      await commitFiles(files, message + " from " + getDevice());
+      docSha = null;
+      dirty = false;
+      cacheSave();
+      setStatus("Saved", "saved");
+      setTimeout(function(){ if ($("status").textContent === "Saved") setStatus("Ready",""); }, 2500);
+    } catch(err){
+      setStatus("Not saved", "error");
+      if (err.status === 401 || err.status === 403){
+        showBanner("GitHub refused the write (" + err.status + "). The token may have expired, or it may " +
+          "not have <code>Contents: Read and write</code> for this repository.");
+      } else {
+        showBanner("Couldn't save: " + esc(err.message) + " Your change is kept on this device and will " +
+          "be retried on the next edit.");
+      }
+    }
+  }
+
+  // =====================================================================
+  // Weather — Open-Meteo, no key, CORS open. Apparent temperature already
+  // accounts for wind and humidity, so nothing here re-derives a wind chill.
+  // =====================================================================
+  var GEO_CACHE = {};
+
+  async function geocode(city){
+    if (GEO_CACHE[city]) return GEO_CACHE[city];
+    var r = await fetch("https://geocoding-api.open-meteo.com/v1/search?count=1&name=" + encodeURIComponent(city));
+    if (!r.ok) throw new Error("geocoding failed");
+    var j = await r.json();
+    if (!j.results || !j.results.length) throw new Error("no such place");
+    GEO_CACHE[city] = { lat:j.results[0].latitude, lon:j.results[0].longitude, label:j.results[0].name };
+    return GEO_CACHE[city];
+  }
+
+  async function resolveLocation(){
+    var s = state.settings;
+    if (typeof s.lat === "number" && typeof s.lon === "number") return { lat:s.lat, lon:s.lon, label:s.city || "saved location" };
+    return geocode(s.city || "Ankara");
+  }
+
+  function askGeolocation(){
+    return new Promise(function(resolve){
+      if (!navigator.geolocation) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        function(p){ resolve({ lat:p.coords.latitude, lon:p.coords.longitude, label:"your location" }); },
+        function(){ resolve(null); },
+        { timeout:8000, maximumAge:1800000 }
+      );
+    });
+  }
+
+  async function loadWeather(force){
+    try {
+      var cached = JSON.parse(localStorage.getItem(LS.wx) || "null");
+      if (!force && cached && Date.now() - cached.at < 30*60*1000 && cached.day === todayISO()){
+        weather = cached.data;
+        wxCtx = E.contextFromWeather(weather, { today: todayISO() });
+        return;
+      }
+    } catch(e){}
+
+    var loc;
+    try { loc = await resolveLocation(); }
+    catch(e){ $("wxMeta").textContent = "Couldn't find \"" + (state.settings.city||"") + "\" — set a city in Settings."; return; }
+
+    var url = "https://api.open-meteo.com/v1/forecast?latitude=" + loc.lat + "&longitude=" + loc.lon +
+      "&hourly=temperature_2m,apparent_temperature,precipitation_probability,wind_speed_10m,weather_code" +
+      "&forecast_days=2&timezone=auto";
+    var r = await fetch(url);
+    if (!r.ok) throw new Error("weather " + r.status);
+    var j = await r.json();
+    var h = j.hourly || {};
+    weather = {
+      label: loc.label,
+      hourly: (h.time||[]).map(function(t, i){
+        return {
+          time: t,
+          temp: h.temperature_2m ? h.temperature_2m[i] : null,
+          apparent: h.apparent_temperature ? h.apparent_temperature[i] : null,
+          precipProb: h.precipitation_probability ? h.precipitation_probability[i] : 0,
+          wind: h.wind_speed_10m ? h.wind_speed_10m[i] : null,
+          code: h.weather_code ? h.weather_code[i] : null
+        };
+      })
+    };
+    wxCtx = E.contextFromWeather(weather, { today: todayISO() });
+    try { localStorage.setItem(LS.wx, JSON.stringify({ at:Date.now(), day:todayISO(), data:weather })); } catch(e){}
+  }
+
+  // =====================================================================
+  // Calendar — read-only. The schedule app owns claudeAgent.json; this only
+  // peeks at today to work out what kind of day it is. If it can't be read,
+  // the occasion filter simply switches itself off rather than blocking.
+  // =====================================================================
+  async function loadOccasion(){
+    if (!REPO) return;
+    try {
+      var r = await fetch(rawURL(SCHEDULE_PATH), { cache:"no-store" });
+      if (!r.ok) return;
+      var data = await r.json();
+      var events = (data.events || []).filter(function(e){
+        return e.date === todayISO() && e.status !== "cancelled";
+      });
+      if (!events.length) return;
+      var cats = events.map(function(e){ return e.category; });
+      if (cats.indexOf("experiment") !== -1) occasion = "lab";
+      else if (cats.indexOf("meeting") !== -1) occasion = "smart";
+      else occasion = null;
+      window.__occasionEvents = events;
+    } catch(e){ occasion = null; }
+  }
+
+  // =====================================================================
+  // Shared rendering
+  // =====================================================================
+  var SLOT_ICON = { top:"👕", bottom:"👖", shoes:"👟", outer:"🧥", accessory:"🧣" };
+  var SLOT_NAME = { top:"Top", bottom:"Bottom", shoes:"Shoes", outer:"Outer", accessory:"Accessory" };
+  var LAYER_NAME = { 1:"base layer", 2:"mid layer", 3:"over layer" };
+  var STEP_NAME = ["very thin","thin","medium","thick","very thick"];
+  var FORMALITY_NAME = { 1:"sporty", 2:"everyday", 3:"smart" };
+
+  function itemImg(item, cls){
+    if (item.image){
+      var img = el("img", cls);
+      img.src = item.image;
+      img.alt = item.name;
+      img.loading = "lazy";
+      return img;
+    }
+    var ph = el("div", (cls||"") + " ph", SLOT_ICON[item.slot] || "👕");
+    return ph;
+  }
+
+  // Layered the way it is worn: bottom, base, mid, over, outer, then accessories.
+  function orderPieces(items){
+    var rank = { bottom:0, top:1, outer:2, shoes:3, accessory:4 };
+    return items.slice().sort(function(a,b){
+      var ra = rank[a.slot], rb = rank[b.slot];
+      if (ra !== rb) return ra - rb;
+      if (a.slot === "top") return (a.layer||1) - (b.layer||1);
+      return a.name < b.name ? -1 : 1;
+    });
+  }
+
+  function renderOutfit(container, outfit){
+    container.innerHTML = "";
+    if (!outfit){ container.appendChild(el("div","empty","Nothing to show.")); return; }
+    orderPieces(outfit.items).forEach(function(item){
+      var piece = el("div","piece");
+      piece.appendChild(itemImg(item));
+      if (item.color){
+        var sw = el("span","sw");
+        sw.style.background = item.color;
+        piece.appendChild(sw);
+      }
+      piece.appendChild(el("div","nm", item.name));
+      piece.onclick = function(){ openItem(item); };
+      container.appendChild(piece);
+    });
+  }
+
+  function whyHTML(outfit){
+    return outfit.why.split(" · ").map(function(bit){
+      return /guess|weak on/.test(bit) ? '<span class="warnbit">' + esc(bit) + "</span>" : esc(bit);
+    }).join(" · ");
+  }
+
+  // =====================================================================
+  // Today
+  // =====================================================================
+  var todayResult = null, todayIndex = 0;
+
+  function computeToday(){
+    var temp = wxCtx && typeof wxCtx.tempC === "number" ? wxCtx.tempC : 18;
+    todayResult = E.recommend(liveState(), {
+      today: todayISO(), tempC: temp, rain: wxCtx ? wxCtx.rain : false,
+      occasion: state.settings.occasionFilter === false ? null : occasion,
+      criteria: criteria()
+    });
+    todayResult.outfits = E.diversify(todayResult.outfits, 2);
+    if (todayIndex >= todayResult.outfits.length) todayIndex = 0;
+  }
+
+  function renderWeather(){
+    if (!wxCtx || typeof wxCtx.tempC !== "number"){
+      $("wxTemp").textContent = "—";
+      return;
+    }
+    $("wxTemp").textContent = Math.round(wxCtx.tempC) + "°";
+    var bits = [];
+    bits.push("feels like " + Math.round(wxCtx.tempC) + "° this morning");
+    if (wxCtx.swing !== null && wxCtx.swing >= E.SWING_THRESHOLD) bits.push("up to " + Math.round(wxCtx.middayC) + "° by midday");
+    if (wxCtx.rainChance >= 20) bits.push(wxCtx.rainChance + "% chance of rain");
+    if (weather && weather.label) bits.push(weather.label);
+    $("wxMeta").innerHTML = esc(bits.join(" · "));
+    drawSpark();
+  }
+
+  function drawSpark(){
+    var c = $("wxSpark"), ctx = c.getContext("2d");
+    ctx.clearRect(0,0,c.width,c.height);
+    if (!weather) return;
+    var day = weather.hourly.filter(function(h){ return h.time.slice(0,10) === todayISO(); });
+    if (day.length < 4) return;
+    var vals = day.map(function(h){ return h.apparent; });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    if (hi - lo < 1) { hi = lo + 1; }
+    var css = getComputedStyle(document.documentElement);
+    var pad = 8, w = c.width, h = c.height;
+    ctx.strokeStyle = css.getPropertyValue("--accent").trim() || "#7c3aed";
+    ctx.lineWidth = 2.5; ctx.lineJoin = "round"; ctx.beginPath();
+    day.forEach(function(pt,i){
+      var x = pad + i/(day.length-1) * (w - pad*2);
+      var y = h - pad - (pt.apparent - lo)/(hi-lo) * (h - pad*2);
+      i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+    });
+    ctx.stroke();
+    // Mark now, so the curve reads as a day rather than an abstract shape.
+    var nowH = new Date().getHours();
+    var idx = day.findIndex(function(pt){ return +pt.time.slice(11,13) === nowH; });
+    if (idx >= 0){
+      var x = pad + idx/(day.length-1) * (w - pad*2);
+      var y = h - pad - (day[idx].apparent - lo)/(hi-lo) * (h - pad*2);
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.beginPath(); ctx.arc(x,y,4.5,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  function renderToday(){
+    renderWeather();
+    computeToday();
+    var outfit = todayResult.outfits[todayIndex];
+
+    if (!outfit){
+      $("todayOutfit").innerHTML = "";
+      var e = el("div","empty");
+      e.appendChild(el("span","big","🤷"));
+      if (!liveItems().length){
+        e.appendChild(document.createTextNode("Nothing in the wardrobe yet. Add a few things and this fills in."));
+      } else {
+        e.appendChild(document.createTextNode("Nothing survived today's rules. "));
+        var b = el("button",null,"Loosen the rules");
+        b.style.marginTop = "12px";
+        b.onclick = openRecovery;
+        e.appendChild(b);
+      }
+      $("todayOutfit").appendChild(e);
+      $("todayWhy").textContent = "";
+      $("todayShed").innerHTML = "";
+      $("btnWore").disabled = true;
+      return;
+    }
+    $("btnWore").disabled = false;
+    renderOutfit($("todayOutfit"), outfit);
+    $("todayWhy").innerHTML = whyHTML(outfit);
+
+    // A day that climbs 6 °C is not one temperature. Rather than splitting the
+    // difference and being wrong morning and afternoon both, dress for the
+    // morning and name the thing to take off later.
+    var shed = E.shedLayer(outfit, wxCtx);
+    $("todayShed").innerHTML = "";
+    if (shed){
+      var box = el("div","card");
+      box.style.margin = "12px 0 0";
+      box.style.background = "var(--warn-bg)";
+      box.style.borderColor = "var(--warn-border)";
+      box.style.color = "var(--warn-text)";
+      box.style.fontSize = "12.5px";
+      box.style.lineHeight = "1.55";
+      box.textContent = "It climbs " + Math.round(shed.swing) + "° by midday — take the " +
+        shed.item.name.toLowerCase() + " off around " + Math.round(shed.middayC) + "°.";
+      $("todayShed").appendChild(box);
+    }
+
+    renderCarried();
+  }
+
+  // Yesterday's outfit is still waiting for its cold/right/warm answer — that one
+  // tap is what calibrates the whole insulation model, so it gets asked for here
+  // rather than only in the journal where it would never be seen.
+  function renderCarried(){
+    var host = $("todayCarried");
+    host.innerHTML = "";
+    var pending = state.log.filter(function(e){ return !e.feedback && e.date < todayISO(); });
+    if (!pending.length) return;
+    var last = pending[pending.length-1];
+    var card = el("div","card");
+    card.appendChild(el("h2", null, "How was " + last.date + "?"));
+    var byId = E.indexById(liveItems());
+    var names = last.items.map(function(id){ return byId[id] ? byId[id].name : id; }).join(", ");
+    card.appendChild(el("p","note", names));
+    var row = el("div","row");
+    [["cold","🥶 Too cold"],["right","👌 Just right"],["warm","🥵 Too warm"]].forEach(function(pair){
+      var b = el("button", null, pair[1]);
+      b.onclick = function(){ recordFeedback(last, pair[0]); };
+      row.appendChild(b);
+    });
+    card.appendChild(row);
+    host.appendChild(card);
+  }
+
+  function recordFeedback(entry, feedback){
+    entry.feedback = feedback;
+    var before = state.settings.cloOffset || 0;
+    state.settings.cloOffset = E.applyFeedback(before, feedback);
+    markDirty();
+    render();
+    if (feedback !== "right"){
+      setStatus(feedback === "cold" ? "Noted — dressing you warmer" : "Noted — dressing you lighter", "saved");
+    }
+  }
+
+  // =====================================================================
+  // Deck — weather-free on purpose. This is where taste is learned.
+  // =====================================================================
+  var deck = [], deckPos = 0;
+
+  function buildDeck(){
+    var res = E.recommend(liveState(), {
+      today: todayISO(), tempC: 18,
+      criteria: { ignoreInsulation:true, occasionFilter:false, repeatDays:0, includeDirty:true,
+                  usePins:false, ignoreRejected:true }
+    });
+    deck = E.diversify(res.outfits, 2).slice(0, 60);
+    deckPos = 0;
+  }
+
+  function renderDeck(){
+    var stage = $("deckStage");
+    stage.innerHTML = "";
+    $("deckCount").textContent = deck.length
+      ? (deck.length - deckPos) + " left · " + (state.swipes.length) + " swipes so far"
+      : "";
+
+    if (deckPos >= deck.length){
+      $("deckControls").style.display = "none";
+      var e = el("div","empty");
+      e.appendChild(el("span","big","🎉"));
+      e.appendChild(document.createTextNode(
+        deck.length ? "That's everything the wardrobe can make right now." : "Add a few items and the deck fills up."));
+      if (deck.length){
+        var b = el("button","primary","Shuffle and go again");
+        b.style.marginTop = "14px";
+        b.onclick = function(){ buildDeck(); renderDeck(); };
+        e.appendChild(document.createElement("br"));
+        e.appendChild(b);
+      }
+      stage.appendChild(e);
+      return;
+    }
+    $("deckControls").style.display = "";
+
+    if (deck[deckPos+1]) stage.appendChild(makeCard(deck[deckPos+1], true));
+    var card = makeCard(deck[deckPos], false);
+    stage.appendChild(card);
+    attachSwipe(card);
+  }
+
+  function makeCard(outfit, isBack){
+    var card = el("div","swipecard" + (isBack ? " back" : ""));
+    var yes = el("div","stamp yes","KEEP"); card.appendChild(yes);
+    var no = el("div","stamp no","PASS"); card.appendChild(no);
+    var body = el("div","outfit");
+    card.appendChild(body);
+    renderOutfit(body, outfit);
+    // Tapping a sticker inside the deck would open an item mid-swipe; the deck is
+    // for judging the combination, not for editing pieces.
+    body.querySelectorAll(".piece").forEach(function(p){ p.onclick = null; p.style.cursor = "default"; });
+    var why = el("div","why");
+    why.innerHTML = whyHTML(outfit);
+    card.appendChild(why);
+    return card;
+  }
+
+  function attachSwipe(card){
+    var startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, decided = false;
+    var yes = card.querySelector(".stamp.yes"), no = card.querySelector(".stamp.no");
+
+    function down(ev){
+      if (decided) return;
+      dragging = true; startX = ev.clientX; startY = ev.clientY;
+      card.setPointerCapture(ev.pointerId);
+      card.style.transition = "none";
+    }
+    function move(ev){
+      if (!dragging) return;
+      dx = ev.clientX - startX; dy = ev.clientY - startY;
+      // Let a mostly-vertical drag scroll the page instead of swiping the card.
+      if (Math.abs(dy) > Math.abs(dx) * 1.6 && Math.abs(dx) < 24) return;
+      ev.preventDefault();
+      card.style.transform = "translate(" + dx + "px," + dy*0.25 + "px) rotate(" + dx/22 + "deg)";
+      yes.style.opacity = Math.max(0, Math.min(1, dx/90));
+      no.style.opacity = Math.max(0, Math.min(1, -dx/90));
+    }
+    function up(){
+      if (!dragging) return;
+      dragging = false;
+      card.style.transition = "transform .25s ease, opacity .25s ease";
+      if (Math.abs(dx) > 90){ decided = true; fly(dx > 0); }
+      else {
+        card.style.transform = "";
+        yes.style.opacity = no.style.opacity = 0;
+      }
+      dx = dy = 0;
+    }
+    function fly(liked){
+      card.style.transform = "translate(" + (liked ? 1: -1) * 520 + "px,0) rotate(" + (liked?24:-24) + "deg)";
+      card.style.opacity = "0";
+      setTimeout(function(){ recordSwipe(liked); }, 190);
+    }
+    card.addEventListener("pointerdown", down);
+    card.addEventListener("pointermove", move);
+    card.addEventListener("pointerup", up);
+    card.addEventListener("pointercancel", up);
+    card.__fly = fly;
+  }
+
+  function recordSwipe(liked){
+    var outfit = deck[deckPos];
+    if (!outfit) return;
+    state.swipes.push({ at: new Date().toISOString(), items: outfit.ids, liked: !!liked, key: outfit.key });
+    if (!liked) state.rejected.push({ at: new Date().toISOString(), key: outfit.key, items: outfit.ids });
+    retrainTaste();
+    deckPos++;
+    markDirty();
+    renderDeck();
+    updateNavDots();
+  }
+
+  // Retraining from the whole log rather than nudging the live weights is what
+  // makes undo exact: drop a swipe, retrain, and the model is precisely what it
+  // would have been had that swipe never happened.
+  function retrainTaste(){
+    var trained = E.trainTaste(state.swipes, E.indexById(liveItems()), todayISO());
+    state.taste = { weights: trained.weights, n: trained.n };
+  }
+
+  // =====================================================================
+  // Wardrobe
+  // =====================================================================
+  function renderWardrobe(){
+    var items = liveItems();
+    $("demoBadge").style.display = usingDemo() ? "" : "none";
+
+    // Slot filter
+    var sf = $("slotFilter");
+    sf.innerHTML = "";
+    var counts = { all: items.length };
+    items.forEach(function(i){ counts[i.slot] = (counts[i.slot]||0) + 1; });
+    [["all","All"],["top","Tops"],["bottom","Bottoms"],["outer","Outer"],["shoes","Shoes"],["accessory","Accessories"]]
+      .forEach(function(pair){
+        if (pair[0] !== "all" && !counts[pair[0]]) return;
+        var c = el("button","chip" + (slotFilter === pair[0] ? " on" : ""), pair[1] + " " + (counts[pair[0]]||0));
+        c.onclick = function(){ slotFilter = pair[0]; renderWardrobe(); };
+        sf.appendChild(c);
+      });
+
+    renderGaps();
+    renderAgentReview();
+
+    var grid = $("wardrobeGrid");
+    grid.innerHTML = "";
+    var shown = items.filter(function(i){ return slotFilter === "all" || i.slot === slotFilter; });
+    if (!shown.length){
+      var e = el("div","empty");
+      e.appendChild(el("span","big","🧺"));
+      e.appendChild(document.createTextNode("Nothing here yet. \"Add item\" takes a photo, cuts the background out and asks for a name."));
+      grid.appendChild(e);
+      grid.style.display = "block";
+      return;
+    }
+    grid.style.display = "";
+    shown.forEach(function(item){
+      var tile = el("div","tile");
+      tile.appendChild(itemImg(item));
+      tile.appendChild(el("div","nm", item.name));
+      var sub = [SLOT_NAME[item.slot]];
+      if (item.slot === "top") sub.push(LAYER_NAME[item.layer||1]);
+      tile.appendChild(el("div","sub", sub.join(" · ")));
+
+      var comp = E.completeness(item);
+      var bar = el("div","bar"), fill = el("i");
+      fill.style.width = Math.round(comp*100) + "%";
+      bar.appendChild(fill);
+      tile.appendChild(bar);
+
+      if (E.isPinned(item, todayISO())) tile.appendChild(el("span","flag pin","pinned"));
+      else if (E.isDirty(item)) tile.appendChild(el("span","flag dirty","wash"));
+      else if (comp < 1) tile.appendChild(el("span","flag","gaps"));
+
+      tile.onclick = function(){ openItem(item); };
+      grid.appendChild(tile);
+    });
+  }
+
+  function renderGaps(){
+    var host = $("gapsCard");
+    host.innerHTML = "";
+    var queue = E.gapsQueue(liveItems());
+    if (!queue.length) return;
+    var card = el("div","card");
+    card.appendChild(el("h2", null, "Fill the gaps (" + queue.length + ")"));
+    card.appendChild(el("p","note",
+      "Ordered by how much the missing answer distorts a suggestion — thickness first, because getting " +
+      "that wrong is what leaves you cold."));
+    queue.slice(0,4).forEach(function(entry){
+      var row = el("div","list-row");
+      row.appendChild(itemImg(entry.item));
+      var body = el("div","body");
+      body.appendChild(el("div","t", entry.item.name));
+      body.appendChild(el("div","s", entry.gaps.map(function(g){
+        return g.field + (g.state === "agent" ? " (agent guess)" : g.state === "guessed" ? " (guessed)" : "");
+      }).join(", ")));
+      row.appendChild(body);
+      var b = el("button",null,"Fill");
+      b.onclick = function(){ openItem(entry.item); };
+      row.appendChild(b);
+      card.appendChild(row);
+    });
+    host.appendChild(card);
+  }
+
+  // =====================================================================
+  // Item dialog — name is the only thing that has to be answered
+  // =====================================================================
+  var dlgOnClose = null;
+
+  function openDialog(title, buildBody, buttons){
+    $("dlgTitle").textContent = title;
+    $("dlgBody").innerHTML = "";
+    $("dlgFoot").innerHTML = "";
+    buildBody($("dlgBody"));
+    (buttons||[]).forEach(function(b){
+      var btn = el("button", b.cls || "", b.label);
+      btn.onclick = b.onClick;
+      $("dlgFoot").appendChild(btn);
+    });
+    $("dlg").showModal();
+  }
+  function closeDialog(){ $("dlg").close(); }
+  $("dlgX").onclick = function(){ closeDialog(); };
+  $("dlg").addEventListener("close", function(){
+    if (dlgOnClose){ var f = dlgOnClose; dlgOnClose = null; f(); }
+  });
+
+  function field(parent, label, hint){
+    var f = el("div","field");
+    var l = el("label", null, label);
+    f.appendChild(l);
+    parent.appendChild(f);
+    if (hint) { var h = el("div","hint", hint); f.__hint = h; }
+    return f;
+  }
+  function addHint(f, text){ var h = el("div","hint", text); f.appendChild(h); return h; }
+
+  function stepPicker(parent, item, onChange){
+    var f = field(parent, "Thickness");
+    var wrap = el("div","steps");
+    var out = el("div","hint");
+    function paint(){
+      wrap.innerHTML = "";
+      for (var i = 1; i <= 5; i++){
+        (function(step){
+          var b = el("button", item.warmth === step ? "on" : "", STEP_NAME[step-1]);
+          b.onclick = function(){
+            item.warmth = step;
+            item.clo = null;
+            unguess(item, "warmth");
+            paint(); onChange();
+          };
+          wrap.appendChild(b);
+        })(i);
+      }
+      var clo = E.cloFor(item);
+      var guessed = isGuessed(item, "warmth");
+      out.innerHTML = "≈ " + clo.toFixed(2) + " clo" +
+        (guessed ? ' — <span style="color:var(--guess)">still a guess; tap a step to confirm it</span>' : "");
+    }
+    paint();
+    f.appendChild(wrap);
+    f.appendChild(out);
+    addHint(f, "A photo cannot tell a chunky knit from a thin one. This is the number that decides " +
+      "whether you end up cold, so it is worth a tap.");
+    return f;
+  }
+
+  function isGuessed(item, key){
+    return (item.guessed||[]).indexOf(key) !== -1 || !!(item.agentGuessed && item.agentGuessed[key]);
+  }
+  function unguess(item, key){
+    item.guessed = (item.guessed||[]).filter(function(k){ return k !== key; });
+    if (item.agentGuessed && item.agentGuessed[key]) delete item.agentGuessed[key];
+  }
+
+  function chipRow(parent, label, options, get, set, hint){
+    var f = field(parent, label);
+    var row = el("div","chips");
+    function paint(){
+      row.innerHTML = "";
+      options.forEach(function(opt){
+        var c = el("button","chip" + (get() === opt.value ? " on" : ""), opt.label);
+        c.onclick = function(){ set(opt.value); paint(); };
+        row.appendChild(c);
+      });
+    }
+    paint();
+    f.appendChild(row);
+    if (hint) addHint(f, hint);
+    return f;
+  }
+
+  function multiChipRow(parent, label, tags, get, set, hint){
+    var f = field(parent, label);
+    var row = el("div","chips");
+    tags.forEach(function(tag){
+      var on = get().indexOf(tag) !== -1;
+      var c = el("button","chip" + (on ? " on" : ""), tag);
+      c.onclick = function(){
+        var next = get().slice();
+        var i = next.indexOf(tag);
+        if (i === -1) next.push(tag); else next.splice(i,1);
+        set(next);
+      };
+      row.appendChild(c);
+    });
+    f.appendChild(row);
+    if (hint) addHint(f, hint);
+    return f;
+  }
+
+  function openItem(item){
+    var draft = JSON.parse(JSON.stringify(item));
+    var isDemo = !!item.demo;
+
+    openDialog(item.name || "Item", function(body){
+      if (isDemo){
+        var warn = el("p","note","This is a demo piece. Add your own clothes and the demo disappears by itself.");
+        warn.style.color = "var(--guess)";
+        body.appendChild(warn);
+      }
+      if (draft.image){
+        var pv = el("img");
+        pv.src = draft.image;
+        pv.style.cssText = "width:140px;height:140px;object-fit:contain;background:var(--sticker-bg);border-radius:12px;display:block;margin:0 auto 14px";
+        body.appendChild(pv);
+      }
+
+      var nf = field(body, "Name");
+      var nameIn = el("input");
+      nameIn.value = draft.name || "";
+      nameIn.oninput = function(){ draft.name = nameIn.value; };
+      nf.appendChild(nameIn);
+      addHint(nf, "The only thing that has to be answered. Everything below can wait.");
+
+      chipRow(body, "Where it sits",
+        [{value:"top",label:"Top"},{value:"bottom",label:"Bottom"},{value:"outer",label:"Outer"},
+         {value:"shoes",label:"Shoes"},{value:"accessory",label:"Accessory"}],
+        function(){ return draft.slot; }, function(v){ draft.slot = v; refresh(); });
+
+      if (draft.slot === "top"){
+        chipRow(body, "Layer",
+          [{value:1,label:"Base"},{value:2,label:"Mid"},{value:3,label:"Over"}],
+          function(){ return draft.layer||1; }, function(v){ draft.layer = v; refresh(); },
+          "Base goes against the skin, over goes on top — this is what lets a shirt and a sweater be worn together.");
+      }
+
+      stepPicker(body, draft, function(){ refresh(); });
+
+      chipRow(body, "Formality",
+        [{value:1,label:"Sporty"},{value:2,label:"Everyday"},{value:3,label:"Smart"}],
+        function(){ return draft.formality; },
+        function(v){ draft.formality = v; unguess(draft,"formality"); refresh(); });
+
+      chipRow(body, "Pattern",
+        [{value:"solid",label:"Plain"},{value:"patterned",label:"Patterned"}],
+        function(){ return draft.pattern; },
+        function(v){ draft.pattern = v; unguess(draft,"pattern"); refresh(); },
+        "Two patterned pieces at once is the single most useful thing to know.");
+
+      var cf = field(body, "Colour");
+      var ci = el("input");
+      ci.type = "color";
+      ci.value = draft.color || "#888888";
+      ci.style.height = "40px";
+      ci.oninput = function(){ draft.color = ci.value; unguess(draft,"color"); };
+      cf.appendChild(ci);
+      addHint(cf, "Read off the photo. Correct it if the cutout picked up a shadow.");
+
+      // --- optional detail, folded away ---
+      var det = document.createElement("details");
+      det.style.cssText = "margin-top:6px;border-top:1px solid var(--border);padding-top:12px";
+      var sum = document.createElement("summary");
+      sum.textContent = "More detail";
+      sum.style.cssText = "cursor:pointer;font-size:12.5px;font-weight:650;color:var(--muted);margin-bottom:12px";
+      det.appendChild(sum);
+      body.appendChild(det);
+
+      multiChipRow(det, "Occasions", ["lab","everyday","smart","sport"],
+        function(){ return draft.occasions || []; },
+        function(next){ draft.occasions = next.length ? next : null; unguess(draft,"occasions"); refresh(); },
+        "Leave all of them off and it goes anywhere — silence means yes, not no.");
+
+      chipRow(det, "Fabric",
+        [{value:null,label:"—"},{value:"cotton",label:"Cotton"},{value:"wool",label:"Wool"},
+         {value:"synthetic",label:"Synthetic"},{value:"denim",label:"Denim"},{value:"leather",label:"Leather"},
+         {value:"suede",label:"Suede"}],
+        function(){ return draft.fabric; }, function(v){ draft.fabric = v; unguess(draft,"fabric"); refresh(); },
+        "Suede is kept out of the rain.");
+
+      chipRow(det, "Waterproof",
+        [{value:false,label:"No"},{value:true,label:"Yes"}],
+        function(){ return draft.waterproof === true; },
+        function(v){ draft.waterproof = v; unguess(draft,"waterproof"); refresh(); },
+        "On a wet day only a waterproof outer layer is suggested.");
+
+      var wf = field(det, "Wear it this many times before washing");
+      var wi = el("input");
+      wi.type = "number"; wi.min = "1"; wi.max = "99";
+      wi.value = draft.washAfter || E.defaultWashAfter(draft);
+      wi.oninput = function(){ draft.washAfter = parseInt(wi.value,10) || 1; unguess(draft,"washAfter"); };
+      wf.appendChild(wi);
+      addHint(wf, "Worn this many times, it drops out of suggestions until you mark it washed.");
+
+      // --- status ---
+      var st = el("div","card");
+      st.style.marginTop = "14px";
+      var worn = draft.wearsSinceWash || 0;
+      var limit = draft.washAfter || E.defaultWashAfter(draft);
+      st.appendChild(el("div","hint", "Worn " + worn + " of " + limit + " times since its last wash" +
+        (draft.lastWorn ? " · last worn " + draft.lastWorn : " · never worn")));
+      var strow = el("div","row tight");
+      var washBtn = el("button", null, "Mark washed");
+      washBtn.onclick = function(){ draft.wearsSinceWash = 0; commitItem(item, draft, isDemo); };
+      strow.appendChild(washBtn);
+
+      var pinned = E.isPinned(draft, todayISO());
+      var pinBtn = el("button", pinned ? "primary" : "", pinned ? "Unpin" : "Pin for 7 days");
+      pinBtn.onclick = function(){
+        draft.pinnedUntil = pinned ? null : E.shiftDate(todayISO(), 7);
+        commitItem(item, draft, isDemo);
+      };
+      strow.appendChild(pinBtn);
+      st.appendChild(strow);
+      st.appendChild(el("div","hint","Pinning keeps a piece in every suggestion — a pair of trousers you " +
+        "want to wear all week rather than wash after one day."));
+      det.appendChild(st);
+
+      function refresh(){
+        var scroll = $("dlgBody").scrollTop;
+        openItem(Object.assign({}, item, draft, { demo: isDemo }));
+        $("dlgBody").scrollTop = scroll;
+      }
+    }, [
+      { label:"Delete", cls:"danger", onClick: function(){ deleteItem(item, isDemo); } },
+      { label:"Save", cls:"primary", onClick: function(){ commitItem(item, draft, isDemo); } }
+    ]);
+  }
+
+  // Editing a demo piece has to copy it into the real wardrobe first — the demo
+  // set is a shared file in the repo, not this person's clothes.
+  function commitItem(original, draft, isDemo){
+    if (!draft.name || !draft.name.trim()){
+      alert("A name is the one thing that is needed.");
+      return;
+    }
+    if (isDemo){
+      var copy = JSON.parse(JSON.stringify(draft));
+      copy.demo = false;
+      delete copy.demo;
+      copy.id = uniqueId(slugify(copy.name));
+      state.items.push(copy);
+    } else {
+      var idx = state.items.findIndex(function(i){ return i.id === original.id; });
+      if (idx === -1) state.items.push(draft); else state.items[idx] = draft;
+    }
+    retrainTaste();
+    markDirty();
+    closeDialog();
+    render();
+  }
+
+  function deleteItem(item, isDemo){
+    if (isDemo){ closeDialog(); return; }
+    if (!confirm("Delete " + item.name + "? Its photo stays in the repository history.")) return;
+    state.items = state.items.filter(function(i){ return i.id !== item.id; });
+    retrainTaste();
+    markDirty();
+    closeDialog();
+    render();
+  }
+
+  function uniqueId(base){
+    var id = "w-" + base, n = 2;
+    var taken = {};
+    state.items.forEach(function(i){ taken[i.id] = true; });
+    while (taken[id]) id = "w-" + base + "-" + (n++);
+    return id;
+  }
+
+  // =====================================================================
+  // End-of-deck recovery — nothing is ever permanently lost
+  // =====================================================================
+  function openRecovery(){
+    openDialog("Nothing left to show", function(body){
+      body.appendChild(el("p","note",
+        "Everything got filtered out. Nothing has been deleted — these all put things back."));
+
+      var res = todayResult || { eliminated:{} };
+      var counts = res.eliminated || {};
+      var lines = [];
+      if (counts.repeat) lines.push(counts.repeat + " because you wore them recently");
+      if (counts.occasion) lines.push(counts.occasion + " because of today's calendar");
+      if (counts.insulation) lines.push(counts.insulation + " because of the temperature");
+      if (counts.seasonal) lines.push(counts.seasonal + " because they're too heavy for today");
+      if (counts.dirty) lines.push(counts.dirty + " because they're due a wash");
+      if (counts.rejected) lines.push(counts.rejected + " because you passed on them");
+      if (lines.length) body.appendChild(el("p","note","Filtered out: " + lines.join(", ") + "."));
+
+      [
+        ["Show what was filtered out", "Drops the rules one at a time — first repeats, then the calendar, " +
+         "then the temperature, then the laundry — and says which one it had to drop.", function(){
+          relaxAndShow();
+        }],
+        ["Clear what I passed on", "Puts every passed outfit back in the running. Your swipes still count " +
+         "towards what the app has learned.", function(){
+          state.rejected = [];
+          markDirty(); closeDialog(); render();
+        }],
+        ["Adjust the criteria", "Repeat window, temperature tolerance, calendar matching and laundry, " +
+         "all by hand.", function(){ closeDialog(); go("settings"); }]
+      ].forEach(function(row){
+        var card = el("div","card");
+        var b = el("button","primary", row[0]);
+        b.style.width = "100%";
+        b.onclick = row[2];
+        card.appendChild(b);
+        card.appendChild(el("p","note", row[1]));
+        body.appendChild(card);
+      });
+    }, []);
+  }
+
+  function relaxAndShow(){
+    var relax = 0, res = null;
+    while (relax <= 4){
+      res = E.recommend(liveState(), {
+        today: todayISO(),
+        tempC: wxCtx && typeof wxCtx.tempC === "number" ? wxCtx.tempC : 18,
+        rain: wxCtx ? wxCtx.rain : false,
+        occasion: occasion, criteria: criteria(), relax: relax
+      });
+      if (res.outfits.length) break;
+      relax++;
+    }
+    closeDialog();
+    if (!res || !res.outfits.length){
+      showBanner("Even with every rule dropped there is nothing to suggest — the wardrobe needs more in it.");
+      return;
+    }
+    todayResult = res;
+    todayResult.outfits = E.diversify(res.outfits, 2);
+    todayIndex = 0;
+    var dropped = res.relaxed.length
+      ? "Dropped: " + res.relaxed.join(", ") + "."
+      : "Nothing had to be dropped.";
+    showBanner(esc(dropped) + " Showing " + res.outfits.length + " outfit" + (res.outfits.length===1?"":"s") + ".",
+      [{ label:"Back to the rules", onClick: function(){ hideBanner(); render(); } }]);
+    go("today");
+    var outfit = todayResult.outfits[0];
+    renderOutfit($("todayOutfit"), outfit);
+    $("todayWhy").innerHTML = whyHTML(outfit);
+    $("btnWore").disabled = false;
+  }
+
+  // =====================================================================
+  // Journal
+  // =====================================================================
+  function renderJournal(){
+    var byId = E.indexById(liveItems());
+
+    var fb = $("feedbackCard");
+    fb.innerHTML = "";
+    var pending = state.log.filter(function(e){ return !e.feedback; });
+    if (pending.length){
+      var c = el("div","card");
+      c.appendChild(el("h2",null,"Waiting on your verdict"));
+      c.appendChild(el("p","note","One tap per outfit is what calibrates the warmth model to you " +
+        "rather than to a textbook."));
+      pending.slice(-3).forEach(function(entry){
+        var row = el("div","list-row");
+        var body = el("div","body");
+        body.appendChild(el("div","t", entry.date));
+        body.appendChild(el("div","s", entry.items.map(function(id){ return byId[id] ? byId[id].name : id; }).join(", ")));
+        row.appendChild(body);
+        var wrap = el("div","chips");
+        [["cold","🥶"],["right","👌"],["warm","🥵"]].forEach(function(p){
+          var b = el("button","chip", p[1]);
+          b.onclick = function(){ recordFeedback(entry, p[0]); };
+          wrap.appendChild(b);
+        });
+        row.appendChild(wrap);
+        c.appendChild(row);
+      });
+      fb.appendChild(c);
+    }
+
+    var list = $("logList");
+    list.innerHTML = "";
+    if (!state.log.length){
+      list.appendChild(el("p","note","Nothing recorded yet. \"I wore this\" on the Today screen starts the log."));
+    } else {
+      state.log.slice().reverse().slice(0,25).forEach(function(entry){
+        var row = el("div","list-row");
+        var first = byId[entry.items[0]];
+        if (first) row.appendChild(itemImg(first));
+        var body = el("div","body");
+        body.appendChild(el("div","t", entry.date + (entry.feedback ? "  " + ({cold:"🥶",right:"👌",warm:"🥵"})[entry.feedback] : "")));
+        body.appendChild(el("div","s", entry.items.map(function(id){ return byId[id] ? byId[id].name : id; }).join(", ")));
+        row.appendChild(body);
+        list.appendChild(row);
+      });
+    }
+
+    // Things that quietly stopped being worn. Nothing is done about them
+    // automatically — it is a prompt, not a decision.
+    var dead = $("deadStock");
+    dead.innerHTML = "";
+    var stale = liveItems().filter(function(i){
+      var d = E.daysBetween(i.lastWorn, todayISO());
+      return d === null ? false : d >= 90;
+    }).sort(function(a,b){ return (a.lastWorn||"") < (b.lastWorn||"") ? -1 : 1; });
+    if (!stale.length){
+      dead.appendChild(el("p","note","Nothing has been sitting unworn for three months."));
+    } else {
+      stale.slice(0,10).forEach(function(item){
+        var row = el("div","list-row");
+        row.appendChild(itemImg(item));
+        var body = el("div","body");
+        body.appendChild(el("div","t", item.name));
+        body.appendChild(el("div","s","last worn " + item.lastWorn + " · " +
+          E.daysBetween(item.lastWorn, todayISO()) + " days ago"));
+        row.appendChild(body);
+        row.onclick = function(){ openItem(item); };
+        dead.appendChild(row);
+      });
+    }
+
+    // Passing on an outfit is never destructive, so everything here is reversible.
+    var rej = $("rejectedList");
+    rej.innerHTML = "";
+    if (!state.rejected.length){
+      rej.appendChild(el("p","note","You haven't passed on anything yet."));
+    } else {
+      state.rejected.slice().reverse().slice(0,20).forEach(function(entry){
+        var row = el("div","list-row");
+        var body = el("div","body");
+        var names = (entry.items||entry.key.split("+")).map(function(id){ return byId[id] ? byId[id].name : id; });
+        body.appendChild(el("div","t", names.join(" + ")));
+        body.appendChild(el("div","s", new Date(entry.at).toLocaleDateString()));
+        row.appendChild(body);
+        var b = el("button",null,"Undo");
+        b.onclick = function(){ undoRejection(entry); };
+        row.appendChild(b);
+        rej.appendChild(row);
+      });
+    }
+  }
+
+  // Undo removes the swipe from the log and retrains from what is left, so the
+  // model ends up exactly where it would have been had the swipe never happened.
+  function undoRejection(entry){
+    state.rejected = state.rejected.filter(function(r){ return r !== entry; });
+    var idx = -1;
+    for (var i = state.swipes.length - 1; i >= 0; i--){
+      if (state.swipes[i].key === entry.key && !state.swipes[i].liked) { idx = i; break; }
+    }
+    if (idx !== -1) state.swipes.splice(idx, 1);
+    retrainTaste();
+    markDirty();
+    render();
+  }
+
+  // =====================================================================
+  // Settings
+  // =====================================================================
+  function renderSettings(){
+    var s = state.settings;
+    $("setCity").value = s.city || "";
+    $("setRepeat").value = s.repeatDays;
+    $("repeatVal").textContent = s.repeatDays;
+    $("setTol").value = s.tolScale || 1;
+    $("tolHint").textContent = (s.tolScale||1) <= 1
+      ? "Strict — only outfits that match today's temperature closely."
+      : "Loose — allows outfits up to " + Math.round((s.tolScale||1)*100-100) + "% further from ideal.";
+    $("setOutline").value = s.outlinePx;
+    $("outlineVal").textContent = s.outlinePx;
+    $("offsetVal").textContent = (s.cloOffset||0).toFixed(2);
+    $("offsetHint").textContent = !s.cloOffset
+      ? "No calibration yet. Answer cold / just right / too warm after wearing an outfit and this moves."
+      : (s.cloOffset < 0
+        ? "You run cold — outfits are being picked about " + Math.abs(s.cloOffset/E.CLO_PER_DEGREE).toFixed(1) + "° warmer than the textbook says."
+        : "You run warm — outfits are being picked about " + (s.cloOffset/E.CLO_PER_DEGREE).toFixed(1) + "° lighter than the textbook says.");
+
+    $("cOccasion").className = "chip" + (s.occasionFilter !== false ? " on" : "");
+    $("cDirty").className = "chip" + (s.includeDirty === true ? " on" : "");
+    $("cPins").className = "chip" + (s.usePins !== false ? " on" : "");
+
+    $("geoState").textContent = (typeof s.lat === "number")
+      ? "Using saved coordinates (" + s.lat.toFixed(2) + ", " + s.lon.toFixed(2) + ")."
+      : "Using the city above.";
+
+    $("tokenState").innerHTML = canWrite()
+      ? "Connected as <b>" + esc(getDevice()) + "</b> — changes are committed to " + esc(REPO || "") + "."
+      : "Read-only on this device. Connect a GitHub token to save changes.";
+    $("btnConnect").textContent = canWrite() ? "Disconnect" : "Connect";
+    $("btnClearDemo").style.display = usingDemo() ? "" : "none";
+
+    $("aboutText").innerHTML =
+      "Wardrobe data lives in <code>" + esc(DATA_PATH) + "</code> in this repository, which is public — " +
+      "the clothes and photos in it are readable by anyone who finds it. " +
+      "Insulation is measured in clo against the ISO 9920 tables; weather comes from Open-Meteo; " +
+      "background removal runs in this browser and never uploads the photo anywhere.";
+  }
+
+  function bindSettings(){
+    $("setCity").onchange = function(){
+      state.settings.city = $("setCity").value.trim();
+      state.settings.lat = state.settings.lon = null;
+      markDirty();
+      loadWeather(true).then(render).catch(function(){});
+    };
+    $("setRepeat").oninput = function(){
+      state.settings.repeatDays = parseInt($("setRepeat").value,10);
+      $("repeatVal").textContent = state.settings.repeatDays;
+    };
+    $("setRepeat").onchange = function(){ markDirty(); render(); };
+    $("setTol").oninput = function(){
+      state.settings.tolScale = parseFloat($("setTol").value);
+      renderSettings();
+    };
+    $("setTol").onchange = function(){ markDirty(); render(); };
+    $("setOutline").oninput = function(){
+      state.settings.outlinePx = parseInt($("setOutline").value,10);
+      $("outlineVal").textContent = state.settings.outlinePx;
+    };
+    $("setOutline").onchange = function(){ markDirty(); };
+    $("cOccasion").onclick = function(){ state.settings.occasionFilter = state.settings.occasionFilter === false; markDirty(); render(); };
+    $("cDirty").onclick = function(){ state.settings.includeDirty = !state.settings.includeDirty; markDirty(); render(); };
+    $("cPins").onclick = function(){ state.settings.usePins = state.settings.usePins === false; markDirty(); render(); };
+    $("btnResetOffset").onclick = function(){ state.settings.cloOffset = 0; markDirty(); render(); };
+    $("btnGeo").onclick = async function(){
+      $("geoState").textContent = "Asking…";
+      var loc = await askGeolocation();
+      if (!loc){ $("geoState").textContent = "Location refused or unavailable — still using the city above."; return; }
+      state.settings.lat = loc.lat; state.settings.lon = loc.lon;
+      markDirty();
+      await loadWeather(true);
+      render();
+    };
+    $("btnClearDemo").onclick = function(){
+      state.settings.demo = false;
+      demoItems = [];
+      markDirty();
+      render();
+    };
+    $("btnConnect").onclick = function(){ canWrite() ? disconnect() : openConnect(); };
+  }
+
+  function disconnect(){
+    if (!confirm("Forget the token on this device? The wardrobe stays where it is.")) return;
+    try { localStorage.removeItem(LS.token); } catch(e){}
+    render();
+  }
+
+  function openConnect(){
+    openDialog("Connect to GitHub", function(body){
+      body.appendChild(el("p","note",
+        "Saving needs a fine-grained personal access token with Contents: Read and write on " +
+        (REPO || "this repository") + ". The Analyze button additionally needs Actions: Read and write. " +
+        "The token is stored only in this browser."));
+      var f = field(body, "Token");
+      var i = el("input");
+      i.type = "password";
+      i.placeholder = "github_pat_…";
+      f.appendChild(i);
+      var f2 = field(body, "Name this device");
+      var d = el("input");
+      d.value = getDevice() !== "unknown device" ? getDevice() : "";
+      d.placeholder = "iPhone";
+      f2.appendChild(d);
+      body.__token = i; body.__device = d;
+    }, [
+      { label:"Cancel", onClick: closeDialog },
+      { label:"Save", cls:"primary", onClick: function(){
+          var tok = $("dlgBody").__token.value.trim();
+          var dev = $("dlgBody").__device.value.trim() || "a device";
+          if (!tok) return;
+          try { localStorage.setItem(LS.token, tok); localStorage.setItem(LS.device, dev); } catch(e){}
+          closeDialog();
+          loadWardrobe().then(render);
+        } }
+    ]);
+  }
+
+  // =====================================================================
+  // Navigation
+  // =====================================================================
+  function go(name){
+    screen = name;
+    document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+    $("scr-" + name).classList.add("active");
+    document.querySelectorAll("nav button").forEach(function(b){
+      b.classList.toggle("on", b.dataset.screen === name);
+    });
+    window.scrollTo(0,0);
+    render();
+  }
+
+  function updateNavDots(){
+    var gaps = E.gapsQueue(liveItems()).length;
+    var btn = document.querySelector('nav button[data-screen="wardrobe"]');
+    var dot = btn.querySelector(".dot");
+    if (gaps && !dot){ btn.appendChild(el("span","dot")); }
+    else if (!gaps && dot){ dot.remove(); }
+  }
+
+  function render(){
+    if (screen === "today") renderToday();
+    else if (screen === "deck"){ if (!deck.length || deckPos >= deck.length) buildDeck(); renderDeck(); }
+    else if (screen === "wardrobe") renderWardrobe();
+    else if (screen === "journal") renderJournal();
+    else if (screen === "settings") renderSettings();
+    updateNavDots();
+  }
+
+  // =====================================================================
+  // Photo -> sticker
+  //
+  // The cutout runs in this browser. The model is fetched once from a CDN and
+  // cached by the browser after that, so nothing is uploaded anywhere and the
+  // second item onwards works offline.
+  // =====================================================================
+  var MAX_EDGE = 1024;
+  var MODEL_URL = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6";
+  var segmenter = null, segmenterFailed = false;
+
+  function canvasOf(w, h){
+    var c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    return c;
+  }
+
+  async function fileToCanvas(file){
+    // imageOrientation honours the EXIF rotation, which phone photos always carry.
+    var bmp = await createImageBitmap(file, { imageOrientation: "from-image" });
+    var scale = Math.min(1, MAX_EDGE / Math.max(bmp.width, bmp.height));
+    var w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale);
+    var c = canvasOf(w, h);
+    c.getContext("2d").drawImage(bmp, 0, 0, w, h);
+    bmp.close && bmp.close();
+    return c;
+  }
+
+  // An image that already has transparency has been cut out somewhere else —
+  // iOS can lift a subject straight out of Photos. Take it as given rather than
+  // running it through the model again.
+  function alphaFraction(canvas){
+    var d = canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height).data;
+    var clear = 0, step = 4 * 7;                       // sample, don't scan every pixel
+    for (var i = 3; i < d.length; i += step) if (d[i] < 250) clear++;
+    return clear / (d.length / step);
+  }
+
+  async function loadSegmenter(onProgress){
+    if (segmenter) return segmenter;
+    if (segmenterFailed) throw new Error("model unavailable");
+    var mod = await import(MODEL_URL + "/+esm");
+    mod.env.allowLocalModels = false;
+    if (mod.env.backends && mod.env.backends.onnx && mod.env.backends.onnx.wasm){
+      mod.env.backends.onnx.wasm.proxy = false;
+    }
+    var device = ("gpu" in navigator) ? "webgpu" : "wasm";
+    try {
+      segmenter = await mod.pipeline("background-removal", "briaai/RMBG-1.4", {
+        device: device, progress_callback: onProgress
+      });
+    } catch (e){
+      // WebGPU is newer than the model support on some phones; wasm always works.
+      segmenter = await mod.pipeline("background-removal", "briaai/RMBG-1.4", {
+        device: "wasm", progress_callback: onProgress
+      });
+    }
+    return segmenter;
+  }
+
+  // Returns a mask canvas: white where the garment is, black where it isn't.
+  async function autoMask(sourceCanvas, onProgress){
+    var seg = await loadSegmenter(onProgress);
+    var url = sourceCanvas.toDataURL("image/png");
+    var out = await seg(url);
+    var img = Array.isArray(out) ? out[0] : out;
+    var rgba = img.rgba ? img.rgba() : img;
+    var w = sourceCanvas.width, h = sourceCanvas.height;
+    var tmp = canvasOf(rgba.width, rgba.height);
+    var id = tmp.getContext("2d").createImageData(rgba.width, rgba.height);
+    var data = rgba.data;
+    for (var i = 0, p = 0; i < rgba.width * rgba.height; i++, p += 4){
+      var a = data[p + 3];
+      id.data[p] = id.data[p+1] = id.data[p+2] = a;
+      id.data[p+3] = 255;
+    }
+    tmp.getContext("2d").putImageData(id, 0, 0);
+    var mask = canvasOf(w, h);
+    mask.getContext("2d").drawImage(tmp, 0, 0, w, h);
+    return mask;
+  }
+
+  function maskFromAlpha(sourceCanvas){
+    var w = sourceCanvas.width, h = sourceCanvas.height;
+    var src = sourceCanvas.getContext("2d").getImageData(0,0,w,h);
+    var mask = canvasOf(w,h);
+    var id = mask.getContext("2d").createImageData(w,h);
+    for (var p = 0; p < src.data.length; p += 4){
+      var a = src.data[p+3];
+      id.data[p] = id.data[p+1] = id.data[p+2] = a;
+      id.data[p+3] = 255;
+    }
+    mask.getContext("2d").putImageData(id,0,0);
+    return mask;
+  }
+
+  function fullMask(w, h){
+    var mask = canvasOf(w,h);
+    var ctx = mask.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0,0,w,h);
+    return mask;
+  }
+
+  // The sticker: the garment cut out by the mask, sitting on a white outline so a
+  // black coat doesn't vanish into a dark background. The outline is drawn by
+  // stamping a white silhouette around a circle and putting the garment on top.
+  function composeSticker(source, mask, outlinePx){
+    var w = source.width, h = source.height, pad = Math.max(2, outlinePx + 2);
+    var cut = canvasOf(w,h);
+    var cx = cut.getContext("2d");
+    cx.drawImage(source, 0, 0);
+    cx.globalCompositeOperation = "destination-in";
+    cx.drawImage(mask, 0, 0);
+    cx.globalCompositeOperation = "source-over";
+
+    var out = canvasOf(w + pad*2, h + pad*2);
+    var oc = out.getContext("2d");
+
+    if (outlinePx > 0){
+      var sil = canvasOf(w,h);
+      var sc = sil.getContext("2d");
+      sc.drawImage(cut, 0, 0);
+      sc.globalCompositeOperation = "source-in";
+      sc.fillStyle = "#ffffff";
+      sc.fillRect(0,0,w,h);
+      for (var i = 0; i < 24; i++){
+        var a = i / 24 * Math.PI * 2;
+        oc.drawImage(sil, pad + Math.cos(a)*outlinePx, pad + Math.sin(a)*outlinePx);
+      }
+    }
+    oc.drawImage(cut, pad, pad);
+    return trimTransparent(out);
+  }
+
+  // A sticker with a wide empty margin renders tiny in a grid of squares.
+  function trimTransparent(canvas){
+    var w = canvas.width, h = canvas.height;
+    var d = canvas.getContext("2d").getImageData(0,0,w,h).data;
+    var minX = w, minY = h, maxX = -1, maxY = -1;
+    for (var y = 0; y < h; y++){
+      for (var x = 0; x < w; x++){
+        if (d[(y*w + x)*4 + 3] > 8){
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < 0) return canvas;
+    var bw = maxX - minX + 1, bh = maxY - minY + 1;
+    var side = Math.max(bw, bh);
+    var out = canvasOf(side, side);
+    out.getContext("2d").drawImage(canvas, minX, minY, bw, bh,
+      Math.round((side-bw)/2), Math.round((side-bh)/2), bw, bh);
+    return out;
+  }
+
+  // The colour the outfit rules reason about: the median of what survived the
+  // cut, so a background wall can't become "the colour of the shirt".
+  function dominantColour(sticker){
+    var w = sticker.width, h = sticker.height;
+    var d = sticker.getContext("2d").getImageData(0,0,w,h).data;
+    var rs = [], gs = [], bs = [];
+    for (var p = 0; p < d.length; p += 4){
+      if (d[p+3] < 200) continue;
+      // Skip the white outline itself.
+      if (d[p] > 246 && d[p+1] > 246 && d[p+2] > 246) continue;
+      rs.push(d[p]); gs.push(d[p+1]); bs.push(d[p+2]);
+    }
+    if (!rs.length) return "#888888";
+    function med(a){ a.sort(function(x,y){ return x-y; }); return a[Math.floor(a.length/2)]; }
+    var hex = function(v){ return ("0" + Math.round(v).toString(16)).slice(-2); };
+    return "#" + hex(med(rs)) + hex(med(gs)) + hex(med(bs));
+  }
+
+  function canvasToBlob(canvas, type, quality){
+    return new Promise(function(resolve){ canvas.toBlob(resolve, type, quality); });
+  }
+  function blobToBase64(blob){
+    return new Promise(function(resolve, reject){
+      var r = new FileReader();
+      r.onload = function(){ resolve(String(r.result).split(",")[1]); };
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  // =====================================================================
+  // Add item flow
+  // =====================================================================
+  function openAdd(){
+    var input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = function(){
+      if (input.files && input.files[0]) startCutout(input.files[0]);
+    };
+    input.click();
+  }
+
+  async function startCutout(file){
+    var source = null, mask = null, outlinePx = state.settings.outlinePx;
+    var brush = { size: 40, mode: "erase", drawing: false };
+
+    openDialog("Cut it out", function(body){
+      var stage = el("div"); stage.id = "cutStage";
+      body.appendChild(stage);
+      var status = el("div","cut-status","Reading the photo…");
+      body.appendChild(status);
+      body.__status = status;
+      body.__stage = stage;
+
+      var tools = el("div","chips");
+      tools.style.marginTop = "6px";
+      var eraseBtn = el("button","chip on","Erase");
+      var keepBtn = el("button","chip","Restore");
+      eraseBtn.onclick = function(){ brush.mode = "erase"; eraseBtn.classList.add("on"); keepBtn.classList.remove("on"); };
+      keepBtn.onclick = function(){ brush.mode = "keep"; keepBtn.classList.add("on"); eraseBtn.classList.remove("on"); };
+      tools.appendChild(eraseBtn); tools.appendChild(keepBtn);
+      body.appendChild(tools);
+
+      var sf = field(body, "Brush size");
+      var si = el("input"); si.type = "range"; si.min = "10"; si.max = "140"; si.value = brush.size;
+      si.oninput = function(){ brush.size = parseInt(si.value,10); };
+      sf.appendChild(si);
+      addHint(sf, "Drag on the picture to fix what the cutout got wrong — thin straps and busy backgrounds are where it usually slips.");
+
+      var of = field(body, "White outline");
+      var oi = el("input"); oi.type = "range"; oi.min = "0"; oi.max = "16"; oi.value = outlinePx;
+      oi.oninput = function(){ outlinePx = parseInt(oi.value,10); paint(); };
+      of.appendChild(oi);
+      addHint(of, "Keeps a dark garment from disappearing into a dark background.");
+    }, [
+      { label:"Cancel", onClick: closeDialog },
+      { label:"Next", cls:"primary", onClick: function(){ finish(); } }
+    ]);
+
+    var stage = $("dlgBody").__stage;
+    var status = $("dlgBody").__status;
+    var view = canvasOf(600,600);
+    stage.appendChild(view);
+
+    function paint(){
+      if (!source) return;
+      var sticker = composeSticker(source, mask, outlinePx);
+      view.width = sticker.width; view.height = sticker.height;
+      var v = view.getContext("2d");
+      v.clearRect(0,0,view.width,view.height);
+      // Show what was cut away, faintly, so the brush has something to aim at.
+      v.globalAlpha = 0.16;
+      v.drawImage(source, (view.width - source.width)/2, (view.height - source.height)/2);
+      v.globalAlpha = 1;
+      v.drawImage(sticker, 0, 0);
+    }
+
+    // Painting happens on the mask at source resolution, so brush strokes survive
+    // the sticker being trimmed and re-centred.
+    function paintAt(ev){
+      var r = stage.getBoundingClientRect();
+      var sx = (ev.clientX - r.left) / r.width * view.width;
+      var sy = (ev.clientY - r.top) / r.height * view.height;
+      var offX = (view.width - source.width)/2, offY = (view.height - source.height)/2;
+      var mx = sx - offX, my = sy - offY;
+      var mc = mask.getContext("2d");
+      mc.globalCompositeOperation = "source-over";
+      mc.fillStyle = brush.mode === "erase" ? "#000" : "#fff";
+      mc.beginPath();
+      mc.arc(mx, my, brush.size/2, 0, Math.PI*2);
+      mc.fill();
+      paint();
+    }
+
+    stage.addEventListener("pointerdown", function(ev){
+      if (!source) return;
+      brush.drawing = true;
+      stage.setPointerCapture(ev.pointerId);
+      paintAt(ev);
+    });
+    stage.addEventListener("pointermove", function(ev){
+      if (!brush.drawing) return;
+      ev.preventDefault();
+      paintAt(ev);
+    });
+    stage.addEventListener("pointerup", function(){ brush.drawing = false; });
+    stage.addEventListener("pointercancel", function(){ brush.drawing = false; });
+
+    try {
+      source = await fileToCanvas(file);
+      mask = fullMask(source.width, source.height);
+      paint();
+
+      if (alphaFraction(source) > 0.12){
+        mask = maskFromAlpha(source);
+        status.textContent = "This photo already had its background removed — using it as it is.";
+        paint();
+      } else {
+        status.textContent = "Loading the cutout model (about 45 MB, once)…";
+        try {
+          mask = await autoMask(source, function(p){
+            if (p && p.status === "progress" && p.total){
+              status.textContent = "Downloading the cutout model — " + Math.round(p.progress || 0) + "%";
+            } else if (p && p.status === "ready"){
+              status.textContent = "Cutting out…";
+            }
+          });
+          status.textContent = "Cut out. Brush over anything it got wrong.";
+        } catch (err){
+          segmenterFailed = true;
+          status.innerHTML = '<span style="color:var(--guess)">The cutout model could not be loaded ' +
+            "(" + esc(err.message||"offline") + "). The whole photo is kept — erase the background by hand, " +
+            "or cancel and upload a picture you have already cut out.</span>";
+        }
+        paint();
+      }
+    } catch (err){
+      status.textContent = "Couldn't read that image: " + (err.message || err);
+    }
+
+    async function finish(){
+      if (!source) return;
+      var sticker = composeSticker(source, mask, outlinePx);
+      var colour = dominantColour(sticker);
+      closeDialog();
+      openDetails(sticker, source, colour);
+    }
+  }
+
+  // Only the name is required here. Everything else starts as a marked guess and
+  // can be filled in later, or by the agent.
+  function openDetails(sticker, source, colour){
+    var draft = {
+      id: null, name: "", slot: "top", layer: 1, warmth: 3, clo: null,
+      formality: 2, pattern: "solid", color: colour,
+      guessed: ["warmth","formality","pattern"],
+      occasions: null, fabric: null, season: null, fit: null, waterproof: false,
+      washAfter: null, wearsSinceWash: 0, lastWorn: null, pinnedUntil: null,
+      agentGuessed: {}
+    };
+
+    openDialog("Name it", function(body){
+      var pv = el("img");
+      pv.src = sticker.toDataURL("image/png");
+      pv.style.cssText = "width:150px;height:150px;object-fit:contain;background:var(--sticker-bg);border-radius:12px;display:block;margin:0 auto 14px";
+      body.appendChild(pv);
+
+      var nf = field(body, "Name");
+      var ni = el("input");
+      ni.placeholder = "Yellow t-shirt";
+      ni.oninput = function(){ draft.name = ni.value; };
+      nf.appendChild(ni);
+      addHint(nf, "This is the only answer that is needed. Everything else can be filled in later, " +
+        "from the Fill the gaps list or by the agent.");
+      setTimeout(function(){ ni.focus(); }, 60);
+
+      chipRow(body, "Where it sits",
+        [{value:"top",label:"Top"},{value:"bottom",label:"Bottom"},{value:"outer",label:"Outer"},
+         {value:"shoes",label:"Shoes"},{value:"accessory",label:"Accessory"}],
+        function(){ return draft.slot; },
+        function(v){
+          draft.slot = v;
+          draft.washAfter = E.defaultWashAfter(draft);
+          renderLayer();
+        });
+
+      var layerHost = el("div");
+      body.appendChild(layerHost);
+      function renderLayer(){
+        layerHost.innerHTML = "";
+        if (draft.slot !== "top") return;
+        chipRow(layerHost, "Layer",
+          [{value:1,label:"Base"},{value:2,label:"Mid"},{value:3,label:"Over"}],
+          function(){ return draft.layer; }, function(v){ draft.layer = v; },
+          "A t-shirt is a base, a shirt a mid, a sweater an over — this is what lets them be worn together.");
+      }
+      renderLayer();
+      draft.washAfter = E.defaultWashAfter(draft);
+    }, [
+      { label:"Back", onClick: closeDialog },
+      { label:"Add", cls:"primary", onClick: function(){ saveNewItem(draft, sticker, source); } }
+    ]);
+  }
+
+  async function saveNewItem(draft, sticker, source){
+    if (!draft.name.trim()){ alert("It needs a name."); return; }
+    if (!canWrite()){
+      showBanner("This device is read-only, so a new item can't be committed. Connect a token in Settings.");
+      closeDialog();
+      return;
+    }
+    closeDialog();
+    setStatus("Saving photo…", "saving");
+
+    draft.id = uniqueId(slugify(draft.name));
+    var stickerPath = "wardrobe/items/" + draft.id + ".webp";
+    var sourcePath = "wardrobe/items/" + draft.id + "-src.jpg";
+    draft.image = "items/" + draft.id + ".webp";
+    draft.source = "items/" + draft.id + "-src.jpg";
+
+    try {
+      var stickerBlob = await canvasToBlob(sticker, "image/webp", 0.85);
+      var sourceBlob = await canvasToBlob(source, "image/jpeg", 0.72);
+      var files = [
+        { path: stickerPath, base64: await blobToBase64(stickerBlob) },
+        { path: sourcePath, base64: await blobToBase64(sourceBlob) }
+      ];
+      state.items.push(draft);
+      // The original is kept so the mask can be redone from another device later.
+      // One commit for all three files, so the JSON never points at a photo that
+      // isn't there yet.
+      await save(files, "Add " + draft.name + " to the wardrobe");
+      render();
+    } catch (err){
+      state.items = state.items.filter(function(i){ return i.id !== draft.id; });
+      setStatus("Not saved", "error");
+      showBanner("Couldn't save that item: " + esc(err.message || String(err)));
+      render();
+    }
+  }
+
+  // =====================================================================
+  // The agent
+  //
+  // Triggering runs a workflow_dispatch, which needs Actions: Read and write on
+  // the token — a permission the schedule app never needed. Rather than failing
+  // with a bare 403, say exactly what to change, and point at the route that
+  // needs no token change at all.
+  // =====================================================================
+  function agentGaps(){
+    return E.gapsQueue(state.items).length;
+  }
+
+  async function triggerAgent(){
+    var gaps = agentGaps();
+    if (!state.items.length){
+      showBanner("Nothing to analyze yet — the demo pieces already have their details filled in.");
+      return;
+    }
+    if (!gaps){
+      showBanner("Every item is already complete. Nothing for the agent to do.");
+      return;
+    }
+    if (!canWrite()){ openConnect(); return; }
+    if (dirty) await save([], "Update wardrobe");
+
+    setStatus("Starting the agent…", "saving");
+    try {
+      var r = await fetch(API + "/actions/workflows/" + AGENT_WORKFLOW + "/dispatches", {
+        method:"POST", headers: ghHeaders(),
+        body: JSON.stringify({ ref: CFG.branch || "main" })
+      });
+      if (r.status === 403 || r.status === 404){
+        setStatus("Ready","");
+        showBanner(
+          "GitHub wouldn't start the workflow (" + r.status + "). The token needs " +
+          "<code>Actions: Read and write</code> in addition to Contents — regenerate it with that " +
+          "permission and reconnect. You can also run it with no token change at all: " +
+          "GitHub → Actions → <b>Fill wardrobe gaps</b> → Run workflow.",
+          [{ label:"Open Actions", onClick: function(){
+              window.open("https://github.com/" + REPO + "/actions/workflows/" + AGENT_WORKFLOW, "_blank");
+            } }]);
+        return;
+      }
+      if (!r.ok) throw new Error("GitHub said " + r.status);
+      setStatus("Agent running", "saved");
+      showBanner("The agent is looking at " + gaps + " item" + (gaps===1?"":"s") +
+        ". It commits its suggestions when it's done — reload in a minute or two to review them.",
+        [{ label:"Watch it", onClick: function(){
+            window.open("https://github.com/" + REPO + "/actions/workflows/" + AGENT_WORKFLOW, "_blank");
+          } },
+          { label:"Reload", onClick: function(){ location.reload(); } }]);
+    } catch (err){
+      setStatus("Ready","");
+      showBanner("Couldn't start the agent: " + esc(err.message || String(err)));
+    }
+  }
+
+  // Everything the agent wrote is a proposal. It goes nowhere near the real
+  // fields until it is accepted here.
+  function renderAgentReview(){
+    var host = $("agentReview");
+    host.innerHTML = "";
+    var pending = state.items.filter(function(i){
+      return i.agentGuessed && Object.keys(i.agentGuessed).length;
+    });
+    if (!pending.length) return;
+
+    var count = 0;
+    pending.forEach(function(i){ count += Object.keys(i.agentGuessed).length; });
+
+    var card = el("div","card");
+    card.appendChild(el("h2", null, "The agent filled in " + count + " field" + (count===1?"":"s")));
+    card.appendChild(el("p","note",
+      "Each of these is a guess until you accept it. Nothing you entered yourself was touched."));
+
+    pending.slice(0,6).forEach(function(item){
+      var row = el("div","list-row");
+      row.appendChild(itemImg(item));
+      var body = el("div","body");
+      body.appendChild(el("div","t", item.name));
+      Object.keys(item.agentGuessed).forEach(function(field){
+        var g = item.agentGuessed[field];
+        var line = el("div","s");
+        var value = field === "warmth" ? STEP_NAME[(g.value|0)-1] || g.value : g.value;
+        line.innerHTML = "<b>" + esc(field) + "</b>: " + esc(String(value)) +
+          ' <span class="pill guess">' + Math.round((g.confidence||0)*100) + "%</span>" +
+          (g.why ? "<br>" + esc(g.why) : "");
+        body.appendChild(line);
+      });
+      row.appendChild(body);
+      var acc = el("button","primary","Accept");
+      acc.onclick = function(){ acceptAgent(item); };
+      row.appendChild(acc);
+      card.appendChild(row);
+    });
+
+    var foot = el("div","row");
+    var all = el("button","primary","Accept all");
+    all.onclick = function(){ pending.forEach(acceptAgent); };
+    var none = el("button",null,"Discard all");
+    none.onclick = function(){
+      pending.forEach(function(i){ i.agentGuessed = {}; });
+      markDirty(); render();
+    };
+    foot.appendChild(all); foot.appendChild(none);
+    card.appendChild(foot);
+    host.appendChild(card);
+  }
+
+  function acceptAgent(item){
+    Object.keys(item.agentGuessed || {}).forEach(function(field){
+      item[field] = item.agentGuessed[field].value;
+      item.guessed = (item.guessed||[]).filter(function(k){ return k !== field; });
+    });
+    item.agentGuessed = {};
+    if (item.warmth) item.clo = null;
+    markDirty();
+    render();
+  }
+
+  // =====================================================================
+  // Wearing an outfit
+  // =====================================================================
+  function wearToday(){
+    var outfit = todayResult && todayResult.outfits[todayIndex];
+    if (!outfit) return;
+    if (usingDemo()){
+      showBanner("That's a demo outfit — add your own clothes before the journal means anything.");
+      return;
+    }
+    var today = todayISO();
+    var existing = state.log.find(function(e){ return e.date === today; });
+    if (existing && !confirm("Today is already logged. Replace it?")) return;
+    if (existing) state.log = state.log.filter(function(e){ return e !== existing; });
+
+    state.log.push({ date: today, items: outfit.ids, at: new Date().toISOString() });
+    var byId = E.indexById(state.items);
+    outfit.ids.forEach(function(id){
+      var item = byId[id];
+      if (!item) return;
+      item.wearsSinceWash = (item.wearsSinceWash || 0) + 1;
+      item.lastWorn = today;
+    });
+    // A liked outfit is a swipe too — wearing something is the strongest signal
+    // there is, and it would be strange for it to teach the model nothing.
+    state.swipes.push({ at: new Date().toISOString(), items: outfit.ids, liked: true, key: outfit.key, worn: true });
+    retrainTaste();
+    markDirty();
+    setStatus("Logged", "saved");
+    render();
+  }
+
+  // =====================================================================
+  // Boot
+  // =====================================================================
+  document.querySelectorAll("nav button").forEach(function(b){
+    b.onclick = function(){ go(b.dataset.screen); };
+  });
+  $("btnWore").onclick = wearToday;
+  $("btnAnother").onclick = function(){
+    if (!todayResult || !todayResult.outfits.length) { openRecovery(); return; }
+    todayIndex = (todayIndex + 1) % todayResult.outfits.length;
+    var outfit = todayResult.outfits[todayIndex];
+    renderOutfit($("todayOutfit"), outfit);
+    $("todayWhy").innerHTML = whyHTML(outfit);
+  };
+  $("btnAdd").onclick = openAdd;
+  $("btnAnalyze").onclick = triggerAgent;
+  $("btnLike").onclick = function(){
+    var card = $("deckStage").querySelector(".swipecard:not(.back)");
+    if (card && card.__fly) card.__fly(true);
+  };
+  $("btnNope").onclick = function(){
+    var card = $("deckStage").querySelector(".swipecard:not(.back)");
+    if (card && card.__fly) card.__fly(false);
+  };
+  document.addEventListener("keydown", function(ev){
+    if (screen !== "deck" || $("dlg").open) return;
+    if (ev.key === "ArrowRight") $("btnLike").click();
+    if (ev.key === "ArrowLeft") $("btnNope").click();
+  });
+  bindSettings();
+
+  (async function boot(){
+    setStatus("Loading…", "");
+    cacheLoad();
+    await Promise.all([ loadWardrobe(), loadDemo() ]);
+    retrainTaste();
+    render();
+
+    // The weather and the calendar are both allowed to fail without taking the
+    // app down: an outfit picked at a default temperature beats a blank screen.
+    loadOccasion().then(function(){ if (screen === "today") render(); });
+    loadWeather(false).then(function(){ render(); }).catch(function(err){
+      $("wxMeta").textContent = "No weather right now — picking for a mild day.";
+      console.warn("weather:", err);
+    });
+  })();
+
+  if ("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -545,6 +545,10 @@
     var relax = ctx.relax || 0;
     var criteria = ctx.criteria || {};
 
+    // The training deck deliberately ignores the weather: its job is to learn
+    // taste, and only showing today's weather-appropriate outfits would teach
+    // the model nothing about the other three seasons.
+    var ignoreInsulation = criteria.ignoreInsulation === true;
     var allowDirty = relax >= 4 || criteria.includeDirty === true;
     var applyOccasion = !(relax >= 2) && criteria.occasionFilter !== false;
     var repeatDays = relax >= 1 ? 0
@@ -579,7 +583,7 @@
       // running is the entire point of pinning it.
       if (!pinned && repeatDays && wornRecently(it, state.log, today, repeatDays)) { eliminated.repeat++; continue; }
       if (ctx.rain && it.slot === "shoes" && it.fabric === "suede") { eliminated.rain++; continue; }
-      if (!pinned && relax < 3 && tooThickForToday(it, need)) { eliminated.seasonal++; continue; }
+      if (!pinned && relax < 3 && !ignoreInsulation && tooThickForToday(it, need)) { eliminated.seasonal++; continue; }
       var key = poolKey(it);
       if (!pools[key]) continue;
       pools[key].push(it);
@@ -631,12 +635,14 @@
                 if (ctx.rain && outerOptions[x] && outerOptions[x].waterproof !== true) { eliminated.rain++; continue; }
 
                 var warmth = totalClo(combo);
-                var accessories = pickAccessories(pools.accessory, need - warmth, today, usePins);
+                var accessories = pickAccessories(pools.accessory, ignoreInsulation ? 0 : need - warmth, today, usePins);
                 var withAcc = combo.concat(accessories);
                 warmth = totalClo(withAcc);
 
-                if (need - warmth > tolCold) { eliminated.insulation++; continue; }
-                if (warmth - need > tolWarm) { eliminated.insulation++; continue; }
+                if (!ignoreInsulation){
+                  if (need - warmth > tolCold) { eliminated.insulation++; continue; }
+                  if (warmth - need > tolWarm) { eliminated.insulation++; continue; }
+                }
                 if (ctx.rain && !outerOptions[x]) { eliminated.rain++; continue; }
 
                 var key = outfitKey(withAcc);

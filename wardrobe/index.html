@@ -132,13 +132,15 @@
   .row > button{flex:1; min-width:110px}
 
   /* ---- deck ---- */
-  #deckStage{position:relative; height:390px; margin:4px 0 8px; touch-action:pan-y}
+  #deckStage{position:relative; height:390px; margin:4px 0 26px; touch-action:pan-y}
   .swipecard{
     position:absolute; inset:0; background:var(--card); border:1px solid var(--border);
     border-radius:18px; padding:14px; display:flex; flex-direction:column; justify-content:center;
     box-shadow:0 6px 22px rgba(0,0,0,.09); will-change:transform;
   }
-  .swipecard.back{transform:scale(.95) translateY(10px); opacity:.65; pointer-events:none}
+  /* Nudged down further than it is narrowed, so it actually peeks out from under
+     the front card instead of hiding inside its footprint. */
+  .swipecard.back{transform:translateY(16px) scaleX(.955); opacity:.6; pointer-events:none}
   .stamp{
     position:absolute; top:16px; font-size:20px; font-weight:800; letter-spacing:.06em;
     padding:5px 12px; border-radius:9px; border:3px solid; opacity:0; pointer-events:none;
@@ -1073,7 +1075,6 @@
   // =====================================================================
   function renderWardrobe(){
     var items = liveItems();
-    $("demoBadge").style.display = usingDemo() ? "" : "none";
 
     // Slot filter
     var sf = $("slotFilter");
@@ -1758,6 +1759,7 @@
   }
 
   function render(){
+    $("demoBadge").style.display = usingDemo() ? "" : "none";
     if (screen === "today") renderToday();
     else if (screen === "deck"){ if (!deck.length || deckPos >= deck.length) buildDeck(); renderDeck(); }
     else if (screen === "wardrobe") renderWardrobe();

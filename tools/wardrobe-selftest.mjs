@@ -12,6 +12,10 @@ import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
+// The agent's pure half. Its SDK import is lazy, so this loads with nothing
+// installed.
+const agent = await import("./wardrobe-agent.mjs");
+
 // The engine is a plain script that assigns to globalThis, so node can just run it.
 new Function(readFileSync(join(ROOT, "wardrobe", "engine.js"), "utf8"))();
 const E = globalThis.WardrobeEngine;
@@ -556,6 +560,213 @@ check("the why-line does not congratulate a rule that had nothing to judge", () 
   const engaged = E.engagedRules(neutrals);
   if (engaged.harmony) return "harmony should not count as engaged with no non-neutral colours";
   if (engaged.focus) return "focus should not count as engaged with no accents";
+  return null;
+});
+
+// ========================================================= weather-free deck
+
+check("the training deck ignores the weather entirely", () => {
+  // Learning taste from only today's weather-appropriate outfits would teach the
+  // model nothing about the other three seasons.
+  const crit = { ignoreInsulation: true, occasionFilter: false, repeatDays: 0 };
+  const res = E.recommend(state(), { today: TODAY, tempC: 30, criteria: crit });
+  if (!anyHas(res.outfits, "parka-heavy")) return "a parka never appears in the training deck";
+  if (!anyHas(res.outfits, "shorts-khaki")) return "shorts never appear in the training deck";
+  if (res.eliminated.insulation) return "the insulation rule still eliminated candidates";
+  if (res.eliminated.seasonal) return "the hot-day thickness rule still applied";
+  return null;
+});
+
+check("the weather-free deck does not pile on every accessory", () => {
+  const crit = { ignoreInsulation: true, occasionFilter: false, repeatDays: 0 };
+  const res = E.recommend(state(), { today: TODAY, tempC: 30, criteria: crit });
+  const overloaded = res.outfits.find((o) => o.items.filter((i) => i.slot === "accessory").length > 1);
+  return overloaded ? `an outfit stacked accessories with no gap to fill: ${overloaded.key}` : null;
+});
+
+check("today's screen still respects the weather", () => {
+  const res = E.recommend(state(), { today: TODAY, tempC: 30 });
+  return anyHas(res.outfits, "parka-heavy") ? "a parka survived the 30 °C filter" : null;
+});
+
+// ============================================================= gaps relevance
+
+check("the gaps queue only asks about things that change a suggestion", () => {
+  // A queue that cries wolf gets ignored, and takes the thickness question with it.
+  const complete = item({ id: "c", name: "C", slot: "top", layer: 1, warmth: 3, color: "#111",
+                          pattern: "solid", formality: 2, washAfter: 1, occasions: null,
+                          season: null, fit: null, guessed: [] });
+  const gaps = E.gapsFor(complete).map((g) => g.field);
+  if (gaps.length) return `a fully specified top still shows gaps: ${gaps.join(", ")}`;
+  if (E.completeness(complete) !== 1) return "completeness should be 100% for that item";
+  return null;
+});
+
+check("an empty occasions list is an answer, not a gap", () => {
+  // Silence means the piece goes anywhere, and the engine treats it that way.
+  const it = item({ id: "o", name: "O", slot: "top", warmth: 3, color: "#111", pattern: "solid",
+                    formality: 2, washAfter: 1, occasions: null });
+  if (E.gapsFor(it).some((g) => g.field === "occasions")) return "occasions was reported as a gap";
+  return E.occasionOk(it, "lab") ? null : "an untagged item should pass the lab filter";
+});
+
+check("waterproofing is only asked about outerwear", () => {
+  const tee = item({ id: "t", name: "T", slot: "top", warmth: 3, color: "#111", pattern: "solid", formality: 2, washAfter: 1 });
+  delete tee.waterproof;
+  const coat = item({ id: "k", name: "K", slot: "outer", warmth: 4, color: "#111", pattern: "solid", formality: 2, washAfter: 20 });
+  delete coat.waterproof;
+  if (E.gapsFor(tee).some((g) => g.field === "waterproof")) return "a t-shirt was asked whether it is waterproof";
+  if (!E.gapsFor(coat).some((g) => g.field === "waterproof")) return "a coat was not asked whether it is waterproof";
+  return null;
+});
+
+check("the demo wardrobe ships with nothing left to fill in", () => {
+  // The demo exists to show the app working, not to hand over a to-do list.
+  const demo = JSON.parse(readFileSync(join(ROOT, "wardrobe", "demo", "demo.json"), "utf8"));
+  const queue = E.gapsQueue(demo.items);
+  if (queue.length) {
+    return queue.slice(0, 3).map((q) => `${q.item.name}: ${q.gaps.map((g) => g.field).join(", ")}`).join("; ");
+  }
+  return null;
+});
+
+check("the demo wardrobe can dress a hot day and a cold one", () => {
+  const demo = JSON.parse(readFileSync(join(ROOT, "wardrobe", "demo", "demo.json"), "utf8"));
+  const s = { items: demo.items, log: [], swipes: [], rejected: [], taste: { weights: {}, n: 0 }, settings: {} };
+  for (const temp of [32, 24, 16, 8, 0]) {
+    const res = E.recommend(s, { today: TODAY, tempC: temp });
+    if (!res.outfits.length) return `the demo wardrobe produced nothing at ${temp} °C`;
+  }
+  const rain = E.recommend(s, { today: TODAY, tempC: 12, rain: true });
+  return rain.outfits.length ? null : "the demo wardrobe produced nothing in the rain";
+});
+
+// ============================================================== agent boundary
+//
+// The agent's one promise is that it never overwrites an answer Umut gave. These
+// feed it a reply built to break that promise.
+
+function settledItem() {
+  return item({
+    id: "settled", name: "Grey wool jumper", slot: "top", layer: 3,
+    warmth: 5, formality: 3, pattern: "solid", color: "#7a7a7a",
+    fabric: "wool", washAfter: 6, occasions: ["smart"], waterproof: false,
+    guessed: [], agentGuessed: {}
+  });
+}
+
+check("the agent cannot overwrite anything answered by hand", () => {
+  const w = { items: [settledItem()] };
+  const before = JSON.stringify(w.items[0]);
+  // A reply that tries to rewrite every single field.
+  const hostile = [{ id: "settled", fields: {
+    warmth:     { value: 1, confidence: 0.99, why: "looks thin" },
+    formality:  { value: 1, confidence: 0.99, why: "looks sporty" },
+    pattern:    { value: "patterned", confidence: 0.99, why: "sees a pattern" },
+    color:      { value: "#ff0000", confidence: 0.99, why: "sees red" },
+    fabric:     { value: "synthetic", confidence: 0.99, why: "looks synthetic" },
+    washAfter:  { value: 1, confidence: 0.99, why: "wash often" },
+    waterproof: { value: true, confidence: 0.99, why: "looks coated" }
+  } }];
+  const report = agent.applyProposals(w, hostile, "2026-08-22");
+  if (JSON.stringify(w.items[0]) !== before) {
+    return "a hand-entered item was modified:\n    " + before + "\n    " + JSON.stringify(w.items[0]);
+  }
+  if (report.filled !== 0) return `wrote ${report.filled} field(s) it should have refused`;
+  if (report.refusedSettled !== 7) return `expected 7 refusals, counted ${report.refusedSettled}`;
+  return null;
+});
+
+check("the agent fills a genuine gap, but only as a proposal", () => {
+  const it = settledItem();
+  delete it.fabric;
+  it.guessed = ["warmth"];
+  const w = { items: [it] };
+  const report = agent.applyProposals(w, [{ id: "settled", fields: {
+    warmth: { value: 4, confidence: 0.7, why: "chunky ribbed knit" },
+    fabric: { value: "wool", confidence: 0.8, why: "matted wool surface" }
+  } }], "2026-08-22");
+
+  if (report.filled !== 2) return `expected 2 proposals, got ${report.filled}`;
+  // The real fields must still be untouched -- a proposal is not an answer.
+  if (w.items[0].warmth !== 5) return "the agent changed the real warmth field";
+  if (w.items[0].fabric !== undefined) return "the agent wrote the real fabric field";
+  if (!w.items[0].agentGuessed.warmth) return "the proposal was not recorded";
+  if (w.items[0].agentGuessed.warmth.value !== 4) return "the proposal lost its value";
+  if (!w.items[0].agentGuessed.warmth.why) return "the proposal lost its reasoning";
+  return null;
+});
+
+check("a proposal keeps the item in the gaps queue until it is accepted", () => {
+  const it = settledItem();
+  it.guessed = ["warmth"];
+  const w = { items: [it] };
+  agent.applyProposals(w, [{ id: "settled", fields: {
+    warmth: { value: 4, confidence: 0.7, why: "chunky knit" } } }], "2026-08-22");
+  const gaps = E.gapsFor(w.items[0]).find((g) => g.field === "warmth");
+  if (!gaps) return "the item dropped out of the queue on an unaccepted proposal";
+  return gaps.state === "agent" ? null : `expected state 'agent', got '${gaps.state}'`;
+});
+
+check("nonsense from the model is discarded rather than stored", () => {
+  const it = settledItem();
+  delete it.fabric; delete it.washAfter;
+  it.guessed = ["warmth", "pattern"];
+  const w = { items: [it] };
+  const report = agent.applyProposals(w, [{ id: "settled", fields: {
+    warmth:    { value: 11, confidence: 0.9, why: "out of range" },
+    pattern:   { value: "tie-dye", confidence: 0.9, why: "not one of the options" },
+    fabric:    { value: "unobtainium", confidence: 0.9, why: "not a fabric" },
+    washAfter: { value: -3, confidence: 0.9, why: "negative" },
+    nonsense:  { value: 1, confidence: 0.9, why: "not a field at all" }
+  } }], "2026-08-22");
+  if (report.filled !== 0) return `stored ${report.filled} invalid answer(s)`;
+  if (report.refusedInvalid !== 5) return `expected 5 rejections, counted ${report.refusedInvalid}`;
+  if (Object.keys(w.items[0].agentGuessed).length) return "an invalid answer reached agentGuessed";
+  return null;
+});
+
+check("a proposal for an item that no longer exists is dropped", () => {
+  const w = { items: [settledItem()] };
+  const report = agent.applyProposals(w, [{ id: "deleted-since", fields: {
+    warmth: { value: 3, confidence: 0.9, why: "..." } } }], "2026-08-22");
+  return report.refusedUnknownItem === 1 && report.filled === 0 ? null : JSON.stringify(report);
+});
+
+check("the agent asks about exactly the gaps the app shows", () => {
+  const it = item({ id: "q", name: "Q", slot: "top", layer: 1, warmth: null, color: "#111",
+                    pattern: "solid", formality: 2, washAfter: 1, guessed: [] });
+  it.fabric = null;
+  const asked = agent.fieldsToAsk(it).sort();
+  if (!asked.includes("warmth")) return "it would not ask about the thickness";
+  if (!asked.includes("fabric")) return "it would not ask what the garment is made of";
+  if (asked.includes("waterproof")) return "it would ask whether a t-shirt is waterproof";
+  return null;
+});
+
+check("the agent does not re-ask something already awaiting review", () => {
+  const it = item({ id: "r", name: "R", slot: "top", layer: 1, warmth: null, color: "#111",
+                    pattern: "solid", formality: 2, washAfter: 1, fabric: "cotton",
+                    guessed: [], agentGuessed: { warmth: { value: 3, confidence: 0.5, why: "x" } } });
+  return agent.fieldsToAsk(it).includes("warmth")
+    ? "it would spend another request re-asking a question already answered" : null;
+});
+
+check("accepting a proposal is what finally settles the field", () => {
+  // Mirrors what acceptAgent does in the app.
+  const it = settledItem();
+  it.warmth = null; it.guessed = ["warmth"];
+  const w = { items: [it] };
+  agent.applyProposals(w, [{ id: "settled", fields: {
+    warmth: { value: 4, confidence: 0.8, why: "chunky knit" } } }], "2026-08-22");
+
+  const target = w.items[0];
+  target.warmth = target.agentGuessed.warmth.value;
+  target.guessed = target.guessed.filter((k) => k !== "warmth");
+  target.agentGuessed = {};
+
+  if (target.warmth !== 4) return "the accepted value did not land";
+  if (E.gapsFor(target).some((g) => g.field === "warmth")) return "the item stayed in the queue after acceptance";
   return null;
 });
 

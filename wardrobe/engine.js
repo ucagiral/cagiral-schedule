@@ -722,14 +722,29 @@
   // Ordered by how much the missing field distorts a decision, not alphabetically:
   // a wrong thickness makes him cold, a missing fabric makes almost no difference.
 
-  var GAP_PRIORITY = { warmth: 100, pattern: 60, formality: 45, color: 40, occasions: 25, waterproof: 20, washAfter: 15, fabric: 10, season: 8, fit: 5 };
+  // Only fields that actually change a suggestion. season and fit are in the data
+  // model and the agent may fill them, but nothing here reads them, so nagging
+  // about them would be busywork -- and a queue that cries wolf gets ignored,
+  // taking the thickness question down with it.
+  var GAP_PRIORITY = { warmth: 100, pattern: 60, formality: 45, color: 40, waterproof: 20, washAfter: 15, fabric: 10 };
+
+  // Several of those only matter for one kind of garment: whether a t-shirt is
+  // waterproof decides nothing, and suede is only ever asked about shoes.
+  function gapApplies(field, item) {
+    if (field === "waterproof") return item.slot === "outer";
+    if (field === "fabric") return item.slot === "shoes" || item.slot === "outer";
+    return true;
+  }
 
   function gapsFor(item) {
     var gaps = [];
     var guessed = item.guessed || [];
     for (var k in GAP_PRIORITY) {
       if (!GAP_PRIORITY.hasOwnProperty(k)) continue;
-      var missing = item[k] === null || item[k] === undefined || (k === "occasions" && (!item[k] || !item[k].length));
+      if (!gapApplies(k, item)) continue;
+      // An empty occasions list is a real answer -- it means the piece goes
+      // anywhere -- which is why occasions is not on this list at all.
+      var missing = item[k] === null || item[k] === undefined;
       var isGuess = guessed.indexOf(k) !== -1 || (item.agentGuessed && item.agentGuessed[k]);
       if (missing || isGuess) {
         gaps.push({
@@ -757,9 +772,9 @@
   function completeness(item) {
     var total = 0, filled = 0;
     for (var k in GAP_PRIORITY) {
-      if (!GAP_PRIORITY.hasOwnProperty(k)) continue;
+      if (!GAP_PRIORITY.hasOwnProperty(k) || !gapApplies(k, item)) continue;
       total++;
-      var missing = item[k] === null || item[k] === undefined || (k === "occasions" && (!item[k] || !item[k].length));
+      var missing = item[k] === null || item[k] === undefined;
       var isGuess = (item.guessed || []).indexOf(k) !== -1 || (item.agentGuessed && item.agentGuessed[k]);
       if (!missing && !isGuess) filled++;
     }
@@ -892,6 +907,7 @@
 
     applyFeedback: applyFeedback,
     gapsFor: gapsFor,
+    gapApplies: gapApplies,
     gapsQueue: gapsQueue,
     completeness: completeness,
 

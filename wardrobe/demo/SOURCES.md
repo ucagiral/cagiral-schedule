@@ -1,6 +1,6 @@
 # Where the demo clothes come from
 
-These sixteen pieces exist so the app can be opened and used before a single real
+These seventeen pieces exist so the app can be opened and used before a single real
 garment has been photographed. They are not Umut's clothes, they never mix with
 them, and the moment a real item is added they stop being used. **Clear demo data**
 in Settings removes them for good.
@@ -40,6 +40,7 @@ its own add-item flow.
 | `navy-shirt.webp` | Navy shirt | shirt | `train/shirt/185b7ae2-0400-40ae-8668-6ac72f737060.jpg` |
 | `off-white-jeans.webp` | Off-white jeans | pants | `train/pants/0ad5bfb5-0f2b-4396-8c05-39ca0a9a2960.jpg` |
 | `pale-blue-tee.webp` | Pale blue tee | t-shirt | `train/t-shirt/0e9dc3b7-f9de-4bc0-8ec1-8f442b4dcba4.jpg` |
+| `pink-puffer-coat.webp` | Pink puffer coat | outwear | `train/outwear/6d57d841-f0f9-4aa2-971f-0149ce938319.jpg` |
 | `plaid-cap.webp` | Plaid cap | hat | `train/hat/678edcd0-607e-433d-8433-46e11fb24df3.jpg` |
 | `red-trousers.webp` | Red trousers | pants | `train/pants/0a7e5fe0-d592-40e6-b9b8-75aac9a2d685.jpg` |
 | `teal-surf-tee.webp` | Teal surf tee | t-shirt | `train/t-shirt/13b58794-6daf-419a-94a7-97b7806e481e.jpg` |

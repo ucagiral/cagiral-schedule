@@ -1,0 +1,66 @@
+name: Fill wardrobe gaps
+
+# Looks at the clothes the wardrobe app doesn't fully know about -- an unknown
+# thickness, an unrecorded fabric -- and works them out from the photo and the
+# name. Everything it decides is written as a proposal that has to be accepted in
+# the app; it cannot overwrite an answer that was given by hand.
+#
+# Run from the app's "Analyze wardrobe" button, or from the Actions tab here.
+# There is deliberately no schedule: it costs money per run and only has work to
+# do just after new clothes are added.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "List the gaps without calling the model"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wardrobe-agent
+  cancel-in-progress: false
+
+jobs:
+  fill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check the key is present
+        if: ${{ !inputs.dry_run }}
+        run: |
+          if [ -z "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            echo "::error::ANTHROPIC_API_KEY is not set. Add it under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+      # Installed here rather than committed: the rest of this repository's
+      # tooling runs on a bare node with no dependencies, and that is worth
+      # keeping true everywhere except this one job.
+      - name: Install the SDK
+        if: ${{ !inputs.dry_run }}
+        run: npm install --no-save --no-audit --no-fund @anthropic-ai/sdk zod
+
+      - name: Fill the gaps
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node tools/wardrobe-agent.mjs ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Commit if it changed
+        run: |
+          if git diff --quiet -- wardrobe/wardrobe.json; then
+            echo "No proposals to record."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add wardrobe/wardrobe.json
+          git commit -m "Agent: propose values for wardrobe gaps [skip ci]"
+          git push

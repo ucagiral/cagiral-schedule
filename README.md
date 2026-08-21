@@ -308,13 +308,18 @@ after you add clothes.
 
 ```
 node tools/wardrobe-selftest.mjs           # 64 checks on the rules
+node tools/wardrobe-browser-test.mjs       # 31 checks on the app, in a real browser
 node tools/wardrobe-agent.mjs --dry-run    # what the agent would ask, without calling anything
 ```
 
-The checks are the claims worth distrusting: no sweater at 30 °C, no bare outfit at 5 °C, a pinned
-bottom in every outfit and its rivals in none, everything inside the insulation tolerance, undo
-restoring the taste model exactly, and the agent leaving a fully specified garment byte for byte
-identical when handed a reply built to rewrite all of it.
+The first suite is the claims worth distrusting about the rules: no sweater at 30 °C, no bare outfit
+at 5 °C, a pinned bottom in every outfit and its rivals in none, everything inside the insulation
+tolerance, undo restoring the taste model exactly, and the agent leaving a fully specified garment
+byte for byte identical when handed a reply built to rewrite all of it.
+
+The second drives the actual app in chromium with GitHub and the weather stood in for locally — and
+the GitHub stand-in implements the real git data API, so what the app commits is checked as bytes
+rather than as intent. It needs playwright; without it, it says so and exits without failing.
 
 ### What it deliberately doesn't do
 

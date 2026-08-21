@@ -3,3 +3,6 @@ __pycache__/
 
 # Crawl result, not a source artefact: rebuilt on demand and cached by CI.
 loops/_datasets.json
+
+# Screenshots written by tools/wardrobe-browser-test.mjs.
+.wardrobe-shots/

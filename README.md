@@ -270,10 +270,10 @@ it is fitted to you rather than to a textbook.
 
 ### What an outfit looks like
 
-The garments are scattered across one shared surface rather than lined up in equal boxes — roughly
-the order you put them on, top-left to bottom-right, knocked out of line. The layout is seeded from
-the outfit, so an outfit always looks like itself and the card doesn't reshuffle under your thumb
-when you change one thing.
+One row per part of the body, top down: anything on your head, then the tops and outerwear side by
+side, then the bottom, then the shoes. Empty rows take no space. Nothing overlaps, so nothing is
+hidden — and every garment can be grabbed anywhere, which an earlier scattered version could not
+manage.
 
 There is one backdrop behind the whole outfit and no box around any garment. That backdrop is
 load-bearing: the white outline is baked into each cutout at upload time and cannot change with the
@@ -281,15 +281,26 @@ theme, so with nothing behind it a white shirt disappears on a white card.
 
 **Drag one garment to change just that garment.** Left throws it away and asks for another with
 everything else held exactly as it is; right keeps it and rebuilds the rest around it. Dragging the
-card itself, away from any garment, still judges the whole outfit as before. Tapping a garment names
-it and offers the same swap, plus the one multi-day control: *keep wearing this — tomorrow, three
-days, a week*.
+card itself, away from any garment, still judges the whole outfit. Tapping a garment names it and
+offers the same swap, how long you are keeping it, and a way to set it aside.
 
-That distinction matters beyond the interface. Rejecting one piece is the sharpest opinion you can
-give, and the app used to spend it badly: a rejection moved every garment in the outfit, so swiping
-away the shoes punished the trousers you kept. A per-piece swipe now records which piece it was
-about, and only that piece takes the blame — the colour and formality rules still learn from the
-combination, because the combination really is what was rejected.
+### When you turn a garment down
+
+Rejecting one piece is the sharpest opinion you can give, and the app used to waste it twice over.
+A rejection moved every garment in the outfit, so swiping away the shoes punished the trousers you
+kept. And the learned model carried about 1% of the decision on the day you gave it, so a rejected
+t-shirt came back in eight of the next eight cards — and still did after twenty more rejections.
+Feedback that changes nothing you can see is worse than no feedback.
+
+Both are fixed, and they pull in different directions on purpose:
+
+- **A rejection is about a context, not just a garment.** It is stored with the rest of the outfit,
+  and that piece never returns while the company is the same. "The same" is not "identical": white
+  cotton trousers and white fabric ones are the same context, navy ones are not. Colour and
+  formality count; fabric and cut do not.
+- **The model now has a say while your opinion is still fresh.** A handful of rejections visibly
+  moves the ranking, and a garment you keep turning down drops out of the deck within about eight.
+  One rejection still doesn't banish anything — it was one opinion about one context.
 
 ### Two screens, two jobs
 
@@ -304,24 +315,50 @@ Nothing you pass on is ever deleted. When a deck runs out there is a screen that
 filtered what, and offers to drop the rules one at a time, clear what you passed on, or let you set
 the criteria by hand.
 
-### Wearing things more than once
+### Wearing things more than once, and setting things aside
 
 There is no laundry tracking. Asking how many wears every garment gets before washing is a lot of
 questions to solve a problem that only comes up for the few things worn several days running — so
-those are the only ones you say anything about. Tap a piece on Today and choose how long you are
-keeping it; it then appears in every outfit until that date, exempt from the don't-repeat rule,
-since wearing it several days running is the entire point.
+those are the only ones you say anything about. Tap a piece on Today and say how long you are
+keeping it: a number of days, or the rest of this week (through Sunday, however far into the week
+you are). It then appears in every outfit until that date, exempt from the don't-repeat rule.
 
-The only thing keeping the same t-shirt off the card two days running is that don't-repeat window:
-three days by default, adjustable in Settings.
+When something goes wrong — you spill on the trousers you had pinned for the week — tap the piece
+and **set it aside**. It leaves every suggestion and loses its pin until you say otherwise. It is a
+switch, not a counter, and nothing asks you about it: it exists for the rare day it is needed, and
+the wardrobe grid badges it so it is not quietly forgotten.
+
+The only thing keeping the same t-shirt off the card two days running is the don't-repeat window:
+three days by default, adjustable in Settings. Logging what you wore today does not count against
+today — that used to blank the screen on a narrow day the moment you said what you had on.
+
+### Pairs
+
+A tab of nothing but one top and one bottom: swipe right if they go together, left if they don't.
+The pairs it asks about are the ones the app is already inclined to suggest and you haven't rated,
+so the minutes you spend here change what you actually see. It's a strong preference rather than a
+rule — an unrated pair can still turn up, which matters once a wardrobe is big enough that rating
+every combination is out of the question.
+
+### Telling it how the day went
+
+Say you wore something and the verdict appears straight away, on the same screen: **too cold / just
+right / too warm**, which is what fits the personal offset to you. Next to it is a box for whatever
+those three words cannot hold — the wind cut through the coat, the jumper itched, those two never
+worked together.
 
 ### The agent
 
-**Analyze wardrobe** looks at the clothes with gaps and works them out from the photo and the name —
-how thick that jumper is, what it is made of, whether that shell is actually waterproof.
+**Analyze wardrobe** does two jobs. It looks at the clothes with gaps and works them out from the
+photo and the name — how thick that jumper is, what it is made of, whether that shell is waterproof.
+And it reads the notes you left on what you wore, turning them into concrete corrections.
 
-It cannot overwrite anything you entered. Everything it concludes is a proposal with a confidence
-and a one-line reason, sitting in a review list until you accept it. Two things are needed once:
+Those two land in different places on purpose. Gap-filling refuses to touch anything you answered
+yourself, and that promise is worth keeping exactly as it is. A note saying the coat was not warm
+enough is by definition a contradiction of an answer you gave, so it appears as a suggestion instead
+— quoting the sentence it came from, labelled as disagreeing, and doing nothing until you accept it.
+
+Either way it cannot overwrite anything you entered. Two things are needed once:
 
 1. `ANTHROPIC_API_KEY` as a repository secret (Settings → Secrets and variables → Actions).
 2. **Actions: Read and write** on your token, on top of Contents — the schedule app never needed it.
@@ -334,16 +371,18 @@ after you add clothes.
 ### Checking it
 
 ```
-node tools/wardrobe-selftest.mjs           # 72 checks on the rules
-node tools/wardrobe-browser-test.mjs       # 58 checks on the app, in a real browser
+node tools/wardrobe-selftest.mjs           # 98 checks on the rules
+node tools/wardrobe-browser-test.mjs       # 77 checks on the app, in a real browser
 node tools/wardrobe-agent.mjs --dry-run    # what the agent would ask, without calling anything
 ```
 
 The first suite is the claims worth distrusting about the rules: no sweater at 30 °C, no bare outfit
 at 5 °C, a pinned bottom in every outfit and its rivals in none, everything inside the insulation
-tolerance, a per-piece rejection moving only that piece's weight and leaving the pieces you kept
-untouched, undo restoring the taste model exactly, and the agent leaving a fully specified garment
-byte for byte identical when handed a reply built to rewrite all of it.
+tolerance, a rejected garment never returning while the company is the same but still turning up
+somewhere genuinely different, a per-piece rejection leaving the pieces you kept untouched, logging
+today's outfit not emptying today's suggestions, undo restoring the taste model exactly, and the
+agent leaving a fully specified garment byte for byte identical when handed a reply built to rewrite
+all of it.
 
 The second drives the actual app in chromium with GitHub and the weather stood in for locally — and
 the GitHub stand-in implements the real git data API, so what the app commits is checked as bytes

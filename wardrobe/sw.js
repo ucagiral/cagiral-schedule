@@ -6,7 +6,7 @@
 // instantly and opens at all with no signal, but wardrobe.json is never cached —
 // a stale wardrobe would quietly suggest clothes that are in the wash. Item
 // photos are cached hard, because a sticker at a given path never changes.
-const CACHE = "wardrobe-v1";
+const CACHE = "wardrobe-v2";
 
 const SHELL = [
   ".",

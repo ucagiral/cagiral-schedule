@@ -46,34 +46,34 @@ const TODAY = "2026-08-21";
 function item(o) {
   return Object.assign({
     layer: 1, pattern: "solid", formality: 2, occasions: null,
-    fabric: null, waterproof: false, wearsSinceWash: 0, lastWorn: null,
+    fabric: null, waterproof: false, lastWorn: null,
     pinnedUntil: null, guessed: []
   }, o);
 }
 
 function wardrobe() {
   return [
-    item({ id: "tee-white",   name: "White tee",     slot: "top", layer: 1, warmth: 2, color: "#f0f0f0", formality: 2, washAfter: 1 }),
-    item({ id: "tee-yellow",  name: "Yellow tee",    slot: "top", layer: 1, warmth: 2, color: "#e8c33a", formality: 1, washAfter: 1 }),
-    item({ id: "tee-black",   name: "Black tee",     slot: "top", layer: 1, warmth: 2, color: "#202020", formality: 2, washAfter: 1 }),
-    item({ id: "shirt-green", name: "Green shirt",   slot: "top", layer: 2, warmth: 3, color: "#2f7a4f", formality: 3, washAfter: 3 }),
-    item({ id: "knit-grey",   name: "Grey sweater",  slot: "top", layer: 3, warmth: 4, color: "#7a7a7a", formality: 2, washAfter: 4 }),
-    item({ id: "knit-red",    name: "Red sweater",   slot: "top", layer: 3, warmth: 4, color: "#c0392b", formality: 2, washAfter: 4, occasions: ["casual"] }),
+    item({ id: "tee-white",   name: "White tee",     slot: "top", layer: 1, warmth: 2, color: "#f0f0f0", formality: 2 }),
+    item({ id: "tee-yellow",  name: "Yellow tee",    slot: "top", layer: 1, warmth: 2, color: "#e8c33a", formality: 1 }),
+    item({ id: "tee-black",   name: "Black tee",     slot: "top", layer: 1, warmth: 2, color: "#202020", formality: 2 }),
+    item({ id: "shirt-green", name: "Green shirt",   slot: "top", layer: 2, warmth: 3, color: "#2f7a4f", formality: 3 }),
+    item({ id: "knit-grey",   name: "Grey sweater",  slot: "top", layer: 3, warmth: 4, color: "#7a7a7a", formality: 2 }),
+    item({ id: "knit-red",    name: "Red sweater",   slot: "top", layer: 3, warmth: 4, color: "#c0392b", formality: 2, occasions: ["casual"] }),
 
-    item({ id: "chino-beige", name: "Beige chinos",  slot: "bottom", warmth: 3, color: "#c8b48c", formality: 3, washAfter: 5 }),
-    item({ id: "jeans-black", name: "Black jeans",   slot: "bottom", warmth: 4, color: "#202020", formality: 2, washAfter: 5 }),
-    item({ id: "shorts-khaki",name: "Khaki shorts",  slot: "bottom", warmth: 1, color: "#b5a882", formality: 1, washAfter: 3 }),
+    item({ id: "chino-beige", name: "Beige chinos",  slot: "bottom", warmth: 3, color: "#c8b48c", formality: 3 }),
+    item({ id: "jeans-black", name: "Black jeans",   slot: "bottom", warmth: 4, color: "#202020", formality: 2 }),
+    item({ id: "shorts-khaki",name: "Khaki shorts",  slot: "bottom", warmth: 1, color: "#b5a882", formality: 1 }),
 
-    item({ id: "shoe-sneak",  name: "White sneakers",slot: "shoes", warmth: 2, color: "#efefef", formality: 1, washAfter: 60 }),
-    item({ id: "shoe-boot",   name: "Brown boots",   slot: "shoes", warmth: 4, color: "#5b4632", formality: 3, washAfter: 60 }),
-    item({ id: "shoe-suede",  name: "Suede loafers", slot: "shoes", warmth: 3, color: "#8a6a4a", formality: 3, fabric: "suede", washAfter: 60 }),
+    item({ id: "shoe-sneak",  name: "White sneakers",slot: "shoes", warmth: 2, color: "#efefef", formality: 1 }),
+    item({ id: "shoe-boot",   name: "Brown boots",   slot: "shoes", warmth: 4, color: "#5b4632", formality: 3 }),
+    item({ id: "shoe-suede",  name: "Suede loafers", slot: "shoes", warmth: 3, color: "#8a6a4a", formality: 3, fabric: "suede" }),
 
-    item({ id: "coat-wool",   name: "Wool coat",     slot: "outer", warmth: 4, color: "#3a3a3a", formality: 3, waterproof: false, washAfter: 20 }),
-    item({ id: "parka-heavy", name: "Heavy parka",   slot: "outer", warmth: 5, color: "#2b3a4a", formality: 2, waterproof: false, washAfter: 20 }),
-    item({ id: "shell-rain",  name: "Rain shell",    slot: "outer", warmth: 2, color: "#33506b", formality: 2, waterproof: true,  washAfter: 20 }),
+    item({ id: "coat-wool",   name: "Wool coat",     slot: "outer", warmth: 4, color: "#3a3a3a", formality: 3, waterproof: false }),
+    item({ id: "parka-heavy", name: "Heavy parka",   slot: "outer", warmth: 5, color: "#2b3a4a", formality: 2, waterproof: false }),
+    item({ id: "shell-rain",  name: "Rain shell",    slot: "outer", warmth: 2, color: "#33506b", formality: 2, waterproof: true }),
 
-    item({ id: "scarf-wool",  name: "Wool scarf",    slot: "accessory", warmth: 4, color: "#8a2f2f", formality: 2, washAfter: 10 }),
-    item({ id: "cap-navy",    name: "Navy cap",      slot: "accessory", warmth: 2, color: "#1f2d46", formality: 1, washAfter: 10 })
+    item({ id: "scarf-wool",  name: "Wool scarf",    slot: "accessory", warmth: 4, color: "#8a2f2f", formality: 2 }),
+    item({ id: "cap-navy",    name: "Navy cap",      slot: "accessory", warmth: 2, color: "#1f2d46", formality: 1 })
   ];
 }
 
@@ -177,24 +177,26 @@ check("pinning can be switched off from the criteria panel", () => {
   return anyHas(res.outfits, "jeans-black") ? null : "rivals still suppressed with pins disabled";
 });
 
-// ================================================================ laundry
+// ================================================================ no laundry
 
-check("a dirty item drops out, and comes back after a wash", () => {
+check("nothing is ever withheld for being unwashed", () => {
+  // The laundry counter was removed deliberately: it asked a question about every
+  // garment in the wardrobe to solve a problem that only arises for the few worn
+  // several days running, and those get pinned instead.
   const s = state();
-  const tee = s.items.find((i) => i.id === "tee-white");
-  tee.wearsSinceWash = 1;                              // washAfter is 1
-  const dirty = E.recommend(s, { today: TODAY, tempC: 22 });
-  if (anyHas(dirty.outfits, "tee-white")) return "dirty tee still suggested";
-  if (!dirty.eliminated.dirty) return "dirty item was not counted as eliminated";
-  tee.wearsSinceWash = 0;
-  const clean = E.recommend(s, { today: TODAY, tempC: 22 });
-  return anyHas(clean.outfits, "tee-white") ? null : "washed tee did not come back";
+  s.items.forEach((i) => { i.wearsSinceWash = 99; i.washAfter = 1; });   // stale fields, if any linger
+  const res = E.recommend(s, { today: TODAY, tempC: 22 });
+  if (!res.outfits.length) return "leftover laundry fields still filter everything out";
+  if ("dirty" in res.eliminated) return "the eliminated report still has a dirty bucket";
+  return null;
 });
 
-check("wash limits default sensibly when not set", () => {
-  if (E.defaultWashAfter({ slot: "top", layer: 1 }) !== 1) return "base layer should be one wear";
-  if (E.defaultWashAfter({ slot: "bottom" }) < 3) return "bottoms should survive several wears";
-  if (E.defaultWashAfter({ slot: "outer" }) < 10) return "outerwear should not be washed constantly";
+check("no laundry concept survives anywhere in the engine's surface", () => {
+  for (const name of ["isDirty", "defaultWashAfter"]) {
+    if (name in E) return `${name} is still exported`;
+  }
+  if (E.RELAX_ORDER.includes("dirty")) return "the relax ladder still has a laundry rung";
+  if ("washAfter" in E.GAP_PRIORITY) return "the gaps queue still asks how often to wash things";
   return null;
 });
 
@@ -351,19 +353,20 @@ check("relaxing the rules produces more candidates and says what it dropped", ()
 
 check("each relax level is cumulative and names every rule it dropped", () => {
   const s = state();
-  s.items.find((i) => i.id === "tee-white").wearsSinceWash = 5;
-  const res = E.recommend(s, { today: TODAY, tempC: 20, relax: 4 });
-  for (const rule of ["repeat", "occasion", "insulation", "dirty"]) {
-    if (res.relaxed.indexOf(rule) === -1) return `level 4 did not report dropping ${rule}`;
+  s.log = [{ date: "2026-08-20", items: ["tee-white"] }];
+  const res = E.recommend(s, { today: TODAY, tempC: 20, relax: 3 });
+  for (const rule of ["repeat", "occasion", "insulation"]) {
+    if (res.relaxed.indexOf(rule) === -1) return `the last level did not report dropping ${rule}`;
   }
-  return anyHas(res.outfits, "tee-white") ? null : "dirty items still excluded at the last relax level";
+  return anyHas(res.outfits, "tee-white") ? null : "yesterday's tee still excluded at the last relax level";
 });
 
 check("elimination counts explain where the candidates went", () => {
   const s = state();
-  s.items.find((i) => i.id === "tee-white").wearsSinceWash = 5;
-  const res = E.recommend(s, { today: TODAY, tempC: 30 });
-  if (!res.eliminated.dirty) return "dirty eliminations not counted";
+  s.log = [{ date: "2026-08-20", items: ["tee-white"] }];
+  const res = E.recommend(s, { today: TODAY, tempC: 30, occasion: "lab" });
+  if (!res.eliminated.repeat) return "repeat eliminations not counted";
+  if (!res.eliminated.occasion) return "occasion eliminations not counted on a lab day";
   if (!res.eliminated.insulation) return "insulation eliminations not counted at 30 °C";
   return null;
 });
@@ -594,7 +597,7 @@ check("today's screen still respects the weather", () => {
 check("the gaps queue only asks about things that change a suggestion", () => {
   // A queue that cries wolf gets ignored, and takes the thickness question with it.
   const complete = item({ id: "c", name: "C", slot: "top", layer: 1, warmth: 3, color: "#111",
-                          pattern: "solid", formality: 2, washAfter: 1, occasions: null,
+                          pattern: "solid", formality: 2, occasions: null,
                           season: null, fit: null, guessed: [] });
   const gaps = E.gapsFor(complete).map((g) => g.field);
   if (gaps.length) return `a fully specified top still shows gaps: ${gaps.join(", ")}`;
@@ -605,15 +608,15 @@ check("the gaps queue only asks about things that change a suggestion", () => {
 check("an empty occasions list is an answer, not a gap", () => {
   // Silence means the piece goes anywhere, and the engine treats it that way.
   const it = item({ id: "o", name: "O", slot: "top", warmth: 3, color: "#111", pattern: "solid",
-                    formality: 2, washAfter: 1, occasions: null });
+                    formality: 2, occasions: null });
   if (E.gapsFor(it).some((g) => g.field === "occasions")) return "occasions was reported as a gap";
   return E.occasionOk(it, "lab") ? null : "an untagged item should pass the lab filter";
 });
 
 check("waterproofing is only asked about outerwear", () => {
-  const tee = item({ id: "t", name: "T", slot: "top", warmth: 3, color: "#111", pattern: "solid", formality: 2, washAfter: 1 });
+  const tee = item({ id: "t", name: "T", slot: "top", warmth: 3, color: "#111", pattern: "solid", formality: 2 });
   delete tee.waterproof;
-  const coat = item({ id: "k", name: "K", slot: "outer", warmth: 4, color: "#111", pattern: "solid", formality: 2, washAfter: 20 });
+  const coat = item({ id: "k", name: "K", slot: "outer", warmth: 4, color: "#111", pattern: "solid", formality: 2 });
   delete coat.waterproof;
   if (E.gapsFor(tee).some((g) => g.field === "waterproof")) return "a t-shirt was asked whether it is waterproof";
   if (!E.gapsFor(coat).some((g) => g.field === "waterproof")) return "a coat was not asked whether it is waterproof";
@@ -650,7 +653,7 @@ function settledItem() {
   return item({
     id: "settled", name: "Grey wool jumper", slot: "top", layer: 3,
     warmth: 5, formality: 3, pattern: "solid", color: "#7a7a7a",
-    fabric: "wool", washAfter: 6, occasions: ["smart"], waterproof: false,
+    fabric: "wool", occasions: ["smart"], waterproof: false,
     guessed: [], agentGuessed: {}
   });
 }
@@ -665,7 +668,6 @@ check("the agent cannot overwrite anything answered by hand", () => {
     pattern:    { value: "patterned", confidence: 0.99, why: "sees a pattern" },
     color:      { value: "#ff0000", confidence: 0.99, why: "sees red" },
     fabric:     { value: "synthetic", confidence: 0.99, why: "looks synthetic" },
-    washAfter:  { value: 1, confidence: 0.99, why: "wash often" },
     waterproof: { value: true, confidence: 0.99, why: "looks coated" }
   } }];
   const report = agent.applyProposals(w, hostile, "2026-08-22");
@@ -673,7 +675,7 @@ check("the agent cannot overwrite anything answered by hand", () => {
     return "a hand-entered item was modified:\n    " + before + "\n    " + JSON.stringify(w.items[0]);
   }
   if (report.filled !== 0) return `wrote ${report.filled} field(s) it should have refused`;
-  if (report.refusedSettled !== 7) return `expected 7 refusals, counted ${report.refusedSettled}`;
+  if (report.refusedSettled !== 6) return `expected 6 refusals, counted ${report.refusedSettled}`;
   return null;
 });
 
@@ -710,15 +712,15 @@ check("a proposal keeps the item in the gaps queue until it is accepted", () => 
 
 check("nonsense from the model is discarded rather than stored", () => {
   const it = settledItem();
-  delete it.fabric; delete it.washAfter;
+  delete it.fabric; delete it.color;
   it.guessed = ["warmth", "pattern"];
   const w = { items: [it] };
   const report = agent.applyProposals(w, [{ id: "settled", fields: {
-    warmth:    { value: 11, confidence: 0.9, why: "out of range" },
-    pattern:   { value: "tie-dye", confidence: 0.9, why: "not one of the options" },
-    fabric:    { value: "unobtainium", confidence: 0.9, why: "not a fabric" },
-    washAfter: { value: -3, confidence: 0.9, why: "negative" },
-    nonsense:  { value: 1, confidence: 0.9, why: "not a field at all" }
+    warmth:   { value: 11, confidence: 0.9, why: "out of range" },
+    pattern:  { value: "tie-dye", confidence: 0.9, why: "not one of the options" },
+    fabric:   { value: "unobtainium", confidence: 0.9, why: "not a fabric" },
+    color:    { value: "not-a-colour", confidence: 0.9, why: "not a hex value" },
+    nonsense: { value: 1, confidence: 0.9, why: "not a field at all" }
   } }], "2026-08-22");
   if (report.filled !== 0) return `stored ${report.filled} invalid answer(s)`;
   if (report.refusedInvalid !== 5) return `expected 5 rejections, counted ${report.refusedInvalid}`;
@@ -735,7 +737,7 @@ check("a proposal for an item that no longer exists is dropped", () => {
 
 check("the agent asks about exactly the gaps the app shows", () => {
   const it = item({ id: "q", name: "Q", slot: "top", layer: 1, warmth: null, color: "#111",
-                    pattern: "solid", formality: 2, washAfter: 1, guessed: [] });
+                    pattern: "solid", formality: 2, guessed: [] });
   it.fabric = null;
   const asked = agent.fieldsToAsk(it).sort();
   if (!asked.includes("warmth")) return "it would not ask about the thickness";
@@ -746,7 +748,7 @@ check("the agent asks about exactly the gaps the app shows", () => {
 
 check("the agent does not re-ask something already awaiting review", () => {
   const it = item({ id: "r", name: "R", slot: "top", layer: 1, warmth: null, color: "#111",
-                    pattern: "solid", formality: 2, washAfter: 1, fabric: "cotton",
+                    pattern: "solid", formality: 2, fabric: "cotton",
                     guessed: [], agentGuessed: { warmth: { value: 3, confidence: 0.5, why: "x" } } });
   return agent.fieldsToAsk(it).includes("warmth")
     ? "it would spend another request re-asking a question already answered" : null;
@@ -768,6 +770,102 @@ check("accepting a proposal is what finally settles the field", () => {
   if (target.warmth !== 4) return "the accepted value did not land";
   if (E.gapsFor(target).some((g) => g.field === "warmth")) return "the item stayed in the queue after acceptance";
   return null;
+});
+
+// =========================================================== changing one piece
+
+check("replacing a piece changes that piece and nothing else", () => {
+  const s = state();
+  const res = E.recommend(s, { today: TODAY, tempC: 16 });
+  const outfit = res.outfits[0];
+  const shoes = outfit.items.find((i) => i.slot === "shoes");
+  const next = E.replacePiece(s, outfit, shoes.id, { today: TODAY, tempC: 16 });
+
+  if (!next) return "no alternative found for the shoes";
+  if (next.ids.includes(shoes.id)) return "the rejected piece came back";
+  const kept = outfit.ids.filter((id) => id !== shoes.id);
+  for (const id of kept) if (!next.ids.includes(id)) return `${id} was dropped, but only the shoes were rejected`;
+  if (next.ids.length !== outfit.ids.length) return `the outfit changed size: ${outfit.ids.length} -> ${next.ids.length}`;
+  const swapped = next.ids.find((id) => !outfit.ids.includes(id));
+  const swappedItem = s.items.find((i) => i.id === swapped);
+  return swappedItem.slot === "shoes" ? null : `the replacement was a ${swappedItem.slot}, not shoes`;
+});
+
+check("a held piece survives filters that would otherwise drop it", () => {
+  // The user is looking at this outfit right now; nothing gets to remove a piece
+  // they deliberately kept.
+  const s = state();
+  s.log = [{ date: "2026-08-20", items: ["chino-beige"] }];   // would trip the repeat rule
+  const res = E.recommend(s, { today: TODAY, tempC: 16, criteria: { hold: ["chino-beige"] } });
+  if (!res.outfits.length) return "holding a recently worn piece produced nothing";
+  return allHave(res.outfits, (o) => has(o, "chino-beige")) ? null : "the held piece was filtered out";
+});
+
+check("replacing the only option of its kind returns nothing rather than a wrong answer", () => {
+  const s = state();
+  s.items = s.items.filter((i) => i.slot !== "bottom" || i.id === "chino-beige");
+  const res = E.recommend(s, { today: TODAY, tempC: 16 });
+  const next = E.replacePiece(s, res.outfits[0], "chino-beige", { today: TODAY, tempC: 16 });
+  return next === null ? null : "invented a replacement where none exists: " + next.key;
+});
+
+// ============================================================ focused learning
+
+function weightsFrom(swipes) {
+  return E.trainTaste(swipes, E.indexById(wardrobe()), TODAY).weights;
+}
+
+check("rejecting one piece only moves that piece's weight", () => {
+  // The whole point of per-piece swiping: the trousers you kept must not be
+  // punished for the shoes you threw away.
+  const outfit = ["tee-yellow", "chino-beige", "shoe-boot"];
+  const focused = weightsFrom([{ at: TODAY + "T09:00:00Z", items: outfit, liked: false, focus: "shoe-boot" }]);
+
+  if (!(focused["item:shoe-boot"] < 0)) return `the rejected piece was not penalised: ${focused["item:shoe-boot"]}`;
+  for (const kept of ["tee-yellow", "chino-beige"]) {
+    if ("item:" + kept in focused) return `${kept} picked up a weight despite being kept`;
+  }
+  return null;
+});
+
+check("an unfocused rejection still moves every piece, as before", () => {
+  const outfit = ["tee-yellow", "chino-beige", "shoe-boot"];
+  const whole = weightsFrom([{ at: TODAY + "T09:00:00Z", items: outfit, liked: false }]);
+  for (const id of outfit) {
+    if (!(whole["item:" + id] < 0)) return `${id} was not penalised by a whole-outfit rejection`;
+  }
+  return null;
+});
+
+check("a focused rejection still learns from the combination's rule scores", () => {
+  // What was rejected really was that combination, so the colour and formality
+  // rules should still hear about it -- only the item-level blame is narrowed.
+  const focused = weightsFrom([
+    { at: TODAY + "T09:00:00Z", items: ["tee-yellow", "chino-beige", "shoe-boot"], liked: false, focus: "shoe-boot" }
+  ]);
+  const ruleKeys = Object.keys(focused).filter((k) => k.startsWith("rule:"));
+  return ruleKeys.length ? null : "no rule features were learned from a focused swipe";
+});
+
+check("focusing keeps the colour feature of the rejected piece's own slot", () => {
+  const items = wardrobe();
+  const byId = E.indexById(items);
+  const chosen = ["tee-yellow", "chino-beige", "shoe-boot"].map((id) => byId[id]);
+  const f = E.focusFeatures(E.featurise(chosen, TODAY), chosen, "chino-beige");
+  const colourKeys = Object.keys(f).filter((k) => k.startsWith("colour:"));
+  if (!colourKeys.some((k) => k.startsWith("colour:bottom:"))) return "the rejected piece's own colour slot was dropped";
+  if (colourKeys.some((k) => k.startsWith("colour:top:"))) return "a kept piece's colour slot survived";
+  return null;
+});
+
+check("undo still restores the model exactly, focused swipes included", () => {
+  const a = { at: TODAY + "T09:00:00Z", items: ["tee-yellow", "chino-beige", "shoe-sneak"], liked: true };
+  const b = { at: TODAY + "T09:05:00Z", items: ["tee-black", "jeans-black", "shoe-boot"], liked: false, focus: "shoe-boot" };
+  const before = weightsFrom([a]);
+  const withBoth = weightsFrom([a, b]);
+  const afterUndo = weightsFrom([a]);
+  if (JSON.stringify(withBoth) === JSON.stringify(before)) return "the focused swipe changed nothing";
+  return JSON.stringify(afterUndo) === JSON.stringify(before) ? null : "undo did not restore the weights";
 });
 
 // ================================================================== ordering

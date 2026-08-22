@@ -50,6 +50,21 @@ const check = (name, cond, detail) => {
   else fails.push(`${name}${detail ? "\n    " + detail : ""}`);
 };
 
+// Shared fixtures: the demo wardrobe as shipped, a cool morning that warms up, and
+// a lab day in the calendar.
+const demo = JSON.parse(readFileSync(join(REPO_ROOT, "wardrobe", "demo", "demo.json"), "utf8"));
+const nameOf = Object.fromEntries(demo.items.map((i) => [i.id, i.name]));
+// A cool, brightening autumn morning: 11 °C at 8am climbing to 20 °C at 2pm.
+const weather = fakeWeather("2026-08-21", (h) => {
+  const t = h < 10 ? 11 : (h < 12 ? 15 : (h < 17 ? 20 : 14));
+  return { temp: t, apparent: t, rain: 10 };
+});
+const schedule = { events: [
+  { id:"e1", date:"2026-08-21", start:"09:00", end:"12:00", title:"Western blot",
+    category:"experiment", type:"active", status:"pending" }
+] };
+
+
 // ------------------------------------------------------------ local stand-ins
 
 const ROOT = REPO_ROOT;
@@ -201,19 +216,8 @@ async function openApp(opts = {}){
 
 const SHOTS = join(OUT_DIR, "shots");
 mkdirSync(SHOTS, { recursive: true });
-const demo = JSON.parse(readFileSync(join(REPO_ROOT, "wardrobe", "demo", "demo.json"), "utf8"));
 
 let server = await serve(8791);
-
-// A cool, brightening autumn morning: 11 °C at 8am climbing to 20 °C at 2pm.
-const weather = fakeWeather("2026-08-21", (h) => {
-  const t = h < 10 ? 11 : (h < 12 ? 15 : (h < 17 ? 20 : 14));
-  return { temp: t, apparent: t, rain: 10 };
-});
-const schedule = { events: [
-  { id:"e1", date:"2026-08-21", start:"09:00", end:"12:00", title:"Western blot",
-    category:"experiment", type:"active", status:"pending" }
-] };
 
 const { browser, page, gh, errors } = await openApp({ port: 8791, weather, schedule, demo });
 
@@ -222,7 +226,9 @@ await page.waitForFunction(() => document.querySelectorAll("#todayOutfit .piece"
 await page.waitForTimeout(400);
 await page.screenshot({ path: `${SHOTS}/1-today.png`, fullPage: true });
 
-const todayPieces = await page.$$eval("#todayOutfit .piece .nm", ns => ns.map(n => n.textContent));
+const pieceIds = () => page.$$eval("#todayOutfit .piece", els => els.map((e) => e.dataset.id));
+const todayIds = await pieceIds();
+const todayPieces = todayIds.map((id) => nameOf[id] || id);
 const why = await page.textContent("#todayWhy");
 const wxMeta = await page.textContent("#wxMeta");
 console.log("today:", todayPieces.join(" + "));
@@ -254,7 +260,7 @@ check("every sticker on the card loaded", imgs.length > 0 && imgs.every(i => i.w
 const firstKey = todayPieces.join("|");
 await page.click("#btnAnother");
 await page.waitForTimeout(250);
-const second = await page.$$eval("#todayOutfit .piece .nm", ns => ns.map(n => n.textContent));
+const second = (await pieceIds()).map((id) => nameOf[id] || id);
 check("'show another' changes the outfit", second.join("|") !== firstKey,
   second.join(",") + " vs " + firstKey);
 
@@ -270,10 +276,10 @@ await page.screenshot({ path: `${SHOTS}/2-deck.png`, fullPage: true });
 const deckScan = await page.evaluate(async () => {
   let sawOuter = false, cards = 0;
   for (let i = 0; i < 14; i++){
-    const names = [...document.querySelectorAll(".swipecard:not(.back) .piece .nm")].map(n => n.textContent);
+    const names = [...document.querySelectorAll(".swipecard:not(.back) .piece")].map(e => e.dataset.id);
     if (!names.length) break;
     cards++;
-    if (names.some(n => /jacket|gilet/i.test(n))) sawOuter = true;
+    if (names.some(n => /jacket|gilet|puffer/i.test(n))) sawOuter = true;
     document.getElementById("btnNope").click();
     await new Promise(r => setTimeout(r, 260));
   }
@@ -359,18 +365,15 @@ const server = await serve(8792);
 const wardrobe = {
   items: [
     { id:"w-grey-jumper", name:"Grey jumper", slot:"top", layer:3, warmth:null, clo:null,
-      color:"#7a7a7a", pattern:null, formality:null, fabric:null, washAfter:null, occasions:null,
-      waterproof:false, wearsSinceWash:0, lastWorn:null, pinnedUntil:null, guessed:[], agentGuessed:{} },
+      color:"#7a7a7a", pattern:null, formality:null, fabric:null, occasions:null,
+      waterproof:false, lastWorn:null, pinnedUntil:null, guessed:[], agentGuessed:{} },
     { id:"w-navy-chinos", name:"Navy chinos", slot:"bottom", warmth:3, clo:null, color:"#2b3a55",
-      pattern:"solid", formality:3, fabric:"cotton", washAfter:5, occasions:null, waterproof:false,
-      wearsSinceWash:0, lastWorn:null, pinnedUntil:null, guessed:[],
+      pattern:"solid", formality:3, fabric:"cotton", occasions:null, waterproof:false, lastWorn:null, pinnedUntil:null, guessed:[],
       agentGuessed:{ fabric:{ value:"denim", confidence:0.62, why:"visible twill weave", at:"2026-08-21" } } },
     { id:"w-white-tee", name:"White tee", slot:"top", layer:1, warmth:2, clo:null, color:"#f0f0f0",
-      pattern:"solid", formality:2, fabric:"cotton", washAfter:1, occasions:null, waterproof:false,
-      wearsSinceWash:0, lastWorn:null, pinnedUntil:null, guessed:[], agentGuessed:{} },
+      pattern:"solid", formality:2, fabric:"cotton", occasions:null, waterproof:false, lastWorn:null, pinnedUntil:null, guessed:[], agentGuessed:{} },
     { id:"w-trainers", name:"Trainers", slot:"shoes", warmth:2, clo:null, color:"#dddddd",
-      pattern:"solid", formality:1, fabric:"synthetic", washAfter:60, occasions:null, waterproof:false,
-      wearsSinceWash:0, lastWorn:null, pinnedUntil:null, guessed:[], agentGuessed:{} }
+      pattern:"solid", formality:1, fabric:"synthetic", occasions:null, waterproof:false, lastWorn:null, pinnedUntil:null, guessed:[], agentGuessed:{} }
   ],
   log: [], swipes: [], rejected: [], taste:{weights:{},n:0},
   settings:{ city:"Ankara", cloOffset:0, repeatDays:3, outlinePx:6, demo:false }
@@ -423,6 +426,165 @@ await page.screenshot({ path: `${SHOTS}/7-agent-403.png`, fullPage: true });
 allErrors.push(...errors);
 await browser.close();
 server.close();
+}
+
+// ============================================== the collage, and per-piece swiping
+{
+  const server = await serve(8794);
+  const { browser, page, gh, errors } = await openApp({ port: 8794, weather, schedule, demo });
+  await page.waitForFunction(() => document.querySelectorAll("#todayOutfit .piece").length > 0, { timeout: 15000 });
+  await page.waitForTimeout(300);
+
+  const spots = () => page.$$eval("#todayOutfit .piece",
+    els => els.map((e) => ({ id: e.dataset.id, left: e.style.left, top: e.style.top, t: e.style.transform })));
+  const ids = () => page.$$eval("#todayOutfit .piece", els => els.map((e) => e.dataset.id));
+
+  // --- no boxes ---
+  const boxed = await page.$$eval("#todayOutfit .piece img", els => els.map((e) => {
+    const cs = getComputedStyle(e);
+    return { bg: cs.backgroundColor, radius: cs.borderRadius };
+  }));
+  check("no garment sits in a box of its own",
+    boxed.length > 0 && boxed.every((b) => /rgba\(0, 0, 0, 0\)|transparent/.test(b.bg)),
+    JSON.stringify(boxed[0]));
+  const backdrop = await page.$eval("#todayOutfit", e => getComputedStyle(e).backgroundColor);
+  check("the outfit sits on one shared backdrop", !/rgba\(0, 0, 0, 0\)|transparent/.test(backdrop), backdrop);
+  const labels = await page.$$eval("#todayOutfit .piece .nm", els => els.length);
+  check("the collage carries no per-piece labels", labels === 0, "labels: " + labels);
+
+  // --- scattered, not gridded ---
+  const laid = await spots();
+  check("every piece is placed absolutely, not in a row",
+    laid.every((p) => p.left.endsWith("%") && p.top.endsWith("%")), JSON.stringify(laid[0]));
+  check("the pieces are not all on one line",
+    new Set(laid.map((p) => p.top)).size === laid.length, laid.map((p) => p.top).join(", "));
+  check("the pieces are tilted", laid.every((p) => /rotate\(-?\d/.test(p.t)), laid[0].t);
+
+  // Nothing may fall outside the backdrop.
+  const inside = await page.evaluate(() => {
+    const box = document.getElementById("todayOutfit").getBoundingClientRect();
+    return [...document.querySelectorAll("#todayOutfit .piece")].every((p) => {
+      const r = p.getBoundingClientRect();
+      return r.left >= box.left - 2 && r.right <= box.right + 2 && r.top >= box.top - 2 && r.bottom <= box.bottom + 2;
+    });
+  });
+  check("no garment spills outside the backdrop", inside);
+
+  // --- the layout is seeded, not random ---
+  await page.click('nav button[data-screen="wardrobe"]');
+  await page.waitForTimeout(150);
+  await page.click('nav button[data-screen="today"]');
+  await page.waitForTimeout(300);
+  const again = await spots();
+  check("redrawing the same outfit gives the same layout",
+    JSON.stringify(again) === JSON.stringify(laid),
+    "before: " + JSON.stringify(laid.map(p => p.left)) + " after: " + JSON.stringify(again.map(p => p.left)));
+
+  await page.click("#btnAnother");
+  await page.waitForTimeout(300);
+  const other = await spots();
+  check("a different outfit gets a different layout",
+    JSON.stringify(other.map((p) => p.left)) !== JSON.stringify(laid.map((p) => p.left)),
+    JSON.stringify(other.map(p => p.left)));
+
+  // --- tapping a piece names it and offers the multi-day choice ---
+  const firstPiece = await page.$("#todayOutfit .piece");
+  const pbox = await firstPiece.boundingBox();
+  await page.mouse.click(pbox.x + pbox.width / 2, pbox.y + pbox.height / 2);
+  await page.waitForTimeout(200);
+  const picked = await page.textContent("#todayPicked");
+  check("tapping a garment names it", picked.trim().length > 0, picked);
+  check("tapping offers to keep wearing it for a few days",
+    /Keep wearing/.test(picked) && /A week/.test(picked), picked);
+  check("tapping offers to change just that piece", /Change/.test(picked), picked);
+
+  // --- dragging one piece changes that piece alone ---
+  const before = await ids();
+  const target = await page.$(`#todayOutfit .piece[data-id="${before[0]}"] .hit`);
+  const tbox = await target.boundingBox();
+  const cx = tbox.x + tbox.width / 2, cy = tbox.y + tbox.height / 2;
+  await page.mouse.move(cx, cy);
+  await page.mouse.down();
+  for (const step of [20, 60, 100, 140]) await page.mouse.move(cx - step, cy, { steps: 2 });
+  await page.mouse.up();
+  await page.waitForTimeout(500);
+  const after = await ids();
+
+  check("dragging a garment away swaps that garment", !after.includes(before[0]),
+    `${before[0]} is still there: ${after.join(", ")}`);
+  const kept = before.slice(1);
+  check("the pieces that were kept are untouched",
+    kept.every((id) => after.includes(id)),
+    `kept ${kept.join(", ")} but got ${after.join(", ")}`);
+  check("the outfit stays the same size", after.length === before.length, `${before.length} -> ${after.length}`);
+
+  // --- and it is recorded as a focused opinion, not a whole-outfit rejection ---
+  const swipe = await page.evaluate(() => {
+    const sw = JSON.parse(localStorage.getItem("wd_cache")).state.swipes;
+    return sw[sw.length - 1];
+  });
+  check("swapping a piece records which piece it was about", swipe && swipe.focus === before[0],
+    JSON.stringify(swipe));
+  check("swapping a piece is recorded as a rejection", swipe && swipe.liked === false);
+
+  // The midday-layer hint has to describe the outfit on screen, not the one that
+  // was there before a piece was swapped.
+  const shedText = await page.textContent("#todayShed");
+  if (shedText.trim()){
+    const named = shedText.match(/take the (.+?) off/);
+    const onCard = (await ids()).map((id) => (nameOf[id] || id).toLowerCase());
+    check("the midday hint names a garment that is actually in the outfit",
+      named && onCard.includes(named[1]),
+      `hint says "${named && named[1]}", outfit has ${onCard.join(", ")}`);
+  }
+
+  await page.screenshot({ path: `${SHOTS}/8-collage.png`, fullPage: true });
+
+  // --- dark theme, where the white outline matters most ---
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: `${SHOTS}/9-collage-dark.png`, fullPage: true });
+  const darkBackdrop = await page.$eval("#todayOutfit", e => getComputedStyle(e).backgroundColor);
+  check("the shared backdrop follows the dark theme", darkBackdrop !== backdrop, `${backdrop} -> ${darkBackdrop}`);
+  await page.emulateMedia({ colorScheme: "light" });
+
+  allErrors.push(...errors);
+  await browser.close();
+  server.close();
+}
+
+// ============================================ the deck still judges whole outfits
+{
+  const server = await serve(8795);
+  const { browser, page, gh, errors } = await openApp({ port: 8795, weather, schedule, demo });
+  await page.click('nav button[data-screen="deck"]');
+  await page.waitForSelector(".swipecard:not(.back) .piece");
+  await page.waitForTimeout(300);
+
+  const cardIds = () => page.$$eval(".swipecard:not(.back) .piece", els => els.map((e) => e.dataset.id));
+  const first = await cardIds();
+
+  // Dragging on the card but away from any garment must still swipe the whole thing.
+  const why = await page.$(".swipecard:not(.back) .why");
+  const wbox = await why.boundingBox();
+  const wx = wbox.x + wbox.width / 2, wy = wbox.y + wbox.height / 2;
+  await page.mouse.move(wx, wy);
+  await page.mouse.down();
+  for (const step of [30, 80, 140, 200]) await page.mouse.move(wx - step, wy, { steps: 2 });
+  await page.mouse.up();
+  await page.waitForTimeout(600);
+
+  const swipes = await page.evaluate(() => JSON.parse(localStorage.getItem("wd_cache")).state.swipes);
+  check("dragging the card itself still judges the whole outfit",
+    swipes.length === 1 && !swipes[0].focus, JSON.stringify(swipes));
+  const second = await cardIds();
+  check("the deck advanced to a new card", JSON.stringify(second) !== JSON.stringify(first),
+    first.join(",") + " vs " + second.join(","));
+
+  await page.screenshot({ path: `${SHOTS}/10-deck-collage.png`, fullPage: true });
+  allErrors.push(...errors);
+  await browser.close();
+  server.close();
 }
 
 // ================================================= two apps, one origin, two workers

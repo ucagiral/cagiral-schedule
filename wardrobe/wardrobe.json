@@ -16,7 +16,6 @@
     "outlinePx": 6,
     "tolScale": 1,
     "occasionFilter": true,
-    "includeDirty": false,
     "usePins": true,
     "demo": true
   }

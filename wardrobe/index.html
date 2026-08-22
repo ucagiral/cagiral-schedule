@@ -115,18 +115,19 @@
      white outline is baked into each cutout and cannot change with the theme, so
      without something behind it a white shirt vanishes on a white card. */
   .outfit{
-    position:relative; width:100%; aspect-ratio:1/.86; background:var(--sticker-bg);
-    border-radius:16px; overflow:hidden; touch-action:pan-y;
+    position:relative; width:100%; background:var(--sticker-bg); border-radius:16px;
+    padding:10px; display:flex; flex-direction:column; gap:5px;
+    align-items:center; justify-content:center; min-height:250px; touch-action:pan-y;
   }
+  /* One row per part of the body, top to bottom. Nothing overlaps, so nothing is
+     hidden and -- the reason the last version's per-piece swipe kept missing its
+     target -- the whole garment can be grabbed instead of a shrunken middle. */
+  .orow{display:flex; gap:8px; align-items:center; justify-content:center; width:100%}
   .piece{
-    position:absolute; transform-origin:center; will-change:transform;
-    transition:filter .15s ease, opacity .15s ease; pointer-events:none;
+    position:relative; aspect-ratio:1; flex:0 0 auto; cursor:grab; touch-action:none;
+    transition:filter .15s ease, opacity .15s ease, transform .15s ease;
   }
-  /* A sticker is mostly empty space, but its element is a rectangle. Without this,
-     an overlapping garment's transparent corner steals taps aimed at the piece
-     beneath it. Only the middle is grabbable, which is where the garment is. */
-  .piece .hit{position:absolute; inset:16%; pointer-events:auto; cursor:grab; touch-action:none}
-  .piece.grabbing .hit{cursor:grabbing}
+  .piece.grabbing{cursor:grabbing; transition:filter .15s ease, opacity .15s ease}
   .piece img,.piece .ph{
     width:100%; height:100%; object-fit:contain; display:block;
     filter:drop-shadow(0 3px 5px rgba(0,0,0,.16));
@@ -134,6 +135,7 @@
   }
   .piece .ph{display:flex; align-items:center; justify-content:center; font-size:30px}
   .outfit.picking .piece:not(.on){opacity:.45}
+  .piece.on{transform:scale(1.06)}
   .piece.on img,.piece.on .ph{filter:drop-shadow(0 0 0 var(--accent)) drop-shadow(0 4px 9px rgba(0,0,0,.28))}
   .piece.grabbing{transition:none}
 
@@ -302,8 +304,24 @@
     </div>
     <div id="gapsCard"></div>
     <div id="agentReview"></div>
+    <div id="agentSuggestions"></div>
     <div class="chips" id="slotFilter" style="margin-bottom:12px"></div>
     <div class="grid" id="wardrobeGrid"></div>
+  </section>
+
+  <!-- ============================ PAIRS ============================ -->
+  <section id="scr-pairs" class="screen">
+    <p class="note">
+      Which tops go with which bottoms, in your opinion rather than the app's.
+      Swipe right if they work together, left if they don't.
+    </p>
+    <div id="pairStage"></div>
+    <div class="row" id="pairControls">
+      <button id="btnPairNo">✕ Doesn't work</button>
+      <button id="btnPairYes" class="primary">♥ Works</button>
+    </div>
+    <p class="note" id="pairCount"></p>
+    <div id="pairRated"></div>
   </section>
 
   <!-- =========================== JOURNAL =========================== -->
@@ -382,6 +400,7 @@
   <button data-screen="today" class="on"><span class="ic">👕</span>Today</button>
   <button data-screen="deck"><span class="ic">🃏</span>Deck</button>
   <button data-screen="wardrobe"><span class="ic">🗄️</span>Wardrobe</button>
+  <button data-screen="pairs"><span class="ic">🔗</span>Pairs</button>
   <button data-screen="journal"><span class="ic">📖</span>Journal</button>
   <button data-screen="settings"><span class="ic">⚙️</span>Settings</button>
 </nav>
@@ -484,7 +503,7 @@
   // State
   // =====================================================================
   var BLANK = {
-    items: [], log: [], swipes: [], rejected: [],
+    items: [], log: [], swipes: [], rejected: [], pairs: {}, suggestions: [],
     taste: { weights:{}, n:0 },
     settings: {
       city:"Ankara", lat:null, lon:null, cloOffset:0, repeatDays:3, outlinePx:6,
@@ -513,7 +532,7 @@
   function liveState(){
     return {
       items: liveItems(), log: state.log, swipes: state.swipes, rejected: state.rejected,
-      taste: state.taste, settings: state.settings
+      taste: state.taste, settings: state.settings, pairs: state.pairs
     };
   }
 
@@ -543,7 +562,8 @@
   }
   function mergeDefaults(s){
     var out = JSON.parse(JSON.stringify(BLANK));
-    ["items","log","swipes","rejected"].forEach(function(k){ if (Array.isArray(s[k])) out[k] = s[k]; });
+    ["items","log","swipes","rejected","suggestions"].forEach(function(k){ if (Array.isArray(s[k])) out[k] = s[k]; });
+    if (s.pairs && typeof s.pairs === "object") out.pairs = s.pairs;
     if (s.taste) out.taste = s.taste;
     if (s.settings) Object.keys(s.settings).forEach(function(k){ out.settings[k] = s.settings[k]; });
     if (s._meta) out._meta = s._meta;
@@ -805,58 +825,25 @@
     });
   }
 
-  // The scatter is seeded from the outfit, not random per render. A piece gets
-  // swapped and the card redraws; if the layout were random the whole thing would
-  // jump under your thumb. Seeded, an outfit always looks like itself.
-  function seedOf(str){
-    var h = 2166136261;
-    for (var i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
-    return h >>> 0;
-  }
-  function mulberry32(a){
-    return function(){
-      a = a + 0x6D2B79F5 | 0;
-      var t = Math.imul(a ^ a >>> 15, 1 | a);
-      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    };
-  }
+  // Each row is a part of the body, and each garment gets a size to suit it: a cap
+  // and a coat at the same width read as a spreadsheet again.
+  var ROW_WIDTH = { accessory: 15, top: 25, bottom: 28, shoes: 19 };
 
-  // Roughly how much room each kind of thing deserves. A cap next to a coat at the
-  // same size reads as a grid again.
-  var PIECE_SCALE = { accessory:0.62, shoes:0.72, top:1, bottom:1.02, outer:1.08 };
-  var PIECE_SIDE = 38;              // percent of the backdrop's width, before scaling
-  var BOX_RATIO = 0.86;             // the backdrop's height relative to its width
+  // Outerwear shares the tops row -- it is worn on the same part of the body, and
+  // giving it a row of its own left a gap on every outfit without a coat.
+  function rowOf(item){ return item.slot === "outer" ? "top" : item.slot; }
 
-  function layoutOutfit(outfit){
-    var pieces = orderPieces(outfit.items);
-    var rnd = mulberry32(seedOf(outfit.key || outfit.ids.join("+")));
-    var n = pieces.length;
-    return pieces.map(function(item, i){
-      // A gentle diagonal from top-left to bottom-right, then knocked out of line.
-      var t = n === 1 ? 0.5 : i / (n - 1);
-      var cx = 24 + t * 52 + (rnd() - 0.5) * 24 + (i % 2 ? 1 : -1) * rnd() * 13;
-      var cy = 17 + t * 62 + (rnd() - 0.5) * 18;
-      var size = (PIECE_SCALE[item.slot] || 1) * (0.92 + rnd() * 0.18);
-      var tilt = (rnd() - 0.5) * 16;
-
-      // Clamp the centre by the piece's own half-size — the backdrop clips, and a
-      // boot sliced off at the edge reads as a bug rather than as a collage. The
-      // tilt has to be in the sum: rotating a rectangle grows the box it occupies,
-      // so clamping the upright size lets the corners poke out anyway.
-      var rad = Math.abs(tilt) * Math.PI / 180;
-      var w = PIECE_SIDE * size, h = PIECE_SIDE * size / BOX_RATIO;
-      var halfW = (w * Math.cos(rad) + h * Math.sin(rad)) / 2;
-      var halfH = (w * Math.sin(rad) + h * Math.cos(rad)) / 2;
-      return {
-        item: item,
-        cx: Math.max(halfW + 0.5, Math.min(99.5 - halfW, cx)),
-        cy: Math.max(halfH + 0.5, Math.min(99.5 - halfH, cy)),
-        size: size,
-        tilt: tilt,
-        z: i
-      };
+  function layoutRows(outfit){
+    var rows = { accessory: [], top: [], bottom: [], shoes: [] };
+    orderPieces(outfit.items).forEach(function(item){
+      var key = rowOf(item);
+      if (rows[key]) rows[key].push(item);
     });
+    return ["accessory","top","bottom","shoes"].map(function(key){
+      // Share the width when a row is crowded, so a tee, a jumper and a coat all fit.
+      var n = rows[key].length;
+      return { key: key, items: rows[key], width: n ? Math.min(ROW_WIDTH[key], 92 / n) : 0 };
+    }).filter(function(row){ return row.items.length; });
   }
 
   // opts.onReplace / opts.onLock turn on per-piece dragging; opts.onPick reports a
@@ -867,20 +854,18 @@
     container.classList.remove("picking");
     if (!outfit){ container.appendChild(el("div","empty","Nothing to show.")); return; }
 
-    layoutOutfit(outfit).forEach(function(spot){
-      var piece = el("div","piece");
-      piece.dataset.id = spot.item.id;
-      piece.style.width = (PIECE_SIDE * spot.size) + "%";
-      piece.style.height = (PIECE_SIDE * spot.size / BOX_RATIO) + "%";
-      piece.style.left = spot.cx + "%";
-      piece.style.top = spot.cy + "%";
-      piece.style.zIndex = String(spot.z);
-      piece.style.transform = "translate(-50%,-50%) rotate(" + spot.tilt.toFixed(1) + "deg)";
-      piece.__home = piece.style.transform;
-      piece.appendChild(itemImg(spot.item));
-      piece.appendChild(el("div","hit"));
-      container.appendChild(piece);
-      if (opts.onReplace || opts.onLock || opts.onPick) attachPieceGesture(piece, spot.item, container, opts);
+    layoutRows(outfit).forEach(function(row){
+      var rowEl = el("div","orow");
+      rowEl.dataset.row = row.key;
+      row.items.forEach(function(item){
+        var piece = el("div","piece");
+        piece.dataset.id = item.id;
+        piece.style.width = row.width + "%";
+        piece.appendChild(itemImg(item));
+        rowEl.appendChild(piece);
+        if (opts.onReplace || opts.onLock || opts.onPick) attachPieceGesture(piece, item, container, opts);
+      });
+      container.appendChild(rowEl);
     });
   }
 
@@ -906,7 +891,7 @@
       moved = true;
       ev.stopPropagation();
       ev.preventDefault();
-      piece.style.transform = piece.__home + " translate(" + dx + "px," + dy * 0.3 + "px)";
+      piece.style.transform = "translate(" + dx + "px," + dy * 0.3 + "px) rotate(" + (dx / 26).toFixed(1) + "deg)";
       piece.style.opacity = String(Math.max(0.35, 1 - Math.abs(dx) / 260));
     });
     function release(ev){
@@ -917,20 +902,20 @@
       if (ev) ev.stopPropagation();
       if (!moved){
         if (opts.onPick) opts.onPick(item, piece, container);
-        piece.style.transform = piece.__home;
+        piece.style.transform = "";
         return;
       }
       if (Math.abs(dx) > 70){
         var right = dx > 0;
-        piece.style.transform = piece.__home + " translate(" + (right ? 340 : -340) + "px,0)";
+        piece.style.transform = "translate(" + (right ? 340 : -340) + "px,0)";
         piece.style.opacity = "0";
         setTimeout(function(){
           if (right && opts.onLock) opts.onLock(item);
           else if (!right && opts.onReplace) opts.onReplace(item);
-          else piece.style.transform = piece.__home;
+          else piece.style.transform = "";
         }, 170);
       } else {
-        piece.style.transform = piece.__home;
+        piece.style.transform = "";
       }
       dx = dy = 0;
     }
@@ -1041,11 +1026,11 @@
       $("todayWhy").textContent = "";
       $("todayShed").innerHTML = "";
       $("btnWore").disabled = true;
+      renderCarried();
       return;
     }
     $("btnWore").disabled = false;
     paintToday(outfit);
-
     renderCarried();
   }
 
@@ -1133,57 +1118,114 @@
     open.onclick = function(){ openItem(item); };
     bar.appendChild(open);
 
+    // Out of action: spilled on, torn, at the cleaner's. Not a laundry counter --
+    // a switch, only ever flipped by hand, for the rare case.
+    var real = state.items.find(function(i){ return i.id === item.id; });
+    var out = el("button", real && real.unwearable ? "primary" : "danger",
+                 real && real.unwearable ? "Wearable again" : "Can't wear this");
+    out.onclick = function(){ setUnwearable(item, !(real && real.unwearable)); };
+    bar.appendChild(out);
+
     var days = el("div","days");
     var pinned = E.isPinned(item, todayISO());
     if (pinned){
       var un = el("button","primary","Wearing until " + item.pinnedUntil);
-      un.onclick = function(){ setWearDays(item, 0); };
+      un.onclick = function(){ setWearUntil(item, null); };
       days.appendChild(un);
     } else {
       days.appendChild(el("span", null, "Keep wearing:"));
-      [["Tomorrow",1],["3 days",3],["A week",7]].forEach(function(pair){
-        var b = el("button", null, pair[0]);
-        b.onclick = function(){ setWearDays(item, pair[1]); };
-        days.appendChild(b);
-      });
+      var n = el("input");
+      n.type = "number"; n.min = "1"; n.max = "30"; n.value = "";
+      n.placeholder = "days";
+      n.style.width = "72px";
+      n.onchange = function(){
+        var v = parseInt(n.value, 10);
+        if (v >= 1 && v <= 30) setWearUntil(item, E.shiftDate(todayISO(), v));
+      };
+      days.appendChild(n);
+      var wk = el("button", null, "Rest of this week");
+      wk.onclick = function(){ setWearUntil(item, E.endOfWeek(todayISO())); };
+      days.appendChild(wk);
     }
     bar.appendChild(days);
   }
 
-  function setWearDays(item, days){
+  function setWearUntil(item, until){
     var real = state.items.find(function(i){ return i.id === item.id; });
     if (!real){
       showBanner("That is a demo piece — add your own clothes before pinning anything.");
       return;
     }
-    real.pinnedUntil = days > 0 ? E.shiftDate(todayISO(), days) : null;
+    real.pinnedUntil = until || null;
     item.pinnedUntil = real.pinnedUntil;
     markDirty();
-    setStatus(days > 0 ? "Wearing it for " + days + " more day" + (days === 1 ? "" : "s") : "No longer pinned", "saved");
+    setStatus(until ? "Wearing it until " + until : "No longer pinned", "saved");
+    render();
+  }
+
+  function setUnwearable(item, on){
+    var real = state.items.find(function(i){ return i.id === item.id; });
+    if (!real){
+      showBanner("That is a demo piece — add your own clothes first.");
+      return;
+    }
+    real.unwearable = !!on;
+    // Something you cannot wear cannot stay pinned to every outfit of the week.
+    if (on) real.pinnedUntil = null;
+    item.unwearable = real.unwearable;
+    item.pinnedUntil = real.pinnedUntil;
+    todayOutfit = null;
+    markDirty();
+    setStatus(on ? item.name + " set aside" : item.name + " back in rotation", "saved");
     render();
   }
 
   // Yesterday's outfit is still waiting for its cold/right/warm answer — that one
   // tap is what calibrates the whole insulation model, so it gets asked for here
   // rather than only in the journal where it would never be seen.
+  // Asked the same day, not the morning after. This used to filter for
+  // `e.date < today`, so logging an outfit and looking straight at the screen
+  // showed nothing at all -- the one moment you actually remember whether you were
+  // cold.
   function renderCarried(){
     var host = $("todayCarried");
     host.innerHTML = "";
-    var pending = state.log.filter(function(e){ return !e.feedback && e.date < todayISO(); });
+    var pending = state.log.filter(function(e){ return !e.feedback || !e.commentDone; });
     if (!pending.length) return;
     var last = pending[pending.length-1];
+    var isToday = last.date === todayISO();
+
     var card = el("div","card");
-    card.appendChild(el("h2", null, "How was " + last.date + "?"));
+    card.appendChild(el("h2", null, isToday ? "How is today going?" : "How was " + last.date + "?"));
     var byId = E.indexById(liveItems());
-    var names = last.items.map(function(id){ return byId[id] ? byId[id].name : id; }).join(", ");
-    card.appendChild(el("p","note", names));
+    card.appendChild(el("p","note", last.items.map(function(id){
+      return byId[id] ? byId[id].name : id;
+    }).join(", ")));
+
     var row = el("div","row");
     [["cold","🥶 Too cold"],["right","👌 Just right"],["warm","🥵 Too warm"]].forEach(function(pair){
-      var b = el("button", null, pair[1]);
+      var b = el("button", last.feedback === pair[0] ? "primary" : "", pair[1]);
       b.onclick = function(){ recordFeedback(last, pair[0]); };
       row.appendChild(b);
     });
     card.appendChild(row);
+
+    // Anything the three buttons cannot hold: soaked through, wind cut straight
+    // through the coat, the jumper itched. The agent reads these when asked.
+    var cf = field(card, "Anything else?");
+    var ci = el("input");
+    ci.placeholder = "the coat was useless in the wind";
+    ci.value = last.comment || "";
+    ci.onchange = function(){
+      last.comment = ci.value.trim();
+      last.commentDone = true;
+      if (last.comment) last.commentAnswered = false;
+      markDirty();
+      setStatus("Noted", "saved");
+    };
+    cf.appendChild(ci);
+    addHint(cf, "Optional. Left as it is, nothing here changes.");
+
     host.appendChild(card);
   }
 
@@ -1272,7 +1314,7 @@
     return card;
   }
 
-  function attachSwipe(card){
+  function attachSwipe(card, onDecide){
     var startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, decided = false;
     var yes = card.querySelector(".stamp.yes"), no = card.querySelector(".stamp.no");
 
@@ -1306,7 +1348,7 @@
     function fly(liked){
       card.style.transform = "translate(" + (liked ? 1: -1) * 520 + "px,0) rotate(" + (liked?24:-24) + "deg)";
       card.style.opacity = "0";
-      setTimeout(function(){ recordSwipe(liked); }, 190);
+      setTimeout(function(){ (onDecide || recordSwipe)(liked); }, 190);
     }
     card.addEventListener("pointerdown", down);
     card.addEventListener("pointermove", move);
@@ -1355,8 +1397,108 @@
   // makes undo exact: drop a swipe, retrain, and the model is precisely what it
   // would have been had that swipe never happened.
   function retrainTaste(){
-    var trained = E.trainTaste(state.swipes, E.indexById(liveItems()), todayISO());
+    var trained = E.trainTaste(state.swipes, E.indexById(liveItems()), todayISO(), state.pairs);
     state.taste = { weights: trained.weights, n: trained.n };
+  }
+
+  // =====================================================================
+  // Pairs — what he thinks goes together, said outright
+  // =====================================================================
+  var pairs = [], pairPos = 0;
+
+  function buildPairs(){
+    pairs = E.pairQueue(liveState(), {
+      today: todayISO(), tempC: 18,
+      criteria: { ignoreInsulation:true, occasionFilter:false, repeatDays:0,
+                  usePins:false, ignoreRejected:true, ignoreContext:true }
+    }, 80);
+    pairPos = 0;
+  }
+
+  function renderPairs(){
+    var stage = $("pairStage");
+    stage.innerHTML = "";
+    var rated = Object.keys(state.pairs || {}).length;
+    $("pairCount").textContent = pairs.length
+      ? (pairs.length - pairPos) + " to go · " + rated + " rated so far"
+      : (rated ? rated + " rated" : "");
+
+    if (pairPos >= pairs.length){
+      $("pairControls").style.display = "none";
+      var e = el("div","empty");
+      e.appendChild(el("span","big", pairs.length ? "✓" : "👖"));
+      e.appendChild(document.createTextNode(pairs.length
+        ? "That's every pairing the app was likely to reach for."
+        : "Add a few tops and bottoms and this fills up."));
+      if (pairs.length){
+        var b = el("button","primary","Look again");
+        b.style.marginTop = "14px";
+        b.onclick = function(){ buildPairs(); renderPairs(); };
+        e.appendChild(document.createElement("br"));
+        e.appendChild(b);
+      }
+      stage.appendChild(e);
+      renderRatedPairs();
+      return;
+    }
+    $("pairControls").style.display = "";
+
+    var entry = pairs[pairPos];
+    var card = el("div","swipecard");
+    card.style.position = "relative";
+    card.style.inset = "auto";
+    card.appendChild(el("div","stamp yes","WORKS"));
+    card.appendChild(el("div","stamp no","NOPE"));
+    var body = el("div","outfit");
+    card.appendChild(body);
+    // The same two-row layout as everywhere else, so a pairing looks like the top
+    // half of an outfit rather than a separate kind of thing.
+    renderOutfit(body, { items: [entry.top, entry.bottom], ids: [entry.top.id, entry.bottom.id], key: entry.key });
+    var names = el("div","why", entry.top.name + " · " + entry.bottom.name);
+    card.appendChild(names);
+    stage.appendChild(card);
+    attachSwipe(card, function(liked){ ratePair(liked); });
+    renderRatedPairs();
+  }
+
+  function ratePair(liked){
+    var entry = pairs[pairPos];
+    if (!entry) return;
+    state.pairs = state.pairs || {};
+    state.pairs[entry.key] = liked ? 1 : -1;
+    pairPos++;
+    markDirty();
+    renderPairs();
+  }
+
+  function renderRatedPairs(){
+    var host = $("pairRated");
+    host.innerHTML = "";
+    var keys = Object.keys(state.pairs || {});
+    if (!keys.length) return;
+    host.appendChild(el("h3", null, "What you've said"));
+    var byId = E.indexById(liveItems());
+    keys.slice(-12).reverse().forEach(function(key){
+      var parts = key.split("|");
+      var a = byId[parts[0]], b = byId[parts[1]];
+      if (!a || !b) return;
+      var row = el("div","list-row");
+      row.appendChild(itemImg(a));
+      row.appendChild(itemImg(b));
+      var body = el("div","body");
+      body.appendChild(el("div","t", a.name + " + " + b.name));
+      body.appendChild(el("div","s", state.pairs[key] === 1 ? "works" : "doesn't work"));
+      row.appendChild(body);
+      var undo = el("button", null, "Undo");
+      undo.onclick = function(){
+        delete state.pairs[key];
+        markDirty();
+        buildPairs();
+        renderPairs();
+      };
+      row.appendChild(undo);
+      host.appendChild(row);
+    });
   }
 
   // =====================================================================
@@ -1380,6 +1522,7 @@
 
     renderGaps();
     renderAgentReview();
+    renderSuggestions();
 
     var grid = $("wardrobeGrid");
     grid.innerHTML = "";
@@ -1407,7 +1550,8 @@
       bar.appendChild(fill);
       tile.appendChild(bar);
 
-      if (E.isPinned(item, todayISO())) tile.appendChild(el("span","flag pin","pinned"));
+      if (item.unwearable) tile.appendChild(el("span","flag dirty","set aside"));
+      else if (E.isPinned(item, todayISO())) tile.appendChild(el("span","flag pin","pinned"));
       else if (comp < 1) tile.appendChild(el("span","flag","gaps"));
 
       tile.onclick = function(){ openItem(item); };
@@ -1642,12 +1786,21 @@
       var strow = el("div","row tight");
 
       var pinned = E.isPinned(draft, todayISO());
-      var pinBtn = el("button", pinned ? "primary" : "", pinned ? "Unpin" : "Pin for 7 days");
+      var pinBtn = el("button", pinned ? "primary" : "", pinned ? "Unpin" : "Keep for the rest of this week");
       pinBtn.onclick = function(){
-        draft.pinnedUntil = pinned ? null : E.shiftDate(todayISO(), 7);
+        draft.pinnedUntil = pinned ? null : E.endOfWeek(todayISO());
         commitItem(item, draft, isDemo);
       };
       strow.appendChild(pinBtn);
+
+      var outBtn = el("button", draft.unwearable ? "primary" : "danger",
+                      draft.unwearable ? "Wearable again" : "Can't wear this");
+      outBtn.onclick = function(){
+        draft.unwearable = !draft.unwearable;
+        if (draft.unwearable) draft.pinnedUntil = null;
+        commitItem(item, draft, isDemo);
+      };
+      strow.appendChild(outBtn);
       st.appendChild(strow);
       st.appendChild(el("div","hint","Pinning keeps a piece in every suggestion, for the days you " +
         "already know you will keep wearing it. Usually set straight from the outfit instead."));
@@ -2032,6 +2185,7 @@
     $("demoBadge").style.display = usingDemo() ? "" : "none";
     if (screen === "today") renderToday();
     else if (screen === "deck"){ if (!deck.length || deckPos >= deck.length) buildDeck(); renderDeck(); }
+    else if (screen === "pairs"){ if (!pairs.length || pairPos >= pairs.length) buildPairs(); renderPairs(); }
     else if (screen === "wardrobe") renderWardrobe();
     else if (screen === "journal") renderJournal();
     else if (screen === "settings") renderSettings();
@@ -2375,7 +2529,7 @@
       formality: 2, pattern: "solid", color: colour,
       guessed: ["warmth","formality","pattern"],
       occasions: null, fabric: null, season: null, fit: null, waterproof: false,
-      lastWorn: null, pinnedUntil: null,
+      lastWorn: null, pinnedUntil: null, unwearable: false,
       agentGuessed: {}
     };
 
@@ -2463,7 +2617,10 @@
   // needs no token change at all.
   // =====================================================================
   function agentGaps(){
-    return E.gapsQueue(state.items).length;
+    var notes = (state.log || []).filter(function(e){
+      return e.comment && String(e.comment).trim() && e.commentAnswered !== true;
+    }).length;
+    return E.gapsQueue(state.items).length + notes;
   }
 
   async function triggerAgent(){
@@ -2473,7 +2630,7 @@
       return;
     }
     if (!gaps){
-      showBanner("Every item is already complete. Nothing for the agent to do.");
+      showBanner("Every item is complete and every note has been read. Nothing for the agent to do.");
       return;
     }
     if (!canWrite()){ openConnect(); return; }
@@ -2499,7 +2656,7 @@
       }
       if (!r.ok) throw new Error("GitHub said " + r.status);
       setStatus("Agent running", "saved");
-      showBanner("The agent is looking at " + gaps + " item" + (gaps===1?"":"s") +
+      showBanner("The agent is looking at " + gaps + " thing" + (gaps===1?"":"s") +
         ". It commits its suggestions when it's done — reload in a minute or two to review them.",
         [{ label:"Watch it", onClick: function(){
             window.open("https://github.com/" + REPO + "/actions/workflows/" + AGENT_WORKFLOW, "_blank");
@@ -2563,6 +2720,80 @@
     host.appendChild(card);
   }
 
+  // Suggestions read out of a written note are a different thing from filling a
+  // blank: they can disagree with an answer he gave. They are shown as exactly
+  // that, quoting the sentence they came from, and nothing happens until accepted.
+  function renderSuggestions(){
+    var host = $("agentSuggestions");
+    host.innerHTML = "";
+    var list = state.suggestions || [];
+    if (!list.length) return;
+
+    var byId = E.indexById(state.items);
+    var card = el("div","card");
+    card.appendChild(el("h2", null, "From what you wrote (" + list.length + ")"));
+    card.appendChild(el("p","note",
+      "Read out of your own notes. Some of these disagree with answers you gave — that is why " +
+      "they are here rather than applied."));
+
+    list.slice(0, 8).forEach(function(sug){
+      var row = el("div","list-row");
+      var subject = sug.item && byId[sug.item];
+      if (subject) row.appendChild(itemImg(subject));
+      var body = el("div","body");
+      body.appendChild(el("div","t", describeSuggestion(sug, byId)));
+      var s2 = el("div","s");
+      s2.innerHTML = '<span class="pill guess">' + Math.round((sug.confidence||0)*100) + "%</span> " +
+        esc(sug.why || "") + '<br><em>"' + esc(sug.quote || "") + '"</em> — ' + esc(sug.from || "");
+      body.appendChild(s2);
+      row.appendChild(body);
+      var yes = el("button","primary","Apply");
+      yes.onclick = function(){ applySuggestion(sug); };
+      row.appendChild(yes);
+      var no = el("button",null,"No");
+      no.onclick = function(){
+        state.suggestions = state.suggestions.filter(function(x){ return x !== sug; });
+        markDirty(); render();
+      };
+      row.appendChild(no);
+      card.appendChild(row);
+    });
+    host.appendChild(card);
+  }
+
+  function describeSuggestion(sug, byId){
+    var name = sug.item && byId[sug.item] ? byId[sug.item].name : sug.item;
+    if (sug.kind === "warmth") return name + " → thickness " + STEP_NAME[(sug.value|0)-1];
+    if (sug.kind === "waterproof") return name + (sug.value ? " → keeps rain out" : " → does not keep rain out");
+    if (sug.kind === "fabric") return name + " → " + sug.value;
+    if (sug.kind === "offset") return "You run " + (sug.value < 0 ? "colder" : "warmer") +
+      " than assumed → offset " + Number(sug.value).toFixed(2);
+    if (sug.kind === "pair"){
+      var other = byId[sug.other] ? byId[sug.other].name : sug.other;
+      return name + " + " + other + (sug.value === 1 ? " → works" : " → doesn't work");
+    }
+    return sug.kind;
+  }
+
+  function applySuggestion(sug){
+    var item = state.items.find(function(i){ return i.id === sug.item; });
+    if (sug.kind === "offset"){
+      state.settings.cloOffset = sug.value;
+    } else if (sug.kind === "pair"){
+      state.pairs = state.pairs || {};
+      state.pairs[E.pairKey(sug.item, sug.other)] = sug.value;
+    } else if (item){
+      item[sug.kind] = sug.value;
+      if (sug.kind === "warmth") item.clo = null;
+      item.guessed = (item.guessed||[]).filter(function(k){ return k !== sug.kind; });
+      if (item.agentGuessed) delete item.agentGuessed[sug.kind];
+    }
+    state.suggestions = state.suggestions.filter(function(x){ return x !== sug; });
+    retrainTaste();
+    markDirty();
+    render();
+  }
+
   function acceptAgent(item){
     Object.keys(item.agentGuessed || {}).forEach(function(field){
       item[field] = item.agentGuessed[field].value;
@@ -2589,7 +2820,8 @@
     if (existing && !confirm("Today is already logged. Replace it?")) return;
     if (existing) state.log = state.log.filter(function(e){ return e !== existing; });
 
-    state.log.push({ date: today, items: outfit.ids, at: new Date().toISOString() });
+    state.log.push({ date: today, items: outfit.ids, at: new Date().toISOString(), comment: "",
+                     tempC: wxCtx && typeof wxCtx.tempC === "number" ? Math.round(wxCtx.tempC) : null });
     var byId = E.indexById(state.items);
     outfit.ids.forEach(function(id){
       var item = byId[id];
@@ -2632,10 +2864,23 @@
     var card = $("deckStage").querySelector(".swipecard:not(.back)");
     if (card && card.__fly) card.__fly(false);
   };
+  $("btnPairYes").onclick = function(){
+    var card = $("pairStage").querySelector(".swipecard");
+    if (card && card.__fly) card.__fly(true);
+  };
+  $("btnPairNo").onclick = function(){
+    var card = $("pairStage").querySelector(".swipecard");
+    if (card && card.__fly) card.__fly(false);
+  };
   document.addEventListener("keydown", function(ev){
-    if (screen !== "deck" || $("dlg").open) return;
-    if (ev.key === "ArrowRight") $("btnLike").click();
-    if (ev.key === "ArrowLeft") $("btnNope").click();
+    if ($("dlg").open) return;
+    if (screen === "deck"){
+      if (ev.key === "ArrowRight") $("btnLike").click();
+      if (ev.key === "ArrowLeft") $("btnNope").click();
+    } else if (screen === "pairs"){
+      if (ev.key === "ArrowRight") $("btnPairYes").click();
+      if (ev.key === "ArrowLeft") $("btnPairNo").click();
+    }
   });
   bindSettings();
 

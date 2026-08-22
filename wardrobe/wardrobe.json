@@ -3,6 +3,8 @@
   "log": [],
   "swipes": [],
   "rejected": [],
+  "pairs": {},
+  "suggestions": [],
   "taste": {
     "weights": {},
     "n": 0

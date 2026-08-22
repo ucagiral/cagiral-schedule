@@ -279,17 +279,42 @@
     return n ? sum / n : 1;
   }
 
+  // What Umut has said outright about which tops go with which bottoms. Unrated
+  // pairs say nothing and score 1, the same as every other rule with nothing to
+  // judge; a pair he turned down drags the outfit down hard.
+  function pairKey(a, b) { return a + "|" + b; }
+
+  function pairingScore(items, pairs) {
+    if (!pairs) return 1;
+    var tops = [], bottoms = [], i, j;
+    for (i = 0; i < items.length; i++) {
+      if (items[i].slot === "top") tops.push(items[i]);
+      else if (items[i].slot === "bottom") bottoms.push(items[i]);
+    }
+    var sum = 0, rated = 0;
+    for (i = 0; i < tops.length; i++) {
+      for (j = 0; j < bottoms.length; j++) {
+        var v = pairs[pairKey(tops[i].id, bottoms[j].id)];
+        if (v === 1 || v === -1) { sum += v; rated++; }
+      }
+    }
+    if (!rated) return 1;
+    return clamp01((sum / rated + 1) / 2);
+  }
+
   var RULE_WEIGHTS = {
-    balance:   0.22,
-    harmony:   0.20,
-    contrast:  0.08,
-    focus:     0.10,
-    formality: 0.18,
-    pattern:   0.14,
-    freshness: 0.08
+    pairing:   0.18,
+    balance:   0.18,
+    harmony:   0.17,
+    contrast:  0.07,
+    focus:     0.08,
+    formality: 0.15,
+    pattern:   0.12,
+    freshness: 0.05
   };
 
   var RULE_LABELS = {
+    pairing:   "a pairing you liked",
     balance:   "colour balance",
     harmony:   "colour harmony",
     contrast:  "light/dark contrast",
@@ -299,8 +324,9 @@
     freshness: "not worn recently"
   };
 
-  function ruleScores(items, today) {
+  function ruleScores(items, today, pairs) {
     return {
+      pairing:   pairingScore(items, pairs),
       balance:   balanceScore(items),
       harmony:   harmonyScore(items),
       contrast:  contrastScore(items),
@@ -314,8 +340,19 @@
   // Which rules actually had something to judge. A rule with nothing to say
   // scores a harmless 1, and without this the "why this?" line would keep
   // congratulating an all-neutral outfit on its colour harmony.
-  function engagedRules(items) {
+  function engagedRules(items, pairs) {
     var nonNeutral = 0, accents = 0, patterned = 0, formalities = 0, top = false, bottom = false;
+    var ratedPairs = 0, ti, bi;
+    if (pairs) {
+      for (ti = 0; ti < items.length; ti++) {
+        if (items[ti].slot !== "top") continue;
+        for (bi = 0; bi < items.length; bi++) {
+          if (items[bi].slot !== "bottom") continue;
+          var pv = pairs[pairKey(items[ti].id, items[bi].id)];
+          if (pv === 1 || pv === -1) ratedPairs++;
+        }
+      }
+    }
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
       var hsl = hexToHsl(it.color);
@@ -327,6 +364,7 @@
       if (it.slot === "bottom") bottom = true;
     }
     return {
+      pairing:   ratedPairs > 0,
       balance:   true,
       harmony:   nonNeutral >= 2,
       contrast:  top && bottom,
@@ -350,8 +388,8 @@
   // the complementary-colour outfits the book likes, the model can learn a
   // negative weight on harmony and overrule the book.
 
-  function featurise(items, today) {
-    var parts = ruleScores(items, today);
+  function featurise(items, today, pairs) {
+    var parts = ruleScores(items, today, pairs);
     var f = {};
     for (var k in parts) if (parts.hasOwnProperty(k)) f["rule:" + k] = parts[k] - 0.5;
     for (var i = 0; i < items.length; i++) {
@@ -398,14 +436,14 @@
     return f;
   }
 
-  function trainTaste(swipes, itemsById, today) {
+  function trainTaste(swipes, itemsById, today, pairs) {
     var w = { __bias: 0 };
     if (!swipes) return { weights: w, n: 0 };
     for (var pass = 0; pass < 3; pass++) {
       for (var i = 0; i < swipes.length; i++) {
         var items = resolveItems(swipes[i].items, itemsById);
         if (items.length === 0) continue;
-        var f = featurise(items, swipes[i].at ? swipes[i].at.slice(0, 10) : today);
+        var f = featurise(items, swipes[i].at ? swipes[i].at.slice(0, 10) : today, pairs);
         if (swipes[i].focus) f = focusFeatures(f, items, swipes[i].focus);
         var p = sigmoid(dot(w, f));
         var err = (swipes[i].liked ? 1 : 0) - p;
@@ -417,17 +455,30 @@
   }
 
   // How much say the book still has. Starts as pure rules and hands over to the
-  // learned model as swipes accumulate, but never fully — the rules stay as a
-  // floor so a run of odd swipes can't wreck every suggestion.
-  function ruleWeightFor(n) { return Math.max(0.3, 1 - (n || 0) / 150); }
+  // learned model as swipes accumulate, but never fully — the rules keep a floor
+  // so a run of odd swipes can't wreck every suggestion.
+  //
+  // This used to be a straight line to 150 swipes, which meant a rejection carried
+  // about 1% of the decision on the day it was given: measured, a rejected t-shirt
+  // came back in eight of the next eight cards, and still did after twenty more
+  // rejections. Feedback that changes nothing you can see is worse than no feedback
+  // at all, and it lands exactly when someone is deciding whether the app listens.
+  // The curve below reaches the same floor but gets there where it matters: a
+  // handful of opinions already move the ranking.
+  var MODEL_CEILING = 0.7;
+  var MODEL_HALFWAY = 12;
+  function ruleWeightFor(n) {
+    var k = n || 0;
+    return 1 - MODEL_CEILING * k / (k + MODEL_HALFWAY);
+  }
 
   // ------------------------------------------------------------------ scoring
 
   function scoreOutfit(items, ctx) {
-    var parts = ruleScores(items, ctx.today);
+    var parts = ruleScores(items, ctx.today, ctx.pairs);
     var ruleScore = combineRules(parts);
     var w = ruleWeightFor(ctx.tasteN);
-    var model = ctx.tasteWeights ? predictTaste(ctx.tasteWeights, featurise(items, ctx.today)) : 0.5;
+    var model = ctx.tasteWeights ? predictTaste(ctx.tasteWeights, featurise(items, ctx.today, ctx.pairs)) : 0.5;
     var total = w * ruleScore + (1 - w) * model;
     return { total: total, rule: ruleScore, model: model, ruleWeight: w, parts: parts };
   }
@@ -442,12 +493,13 @@
   function explain(items, score, ctx) {
     var bits = [];
     var clo = totalClo(items);
-    var parts = score.parts, engaged = engagedRules(items);
+    var parts = score.parts, engaged = engagedRules(items, ctx.pairs);
 
     bits.push(comfortTemp(clo, ctx) + " °C outfit");
 
     var praise = null;
-    if (engaged.harmony && parts.harmony >= 0.9) praise = "colours work together";
+    if (engaged.pairing && parts.pairing >= 0.99) praise = "a pairing you liked";
+    else if (engaged.harmony && parts.harmony >= 0.9) praise = "colours work together";
     else if (engaged.focus && parts.focus === 1) praise = "one piece carries it";
     else if (engaged.formality && parts.formality === 1) praise = "formality lines up";
     else if (parts.freshness >= 0.9) praise = "not worn in a while";
@@ -532,14 +584,85 @@
     return item.occasions.indexOf(occasion) !== -1;
   }
 
+  // Deliberately excludes today's own entry. The rule exists to stop the same
+  // thing turning up on consecutive days; counting what you logged an hour ago
+  // means that logging an outfit makes its own garments ineligible, and on a day
+  // whose pool is already narrow -- a lab day, say -- the screen can go blank the
+  // moment you say what you wore.
   function wornRecently(item, log, today, days) {
     if (!log || !days) return false;
     var cutoff = shiftDate(today, -days);
     for (var i = log.length - 1; i >= 0; i--) {
       if (log[i].date <= cutoff) break;
-      if (log[i].date <= today && log[i].items && log[i].items.indexOf(item.id) !== -1) return true;
+      if (log[i].date < today && log[i].items && log[i].items.indexOf(item.id) !== -1) return true;
     }
     return false;
+  }
+
+  // ------------------------------------------------- rejecting a piece in context
+  //
+  // Rejecting a garment is never about the garment alone -- it is about that
+  // garment here, with these. So a rejection is stored with its context and only
+  // suppresses the piece where the context is the same again. Crucially "the same"
+  // is not "identical": swapping white cotton trousers for white fabric ones is not
+  // a real change, and the piece should stay away. Swapping them for navy is.
+
+  function similarColour(c1, c2) {
+    var a = hexToHsl(c1), b = hexToHsl(c2);
+    if (!a || !b) return c1 === c2;
+    var na = isNeutral(a), nb = isNeutral(b);
+    if (na !== nb) return false;
+    // Two neutrals differ by how light they are, not by hue: white and black are
+    // both neutral and obviously not interchangeable.
+    if (na) return Math.abs(a.l - b.l) <= 0.22;
+    return hueDistance(a.h, b.h) <= 35 && Math.abs(a.l - b.l) <= 0.30;
+  }
+
+  // Same slot, same layer, same formality, near enough the same colour. Fabric,
+  // cut and brand deliberately do not count.
+  function sameGarmentKind(a, b) {
+    if (!a || !b) return false;
+    if (a.id === b.id) return true;
+    if (a.slot !== b.slot) return false;
+    if (a.slot === "top" && (a.layer || 1) !== (b.layer || 1)) return false;
+    var fa = typeof a.formality === "number" ? a.formality : null;
+    var fb = typeof b.formality === "number" ? b.formality : null;
+    if (fa !== fb) return false;
+    return similarColour(a.color, b.color);
+  }
+
+  // Every piece in one has an equivalent in the other, and nothing is left over.
+  function sameContext(a, b) {
+    if (a.length !== b.length) return false;
+    var used = {}, i, j;
+    for (i = 0; i < a.length; i++) {
+      var found = -1;
+      for (j = 0; j < b.length; j++) {
+        if (used[j]) continue;
+        if (sameGarmentKind(a[i], b[j])) { found = j; break; }
+      }
+      if (found === -1) return false;
+      used[found] = true;
+    }
+    return true;
+  }
+
+  // Returns the rejection that blocks this outfit, or null.
+  function contextuallyRejected(items, rejections, byId) {
+    if (!rejections || !rejections.length) return null;
+    for (var r = 0; r < rejections.length; r++) {
+      var rec = rejections[r];
+      if (!rec.focus || !rec.context || !rec.context.length) continue;
+      var carries = false, i;
+      for (i = 0; i < items.length; i++) if (items[i].id === rec.focus) { carries = true; break; }
+      if (!carries) continue;
+      var rest = [];
+      for (i = 0; i < items.length; i++) if (items[i].id !== rec.focus) rest.push(items[i]);
+      var was = resolveItems(rec.context, byId);
+      if (was.length !== rec.context.length) continue;   // an item was deleted since
+      if (sameContext(rest, was)) return rec;
+    }
+    return null;
   }
 
   function outfitKey(items) {
@@ -585,7 +708,7 @@
     var tolCold = (typeof criteria.toleranceCold === "number" ? criteria.toleranceCold : TOLERANCE_COLD) * tolScale;
     var tolWarm = (typeof criteria.toleranceWarm === "number" ? criteria.toleranceWarm : TOLERANCE_WARM) * tolScale;
 
-    var eliminated = { occasion: 0, repeat: 0, insulation: 0, seasonal: 0, rain: 0, rejected: 0 };
+    var eliminated = { unwearable: 0, occasion: 0, repeat: 0, insulation: 0, seasonal: 0, rain: 0, rejected: 0, context: 0 };
 
     // Item-level filters first — they shrink the pools before any combining.
     var pools = { base: [], mid: [], over: [], bottom: [], shoes: [], outer: [], accessory: [] };
@@ -596,6 +719,9 @@
       var it = items[i];
       if (it.archived) continue;
       if (excludeSet[it.id]) continue;
+      // Marked unwearable by hand — spilled on, torn, at the cleaner's. Not a
+      // laundry counter: a switch, and only Umut flips it back.
+      if (it.unwearable === true) { eliminated.unwearable++; continue; }
       // A held piece is exempt from every item-level filter: the user is looking at
       // it in an outfit right now, so nothing here gets to remove it.
       var held = holdSet[it.id] === true;
@@ -617,15 +743,24 @@
       if (pinnedBy.hasOwnProperty(pk) && pinnedBy[pk].length) pools[pk] = pinnedBy[pk];
     }
 
-    var rejectedKeys = {};
-    if (state.rejected && !criteria.ignoreRejected) {
-      for (var r = 0; r < state.rejected.length; r++) rejectedKeys[state.rejected[r].key] = true;
+    var rejectedKeys = {}, focusedRejections = [];
+    if (state.rejected) {
+      for (var r = 0; r < state.rejected.length; r++) {
+        var rec = state.rejected[r];
+        if (rec.focus) focusedRejections.push(rec);
+        else if (!criteria.ignoreRejected) rejectedKeys[rec.key] = true;
+      }
     }
+    // A piece-level rejection still applies when the caller is asking to change a
+    // different piece: offering back something already turned down in this exact
+    // context would be the same failure from the other direction.
+    if (criteria.ignoreContext) focusedRejections = [];
+    var byIdAll = indexById(items);
 
     var tasteWeights = ctx.tasteWeights || (state.taste && state.taste.weights) || null;
     var tasteN = typeof ctx.tasteN === "number" ? ctx.tasteN : ((state.taste && state.taste.n) || 0);
     var scoreCtx = {
-      today: today, tasteWeights: tasteWeights, tasteN: tasteN,
+      today: today, tasteWeights: tasteWeights, tasteN: tasteN, pairs: state.pairs || null,
       activityFactor: cloOpts.activityFactor, cloOffset: cloOpts.cloOffset
     };
 
@@ -674,6 +809,7 @@
                 var key = outfitKey(withAcc);
                 if (seen[key]) continue;
                 if (rejectedKeys[key]) { eliminated.rejected++; continue; }
+                if (contextuallyRejected(withAcc, focusedRejections, byIdAll)) { eliminated.context++; continue; }
                 seen[key] = true;
 
                 var score = scoreOutfit(withAcc, scoreCtx);
@@ -735,6 +871,37 @@
       if (added === 1 && missing === 1) return cand;
     }
     return null;
+  }
+
+  // Which top-and-bottom pairs are worth asking about, most useful first. "Useful"
+  // is not a new idea to invent a score for: it is simply how often the
+  // recommender already reaches for that pair. Rating those changes what you see
+  // tomorrow; rating a pair the app would never suggest changes nothing.
+  function pairQueue(state, ctx, limit) {
+    var res = recommend(state, ctx || {});
+    var seen = {}, entries = [];
+    for (var i = 0; i < res.outfits.length; i++) {
+      var items = res.outfits[i].items, tops = [], bottoms = [], k;
+      for (k = 0; k < items.length; k++) {
+        if (items[k].slot === "top") tops.push(items[k]);
+        else if (items[k].slot === "bottom") bottoms.push(items[k]);
+      }
+      for (var t = 0; t < tops.length; t++) {
+        for (var b = 0; b < bottoms.length; b++) {
+          var key = pairKey(tops[t].id, bottoms[b].id);
+          if (!seen[key]) {
+            seen[key] = { key: key, top: tops[t], bottom: bottoms[b], uses: 0, first: i };
+            entries.push(seen[key]);
+          }
+          seen[key].uses++;
+        }
+      }
+    }
+    var rated = state.pairs || {};
+    return entries
+      .filter(function (e) { return rated[e.key] !== 1 && rated[e.key] !== -1; })
+      .sort(function (a, b) { return b.uses - a.uses || a.first - b.first; })
+      .slice(0, limit || 80);
   }
 
   function poolKey(item) {
@@ -865,6 +1032,17 @@
     return Math.round((b - a) / 86400000);
   }
 
+  // The end of the week Umut is standing in, not seven days from now: choosing
+  // "this week" on a Tuesday means through Sunday night, and on a Sunday it means
+  // today. Weeks start on Monday here.
+  function endOfWeek(iso) {
+    var t = Date.parse(iso + "T00:00:00Z");
+    if (isNaN(t)) return iso;
+    var dow = new Date(t).getUTCDay();            // 0 = Sunday
+    var toSunday = dow === 0 ? 0 : 7 - dow;
+    return shiftDate(iso, toSunday);
+  }
+
   function shiftDate(iso, days) {
     var t = Date.parse(iso + "T00:00:00Z");
     if (isNaN(t)) return iso;
@@ -927,6 +1105,8 @@
     THICK_STEP: THICK_STEP,
     RELAX_ORDER: RELAX_ORDER,
     RULE_LABELS: RULE_LABELS,
+    pairKey: pairKey,
+    pairingScore: pairingScore,
     RULE_WEIGHTS: RULE_WEIGHTS,
     GAP_PRIORITY: GAP_PRIORITY,
     SWING_THRESHOLD: SWING_THRESHOLD,
@@ -960,7 +1140,12 @@
 
     recommend: recommend,
     replacePiece: replacePiece,
+    pairQueue: pairQueue,
     outfitKey: outfitKey,
+    similarColour: similarColour,
+    sameGarmentKind: sameGarmentKind,
+    sameContext: sameContext,
+    contextuallyRejected: contextuallyRejected,
     isPinned: isPinned,
     occasionOk: occasionOk,
     wornRecently: wornRecently,
@@ -976,6 +1161,7 @@
 
     indexById: indexById,
     daysBetween: daysBetween,
-    shiftDate: shiftDate
+    shiftDate: shiftDate,
+    endOfWeek: endOfWeek
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

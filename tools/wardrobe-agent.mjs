@@ -36,6 +36,69 @@ export const FIELDS = {
   waterproof: { type: "bool",   help: "Whether this would keep rain out. Only coated shells and technical fabrics count." }
 };
 
+// ------------------------------------------------------- reading what he wrote
+//
+// The three buttons hold "cold / right / warm". Everything else -- the wind cut
+// through the coat, the jumper itched, those two never worked together -- ends up
+// in a free-text comment, and that is where the useful corrections live.
+//
+// These do NOT go through applyProposals. That function fills blanks and refuses
+// anything already answered by hand, and its promise is worth keeping exactly as
+// it is. A comment saying the coat was not warm enough is by definition a
+// contradiction of an answered field, so it lands somewhere else: a suggestions
+// list, plainly labelled as disagreeing, that only does anything when accepted.
+
+export const SUGGESTION_KINDS = {
+  warmth:     { help: "One garment's thickness step is wrong. Give the item id and a step from 1 to 5." },
+  waterproof: { help: "One garment does or does not keep rain out. Give the item id and true or false." },
+  fabric:     { help: "One garment is made of something else. Give the item id and one of cotton, wool, synthetic, denim, leather, suede, other." },
+  offset:     { help: "He runs warmer or colder than the model assumes overall. Give a clo offset between -0.8 and 0.8; negative means he needs more insulation than the tables say." },
+  pair:       { help: "Two specific garments do or do not go together. Give both item ids and 1 or -1." }
+};
+
+export function pendingComments(wardrobe) {
+  return (wardrobe.log || []).filter(function (e) {
+    return e.comment && String(e.comment).trim() && e.commentAnswered !== true;
+  });
+}
+
+function validSuggestion(sug, byId) {
+  if (!sug || !SUGGESTION_KINDS[sug.kind]) return false;
+  if (sug.kind === "offset") return typeof sug.value === "number" && sug.value >= -0.8 && sug.value <= 0.8;
+  if (sug.kind === "pair") {
+    return !!byId[sug.item] && !!byId[sug.other] && (sug.value === 1 || sug.value === -1);
+  }
+  if (!byId[sug.item]) return false;
+  if (sug.kind === "warmth") return Number.isInteger(sug.value) && sug.value >= 1 && sug.value <= 5;
+  if (sug.kind === "waterproof") return typeof sug.value === "boolean";
+  if (sug.kind === "fabric") return ["cotton","wool","synthetic","denim","leather","suede","other"].includes(sug.value);
+  return false;
+}
+
+// Suggestions are appended, never applied. Nothing here writes an item field or a
+// setting -- the app does that, once, when he accepts one.
+export function recordSuggestions(wardrobe, entry, suggestions) {
+  const byId = Object.fromEntries((wardrobe.items || []).map((i) => [i.id, i]));
+  wardrobe.suggestions = wardrobe.suggestions || [];
+  const report = { added: 0, refusedInvalid: 0 };
+  for (const sug of suggestions || []) {
+    if (!validSuggestion(sug, byId)) { report.refusedInvalid++; continue; }
+    wardrobe.suggestions.push({
+      kind: sug.kind,
+      item: sug.item || null,
+      other: sug.other || null,
+      value: sug.value,
+      confidence: Math.max(0, Math.min(1, Number(sug.confidence) || 0)),
+      why: String(sug.why || "").slice(0, 200),
+      from: entry.date,
+      quote: String(entry.comment || "").slice(0, 200)
+    });
+    report.added++;
+  }
+  entry.commentAnswered = true;
+  return report;
+}
+
 // ---------------------------------------------------------------- gap finding
 
 // The queue drives what gets asked, plus fabric wherever it is unknown: it is
@@ -202,18 +265,82 @@ function loadImage(item) {
 
 // ---------------------------------------------------------------------- main
 
+async function readComments(client, zod, helpers, wardrobe, entries) {
+  const byId = Object.fromEntries((wardrobe.items || []).map((i) => [i.id, i]));
+  const schema = zod.object({
+    suggestions: zod.array(zod.object({
+      kind: zod.enum(["warmth", "waterproof", "fabric", "offset", "pair"]),
+      item: zod.string().nullable(),
+      other: zod.string().nullable(),
+      value: zod.union([zod.number(), zod.boolean(), zod.string()]),
+      confidence: zod.number().min(0).max(1),
+      why: zod.string()
+    }))
+  });
+
+  let added = 0, refused = 0;
+  for (const entry of entries) {
+    const worn = (entry.items || []).map((id) => byId[id]).filter(Boolean);
+    const lines = [
+      `Someone wore this outfit and left a note about how it went.`,
+      ``,
+      `Date: ${entry.date}`,
+      entry.tempC !== undefined && entry.tempC !== null ? `It felt like ${entry.tempC} °C.` : null,
+      entry.feedback ? `Overall they said it was: ${entry.feedback}.` : null,
+      ``,
+      `What they wore:`,
+      ...worn.map((i) => `- ${i.id} — "${i.name}", ${i.slot}${i.slot === "top" ? ` layer ${i.layer || 1}` : ""}, ` +
+        `thickness ${i.warmth ?? "unknown"}/5, fabric ${i.fabric || "unknown"}, ` +
+        `${i.waterproof ? "marked waterproof" : "not marked waterproof"}`),
+      ``,
+      `Their note: "${entry.comment}"`,
+      ``,
+      `Turn that note into concrete corrections, and only ones it actually supports:`,
+      ...Object.entries(SUGGESTION_KINDS).map(([k, v]) => `- ${k}: ${v.help}`),
+      ``,
+      `Use the exact item ids above. A note that says nothing actionable should`,
+      `produce an empty list — that is a good answer, not a failure. Everything you`,
+      `return is shown to them for approval, so a low confidence is more useful than`,
+      `a guess dressed up as a finding.`
+    ].filter((l) => l !== null);
+
+    const response = await client.messages.parse({
+      model: MODEL,
+      max_tokens: 4000,
+      thinking: { type: "adaptive" },
+      messages: [{ role: "user", content: lines.join("\n") }],
+      output_config: { format: helpers.zodOutputFormat(schema) }
+    });
+    if (response.stop_reason === "refusal") { console.error(`  ${entry.date}: the model declined`); continue; }
+
+    const report = recordSuggestions(wardrobe, entry, (response.parsed_output || {}).suggestions);
+    added += report.added;
+    refused += report.refusedInvalid;
+    console.log(`  ${entry.date} "${entry.comment.slice(0, 48)}" -> ${report.added} suggestion(s)` +
+      (report.refusedInvalid ? `, ${report.refusedInvalid} discarded` : ""));
+  }
+  return { added, refused };
+}
+
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
   const wardrobe = JSON.parse(readFileSync(DATA, "utf8"));
   const work = collectWork(wardrobe);
+  const comments = pendingComments(wardrobe);
   const today = new Date().toISOString().slice(0, 10);
 
-  if (!work.length) {
-    console.log("Nothing to fill in — every item is either answered or already waiting for review.");
+  if (!work.length && !comments.length) {
+    console.log("Nothing to do — no gaps, and no notes waiting to be read.");
     return;
   }
-  console.log(`${work.length} item(s) with gaps:`);
-  for (const w of work) console.log(`  ${w.item.name}: ${w.fields.join(", ")}`);
+  if (work.length) {
+    console.log(`${work.length} item(s) with gaps:`);
+    for (const w of work) console.log(`  ${w.item.name}: ${w.fields.join(", ")}`);
+  }
+  if (comments.length) {
+    console.log(`${comments.length} note(s) to read:`);
+    for (const c of comments) console.log(`  ${c.date}: "${c.comment}"`);
+  }
   if (dryRun) { console.log("\n--dry-run: stopping before calling the model."); return; }
 
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -247,7 +374,14 @@ async function main() {
   if (report.refusedSettled) console.log(`Left alone: ${report.refusedSettled} field(s) already answered by hand.`);
   if (report.refusedInvalid) console.log(`Discarded: ${report.refusedInvalid} answer(s) that failed validation.`);
 
-  if (!report.filled) { console.log("Nothing to write."); return; }
+  let notes = { added: 0 };
+  if (comments.length) {
+    console.log(`\nReading ${comments.length} note(s):`);
+    notes = await readComments(client, zod.z, helpers, wardrobe, comments);
+    console.log(`${notes.added} suggestion(s) from what he wrote.`);
+  }
+
+  if (!report.filled && !notes.added) { console.log("Nothing to write."); return; }
   writeFileSync(DATA, JSON.stringify(wardrobe, null, 2) + "\n");
   console.log("Wrote wardrobe/wardrobe.json. Everything is a proposal until accepted in the app.");
 }

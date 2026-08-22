@@ -110,5 +110,14 @@ GitHub token and the PWA pattern; it shares no data and no rules with the schedu
 - **A per-piece rejection blames only that piece.** `trainTaste` skips the item-level features of
   everything he kept when a swipe carries a `focus`. Losing that quietly turns his sharpest signal
   back into his vaguest one.
+- **A rejection is about a context.** It is stored with the rest of the outfit and blocks that piece
+  only while the company is equivalent — same slot, similar colour, same formality; fabric and cut
+  are not differences. Do not widen this into a blanket ban on the garment.
+- **Feedback has to be visible in the ranking.** The model's early influence was once so low that a
+  rejected garment came back in eight of the next eight cards. If `ruleWeightFor` is ever retuned,
+  measure that number rather than reasoning about the curve.
+- **The agent has two channels and they are not interchangeable.** `applyProposals` fills blanks and
+  refuses anything answered by hand; `recordSuggestions` carries corrections read out of his written
+  notes, which may contradict an answer and therefore quote the sentence and wait for acceptance.
 - New wardrobe facts — a garment's real warmth, a preference about what he will and won't wear,
   a correction — get written down the same as anything else, into the table above.

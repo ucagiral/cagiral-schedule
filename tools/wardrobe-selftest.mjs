@@ -868,6 +868,330 @@ check("undo still restores the model exactly, focused swipes included", () => {
   return JSON.stringify(afterUndo) === JSON.stringify(before) ? null : "undo did not restore the weights";
 });
 
+// ====================================================== rejecting a piece in context
+//
+// The measured failure these exist for: a rejected t-shirt came back in eight of
+// the next eight cards, and still did after twenty more rejections.
+
+function rejection(outfit, focusId) {
+  return { at: TODAY + "T09:00:00Z", key: outfit.key, focus: focusId,
+           context: outfit.ids.filter((id) => id !== focusId) };
+}
+
+check("white cotton and white fabric trousers count as the same context", () => {
+  // The exact thing that has to hold: fabric is not a real change, colour is.
+  const jeans = { id: "a", slot: "bottom", color: "#e1dfda", formality: 2 };
+  const otherWhite = { id: "b", slot: "bottom", color: "#e6e3dd", formality: 2 };
+  const navy = { id: "c", slot: "bottom", color: "#2b3a55", formality: 2 };
+  const smartWhite = { id: "d", slot: "bottom", color: "#e1dfda", formality: 3 };
+  if (!E.sameGarmentKind(jeans, otherWhite)) return "two off-white trousers were treated as different";
+  if (E.sameGarmentKind(jeans, navy)) return "off-white and navy were treated as the same";
+  if (E.sameGarmentKind(jeans, smartWhite)) return "formality was ignored";
+  return null;
+});
+
+check("black and white are not the same neutral", () => {
+  const black = { id: "a", slot: "shoes", color: "#151515", formality: 2 };
+  const white = { id: "b", slot: "shoes", color: "#f2f2f2", formality: 2 };
+  return E.sameGarmentKind(black, white) ? "black and white shoes were treated as interchangeable" : null;
+});
+
+check("a rejected piece never returns in the same context", () => {
+  const s = state();
+  const res = E.recommend(s, { today: TODAY, tempC: 18 });
+  const outfit = res.outfits[0];
+  const tee = outfit.items.find((i) => i.slot === "top");
+  s.rejected = [rejection(outfit, tee.id)];
+
+  const after = E.recommend(s, { today: TODAY, tempC: 18 });
+  if (after.outfits.some((o) => o.key === outfit.key)) return "the exact outfit came back";
+  const byId = E.indexById(s.items);
+  for (const o of after.outfits) {
+    if (!o.ids.includes(tee.id)) continue;
+    const rest = o.items.filter((i) => i.id !== tee.id);
+    const was = s.rejected[0].context.map((id) => byId[id]);
+    if (E.sameContext(rest, was)) return `it came back in the same context: ${o.key}`;
+  }
+  if (!after.eliminated.context) return "no candidate was eliminated by context at all";
+  return null;
+});
+
+check("the same piece is still fine somewhere genuinely different", () => {
+  // One rejection is about one context. Banishing the garment outright would be an
+  // overreaction to a single opinion.
+  const s = state();
+  const res = E.recommend(s, { today: TODAY, tempC: 18 });
+  const outfit = res.outfits[0];
+  const tee = outfit.items.find((i) => i.slot === "top");
+  s.rejected = [rejection(outfit, tee.id)];
+  const after = E.recommend(s, { today: TODAY, tempC: 18 });
+  return after.outfits.some((o) => o.ids.includes(tee.id))
+    ? null : "one rejection removed the garment from the wardrobe entirely";
+});
+
+check("persistent rejection does push a piece out of the running", () => {
+  // The other half: keep saying no and it should stop appearing.
+  const s = state();
+  const ctx = { today: TODAY, tempC: 18, criteria: { ignoreInsulation: true, repeatDays: 0 } };
+  let deck = E.diversify(E.recommend(s, ctx).outfits, 2);
+  const victim = deck[0].items.find((i) => i.slot === "top");
+
+  for (let i = 0; i < 10; i++) {
+    const carrier = deck.find((o) => o.ids.includes(victim.id));
+    if (!carrier) break;
+    s.rejected.push(rejection(carrier, victim.id));
+    s.swipes.push({ at: TODAY + "T09:00:00Z", items: carrier.ids, liked: false, focus: victim.id });
+    const t = E.trainTaste(s.swipes, E.indexById(s.items), TODAY);
+    s.taste = { weights: t.weights, n: t.n };
+    deck = E.diversify(E.recommend(s, ctx).outfits, 2);
+  }
+  const top8 = deck.slice(0, 8).filter((o) => o.ids.includes(victim.id)).length;
+  return top8 === 0 ? null : `after ten rejections it is still in ${top8} of the top 8`;
+});
+
+check("feedback moves the ranking while it is still fresh", () => {
+  // The old curve gave the model 1% of the decision at one swipe and 14% at
+  // twenty-one, which is why rejections felt ignored.
+  if (!(1 - E.ruleWeightFor(5) > 0.15)) return `at five swipes the model still only has ${(1-E.ruleWeightFor(5)).toFixed(2)}`;
+  if (!(1 - E.ruleWeightFor(1) > 0.02)) return "a single swipe counts for nothing";
+  if (E.ruleWeightFor(100000) < 0.3 - 1e-9) return "the rules dropped below their floor";
+  if (E.ruleWeightFor(0) !== 1) return "with no swipes the rules should decide everything";
+  return null;
+});
+
+check("undoing a rejection lifts the block with it", () => {
+  const s = state();
+  const outfit = E.recommend(s, { today: TODAY, tempC: 18 }).outfits[0];
+  const tee = outfit.items.find((i) => i.slot === "top");
+  s.rejected = [rejection(outfit, tee.id)];
+  const blocked = E.recommend(s, { today: TODAY, tempC: 18 });
+  if (blocked.outfits.some((o) => o.key === outfit.key)) return "it was never blocked";
+  s.rejected = [];
+  const freed = E.recommend(s, { today: TODAY, tempC: 18 });
+  return freed.outfits.some((o) => o.key === outfit.key) ? null : "the block outlived the rejection";
+});
+
+check("a context naming a deleted garment is ignored, not crashed on", () => {
+  const s = state();
+  const outfit = E.recommend(s, { today: TODAY, tempC: 18 }).outfits[0];
+  const tee = outfit.items.find((i) => i.slot === "top");
+  s.rejected = [rejection(outfit, tee.id)];
+  s.items = s.items.filter((i) => i.id !== s.rejected[0].context[0]);
+  const res = E.recommend(s, { today: TODAY, tempC: 18 });
+  return res.outfits.length ? null : "a stale context wiped out every suggestion";
+});
+
+// ================================================== pairings and unwearable items
+
+check("a pairing you approved lifts the outfit, one you rejected sinks it", () => {
+  const items = wardrobe();
+  const top = items.find((i) => i.id === "tee-yellow");
+  const bottom = items.find((i) => i.id === "chino-beige");
+  const pair = [top, bottom];
+  const neutral = E.ruleScores(pair, TODAY, {}).pairing;
+  const liked = E.ruleScores(pair, TODAY, { [E.pairKey(top.id, bottom.id)]: 1 }).pairing;
+  const disliked = E.ruleScores(pair, TODAY, { [E.pairKey(top.id, bottom.id)]: -1 }).pairing;
+  if (neutral !== 1) return `an unrated pair should say nothing, got ${neutral}`;
+  if (liked !== 1) return `an approved pair should score full marks, got ${liked}`;
+  if (disliked !== 0) return `a rejected pair should score zero, got ${disliked}`;
+  return null;
+});
+
+check("an unrated pair is not treated as a bad one", () => {
+  // Every rule with nothing to judge returns 1; pairing must not be the exception,
+  // or every outfit would start life penalised until it was rated.
+  const items = wardrobe();
+  const pair = [items.find((i) => i.id === "tee-yellow"), items.find((i) => i.id === "chino-beige")];
+  if (E.ruleScores(pair, TODAY, {}).pairing !== 1) return "an unrated pair scored below full marks";
+  if (E.engagedRules(pair, {}).pairing) return "pairing counted as engaged with nothing rated";
+  if (!E.engagedRules(pair, { [E.pairKey(pair[0].id, pair[1].id)]: 1 }).pairing) {
+    return "pairing did not count as engaged once a pair was rated";
+  }
+  return null;
+});
+
+check("a rejected pairing pushes that combination down the deck", () => {
+  const s = state();
+  const before = E.recommend(s, { today: TODAY, tempC: 18 });
+  const top = before.outfits[0].items.find((i) => i.slot === "top");
+  const bottom = before.outfits[0].items.find((i) => i.slot === "bottom");
+  const rankBefore = before.outfits.findIndex((o) => o.ids.includes(top.id) && o.ids.includes(bottom.id));
+
+  s.pairs = { [E.pairKey(top.id, bottom.id)]: -1 };
+  const after = E.recommend(s, { today: TODAY, tempC: 18 });
+  const rankAfter = after.outfits.findIndex((o) => o.ids.includes(top.id) && o.ids.includes(bottom.id));
+  if (rankAfter === -1) return null;                       // pushed out entirely, fine
+  return rankAfter > rankBefore ? null : `rank did not fall: ${rankBefore} -> ${rankAfter}`;
+});
+
+check("an approved pairing is a preference, not a rule — unrated pairs still appear", () => {
+  const s = state();
+  const res0 = E.recommend(s, { today: TODAY, tempC: 18 });
+  const top = res0.outfits[0].items.find((i) => i.slot === "top");
+  const bottom = res0.outfits[0].items.find((i) => i.slot === "bottom");
+  s.pairs = { [E.pairKey(top.id, bottom.id)]: 1 };
+  const after = E.recommend(s, { today: TODAY, tempC: 18 });
+  const others = after.outfits.filter((o) => !(o.ids.includes(top.id) && o.ids.includes(bottom.id)));
+  return others.length ? null : "approving one pair silenced every other combination";
+});
+
+check("pairings reach the taste model as a feature", () => {
+  const items = wardrobe();
+  const pair = [items.find((i) => i.id === "tee-yellow"), items.find((i) => i.id === "chino-beige")];
+  const f = E.featurise(pair, TODAY, { [E.pairKey(pair[0].id, pair[1].id)]: 1 });
+  return "rule:pairing" in f ? null : "the model cannot learn to disagree with a pairing";
+});
+
+check("an unwearable item is not suggested, and comes back when the switch is off", () => {
+  const s = state();
+  const tee = s.items.find((i) => i.id === "tee-white");
+  tee.unwearable = true;
+  const out = E.recommend(s, { today: TODAY, tempC: 22 });
+  if (anyHas(out.outfits, "tee-white")) return "an unwearable item was still suggested";
+  if (!out.eliminated.unwearable) return "the elimination was not counted";
+  tee.unwearable = false;
+  return anyHas(E.recommend(s, { today: TODAY, tempC: 22 }).outfits, "tee-white")
+    ? null : "it did not come back after the switch was turned off";
+});
+
+check("an unwearable item beats its own pin", () => {
+  // Spilling something on the trousers you pinned for the week has to win.
+  const s = state();
+  const chino = s.items.find((i) => i.id === "chino-beige");
+  chino.pinnedUntil = "2026-08-28";
+  chino.unwearable = true;
+  const res = E.recommend(s, { today: TODAY, tempC: 18 });
+  if (!res.outfits.length) return "an unwearable pinned item left nothing to suggest";
+  return anyHas(res.outfits, "chino-beige") ? "the pin overrode the unwearable switch" : null;
+});
+
+// ================================================================= keeping a piece
+
+check("'this week' means the rest of this week, not seven days", () => {
+  // 2026-08-18 is a Tuesday; the week it belongs to ends Sunday the 23rd.
+  if (E.endOfWeek("2026-08-18") !== "2026-08-23") return "Tuesday -> " + E.endOfWeek("2026-08-18");
+  if (E.endOfWeek("2026-08-17") !== "2026-08-23") return "Monday -> " + E.endOfWeek("2026-08-17");
+  if (E.endOfWeek("2026-08-22") !== "2026-08-23") return "Saturday -> " + E.endOfWeek("2026-08-22");
+  // On a Sunday it is already the end of the week, so it holds for today only.
+  if (E.endOfWeek("2026-08-23") !== "2026-08-23") return "Sunday -> " + E.endOfWeek("2026-08-23");
+  return null;
+});
+
+check("a piece kept until the end of the week is pinned through Sunday", () => {
+  const tuesday = "2026-08-18";
+  const it = item({ id: "p", name: "P", slot: "bottom", warmth: 3, color: "#111",
+                    pinnedUntil: E.endOfWeek(tuesday) });
+  if (!E.isPinned(it, "2026-08-21")) return "not pinned on the Friday";
+  if (!E.isPinned(it, "2026-08-23")) return "not pinned on the Sunday itself";
+  if (E.isPinned(it, "2026-08-24")) return "still pinned on the Monday after";
+  return null;
+});
+
+check("the pair queue asks about the pairs the app would actually use", () => {
+  const s = state();
+  const q = E.pairQueue(s, { today: TODAY, tempC: 18, criteria: { ignoreInsulation: true, repeatDays: 0 } });
+  if (!q.length) return "the queue was empty";
+  if (!q.every((e) => e.top.slot === "top" && e.bottom.slot === "bottom")) return "a pair was not a top and a bottom";
+  for (let i = 1; i < q.length; i++) {
+    if (q[i - 1].uses < q[i].uses) return "the queue is not ordered by how often the pair is used";
+  }
+  return null;
+});
+
+check("the pair queue stops asking once a pair is rated", () => {
+  const s = state();
+  const ctx = { today: TODAY, tempC: 18, criteria: { ignoreInsulation: true, repeatDays: 0 } };
+  const first = E.pairQueue(s, ctx)[0];
+  s.pairs = { [first.key]: 1 };
+  const again = E.pairQueue(s, ctx);
+  return again.some((e) => e.key === first.key) ? "a rated pair was asked about again" : null;
+});
+
+check("logging today's outfit does not empty today's suggestions", () => {
+  // The repeat rule is about consecutive days. Counting the entry you just wrote
+  // makes an outfit disqualify itself, and on a narrow day the screen goes blank
+  // the moment you say what you wore.
+  const s = state();
+  const before = E.recommend(s, { today: TODAY, tempC: 18, occasion: "lab" });
+  if (!before.outfits.length) return "the fixture produced nothing to begin with";
+  s.log = [{ date: TODAY, items: before.outfits[0].ids }];
+  const after = E.recommend(s, { today: TODAY, tempC: 18, occasion: "lab" });
+  if (!after.outfits.length) return "logging what you wore wiped out every suggestion";
+  return after.outfits.some((o) => o.key === before.outfits[0].key)
+    ? null : "the outfit you are actually wearing stopped being suggested today";
+});
+
+check("but yesterday's outfit is still held back today", () => {
+  const s = state();
+  s.log = [{ date: "2026-08-20", items: ["tee-white", "chino-beige"] }];
+  const res = E.recommend(s, { today: TODAY, tempC: 20 });
+  return anyHas(res.outfits, "tee-white") ? "yesterday's tee came back the next day" : null;
+});
+
+// ==================================================== suggestions from a comment
+
+check("a comment suggestion is recorded, never applied", () => {
+  const w = { items: [settledItem()], log: [], suggestions: [] };
+  const entry = { date: "2026-08-22", comment: "the jumper was nowhere near warm enough", items: ["settled"] };
+  const before = JSON.stringify(w.items[0]);
+  const report = agent.recordSuggestions(w, entry, [
+    { kind: "warmth", item: "settled", value: 3, confidence: 0.7, why: "he says it was not warm enough" }
+  ]);
+  if (report.added !== 1) return `expected one suggestion, got ${report.added}`;
+  if (JSON.stringify(w.items[0]) !== before) return "the item was modified rather than a suggestion recorded";
+  if (w.suggestions[0].value !== 3) return "the suggestion lost its value";
+  if (!w.suggestions[0].quote) return "the suggestion does not carry the note it came from";
+  return null;
+});
+
+check("a comment can contradict an answer, which is the point", () => {
+  // applyProposals refuses anything already answered, and should keep doing so.
+  // A note saying the coat was not warm enough is by definition a contradiction,
+  // so it takes the other route and is labelled as a disagreement.
+  const w = { items: [settledItem()], log: [], suggestions: [] };
+  const refused = agent.applyProposals(w, [{ id: "settled", fields: {
+    warmth: { value: 2, confidence: 0.9, why: "should be refused" } } }], "2026-08-22");
+  if (refused.filled !== 0) return "applyProposals stopped refusing settled fields";
+  agent.recordSuggestions(w, { date: "2026-08-22", comment: "froze in it", items: ["settled"] },
+    [{ kind: "warmth", item: "settled", value: 2, confidence: 0.8, why: "he froze" }]);
+  if (w.suggestions.length !== 1) return "the contradiction had nowhere to go";
+  if (w.items[0].warmth !== 5) return "the contradiction was applied instead of suggested";
+  return null;
+});
+
+check("nonsense in a comment suggestion is discarded", () => {
+  const w = { items: [settledItem()], log: [], suggestions: [] };
+  const report = agent.recordSuggestions(w, { date: "2026-08-22", comment: "x", items: [] }, [
+    { kind: "warmth", item: "settled", value: 9, confidence: 0.9, why: "out of range" },
+    { kind: "warmth", item: "no-such-item", value: 3, confidence: 0.9, why: "unknown item" },
+    { kind: "offset", value: 5, confidence: 0.9, why: "out of range" },
+    { kind: "fabric", item: "settled", value: "unobtainium", confidence: 0.9, why: "not a fabric" },
+    { kind: "telepathy", item: "settled", value: 1, confidence: 0.9, why: "not a kind" },
+    { kind: "pair", item: "settled", other: "ghost", value: 1, confidence: 0.9, why: "unknown partner" }
+  ]);
+  if (report.added !== 0) return `stored ${report.added} invalid suggestion(s)`;
+  if (report.refusedInvalid !== 6) return `expected 6 rejections, counted ${report.refusedInvalid}`;
+  return null;
+});
+
+check("a note is only read once", () => {
+  const w = { items: [settledItem()], log: [
+    { date: "2026-08-22", comment: "froze", items: ["settled"] },
+    { date: "2026-08-21", comment: "", items: ["settled"] }
+  ], suggestions: [] };
+  if (agent.pendingComments(w).length !== 1) return "an empty comment was queued for reading";
+  agent.recordSuggestions(w, w.log[0], []);
+  return agent.pendingComments(w).length === 0 ? null : "the same note would be read again next run";
+});
+
+check("a note that says nothing actionable costs nothing", () => {
+  const w = { items: [settledItem()], log: [], suggestions: [] };
+  const report = agent.recordSuggestions(w, { date: "2026-08-22", comment: "nice day", items: [] }, []);
+  if (report.added !== 0) return "invented a suggestion from nothing";
+  if (w.suggestions.length !== 0) return "an empty suggestion list still wrote something";
+  return null;
+});
+
 // ================================================================== ordering
 
 check("outfits come back best first, deterministically", () => {

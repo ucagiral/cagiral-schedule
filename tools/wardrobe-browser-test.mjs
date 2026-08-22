@@ -409,7 +409,7 @@ await page.click("#btnAnalyze");
 await page.waitForTimeout(700);
 check("the analyze button dispatches the workflow", gh.dispatches === 1, "dispatches: " + gh.dispatches);
 const banner = await page.textContent("#banner");
-check("the banner says how many items it is looking at", /looking at 1 item/.test(banner), banner.slice(0,160));
+check("the banner says how much there is to look at", /looking at 1 thing/.test(banner), banner.slice(0,160));
 
 // --- the 403 path, which is the one Umut will actually hit first ---
 await page.route("https://api.github.com/**/actions/workflows/**", (route) =>
@@ -435,8 +435,6 @@ server.close();
   await page.waitForFunction(() => document.querySelectorAll("#todayOutfit .piece").length > 0, { timeout: 15000 });
   await page.waitForTimeout(300);
 
-  const spots = () => page.$$eval("#todayOutfit .piece",
-    els => els.map((e) => ({ id: e.dataset.id, left: e.style.left, top: e.style.top, t: e.style.transform })));
   const ids = () => page.$$eval("#todayOutfit .piece", els => els.map((e) => e.dataset.id));
 
   // --- no boxes ---
@@ -452,15 +450,36 @@ server.close();
   const labels = await page.$$eval("#todayOutfit .piece .nm", els => els.length);
   check("the collage carries no per-piece labels", labels === 0, "labels: " + labels);
 
-  // --- scattered, not gridded ---
-  const laid = await spots();
-  check("every piece is placed absolutely, not in a row",
-    laid.every((p) => p.left.endsWith("%") && p.top.endsWith("%")), JSON.stringify(laid[0]));
-  check("the pieces are not all on one line",
-    new Set(laid.map((p) => p.top)).size === laid.length, laid.map((p) => p.top).join(", "));
-  check("the pieces are tilted", laid.every((p) => /rotate\(-?\d/.test(p.t)), laid[0].t);
+  // --- fixed rows, top of the body downwards ---
+  const rows = await page.$$eval("#todayOutfit .orow", els => els.map((e) => ({
+    row: e.dataset.row,
+    ids: [...e.querySelectorAll(".piece")].map((p) => p.dataset.id),
+    top: e.getBoundingClientRect().top
+  })));
+  check("the outfit is laid out in rows", rows.length > 0, JSON.stringify(rows));
+  const order = ["accessory", "top", "bottom", "shoes"];
+  const seen = rows.map((r) => r.row);
+  check("the rows run from the top of the body down",
+    JSON.stringify(seen) === JSON.stringify(order.filter((o) => seen.includes(o))), seen.join(" -> "));
+  check("rows appear in that visual order too",
+    rows.every((r, i) => i === 0 || r.top >= rows[i - 1].top), rows.map((r) => `${r.row}@${Math.round(r.top)}`).join(", "));
+  check("empty rows take no space", !rows.some((r) => r.ids.length === 0), JSON.stringify(seen));
 
-  // Nothing may fall outside the backdrop.
+  // Layered tops share one row, side by side.
+  const topRow = rows.find((r) => r.row === "top");
+  check("tops and outerwear share the same row", topRow && topRow.ids.length >= 1, JSON.stringify(topRow));
+
+  // Nothing may overlap, which is the whole reason the piece gesture kept missing.
+  const overlap = await page.evaluate(() => {
+    const ps = [...document.querySelectorAll("#todayOutfit .piece")].map((p) => p.getBoundingClientRect());
+    for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) {
+      const a = ps[i], b = ps[j];
+      if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) return true;
+    }
+    return false;
+  });
+  check("no two garments overlap", !overlap);
+
   const inside = await page.evaluate(() => {
     const box = document.getElementById("todayOutfit").getBoundingClientRect();
     return [...document.querySelectorAll("#todayOutfit .piece")].every((p) => {
@@ -470,22 +489,8 @@ server.close();
   });
   check("no garment spills outside the backdrop", inside);
 
-  // --- the layout is seeded, not random ---
-  await page.click('nav button[data-screen="wardrobe"]');
-  await page.waitForTimeout(150);
-  await page.click('nav button[data-screen="today"]');
-  await page.waitForTimeout(300);
-  const again = await spots();
-  check("redrawing the same outfit gives the same layout",
-    JSON.stringify(again) === JSON.stringify(laid),
-    "before: " + JSON.stringify(laid.map(p => p.left)) + " after: " + JSON.stringify(again.map(p => p.left)));
-
   await page.click("#btnAnother");
   await page.waitForTimeout(300);
-  const other = await spots();
-  check("a different outfit gets a different layout",
-    JSON.stringify(other.map((p) => p.left)) !== JSON.stringify(laid.map((p) => p.left)),
-    JSON.stringify(other.map(p => p.left)));
 
   // --- tapping a piece names it and offers the multi-day choice ---
   const firstPiece = await page.$("#todayOutfit .piece");
@@ -494,13 +499,16 @@ server.close();
   await page.waitForTimeout(200);
   const picked = await page.textContent("#todayPicked");
   check("tapping a garment names it", picked.trim().length > 0, picked);
-  check("tapping offers to keep wearing it for a few days",
-    /Keep wearing/.test(picked) && /A week/.test(picked), picked);
+  check("tapping offers to keep wearing it, by number of days or to the week's end",
+    /Keep wearing/.test(picked) && /Rest of this week/.test(picked), picked);
+  const dayBox = await page.$('#todayPicked input[type="number"]');
+  check("keep-wearing takes a number of days", dayBox !== null);
   check("tapping offers to change just that piece", /Change/.test(picked), picked);
+  check("tapping offers to set the garment aside", /Can't wear this/.test(picked), picked);
 
   // --- dragging one piece changes that piece alone ---
   const before = await ids();
-  const target = await page.$(`#todayOutfit .piece[data-id="${before[0]}"] .hit`);
+  const target = await page.$(`#todayOutfit .piece[data-id="${before[0]}"]`);
   const tbox = await target.boundingBox();
   const cx = tbox.x + tbox.width / 2, cy = tbox.y + tbox.height / 2;
   await page.mouse.move(cx, cy);
@@ -547,6 +555,124 @@ server.close();
   const darkBackdrop = await page.$eval("#todayOutfit", e => getComputedStyle(e).backgroundColor);
   check("the shared backdrop follows the dark theme", darkBackdrop !== backdrop, `${backdrop} -> ${darkBackdrop}`);
   await page.emulateMedia({ colorScheme: "light" });
+
+  allErrors.push(...errors);
+  await browser.close();
+  server.close();
+}
+
+// ================================ wearing, the verdict, setting a garment aside
+//
+// These need a real wardrobe rather than the demo set, because logging what you
+// wore and pinning things are deliberately refused for demo pieces.
+{
+  const server = await serve(8796);
+  const real = {
+    items: demo.items.map((i) => ({ ...i, id: i.id.replace(/^demo-/, "w-"), demo: false })),
+    log: [], swipes: [], rejected: [], pairs: {},
+    taste: { weights: {}, n: 0 },
+    settings: { city: "Ankara", cloOffset: 0, repeatDays: 3, outlinePx: 6, demo: false }
+  };
+  const { browser, page, gh, errors } = await openApp({ port: 8796, weather, schedule, wardrobe: real });
+  await page.waitForFunction(() => document.querySelectorAll("#todayOutfit .piece").length > 0, { timeout: 15000 });
+  await page.waitForTimeout(300);
+
+  // --- the verdict, on the day, not the morning after ---
+  const worn = await page.$$eval("#todayOutfit .piece", els => els.map((e) => e.dataset.id));
+  await page.click("#btnWore");
+  await page.waitForTimeout(600);
+  const carried = await page.textContent("#todayCarried");
+  check("the verdict is asked for the same day you wore it",
+    /Too cold/.test(carried) && /Just right/.test(carried), carried.slice(0, 160));
+  check("today's card is the one being asked about", /How is today going/.test(carried), carried.slice(0, 80));
+  const commentBox = await page.$("#todayCarried input");
+  check("there is somewhere to write what the buttons cannot hold", commentBox !== null);
+
+  await commentBox.fill("the jacket was useless in the wind");
+  await commentBox.press("Tab");
+  // The status says "Noted" straight away but the commit is debounced, so wait for
+  // the bytes to actually reach the stub rather than for the reassuring word.
+  const commented = async () => {
+    for (let i = 0; i < 60; i++) {
+      const e = gh.wardrobe && gh.wardrobe.log && gh.wardrobe.log[0];
+      if (e && /useless in the wind/.test(e.comment || "")) return e;
+      await page.waitForTimeout(250);
+    }
+    return gh.wardrobe && gh.wardrobe.log && gh.wardrobe.log[0];
+  };
+  const logged = await commented();
+  check("the comment is saved on the day's entry",
+    logged && /useless in the wind/.test(logged.comment || ""), JSON.stringify(logged));
+
+  await page.click('#todayCarried button:has-text("Too cold")');
+  await page.waitForTimeout(700);
+  const offset = await page.evaluate(() => JSON.parse(localStorage.getItem("wd_cache")).state.settings.cloOffset);
+  check("the verdict still moves the personal calibration", offset < 0, "offset: " + offset);
+
+  // --- setting a garment aside ---
+  const victim = worn[0];
+  await page.click(`#todayOutfit .piece[data-id="${victim}"]`);
+  await page.waitForTimeout(250);
+  await page.click('#todayPicked button:has-text("Can\'t wear this")');
+  await page.waitForFunction(() => /Saved|Ready|set aside/.test(document.getElementById("status").textContent), { timeout: 9000 });
+  await page.waitForTimeout(500);
+
+  const stateNow = await page.evaluate(() => JSON.parse(localStorage.getItem("wd_cache")).state);
+  const marked = stateNow.items.find((i) => i.id === victim);
+  check("the garment is marked unwearable", marked && marked.unwearable === true, JSON.stringify(marked && marked.unwearable));
+  check("setting it aside drops any pin it had", marked && !marked.pinnedUntil);
+  const nowShown = await page.$$eval("#todayOutfit .piece", els => els.map((e) => e.dataset.id));
+  check("it disappears from the suggestion straight away", !nowShown.includes(victim),
+    `${victim} still on the card: ${nowShown.join(", ")}`);
+
+  await page.click('nav button[data-screen="wardrobe"]');
+  await page.waitForTimeout(400);
+  const aside = await page.$eval(`.tile:has-text("${stateNow.items.find(i => i.id === victim).name}") .flag`,
+    e => e.textContent).catch(() => "");
+  check("the wardrobe shows it is set aside, so it is not forgotten", /set aside/.test(aside), aside);
+
+  await page.screenshot({ path: `${SHOTS}/11-aside.png`, fullPage: true });
+  allErrors.push(...errors);
+  await browser.close();
+  server.close();
+}
+
+// ========================================================== pairing tops to bottoms
+{
+  const server = await serve(8797);
+  const { browser, page, gh, errors } = await openApp({ port: 8797, weather, schedule, demo });
+  await page.click('nav button[data-screen="pairs"]');
+  await page.waitForSelector("#pairStage .swipecard .piece");
+  await page.waitForTimeout(300);
+
+  const shown = () => page.$$eval("#pairStage .piece", els => els.map((e) => e.dataset.id));
+  const first = await shown();
+  check("a pairing is one top and one bottom", first.length === 2, first.join(", "));
+  const slots = await page.$$eval("#pairStage .orow", els => els.map((e) => e.dataset.row));
+  check("the pairing uses the same rows as an outfit",
+    JSON.stringify(slots) === JSON.stringify(["top", "bottom"]), slots.join(", "));
+
+  await page.screenshot({ path: `${SHOTS}/12-pairs.png`, fullPage: true });
+
+  await page.click("#btnPairYes");
+  await page.waitForTimeout(500);
+  const rated = await page.evaluate(() => JSON.parse(localStorage.getItem("wd_cache")).state.pairs);
+  check("rating a pairing is recorded", Object.keys(rated).length === 1, JSON.stringify(rated));
+  check("a liked pairing is recorded as liked", Object.values(rated)[0] === 1, JSON.stringify(rated));
+
+  const second = await shown();
+  check("the deck moves on to the next pairing",
+    JSON.stringify(second) !== JSON.stringify(first), second.join(", "));
+
+  await page.click("#btnPairNo");
+  await page.waitForTimeout(500);
+  const both = await page.evaluate(() => JSON.parse(localStorage.getItem("wd_cache")).state.pairs);
+  check("a rejected pairing is recorded as rejected",
+    Object.values(both).filter((v) => v === -1).length === 1, JSON.stringify(both));
+
+  const listed = await page.textContent("#pairRated");
+  check("what you have said is listed back, with a way to undo it",
+    /works/.test(listed) && /Undo/.test(listed), listed.slice(0, 160));
 
   allErrors.push(...errors);
   await browser.close();

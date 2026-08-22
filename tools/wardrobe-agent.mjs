@@ -33,8 +33,7 @@ export const FIELDS = {
   pattern:    { type: "enum",   values: ["solid", "patterned"], help: "'patterned' covers prints, stripes, checks and graphics; a plain garment with a small logo is still 'solid'." },
   color:      { type: "hex",    help: "The dominant colour as #rrggbb, ignoring any white outline around the cutout." },
   fabric:     { type: "enum",   values: ["cotton", "wool", "synthetic", "denim", "leather", "suede", "other"], help: "The material it looks like it is made of." },
-  waterproof: { type: "bool",   help: "Whether this would keep rain out. Only coated shells and technical fabrics count." },
-  washAfter:  { type: "int",    help: "How many wears before it needs washing: 1 for a t-shirt, 3-5 for shirts and trousers, 20 or more for a coat." }
+  waterproof: { type: "bool",   help: "Whether this would keep rain out. Only coated shells and technical fabrics count." }
 };
 
 // ---------------------------------------------------------------- gap finding

@@ -108,23 +108,45 @@
   .wx .meta{font-size:12.5px; color:var(--muted); line-height:1.5}
   .spark{display:block; width:100%; height:34px; margin-top:8px}
 
-  /* ---- outfit ---- */
-  .outfit{display:flex; gap:6px; align-items:flex-end; justify-content:center; flex-wrap:wrap; min-height:150px}
-  .piece{position:relative; text-align:center; width:88px}
-  .piece img{
-    width:88px; height:88px; object-fit:contain; background:var(--sticker-bg);
-    border-radius:12px; display:block;
+  /* ---- outfit ----
+     Not a row of boxes. The garments are scattered across one shared surface,
+     because a grid of equal tiles is what made this look like a spreadsheet of
+     clothes rather than clothes. The single backdrop is doing real work: the
+     white outline is baked into each cutout and cannot change with the theme, so
+     without something behind it a white shirt vanishes on a white card. */
+  .outfit{
+    position:relative; width:100%; aspect-ratio:1/.86; background:var(--sticker-bg);
+    border-radius:16px; overflow:hidden; touch-action:pan-y;
   }
-  .piece .ph{
-    width:88px; height:88px; border-radius:12px; background:var(--sticker-bg); display:flex;
-    align-items:center; justify-content:center; font-size:26px;
+  .piece{
+    position:absolute; transform-origin:center; will-change:transform;
+    transition:filter .15s ease, opacity .15s ease; pointer-events:none;
   }
-  .piece .nm{font-size:10.5px; color:var(--muted); margin-top:4px; line-height:1.3; word-break:break-word}
-  .piece .sw{
-    position:absolute; top:5px; left:5px; width:11px; height:11px; border-radius:50%;
-    border:1.5px solid var(--panel); box-shadow:0 0 0 1px rgba(0,0,0,.15);
+  /* A sticker is mostly empty space, but its element is a rectangle. Without this,
+     an overlapping garment's transparent corner steals taps aimed at the piece
+     beneath it. Only the middle is grabbable, which is where the garment is. */
+  .piece .hit{position:absolute; inset:16%; pointer-events:auto; cursor:grab; touch-action:none}
+  .piece.grabbing .hit{cursor:grabbing}
+  .piece img,.piece .ph{
+    width:100%; height:100%; object-fit:contain; display:block;
+    filter:drop-shadow(0 3px 5px rgba(0,0,0,.16));
+    -webkit-user-drag:none; user-select:none; pointer-events:none;
   }
-  .why{font-size:12.5px; color:var(--muted); margin-top:12px; line-height:1.55; text-align:center}
+  .piece .ph{display:flex; align-items:center; justify-content:center; font-size:30px}
+  .outfit.picking .piece:not(.on){opacity:.45}
+  .piece.on img,.piece.on .ph{filter:drop-shadow(0 0 0 var(--accent)) drop-shadow(0 4px 9px rgba(0,0,0,.28))}
+  .piece.grabbing{transition:none}
+
+  /* Names would put the grid straight back; the selected piece names itself. */
+  .picked{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    font-size:12.5px; margin-top:10px; min-height:32px;
+  }
+  .picked .who{font-weight:650}
+  .picked button{padding:5px 10px; font-size:12px}
+  .picked .days{display:flex; gap:4px; margin-left:auto}
+
+  .why{font-size:12.5px; color:var(--muted); margin-top:10px; line-height:1.55; text-align:center}
   .why .warnbit{color:var(--guess)}
 
   .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
@@ -135,7 +157,7 @@
   #deckStage{position:relative; height:390px; margin:4px 0 26px; touch-action:pan-y}
   .swipecard{
     position:absolute; inset:0; background:var(--card); border:1px solid var(--border);
-    border-radius:18px; padding:14px; display:flex; flex-direction:column; justify-content:center;
+    border-radius:18px; padding:12px; display:flex; flex-direction:column; justify-content:center;
     box-shadow:0 6px 22px rgba(0,0,0,.09); will-change:transform;
   }
   /* Nudged down further than it is narrowed, so it actually peeks out from under
@@ -155,7 +177,10 @@
     text-align:center; cursor:pointer; position:relative;
   }
   .tile:hover{border-color:var(--accent)}
-  .tile img,.tile .ph{width:100%; aspect-ratio:1; object-fit:contain; background:var(--sticker-bg); border-radius:9px}
+  .tile img,.tile .ph{
+    width:100%; aspect-ratio:1; object-fit:contain; border-radius:9px;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.14));
+  }
   .tile .ph{display:flex; align-items:center; justify-content:center; font-size:28px}
   .tile .nm{font-size:11.5px; margin-top:6px; font-weight:600; line-height:1.3; word-break:break-word}
   .tile .sub{font-size:10px; color:var(--muted); margin-top:2px}
@@ -210,7 +235,7 @@
     display:flex; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);
   }
   .list-row:last-child{border-bottom:0}
-  .list-row img,.list-row .ph{width:44px; height:44px; object-fit:contain; background:var(--sticker-bg); border-radius:8px; flex:none}
+  .list-row img,.list-row .ph{width:44px; height:44px; object-fit:contain; border-radius:8px; flex:none}
   .list-row .ph{display:flex; align-items:center; justify-content:center; font-size:18px}
   .list-row .body{flex:1; min-width:0}
   .list-row .body .t{font-size:13px; font-weight:600}
@@ -243,6 +268,7 @@
 
     <div class="card">
       <div class="outfit" id="todayOutfit"></div>
+      <div class="picked" id="todayPicked"></div>
       <div class="why" id="todayWhy"></div>
       <div id="todayShed"></div>
       <div class="row">
@@ -317,7 +343,6 @@
       </div>
       <div class="chips">
         <button class="chip" id="cOccasion">Match the day's calendar</button>
-        <button class="chip" id="cDirty">Include items due a wash</button>
         <button class="chip" id="cPins">Honour pinned items</button>
       </div>
     </div>
@@ -463,7 +488,7 @@
     taste: { weights:{}, n:0 },
     settings: {
       city:"Ankara", lat:null, lon:null, cloOffset:0, repeatDays:3, outlinePx:6,
-      tolScale:1, occasionFilter:true, includeDirty:false, usePins:true, demo:true
+      tolScale:1, occasionFilter:true, usePins:true, demo:true
     }
   };
   var state = JSON.parse(JSON.stringify(BLANK));
@@ -497,7 +522,6 @@
     return {
       repeatDays: s.repeatDays,
       occasionFilter: s.occasionFilter !== false,
-      includeDirty: s.includeDirty === true,
       usePins: s.usePins !== false,
       toleranceCold: E.TOLERANCE_COLD * (s.tolScale || 1),
       toleranceWarm: E.TOLERANCE_WARM * (s.tolScale || 1)
@@ -766,32 +790,152 @@
     return ph;
   }
 
-  // Layered the way it is worn: bottom, base, mid, over, outer, then accessories.
+  // Laid out in the order it is worn, from the top of the body down: accessory,
+  // base, mid, over, outer, bottom, shoes. That is what puts a hat top-left and
+  // shoes bottom-right without a single fixed slot.
+  var WEAR_ORDER = { accessory:0, top:1, outer:3, bottom:4, shoes:5 };
+  function wearRank(item){
+    if (item.slot === "top") return 1 + (item.layer || 1) * 0.1;
+    return WEAR_ORDER[item.slot] === undefined ? 3 : WEAR_ORDER[item.slot];
+  }
   function orderPieces(items){
-    var rank = { bottom:0, top:1, outer:2, shoes:3, accessory:4 };
     return items.slice().sort(function(a,b){
-      var ra = rank[a.slot], rb = rank[b.slot];
-      if (ra !== rb) return ra - rb;
-      if (a.slot === "top") return (a.layer||1) - (b.layer||1);
-      return a.name < b.name ? -1 : 1;
+      var d = wearRank(a) - wearRank(b);
+      return d !== 0 ? d : (a.id < b.id ? -1 : 1);
     });
   }
 
-  function renderOutfit(container, outfit){
-    container.innerHTML = "";
-    if (!outfit){ container.appendChild(el("div","empty","Nothing to show.")); return; }
-    orderPieces(outfit.items).forEach(function(item){
-      var piece = el("div","piece");
-      piece.appendChild(itemImg(item));
-      if (item.color){
-        var sw = el("span","sw");
-        sw.style.background = item.color;
-        piece.appendChild(sw);
-      }
-      piece.appendChild(el("div","nm", item.name));
-      piece.onclick = function(){ openItem(item); };
-      container.appendChild(piece);
+  // The scatter is seeded from the outfit, not random per render. A piece gets
+  // swapped and the card redraws; if the layout were random the whole thing would
+  // jump under your thumb. Seeded, an outfit always looks like itself.
+  function seedOf(str){
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
+    return h >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  // Roughly how much room each kind of thing deserves. A cap next to a coat at the
+  // same size reads as a grid again.
+  var PIECE_SCALE = { accessory:0.62, shoes:0.72, top:1, bottom:1.02, outer:1.08 };
+  var PIECE_SIDE = 38;              // percent of the backdrop's width, before scaling
+  var BOX_RATIO = 0.86;             // the backdrop's height relative to its width
+
+  function layoutOutfit(outfit){
+    var pieces = orderPieces(outfit.items);
+    var rnd = mulberry32(seedOf(outfit.key || outfit.ids.join("+")));
+    var n = pieces.length;
+    return pieces.map(function(item, i){
+      // A gentle diagonal from top-left to bottom-right, then knocked out of line.
+      var t = n === 1 ? 0.5 : i / (n - 1);
+      var cx = 24 + t * 52 + (rnd() - 0.5) * 24 + (i % 2 ? 1 : -1) * rnd() * 13;
+      var cy = 17 + t * 62 + (rnd() - 0.5) * 18;
+      var size = (PIECE_SCALE[item.slot] || 1) * (0.92 + rnd() * 0.18);
+      var tilt = (rnd() - 0.5) * 16;
+
+      // Clamp the centre by the piece's own half-size — the backdrop clips, and a
+      // boot sliced off at the edge reads as a bug rather than as a collage. The
+      // tilt has to be in the sum: rotating a rectangle grows the box it occupies,
+      // so clamping the upright size lets the corners poke out anyway.
+      var rad = Math.abs(tilt) * Math.PI / 180;
+      var w = PIECE_SIDE * size, h = PIECE_SIDE * size / BOX_RATIO;
+      var halfW = (w * Math.cos(rad) + h * Math.sin(rad)) / 2;
+      var halfH = (w * Math.sin(rad) + h * Math.cos(rad)) / 2;
+      return {
+        item: item,
+        cx: Math.max(halfW + 0.5, Math.min(99.5 - halfW, cx)),
+        cy: Math.max(halfH + 0.5, Math.min(99.5 - halfH, cy)),
+        size: size,
+        tilt: tilt,
+        z: i
+      };
     });
+  }
+
+  // opts.onReplace / opts.onLock turn on per-piece dragging; opts.onPick reports a
+  // tap. Without them the collage is just a picture.
+  function renderOutfit(container, outfit, opts){
+    opts = opts || {};
+    container.innerHTML = "";
+    container.classList.remove("picking");
+    if (!outfit){ container.appendChild(el("div","empty","Nothing to show.")); return; }
+
+    layoutOutfit(outfit).forEach(function(spot){
+      var piece = el("div","piece");
+      piece.dataset.id = spot.item.id;
+      piece.style.width = (PIECE_SIDE * spot.size) + "%";
+      piece.style.height = (PIECE_SIDE * spot.size / BOX_RATIO) + "%";
+      piece.style.left = spot.cx + "%";
+      piece.style.top = spot.cy + "%";
+      piece.style.zIndex = String(spot.z);
+      piece.style.transform = "translate(-50%,-50%) rotate(" + spot.tilt.toFixed(1) + "deg)";
+      piece.__home = piece.style.transform;
+      piece.appendChild(itemImg(spot.item));
+      piece.appendChild(el("div","hit"));
+      container.appendChild(piece);
+      if (opts.onReplace || opts.onLock || opts.onPick) attachPieceGesture(piece, spot.item, container, opts);
+    });
+  }
+
+  // A drag that starts on a garment moves that garment alone; a drag that starts
+  // on the surface behind it still swipes the whole outfit. Left throws the piece
+  // away and asks for another, right keeps it and rebuilds around it.
+  function attachPieceGesture(piece, item, container, opts){
+    var startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, moved = false;
+
+    piece.addEventListener("pointerdown", function(ev){
+      dragging = true; moved = false;
+      startX = ev.clientX; startY = ev.clientY;
+      piece.setPointerCapture(ev.pointerId);
+      piece.classList.add("grabbing");
+      ev.stopPropagation();
+    });
+    piece.addEventListener("pointermove", function(ev){
+      if (!dragging) return;
+      dx = ev.clientX - startX; dy = ev.clientY - startY;
+      if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+      // A mostly-vertical drag belongs to the page, not to this garment.
+      if (Math.abs(dy) > Math.abs(dx) * 1.6) return;
+      moved = true;
+      ev.stopPropagation();
+      ev.preventDefault();
+      piece.style.transform = piece.__home + " translate(" + dx + "px," + dy * 0.3 + "px)";
+      piece.style.opacity = String(Math.max(0.35, 1 - Math.abs(dx) / 260));
+    });
+    function release(ev){
+      if (!dragging) return;
+      dragging = false;
+      piece.classList.remove("grabbing");
+      piece.style.opacity = "";
+      if (ev) ev.stopPropagation();
+      if (!moved){
+        if (opts.onPick) opts.onPick(item, piece, container);
+        piece.style.transform = piece.__home;
+        return;
+      }
+      if (Math.abs(dx) > 70){
+        var right = dx > 0;
+        piece.style.transform = piece.__home + " translate(" + (right ? 340 : -340) + "px,0)";
+        piece.style.opacity = "0";
+        setTimeout(function(){
+          if (right && opts.onLock) opts.onLock(item);
+          else if (!right && opts.onReplace) opts.onReplace(item);
+          else piece.style.transform = piece.__home;
+        }, 170);
+      } else {
+        piece.style.transform = piece.__home;
+      }
+      dx = dy = 0;
+    }
+    piece.addEventListener("pointerup", release);
+    piece.addEventListener("pointercancel", release);
   }
 
   function whyHTML(outfit){
@@ -804,17 +948,30 @@
   // Today
   // =====================================================================
   var todayResult = null, todayIndex = 0;
+  // Set when a piece has been swapped or locked, so redrawing does not throw that
+  // away and hand back the suggestion the user just edited.
+  var todayOutfit = null;
+  var heldToday = [];
 
-  function computeToday(){
-    var temp = wxCtx && typeof wxCtx.tempC === "number" ? wxCtx.tempC : 18;
-    todayResult = E.recommend(liveState(), {
-      today: todayISO(), tempC: temp, rain: wxCtx ? wxCtx.rain : false,
+  function todayCtx(){
+    return {
+      today: todayISO(),
+      tempC: wxCtx && typeof wxCtx.tempC === "number" ? wxCtx.tempC : 18,
+      rain: wxCtx ? wxCtx.rain : false,
       occasion: state.settings.occasionFilter === false ? null : occasion,
       criteria: criteria()
-    });
+    };
+  }
+
+  function computeToday(){
+    var ctx = todayCtx();
+    if (heldToday.length) ctx.criteria = Object.assign({}, ctx.criteria, { hold: heldToday.slice() });
+    todayResult = E.recommend(liveState(), ctx);
     todayResult.outfits = E.diversify(todayResult.outfits, 2);
     if (todayIndex >= todayResult.outfits.length) todayIndex = 0;
   }
+
+  function currentOutfit(){ return todayOutfit || (todayResult && todayResult.outfits[todayIndex]) || null; }
 
   function renderWeather(){
     if (!wxCtx || typeof wxCtx.tempC !== "number"){
@@ -864,7 +1021,7 @@
   function renderToday(){
     renderWeather();
     computeToday();
-    var outfit = todayResult.outfits[todayIndex];
+    var outfit = currentOutfit();
 
     if (!outfit){
       $("todayOutfit").innerHTML = "";
@@ -880,34 +1037,130 @@
         e.appendChild(b);
       }
       $("todayOutfit").appendChild(e);
+      $("todayPicked").innerHTML = "";
       $("todayWhy").textContent = "";
       $("todayShed").innerHTML = "";
       $("btnWore").disabled = true;
       return;
     }
     $("btnWore").disabled = false;
-    renderOutfit($("todayOutfit"), outfit);
-    $("todayWhy").innerHTML = whyHTML(outfit);
-
-    // A day that climbs 6 °C is not one temperature. Rather than splitting the
-    // difference and being wrong morning and afternoon both, dress for the
-    // morning and name the thing to take off later.
-    var shed = E.shedLayer(outfit, wxCtx);
-    $("todayShed").innerHTML = "";
-    if (shed){
-      var box = el("div","card");
-      box.style.margin = "12px 0 0";
-      box.style.background = "var(--warn-bg)";
-      box.style.borderColor = "var(--warn-border)";
-      box.style.color = "var(--warn-text)";
-      box.style.fontSize = "12.5px";
-      box.style.lineHeight = "1.55";
-      box.textContent = "It climbs " + Math.round(shed.swing) + "° by midday — take the " +
-        shed.item.name.toLowerCase() + " off around " + Math.round(shed.middayC) + "°.";
-      $("todayShed").appendChild(box);
-    }
+    paintToday(outfit);
 
     renderCarried();
+  }
+
+  function paintToday(outfit){
+    renderOutfit($("todayOutfit"), outfit, {
+      onReplace: function(item){ swapPiece(item, outfit); },
+      onLock: function(item){ holdPiece(item); },
+      onPick: function(item, piece, container){ pickPiece(item, piece, container, outfit); }
+    });
+    $("todayWhy").innerHTML = whyHTML(outfit);
+    $("todayPicked").innerHTML = "";
+    renderShed(outfit);
+  }
+
+  // A day that climbs 6 °C is not one temperature. Rather than splitting the
+  // difference and being wrong morning and afternoon both, dress for the morning
+  // and name the thing to take off later.
+  function renderShed(outfit){
+    var host = $("todayShed");
+    host.innerHTML = "";
+    var shed = E.shedLayer(outfit, wxCtx);
+    if (!shed) return;
+    var box = el("div","card");
+    box.style.cssText = "margin:12px 0 0; background:var(--warn-bg); border-color:var(--warn-border);" +
+      "color:var(--warn-text); font-size:12.5px; line-height:1.55";
+    box.textContent = "It climbs " + Math.round(shed.swing) + "° by midday — take the " +
+      shed.item.name.toLowerCase() + " off around " + Math.round(shed.middayC) + "°.";
+    host.appendChild(box);
+  }
+
+  // Swapping one piece is a sharper opinion than rejecting a whole outfit, and it
+  // is recorded as one: the swipe names the piece, so only that piece is blamed.
+  function swapPiece(item, outfit){
+    var next = E.replacePiece(liveState(), outfit, item.id, todayCtx());
+    state.swipes.push({ at: new Date().toISOString(), items: outfit.ids, liked: false,
+                        key: outfit.key, focus: item.id });
+    retrainTaste();
+    markDirty();
+    if (!next){
+      showBanner("Nothing else in the wardrobe fits there today.",
+        [{ label:"Loosen the rules", onClick: function(){ hideBanner(); openRecovery(); } }]);
+      paintToday(outfit);
+      return;
+    }
+    hideBanner();
+    todayOutfit = next;
+    paintToday(next);
+  }
+
+  function holdPiece(item){
+    if (heldToday.indexOf(item.id) === -1) heldToday.push(item.id);
+    var ctx = todayCtx();
+    ctx.criteria = Object.assign({}, ctx.criteria, { hold: heldToday.slice() });
+    var res = E.recommend(liveState(), ctx);
+    if (!res.outfits.length){
+      showBanner("Keeping " + esc(item.name) + " leaves nothing that works for today.");
+      heldToday = heldToday.filter(function(id){ return id !== item.id; });
+      paintToday(currentOutfit());
+      return;
+    }
+    hideBanner();
+    todayOutfit = E.diversify(res.outfits, 2)[0];
+    paintToday(todayOutfit);
+    setStatus("Keeping " + item.name, "saved");
+  }
+
+  // Tapping a piece names it and offers the two things worth doing to it: swap it
+  // out, or say you will keep wearing it for a few days. That last one is the only
+  // multi-day mechanism left, and it lives here rather than in the item's settings
+  // because here is where you actually know the answer.
+  function pickPiece(item, piece, container, outfit){
+    container.classList.add("picking");
+    container.querySelectorAll(".piece").forEach(function(p){ p.classList.remove("on"); });
+    piece.classList.add("on");
+
+    var bar = $("todayPicked");
+    bar.innerHTML = "";
+    bar.appendChild(el("span","who", item.name));
+
+    var change = el("button", null, "Change");
+    change.onclick = function(){ swapPiece(item, outfit); };
+    bar.appendChild(change);
+
+    var open = el("button", null, "Details");
+    open.onclick = function(){ openItem(item); };
+    bar.appendChild(open);
+
+    var days = el("div","days");
+    var pinned = E.isPinned(item, todayISO());
+    if (pinned){
+      var un = el("button","primary","Wearing until " + item.pinnedUntil);
+      un.onclick = function(){ setWearDays(item, 0); };
+      days.appendChild(un);
+    } else {
+      days.appendChild(el("span", null, "Keep wearing:"));
+      [["Tomorrow",1],["3 days",3],["A week",7]].forEach(function(pair){
+        var b = el("button", null, pair[0]);
+        b.onclick = function(){ setWearDays(item, pair[1]); };
+        days.appendChild(b);
+      });
+    }
+    bar.appendChild(days);
+  }
+
+  function setWearDays(item, days){
+    var real = state.items.find(function(i){ return i.id === item.id; });
+    if (!real){
+      showBanner("That is a demo piece — add your own clothes before pinning anything.");
+      return;
+    }
+    real.pinnedUntil = days > 0 ? E.shiftDate(todayISO(), days) : null;
+    item.pinnedUntil = real.pinnedUntil;
+    markDirty();
+    setStatus(days > 0 ? "Wearing it for " + days + " more day" + (days === 1 ? "" : "s") : "No longer pinned", "saved");
+    render();
   }
 
   // Yesterday's outfit is still waiting for its cold/right/warm answer — that one
@@ -953,7 +1206,7 @@
   function buildDeck(){
     var res = E.recommend(liveState(), {
       today: todayISO(), tempC: 18,
-      criteria: { ignoreInsulation:true, occasionFilter:false, repeatDays:0, includeDirty:true,
+      criteria: { ignoreInsulation:true, occasionFilter:false, repeatDays:0,
                   usePins:false, ignoreRejected:true }
     });
     deck = E.diversify(res.outfits, 2).slice(0, 60);
@@ -997,10 +1250,22 @@
     var no = el("div","stamp no","PASS"); card.appendChild(no);
     var body = el("div","outfit");
     card.appendChild(body);
-    renderOutfit(body, outfit);
-    // Tapping a sticker inside the deck would open an item mid-swipe; the deck is
-    // for judging the combination, not for editing pieces.
-    body.querySelectorAll(".piece").forEach(function(p){ p.onclick = null; p.style.cursor = "default"; });
+    var named = el("div","picked");
+    if (!isBack){
+      renderOutfit(body, outfit, {
+        onReplace: function(item){ swapDeckPiece(item, outfit); },
+        onLock: function(item){ swapDeckPiece(item, outfit, true); },
+        onPick: function(item){
+          body.classList.remove("picking");
+          named.innerHTML = "";
+          named.appendChild(el("span","who", item.name));
+          named.appendChild(el("span", null, "drag it left to change it, right to keep it"));
+        }
+      });
+    } else {
+      renderOutfit(body, outfit);
+    }
+    card.appendChild(named);
     var why = el("div","why");
     why.innerHTML = whyHTML(outfit);
     card.appendChild(why);
@@ -1048,6 +1313,30 @@
     card.addEventListener("pointerup", up);
     card.addEventListener("pointercancel", up);
     card.__fly = fly;
+  }
+
+  // Same idea as on Today, but the deck rebuilds its current card in place rather
+  // than advancing: changing a piece is an edit, not a verdict on the outfit.
+  function swapDeckPiece(item, outfit, keep){
+    var ctx = { today: todayISO(), tempC: 18,
+                criteria: { ignoreInsulation:true, occasionFilter:false, repeatDays:0,
+                            usePins:false, ignoreRejected:true } };
+    if (keep){
+      ctx.criteria.hold = [item.id];
+      var res = E.recommend(liveState(), ctx);
+      if (!res.outfits.length){ renderDeck(); return; }
+      deck[deckPos] = E.diversify(res.outfits, 2)[0];
+      renderDeck();
+      return;
+    }
+    state.swipes.push({ at: new Date().toISOString(), items: outfit.ids, liked: false,
+                        key: outfit.key, focus: item.id });
+    retrainTaste();
+    markDirty();
+    var next = E.replacePiece(liveState(), outfit, item.id, ctx);
+    if (next) deck[deckPos] = next;
+    renderDeck();
+    updateNavDots();
   }
 
   function recordSwipe(liked){
@@ -1119,7 +1408,6 @@
       tile.appendChild(bar);
 
       if (E.isPinned(item, todayISO())) tile.appendChild(el("span","flag pin","pinned"));
-      else if (E.isDirty(item)) tile.appendChild(el("span","flag dirty","wash"));
       else if (comp < 1) tile.appendChild(el("span","flag","gaps"));
 
       tile.onclick = function(){ openItem(item); };
@@ -1347,25 +1635,11 @@
         function(v){ draft.waterproof = v; unguess(draft,"waterproof"); refresh(); },
         "On a wet day only a waterproof outer layer is suggested.");
 
-      var wf = field(det, "Wear it this many times before washing");
-      var wi = el("input");
-      wi.type = "number"; wi.min = "1"; wi.max = "99";
-      wi.value = draft.washAfter || E.defaultWashAfter(draft);
-      wi.oninput = function(){ draft.washAfter = parseInt(wi.value,10) || 1; unguess(draft,"washAfter"); };
-      wf.appendChild(wi);
-      addHint(wf, "Worn this many times, it drops out of suggestions until you mark it washed.");
-
       // --- status ---
       var st = el("div","card");
       st.style.marginTop = "14px";
-      var worn = draft.wearsSinceWash || 0;
-      var limit = draft.washAfter || E.defaultWashAfter(draft);
-      st.appendChild(el("div","hint", "Worn " + worn + " of " + limit + " times since its last wash" +
-        (draft.lastWorn ? " · last worn " + draft.lastWorn : " · never worn")));
+      st.appendChild(el("div","hint", draft.lastWorn ? "Last worn " + draft.lastWorn : "Never worn"));
       var strow = el("div","row tight");
-      var washBtn = el("button", null, "Mark washed");
-      washBtn.onclick = function(){ draft.wearsSinceWash = 0; commitItem(item, draft, isDemo); };
-      strow.appendChild(washBtn);
 
       var pinned = E.isPinned(draft, todayISO());
       var pinBtn = el("button", pinned ? "primary" : "", pinned ? "Unpin" : "Pin for 7 days");
@@ -1375,8 +1649,8 @@
       };
       strow.appendChild(pinBtn);
       st.appendChild(strow);
-      st.appendChild(el("div","hint","Pinning keeps a piece in every suggestion — a pair of trousers you " +
-        "want to wear all week rather than wash after one day."));
+      st.appendChild(el("div","hint","Pinning keeps a piece in every suggestion, for the days you " +
+        "already know you will keep wearing it. Usually set straight from the outfit instead."));
       det.appendChild(st);
 
       function refresh(){
@@ -1446,13 +1720,12 @@
       if (counts.occasion) lines.push(counts.occasion + " because of today's calendar");
       if (counts.insulation) lines.push(counts.insulation + " because of the temperature");
       if (counts.seasonal) lines.push(counts.seasonal + " because they're too heavy for today");
-      if (counts.dirty) lines.push(counts.dirty + " because they're due a wash");
       if (counts.rejected) lines.push(counts.rejected + " because you passed on them");
       if (lines.length) body.appendChild(el("p","note","Filtered out: " + lines.join(", ") + "."));
 
       [
         ["Show what was filtered out", "Drops the rules one at a time — first repeats, then the calendar, " +
-         "then the temperature, then the laundry — and says which one it had to drop.", function(){
+         "then the temperature — and says which one it had to drop.", function(){
           relaxAndShow();
         }],
         ["Clear what I passed on", "Puts every passed outfit back in the running. Your swipes still count " +
@@ -1460,7 +1733,7 @@
           state.rejected = [];
           markDirty(); closeDialog(); render();
         }],
-        ["Adjust the criteria", "Repeat window, temperature tolerance, calendar matching and laundry, " +
+        ["Adjust the criteria", "Repeat window, temperature tolerance and calendar matching, " +
          "all by hand.", function(){ closeDialog(); go("settings"); }]
       ].forEach(function(row){
         var card = el("div","card");
@@ -1494,15 +1767,14 @@
     todayResult = res;
     todayResult.outfits = E.diversify(res.outfits, 2);
     todayIndex = 0;
+    todayOutfit = null;
     var dropped = res.relaxed.length
       ? "Dropped: " + res.relaxed.join(", ") + "."
       : "Nothing had to be dropped.";
     showBanner(esc(dropped) + " Showing " + res.outfits.length + " outfit" + (res.outfits.length===1?"":"s") + ".",
       [{ label:"Back to the rules", onClick: function(){ hideBanner(); render(); } }]);
     go("today");
-    var outfit = todayResult.outfits[0];
-    renderOutfit($("todayOutfit"), outfit);
-    $("todayWhy").innerHTML = whyHTML(outfit);
+    paintToday(todayResult.outfits[0]);
     $("btnWore").disabled = false;
   }
 
@@ -1636,7 +1908,6 @@
         : "You run warm — outfits are being picked about " + (s.cloOffset/E.CLO_PER_DEGREE).toFixed(1) + "° lighter than the textbook says.");
 
     $("cOccasion").className = "chip" + (s.occasionFilter !== false ? " on" : "");
-    $("cDirty").className = "chip" + (s.includeDirty === true ? " on" : "");
     $("cPins").className = "chip" + (s.usePins !== false ? " on" : "");
 
     $("geoState").textContent = (typeof s.lat === "number")
@@ -1679,7 +1950,6 @@
     };
     $("setOutline").onchange = function(){ markDirty(); };
     $("cOccasion").onclick = function(){ state.settings.occasionFilter = state.settings.occasionFilter === false; markDirty(); render(); };
-    $("cDirty").onclick = function(){ state.settings.includeDirty = !state.settings.includeDirty; markDirty(); render(); };
     $("cPins").onclick = function(){ state.settings.usePins = state.settings.usePins === false; markDirty(); render(); };
     $("btnResetOffset").onclick = function(){ state.settings.cloOffset = 0; markDirty(); render(); };
     $("btnGeo").onclick = async function(){
@@ -2105,7 +2375,7 @@
       formality: 2, pattern: "solid", color: colour,
       guessed: ["warmth","formality","pattern"],
       occasions: null, fabric: null, season: null, fit: null, waterproof: false,
-      washAfter: null, wearsSinceWash: 0, lastWorn: null, pinnedUntil: null,
+      lastWorn: null, pinnedUntil: null,
       agentGuessed: {}
     };
 
@@ -2128,11 +2398,7 @@
         [{value:"top",label:"Top"},{value:"bottom",label:"Bottom"},{value:"outer",label:"Outer"},
          {value:"shoes",label:"Shoes"},{value:"accessory",label:"Accessory"}],
         function(){ return draft.slot; },
-        function(v){
-          draft.slot = v;
-          draft.washAfter = E.defaultWashAfter(draft);
-          renderLayer();
-        });
+        function(v){ draft.slot = v; renderLayer(); });
 
       var layerHost = el("div");
       body.appendChild(layerHost);
@@ -2145,7 +2411,6 @@
           "A t-shirt is a base, a shirt a mid, a sweater an over — this is what lets them be worn together.");
       }
       renderLayer();
-      draft.washAfter = E.defaultWashAfter(draft);
     }, [
       { label:"Back", onClick: closeDialog },
       { label:"Add", cls:"primary", onClick: function(){ saveNewItem(draft, sticker, source); } }
@@ -2313,7 +2578,7 @@
   // Wearing an outfit
   // =====================================================================
   function wearToday(){
-    var outfit = todayResult && todayResult.outfits[todayIndex];
+    var outfit = currentOutfit();
     if (!outfit) return;
     if (usingDemo()){
       showBanner("That's a demo outfit — add your own clothes before the journal means anything.");
@@ -2329,12 +2594,13 @@
     outfit.ids.forEach(function(id){
       var item = byId[id];
       if (!item) return;
-      item.wearsSinceWash = (item.wearsSinceWash || 0) + 1;
       item.lastWorn = today;
     });
     // A liked outfit is a swipe too — wearing something is the strongest signal
     // there is, and it would be strange for it to teach the model nothing.
     state.swipes.push({ at: new Date().toISOString(), items: outfit.ids, liked: true, key: outfit.key, worn: true });
+    todayOutfit = null;
+    heldToday = [];
     retrainTaste();
     markDirty();
     setStatus("Logged", "saved");
@@ -2350,10 +2616,11 @@
   $("btnWore").onclick = wearToday;
   $("btnAnother").onclick = function(){
     if (!todayResult || !todayResult.outfits.length) { openRecovery(); return; }
+    // A fresh suggestion drops any piece-level edits; that is what "another" means.
+    todayOutfit = null;
+    heldToday = [];
     todayIndex = (todayIndex + 1) % todayResult.outfits.length;
-    var outfit = todayResult.outfits[todayIndex];
-    renderOutfit($("todayOutfit"), outfit);
-    $("todayWhy").innerHTML = whyHTML(outfit);
+    paintToday(todayResult.outfits[todayIndex]);
   };
   $("btnAdd").onclick = openAdd;
   $("btnAnalyze").onclick = triggerAgent;

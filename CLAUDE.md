@@ -104,5 +104,11 @@ GitHub token and the PWA pattern; it shares no data and no rules with the schedu
 - **The agent never writes a field.** `tools/wardrobe-agent.mjs` writes proposals to `agentGuessed`;
   only Umut accepting one in the app settles it. Do not add a path around that.
 - **Only the name is required** when adding a garment. Do not add a second mandatory field.
+- **There is no laundry tracking, and that is not an oversight.** It was removed because it asked a
+  question about every garment to solve a problem that affects a few. Multi-day wear is one
+  mechanism — pinning a piece, from the outfit itself. Do not reintroduce a wear counter.
+- **A per-piece rejection blames only that piece.** `trainTaste` skips the item-level features of
+  everything he kept when a swipe carries a `focus`. Losing that quietly turns his sharpest signal
+  back into his vaguest one.
 - New wardrobe facts — a garment's real warmth, a preference about what he will and won't wear,
   a correction — get written down the same as anything else, into the table above.

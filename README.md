@@ -268,6 +268,29 @@ down to 8 °C"* — which you can. And because no formula knows how warm *you* r
 wearing an outfit (cold / just right / too warm) shifts a personal offset. After a couple of weeks
 it is fitted to you rather than to a textbook.
 
+### What an outfit looks like
+
+The garments are scattered across one shared surface rather than lined up in equal boxes — roughly
+the order you put them on, top-left to bottom-right, knocked out of line. The layout is seeded from
+the outfit, so an outfit always looks like itself and the card doesn't reshuffle under your thumb
+when you change one thing.
+
+There is one backdrop behind the whole outfit and no box around any garment. That backdrop is
+load-bearing: the white outline is baked into each cutout at upload time and cannot change with the
+theme, so with nothing behind it a white shirt disappears on a white card.
+
+**Drag one garment to change just that garment.** Left throws it away and asks for another with
+everything else held exactly as it is; right keeps it and rebuilds the rest around it. Dragging the
+card itself, away from any garment, still judges the whole outfit as before. Tapping a garment names
+it and offers the same swap, plus the one multi-day control: *keep wearing this — tomorrow, three
+days, a week*.
+
+That distinction matters beyond the interface. Rejecting one piece is the sharpest opinion you can
+give, and the app used to spend it badly: a rejection moved every garment in the outfit, so swiping
+away the shoes punished the trousers you kept. A per-piece swipe now records which piece it was
+about, and only that piece takes the blame — the colour and formality rules still learn from the
+combination, because the combination really is what was rejected.
+
 ### Two screens, two jobs
 
 - **Today** picks for the actual weather (Open-Meteo, no key), the actual forecast (rain means a
@@ -283,10 +306,14 @@ the criteria by hand.
 
 ### Wearing things more than once
 
-Every garment has a wear count. Past its limit it drops out of suggestions until you mark it washed.
-**Pin** any piece to keep it in every outfit for a week — trousers you would rather wear all week
-than wash after one day. Pinned pieces are exempt from the don't-repeat rule, since wearing them
-several days running is the entire point.
+There is no laundry tracking. Asking how many wears every garment gets before washing is a lot of
+questions to solve a problem that only comes up for the few things worn several days running — so
+those are the only ones you say anything about. Tap a piece on Today and choose how long you are
+keeping it; it then appears in every outfit until that date, exempt from the don't-repeat rule,
+since wearing it several days running is the entire point.
+
+The only thing keeping the same t-shirt off the card two days running is that don't-repeat window:
+three days by default, adjustable in Settings.
 
 ### The agent
 
@@ -307,14 +334,15 @@ after you add clothes.
 ### Checking it
 
 ```
-node tools/wardrobe-selftest.mjs           # 64 checks on the rules
-node tools/wardrobe-browser-test.mjs       # 31 checks on the app, in a real browser
+node tools/wardrobe-selftest.mjs           # 72 checks on the rules
+node tools/wardrobe-browser-test.mjs       # 58 checks on the app, in a real browser
 node tools/wardrobe-agent.mjs --dry-run    # what the agent would ask, without calling anything
 ```
 
 The first suite is the claims worth distrusting about the rules: no sweater at 30 °C, no bare outfit
 at 5 °C, a pinned bottom in every outfit and its rivals in none, everything inside the insulation
-tolerance, undo restoring the taste model exactly, and the agent leaving a fully specified garment
+tolerance, a per-piece rejection moving only that piece's weight and leaving the pieces you kept
+untouched, undo restoring the taste model exactly, and the agent leaving a fully specified garment
 byte for byte identical when handed a reply built to rewrite all of it.
 
 The second drives the actual app in chromium with GitHub and the weather stood in for locally — and

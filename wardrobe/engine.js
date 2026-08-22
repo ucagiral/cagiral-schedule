@@ -379,6 +379,25 @@
   // Trained by replaying the whole swipe log, not by mutating weights in place.
   // That is what makes undo honest: drop a swipe from the log, retrain, and the
   // model is exactly what it would have been had that swipe never happened.
+  // Rejecting one piece of an outfit is the sharpest signal there is, and applying
+  // it to the whole outfit is the surest way to waste it: swipe away the shoes and
+  // the trousers you deliberately kept get punished alongside them. When a swipe
+  // names the piece it is about, the item-level features for everything else are
+  // dropped before the update, so only the guilty piece — and the colour slot it
+  // sits in — moves. The rule scores stay in, because what was rejected genuinely
+  // was that combination.
+  function focusFeatures(f, items, focusId) {
+    var focused = null, i;
+    for (i = 0; i < items.length; i++) if (items[i].id === focusId) focused = items[i];
+    if (!focused) return f;
+    for (i = 0; i < items.length; i++) {
+      if (items[i].id === focusId) continue;
+      delete f["item:" + items[i].id];
+      if (items[i].slot !== focused.slot) delete f["colour:" + items[i].slot + ":" + colourClass(items[i].color)];
+    }
+    return f;
+  }
+
   function trainTaste(swipes, itemsById, today) {
     var w = { __bias: 0 };
     if (!swipes) return { weights: w, n: 0 };
@@ -387,6 +406,7 @@
         var items = resolveItems(swipes[i].items, itemsById);
         if (items.length === 0) continue;
         var f = featurise(items, swipes[i].at ? swipes[i].at.slice(0, 10) : today);
+        if (swipes[i].focus) f = focusFeatures(f, items, swipes[i].focus);
         var p = sigmoid(dot(w, f));
         var err = (swipes[i].liked ? 1 : 0) - p;
         w.__bias += LEARNING_RATE * err;
@@ -492,23 +512,15 @@
   // These eliminate rather than score. Each one records why, so the end-of-deck
   // "show what was filtered out" can say exactly what it is relaxing.
 
-  var RELAX_ORDER = ["repeat", "occasion", "insulation", "dirty"];
+  var RELAX_ORDER = ["repeat", "occasion", "insulation"];
 
+  // Pinning is the whole of the multi-day story. There is no laundry counter: the
+  // app does not ask how many wears a garment gets before washing, because that is
+  // a question about every item in the wardrobe to solve a problem that only comes
+  // up for the few things worn several days running. Those get pinned, from the
+  // outfit itself, and everything else is left alone.
   function isPinned(item, today) {
     return !!(item.pinnedUntil && item.pinnedUntil >= today);
-  }
-
-  function isDirty(item) {
-    var limit = typeof item.washAfter === "number" ? item.washAfter : defaultWashAfter(item);
-    return (item.wearsSinceWash || 0) >= limit;
-  }
-
-  function defaultWashAfter(item) {
-    if (item.slot === "top") return (item.layer || 1) === 1 ? 1 : 3;
-    if (item.slot === "bottom") return 5;
-    if (item.slot === "outer") return 20;
-    if (item.slot === "shoes") return 60;
-    return 10;
   }
 
   // No occasions recorded means "goes anywhere". Only the name is mandatory when
@@ -549,13 +561,20 @@
     // taste, and only showing today's weather-appropriate outfits would teach
     // the model nothing about the other three seasons.
     var ignoreInsulation = criteria.ignoreInsulation === true;
-    var allowDirty = relax >= 4 || criteria.includeDirty === true;
     var applyOccasion = !(relax >= 2) && criteria.occasionFilter !== false;
     var repeatDays = relax >= 1 ? 0
       : (typeof criteria.repeatDays === "number" ? criteria.repeatDays
         : (typeof settings.repeatDays === "number" ? settings.repeatDays : 3));
     var tolScale = relax >= 3 ? 2 : 1;
     var usePins = criteria.usePins !== false;
+
+    // Held items must appear in every outfit and excluded ones in none. This is how
+    // "change just this piece" is expressed: hold everything the user kept, exclude
+    // the one they swiped away.
+    var holdSet = {}, excludeSet = {}, hi;
+    if (criteria.hold) for (hi = 0; hi < criteria.hold.length; hi++) holdSet[criteria.hold[hi]] = true;
+    var holding = !!(criteria.hold && criteria.hold.length);
+    if (criteria.exclude) for (hi = 0; hi < criteria.exclude.length; hi++) excludeSet[criteria.exclude[hi]] = true;
 
     var cloOpts = {
       activityFactor: typeof settings.activityFactor === "number" ? settings.activityFactor : DEFAULT_ACTIVITY_FACTOR,
@@ -566,7 +585,7 @@
     var tolCold = (typeof criteria.toleranceCold === "number" ? criteria.toleranceCold : TOLERANCE_COLD) * tolScale;
     var tolWarm = (typeof criteria.toleranceWarm === "number" ? criteria.toleranceWarm : TOLERANCE_WARM) * tolScale;
 
-    var eliminated = { dirty: 0, occasion: 0, repeat: 0, insulation: 0, seasonal: 0, rain: 0, rejected: 0 };
+    var eliminated = { occasion: 0, repeat: 0, insulation: 0, seasonal: 0, rain: 0, rejected: 0 };
 
     // Item-level filters first — they shrink the pools before any combining.
     var pools = { base: [], mid: [], over: [], bottom: [], shoes: [], outer: [], accessory: [] };
@@ -576,9 +595,12 @@
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
       if (it.archived) continue;
-      if (!allowDirty && isDirty(it)) { eliminated.dirty++; continue; }
-      if (applyOccasion && !occasionOk(it, ctx.occasion)) { eliminated.occasion++; continue; }
-      var pinned = usePins && isPinned(it, today);
+      if (excludeSet[it.id]) continue;
+      // A held piece is exempt from every item-level filter: the user is looking at
+      // it in an outfit right now, so nothing here gets to remove it.
+      var held = holdSet[it.id] === true;
+      if (!held && applyOccasion && !occasionOk(it, ctx.occasion)) { eliminated.occasion++; continue; }
+      var pinned = held || (usePins && isPinned(it, today));
       // A pinned item is exempt from the repeat rule — being worn several days
       // running is the entire point of pinning it.
       if (!pinned && repeatDays && wornRecently(it, state.log, today, repeatDays)) { eliminated.repeat++; continue; }
@@ -635,7 +657,11 @@
                 if (ctx.rain && outerOptions[x] && outerOptions[x].waterproof !== true) { eliminated.rain++; continue; }
 
                 var warmth = totalClo(combo);
-                var accessories = pickAccessories(pools.accessory, ignoreInsulation ? 0 : need - warmth, today, usePins);
+                // With a hold list the caller is changing one named piece, so the gap
+                // is left alone: closing it by quietly adding a scarf would change two
+                // things when one was asked for.
+                var gap = (ignoreInsulation || holding) ? 0 : need - warmth;
+                var accessories = pickAccessories(pools.accessory, gap, today, usePins, holdSet);
                 var withAcc = combo.concat(accessories);
                 warmth = totalClo(withAcc);
 
@@ -679,6 +705,38 @@
     };
   }
 
+  // Swap one piece for the next best alternative, holding the rest of the outfit
+  // exactly as it is. Candidates that change anything beyond the named piece are
+  // discarded rather than returned: the user asked for one thing to move, and an
+  // outfit that also quietly grew a scarf is not an answer to that.
+  function replacePiece(state, outfit, itemId, ctx) {
+    ctx = ctx || {};
+    var keep = [], i;
+    for (i = 0; i < outfit.ids.length; i++) if (outfit.ids[i] !== itemId) keep.push(outfit.ids[i]);
+
+    var criteria = {};
+    for (var k in (ctx.criteria || {})) if (ctx.criteria.hasOwnProperty(k)) criteria[k] = ctx.criteria[k];
+    criteria.hold = keep;
+    criteria.exclude = (criteria.exclude || []).concat([itemId]);
+    criteria.ignoreRejected = true;      // this is a targeted request, not a fresh deck
+
+    var next = {};
+    for (var c in ctx) if (ctx.hasOwnProperty(c)) next[c] = ctx[c];
+    next.criteria = criteria;
+
+    var res = recommend(state, next);
+    var was = {}, j;
+    for (j = 0; j < outfit.ids.length; j++) was[outfit.ids[j]] = true;
+
+    for (j = 0; j < res.outfits.length; j++) {
+      var cand = res.outfits[j], added = 0, missing = 0, m;
+      for (m = 0; m < cand.ids.length; m++) if (!was[cand.ids[m]]) added++;
+      for (m = 0; m < outfit.ids.length; m++) if (cand.ids.indexOf(outfit.ids[m]) === -1) missing++;
+      if (added === 1 && missing === 1) return cand;
+    }
+    return null;
+  }
+
   function poolKey(item) {
     if (item.slot !== "top") return item.slot;
     var layer = item.layer || 1;
@@ -688,9 +746,11 @@
   // Accessories are pulled in to close a remaining insulation gap (a scarf on a
   // cold day), or worn if pinned. They are not combined exhaustively — that
   // would multiply the search for very little decision value.
-  function pickAccessories(pool, gap, today, usePins) {
+  function pickAccessories(pool, gap, today, usePins, holdSet) {
     var chosen = [], i;
-    for (i = 0; i < pool.length; i++) if (usePins && isPinned(pool[i], today)) chosen.push(pool[i]);
+    for (i = 0; i < pool.length; i++) {
+      if ((usePins && isPinned(pool[i], today)) || (holdSet && holdSet[pool[i].id])) chosen.push(pool[i]);
+    }
     if (gap <= 0) return chosen;
     var rest = pool.filter(function (it) { return chosen.indexOf(it) === -1; })
                    .sort(function (a, b) { return cloFor(b) - cloFor(a); });
@@ -726,7 +786,7 @@
   // model and the agent may fill them, but nothing here reads them, so nagging
   // about them would be busywork -- and a queue that cries wolf gets ignored,
   // taking the thickness question down with it.
-  var GAP_PRIORITY = { warmth: 100, pattern: 60, formality: 45, color: 40, waterproof: 20, washAfter: 15, fabric: 10 };
+  var GAP_PRIORITY = { warmth: 100, pattern: 60, formality: 45, color: 40, waterproof: 20, fabric: 10 };
 
   // Several of those only matter for one kind of garment: whether a t-shirt is
   // waterproof decides nothing, and suede is only ever asked about shoes.
@@ -894,14 +954,14 @@
 
     featurise: featurise,
     trainTaste: trainTaste,
+    focusFeatures: focusFeatures,
     predictTaste: predictTaste,
     ruleWeightFor: ruleWeightFor,
 
     recommend: recommend,
+    replacePiece: replacePiece,
     outfitKey: outfitKey,
     isPinned: isPinned,
-    isDirty: isDirty,
-    defaultWashAfter: defaultWashAfter,
     occasionOk: occasionOk,
     wornRecently: wornRecently,
 

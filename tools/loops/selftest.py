@@ -477,28 +477,40 @@ def test_geo_bucket_and_file_classification() -> None:
     else:
         check("rejects a non-GSE accession", False, "accepted it")
 
+    # Real filenames from GSE118629's own suppl/ listing (captured from a live
+    # run's diagnostic log, not guessed): a shared bin index per resolution
+    # with no cell name in it at all, "normalized" rather than "iced", and
+    # resolution written as a bare "10k"/"40k". Only 22Rv1 has series-level
+    # matrix files in the real listing; C4-2B is added here as a synthetic
+    # second cell specifically to prove the bed-sharing logic, since the real
+    # listing alone can't exercise "two cells, one shared bed."
     urls = [
-        "https://x/GSM01_RWPE1_40kb_iced.matrix.gz",
-        "https://x/GSM01_RWPE1_40kb_abs.bed.gz",
-        "https://x/GSM02_C4-2B_10kb_raw.matrix.gz",
-        "https://x/GSM02_C4-2B_10kb_iced.matrix.gz",  # same cell+resolution, other norm
-        "https://x/GSM02_C4-2B_10kb_abs.bed.gz",       # one bed serves both norms
-        "https://x/GSM03_22Rv1_40kb_iced.matrix.gz",
-        "https://x/GSM03_22Rv1_40kb_abs.bed.gz",
-        "https://x/README.txt",
-        "https://x/GSM05_RWPE1_5kb_iced.matrix.gz",    # no 5kb bed anywhere -- must drop
+        "https://x/GSE118629_22Rv1_HiC_10k.raw.matrix.txt.gz",
+        "https://x/GSE118629_22Rv1_HiC_10k.normalized.matrix.txt.gz",
+        "https://x/GSE118629_22Rv1_HiC_40k.raw.matrix.txt.gz",
+        "https://x/GSE118629_22Rv1_HiC_40k.normalized.matrix.txt.gz",
+        "https://x/GSE118629_C4-2B_HiC_40k.raw.matrix.txt.gz",
+        "https://x/GSE118629_hg19_10k.bed.gz",
+        "https://x/GSE118629_hg19_40k.bed.gz",
+        "https://x/GSE118629_RAW.tar",
+        "https://x/GSE118629_RNASeq.processed.quantification.genes.txt.gz",
+        "https://x/filelist.txt",
+        "https://x/GSE118629_22Rv1_HiC_5k.raw.matrix.txt.gz",  # no 5k bed -- must drop
     ]
     pairs = geo_hicpro.classify_geo_files(urls)
-    check("four complete pairs found", len(pairs) == 4, f"got {len(pairs)}")
+    check("five complete pairs found", len(pairs) == 5, f"got {len(pairs)}")
     by_key = {(p.cell_type, p.resolution_bp, p.normalisation): p for p in pairs}
-    check("RWPE1 40kb ICE present", ("RWPE1", 40_000, "ICE") in by_key)
-    check("C4-2B 10kb RAW present", ("C4-2B", 10_000, "RAW") in by_key)
-    check("C4-2B 10kb ICE present, sharing the one bed file",
-          ("C4-2B", 10_000, "ICE") in by_key
-          and by_key[("C4-2B", 10_000, "ICE")].bed_url == by_key[("C4-2B", 10_000, "RAW")].bed_url)
-    check("22Rv1 40kb ICE present", ("22Rv1", 40_000, "ICE") in by_key)
+    check("22Rv1 10k RAW present", ("22Rv1", 10_000, "RAW") in by_key)
+    check("22Rv1 10k NORM present (not 'ICE' -- the file says 'normalized')",
+          ("22Rv1", 10_000, "NORM") in by_key)
+    check("22Rv1 40k RAW present", ("22Rv1", 40_000, "RAW") in by_key)
+    check("22Rv1 40k NORM present", ("22Rv1", 40_000, "NORM") in by_key)
+    check("C4-2B 40k RAW present, sharing 22Rv1's resolution-only bed file",
+          ("C4-2B", 40_000, "RAW") in by_key
+          and by_key[("C4-2B", 40_000, "RAW")].bed_url == by_key[("22Rv1", 40_000, "RAW")].bed_url)
     check("matrix with no bed at that resolution is dropped, not guessed",
           not any(p.resolution_bp == 5_000 for p in pairs))
+    check("junk files (tar, RNASeq counts, filelist) crash nothing", True)
 
 
 @case
@@ -574,6 +586,12 @@ def test_bin_index_and_matrix_scan_end_to_end() -> None:
         rows = geo_hicpro.scan_matrix_file(pf, query, None, window=15_000,
                                            resolution=10_000, liftover=shift)
         check("only in-window pairs kept", len(rows) == 4, f"got {len(rows)}")
+        # This is the one field a fragile comma-split of the human-readable
+        # file_type string once got wrong for every GEO row (it read back
+        # "lifted" instead of "RAW") -- pin it explicitly.
+        check("normalisation read from the accession, not guessed from prose",
+              all(r["normalisation"] == "RAW" for r in rows),
+              {r["normalisation"] for r in rows})
 
         by_pair = {(r["bin1_start"], r["bin2_start"]): r for r in rows}
         check("self pair present", (1_000_000, 1_000_000) in by_pair)

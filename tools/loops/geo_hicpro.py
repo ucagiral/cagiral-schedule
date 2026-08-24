@@ -44,10 +44,10 @@ _CELL_PATTERNS: dict[str, re.Pattern[str]] = {
     "C4-2B": re.compile(r"C4-?2-?B", re.I),
     "22Rv1": re.compile(r"22[- ]?Rv1", re.I),
 }
-_RESOLUTION_PATTERN = re.compile(r"(\d+)\s*(kb|000)(?![a-zA-Z])", re.I)
-_NORM_PATTERN = re.compile(r"(?<![a-zA-Z0-9])(iced?|ice|raw)(?![a-zA-Z0-9])", re.I)
+_RESOLUTION_PATTERN = re.compile(r"(\d+)\s*(kb|k|000)(?![a-zA-Z])", re.I)
+_NORM_PATTERN = re.compile(r"(?<![a-zA-Z0-9])(normalized|iced?|ice|raw)(?![a-zA-Z0-9])", re.I)
 _BED_PATTERN = re.compile(r"\.bed(\.gz)?$", re.I)
-_MATRIX_PATTERN = re.compile(r"\.matrix(\.gz)?$", re.I)
+_MATRIX_PATTERN = re.compile(r"\.matrix(\.txt)?(\.gz)?$", re.I)
 
 
 def _geo_bucket(accession: str) -> str:
@@ -86,48 +86,60 @@ def discover_geo_files(accession: str = GEO_SERIES) -> list[str]:
 class HiCProFilePair:
     cell_type: str
     resolution_bp: int
-    normalisation: str          # "RAW" | "ICE"
+    normalisation: str          # "RAW" | "NORM"
     matrix_url: str
     bed_url: str
+
+
+def _resolution_of(name: str) -> int | None:
+    match = _RESOLUTION_PATTERN.search(name)
+    if match is None:
+        return None
+    value, unit = match.groups()
+    return int(value) * (1_000 if unit.lower() in ("kb", "k") else 1)
 
 
 def classify_geo_files(urls: Sequence[str]) -> list[HiCProFilePair]:
     """Pair each matrix file on the listing with its bin-index BED file.
 
-    A matrix and its BED share cell type and resolution but are two separate
-    files, so this groups by that key rather than assuming any naming
-    convention linking the two filenames directly.
+    GSE118629's own convention turned out to hold two files with no cell name
+    in either -- `GSE118629_hg19_10k.bed.gz`, `..._40k.bed.gz` -- one bin
+    index per resolution, shared by every cell line's matrix at that
+    resolution. Matrices are keyed by (cell, resolution, normalisation); beds
+    by resolution alone. Matching cell names into a bed filename that will
+    never carry one was the bug the first real run against this series hit.
     """
     matrices: dict[tuple[str, int, str], str] = {}
-    beds: dict[tuple[str, int], list[str]] = {}
+    beds: dict[int, str] = {}
     unclassified: list[str] = []
 
     for url in urls:
         name = url.rsplit("/", 1)[-1]
-        cell = next((c for c, pat in _CELL_PATTERNS.items() if pat.search(name)), None)
-        res_match = _RESOLUTION_PATTERN.search(name)
-        if cell is None or res_match is None:
-            unclassified.append(name)
-            continue
-        value, unit = res_match.groups()
-        resolution = int(value) * (1_000 if unit.lower() == "kb" else 1)
+        resolution = _resolution_of(name)
 
         if _MATRIX_PATTERN.search(name):
+            cell = next((c for c, pat in _CELL_PATTERNS.items() if pat.search(name)), None)
+            if cell is None or resolution is None:
+                unclassified.append(name)
+                continue
             norm_match = _NORM_PATTERN.search(name)
-            norm = "ICE" if (norm_match and norm_match.group(1).lower().startswith("ice")) \
-                else "RAW"
+            word = norm_match.group(1).lower() if norm_match else ""
+            norm = "RAW" if word == "raw" else "NORM" if word else "RAW"
             matrices[(cell, resolution, norm)] = url
         elif _BED_PATTERN.search(name):
-            beds.setdefault((cell, resolution), []).append(url)
+            if resolution is None:
+                unclassified.append(name)
+                continue
+            beds[resolution] = url  # one shared bin index per resolution
         else:
             unclassified.append(name)
 
     pairs: list[HiCProFilePair] = []
     for (cell, resolution, norm), matrix_url in matrices.items():
-        candidates = beds.get((cell, resolution), [])
-        if not candidates:
-            continue  # no bin index for this matrix; can't place it on the genome
-        pairs.append(HiCProFilePair(cell, resolution, norm, matrix_url, candidates[0]))
+        bed_url = beds.get(resolution)
+        if bed_url is None:
+            continue  # no bin index at this resolution; can't place it on the genome
+        pairs.append(HiCProFilePair(cell, resolution, norm, matrix_url, bed_url))
     return pairs
 
 
@@ -302,7 +314,11 @@ def scan_matrix_file(pf: PortalFile, query: Any, partner: Any,
             "cell_type": pf.cell_type,
             "dataset": pf.accession,
             "portal": pf.portal,
-            "normalisation": pf.file_type.split(",")[-1].strip().split(" ")[0],
+            # Read from the accession ("GSE118629:cell:resolution:norm"), not
+            # the human-readable file_type string: a free-text description
+            # with its own commas is not a safe thing to comma-split for a
+            # specific field, and the accession already carries it exactly.
+            "normalisation": pf.accession.rsplit(":", 1)[-1],
             "resolution_bp": resolution,
             "chrom": query.chrom,
             "bin1_start": min(start1, start2),

@@ -103,17 +103,18 @@ jobs:
       # The portal crawl is expensive and its result is not a source artefact,
       # so it lives in the Actions cache rather than in the repository.
       #
-      # The key carries a hash of the crawler: without it, changing what
-      # sources.py asks the portals for silently reuses a catalogue built by
-      # the old code. That is how the CTCF layer stayed empty for a run after
-      # the CTCF search was added.
+      # The key carries a hash of every crawler module: without it, changing
+      # what a source asks the portals for silently reuses a catalogue built
+      # by the old code. Hashing sources.py alone once let a geo_hicpro.py fix
+      # get cached over by the very run meant to prove it -- hash the whole
+      # directory's *.py so no future new-source module repeats that.
       - name: Restore the portal catalogue
         uses: actions/cache@v4
         with:
           path: loops/_datasets.json
-          key: loops-catalogue-${{ inputs.build }}-${{ hashFiles('tools/loops/sources.py') }}-${{ github.run_id }}
+          key: loops-catalogue-${{ inputs.build }}-${{ hashFiles('tools/loops/*.py') }}-${{ github.run_id }}
           restore-keys: |
-            loops-catalogue-${{ inputs.build }}-${{ hashFiles('tools/loops/sources.py') }}-
+            loops-catalogue-${{ inputs.build }}-${{ hashFiles('tools/loops/*.py') }}-
 
       - name: Install libcurl headers
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev

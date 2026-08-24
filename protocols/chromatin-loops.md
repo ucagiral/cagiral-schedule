@@ -158,12 +158,16 @@ Relevant to AR-CasPEx, and worth reading alongside any generated report:
 names which one. That substitution is an assumption, not a result.
 
 **A CRPC-relevant Hi-C dataset is wired in: [GSE118629](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE118629),**
-in situ Hi-C (MboI) for RWPE1, C4-2B and 22Rv1 — the [3D epigenomic map paper](https://www.nature.com/articles/s41467-019-12079-8)'s
+in situ Hi-C (MboI), the [3D epigenomic map paper](https://www.nature.com/articles/s41467-019-12079-8)'s
 companion series. `tools/loops/geo_hicpro.py` handles the three things that kept it out at first:
 
-1. **Deposited as HiC-Pro sparse matrices** (`.matrix` + `.bed` bin files, raw and ICE-normalised,
-   10/40 kb) — `hicstraw` cannot read this, so it has its own reader, dispatched to from
-   `layers.scan_matrix_file` by `file_format == "hicpro"`.
+1. **Deposited as HiC-Pro sparse matrices** (`GSE118629_<cell>_HiC_<res>k.<raw|normalized>.matrix.txt.gz`
+   + a **shared, resolution-only** bin index, `GSE118629_hg19_<res>k.bed.gz` — no cell name in the
+   bed file at all, one per resolution, reused across every cell's matrix at that resolution).
+   `hicstraw` cannot read this, so it has its own reader, dispatched to from
+   `layers.scan_matrix_file` by `file_format == "hicpro"`. Normalisation is labelled `RAW`/`NORM`
+   (the file literally says "normalized", not "iced" — don't relabel it ICE, that's a different
+   algorithm making a different claim).
 2. **Mapped to hg19.** Lifted to hg38 via `pyliftover` and a locally fetched UCSC chain file
    (`--chain-file`, supplied by the workflow, ~1.2 MB, fetched fresh each run rather than cached).
    No liftOver chain available → this source is skipped for that run, not broken.
@@ -172,16 +176,27 @@ companion series. `tools/loops/geo_hicpro.py` handles the three things that kept
    not genome-wide the way the `.hic` layer's own KR/oe track is — read a GEO-sourced O/E as a
    local estimate, not the same kind of number as an ENCODE/4DN one.
 
-**Cell-type meaning, not just spelling:** `C4-2B` and `22Rv1` are genuine CRPC lines. `RWPE1` is
-**normal, non-malignant prostate epithelium** — a useful third reference point, but neither a "PC"
-nor an "mCRPC" data point. Don't let it get folded into either bucket by an unqualified `cells`
-filter; ask for it by name if you want it, and read its rows as "normal," not as a control for
-either cancer state.
+**Only 22Rv1 has been found at the series level.** The series-level `suppl/` directory that
+`discover_geo_files` scrapes lists processed matrices for 22Rv1 only; no RWPE1 or C4-2B matrix
+appears there (confirmed against a live run's diagnostic log, not assumed). `RWPE1` and `C4-2B`
+stay in `_CELL_PATTERNS` because the paper describes all three lines and a future series update,
+or a look inside the bundled `GSE118629_RAW.tar` (untried — each GSM sample's own supplementary
+files, not explored here), could surface them without any further code change. Until then, a
+`cells` filter naming RWPE1 or C4-2B will simply find nothing from this source — check the run's
+"Run notes" for what was actually searched before reading silence as a negative result.
+
+**Cell-type meaning, not just spelling:** `22Rv1` and `C4-2B` are genuine CRPC lines. `RWPE1` is
+**normal, non-malignant prostate epithelium** — a useful third reference point if it's ever found,
+but neither a "PC" nor an "mCRPC" data point. Don't let it get folded into either bucket by an
+unqualified `cells` filter; ask for it by name, and read its rows as "normal," not as a control
+for either cancer state.
 
 File discovery is dynamic (the GEO supplementary directory is scraped at run time, not a
 hard-coded filename list) because this was written without network access to confirm exact
-filenames — if `discover_geo` starts reporting "listed files but none matched," the naming
-convention on GEO changed and the regexes in `geo_hicpro.py` need a look.
+filenames — the naming convention above came from a live run's diagnostic log after the first
+attempt (which assumed a generic `iced`/`abs.bed` HiC-Pro convention) matched nothing. If
+`discover_geo` starts reporting "listed files but none matched" again, the log includes a sample
+of the real filenames it saw — read those before touching the regexes in `geo_hicpro.py`.
 
 ### C1–C4: which downstream candidate enhancer is which
 

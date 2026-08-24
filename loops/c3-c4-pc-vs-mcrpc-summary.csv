@@ -1,0 +1,5 @@
+locus,pc_mean_oe_10kb,pc_n,mcrpc_mean_oe_10kb,mcrpc_n,pc_over_mcrpc_ratio
+C3,2.185,2,0.35,2,6.24
+C4,4.305,2,1.191,2,3.62
+C4_vs_C3_within_PC,,,,,1.97
+C4_vs_C3_within_mCRPC,,,,,3.4

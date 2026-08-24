@@ -2,3 +2,4 @@
 # query Umut is running from his phone.
 hic-straw==1.3.1
 openpyxl==3.1.5
+pyliftover==0.4.1

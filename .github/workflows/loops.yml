@@ -80,7 +80,7 @@ jobs:
         run: pip install -r tools/loops/requirements.txt
 
       - name: Import every module
-        run: python3 -c "import sys; sys.path.insert(0, 'tools/loops'); import sources, layers, workbook, query, hicstraw; print('imports OK')"
+        run: python3 -c "import sys; sys.path.insert(0, 'tools/loops'); import sources, layers, workbook, query, geo_hicpro, hicstraw, pyliftover; print('imports OK')"
 
       - name: Offline self-test
         run: python3 tools/loops/selftest.py
@@ -121,6 +121,14 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r tools/loops/requirements.txt
 
+      # ~1.2 MB, small enough to fetch every run rather than cache -- exactly
+      # the kind of disposable Actions-side fetch the "nothing big lands on
+      # my machine" rule is meant to allow. Enables the GEO/HiC-Pro
+      # (GSE118629, hg19) source in layer 2; without it that source is
+      # skipped, not broken.
+      - name: Fetch the hg19->hg38 liftOver chain
+        run: curl -fsSL -o hg19ToHg38.over.chain.gz https://hgdownload.soe.ucsc.edu/goldenPath/hg19/liftOver/hg19ToHg38.over.chain.gz
+
       # Inputs travel through the environment rather than being interpolated
       # into the script: a locus containing a quote would otherwise break the
       # command apart rather than being passed to it.
@@ -142,7 +150,8 @@ jobs:
             --build "$BUILD" \
             --gene-anchor "$GENE_ANCHOR" \
             --window "$WINDOW" \
-            --resolution "$RESOLUTION"
+            --resolution "$RESOLUTION" \
+            --chain-file hg19ToHg38.over.chain.gz
 
       - name: Upload report and workbook
         uses: actions/upload-artifact@v4

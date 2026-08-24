@@ -25,6 +25,7 @@ from typing import Any, Sequence
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import geo_hicpro  # noqa: E402
 import layers  # noqa: E402
 import workbook as workbook_module  # noqa: E402
 from layers import Region, orientation_verdict  # noqa: E402
@@ -330,6 +331,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--refresh", action="store_true",
                         help="re-crawl the portals instead of using the cache")
     parser.add_argument("--max-contact-rows", type=int, default=200_000)
+    parser.add_argument("--chain-file", default="",
+                        help="local hg19ToHg38.over.chain.gz, enables the "
+                             "GEO/HiC-Pro (GSE118629) source in layer 2")
     parser.add_argument("--summary-file", default=os.environ.get("GITHUB_STEP_SUMMARY", ""))
     args = parser.parse_args(argv)
 
@@ -356,6 +360,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"unclassified portal file types seen: "
               f"{catalogue.unmatched_types[:40]}", file=sys.stderr)
 
+    liftover_fn = None
+    if args.chain_file:
+        try:
+            lo = geo_hicpro.load_liftover(args.chain_file)
+            liftover_fn = lambda chrom, pos: geo_hicpro.liftover_position(lo, chrom, pos)  # noqa: E731
+        except geo_hicpro.LiftoverUnavailable as exc:
+            notes.append(f"liftOver unavailable ({exc}); GEO/HiC-Pro source skipped.")
+
     print(f"catalogue: {len(catalogue.loops)} loop files, "
           f"{len(catalogue.matrices)} matrices, "
           f"{len(catalogue.boundaries)} boundary files, "
@@ -372,7 +384,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         catalogue.loops, query, partner, wanted_cells))
     contact_rows, contact_notes = timed("raw contact", lambda: layers.layer_raw_contact(
         catalogue.matrices, query, partner, wanted_cells, window, resolution,
-        args.max_contact_rows))
+        args.max_contact_rows, liftover=liftover_fn))
     tad_rows, tad_notes = timed("TAD context", lambda: layers.layer_tad_context(
         catalogue.boundaries, query, partner, wanted_cells))
 

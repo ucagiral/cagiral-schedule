@@ -335,6 +335,38 @@ def _encode_to_portal_file(item: dict[str, Any], build: str) -> PortalFile | Non
 
 
 # --------------------------------------------------------------------------
+# GEO (GSE118629 -- RWPE1, C4-2B, 22Rv1 HiC-Pro matrices, hg19 -> hg38)
+# --------------------------------------------------------------------------
+#
+# Wired in separately from the 4DN/ENCODE REST clients above because this
+# source has nothing in common with them: no REST search, a sparse-matrix
+# format straw cannot read, and a genome build that has to be lifted before
+# any coordinate from it can sit next to the rest of the catalogue. It only
+# ever contributes to layer 2 (raw contact) -- see protocols/chromatin-loops.md.
+#
+# Only wired for hg38 queries: the source is natively hg19, and lifting it
+# to match an hg19 *query* would be a no-op worth skipping rather than a
+# second code path worth maintaining for a build this tool already treats as
+# second-class.
+
+def discover_geo(build: str) -> tuple[list[PortalFile], list[str]]:
+    """Find and catalogue GSE118629's HiC-Pro files. Never raises: a failure
+    here is a missing source, not a reason to fail the whole crawl."""
+    import geo_hicpro  # local: breaks the geo_hicpro <-> sources import cycle
+    if build != "hg38":
+        return [], []
+    try:
+        urls = geo_hicpro.discover_geo_files()
+        pairs = geo_hicpro.classify_geo_files(urls)
+        if not pairs:
+            return [], [f"GEO {geo_hicpro.GEO_SERIES}: listing had files but none "
+                        f"matched the expected cell/resolution naming"]
+        return geo_hicpro.to_portal_files(pairs), []
+    except SourceError as exc:
+        return [], [f"GEO {geo_hicpro.GEO_SERIES} unavailable: {exc}"]
+
+
+# --------------------------------------------------------------------------
 # Discovery + cache
 # --------------------------------------------------------------------------
 
@@ -392,6 +424,10 @@ def discover(build: str = "hg38") -> Catalogue:
                 catalogue.ctcf.append(pf)
             elif pf.file_type:
                 unmatched.add(f"{name}:{pf.file_format}:{pf.file_type}")
+
+    geo_files, geo_errors = discover_geo(build)
+    catalogue.matrices.extend(geo_files)
+    catalogue.errors.extend(geo_errors)
 
     catalogue.unmatched_types = sorted(unmatched)
     return catalogue

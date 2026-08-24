@@ -255,13 +255,24 @@ def load_bin_index(bed_url: str, chrom: str, liftover: Callable[[str, int], int 
 def scan_matrix_file(pf: PortalFile, query: Any, partner: Any,
                      window: int, resolution: int, liftover: Callable[[str, int], int | None]
                      ) -> list[dict[str, Any]]:
-    """`query`/`partner` are `layers.Region`-shaped: anything with `.chrom` and `.mid`."""
     """Read the local window of one HiC-Pro sparse matrix around query/partner.
 
-    Mirrors the row shape `layers.scan_matrix_file` produces for `.hic` files
-    (same column set), so `pair_enrichment` and everything downstream needs
-    no changes to consume either source.
+    `query`/`partner` are `layers.Region`-shaped: anything with `.chrom` and
+    `.mid`. Mirrors the row shape `layers.scan_matrix_file` produces for
+    `.hic` files (same column set), so `pair_enrichment` and everything
+    downstream needs no changes to consume either source.
+
+    `resolution` is accepted for signature symmetry with the `.hic` path but
+    not trusted for the bin math: a `.hic` file offers several zoom levels
+    and picking one is meaningful, but a GEO/HiC-Pro file *is* one fixed
+    resolution, baked into its own accession
+    ("GSE118629:cell:resolution:norm"). Using the caller's requested global
+    resolution instead of the file's own would silently compute bin distance
+    in the wrong units for any file whose native resolution doesn't match
+    what was asked for -- exactly what a 40 kb GEO file scanned as if its
+    bins were 10 kb would do to the expected-by-distance estimate.
     """
+    resolution = int(pf.accession.split(":")[2])
     bed_url = pf.description  # stashed there by to_portal_files
     bin_index = load_bin_index(bed_url, query.chrom, liftover)
 

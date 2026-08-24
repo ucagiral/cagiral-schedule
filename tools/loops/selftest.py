@@ -583,9 +583,19 @@ def test_bin_index_and_matrix_scan_end_to_end() -> None:
             genome="hg38", cell_type="TEST", description="bed://test")
         query = layers.Region("chrX", 1_015_000 - 15_000, 1_015_000 + 15_000)
 
+        # Deliberately wrong: the accession says this file is 10 kb, but the
+        # caller (as a real query would, for a 40 kb GEO file under a global
+        # --resolution 10kb) asks to scan it as if it were 987 bp bins. A
+        # live run once trusted this argument outright and reported every
+        # 40 kb GEO row as "resolution_bp: 10000" -- silently wrong distance
+        # math, not just a mislabelled column.
         rows = geo_hicpro.scan_matrix_file(pf, query, None, window=15_000,
-                                           resolution=10_000, liftover=shift)
+                                           resolution=987, liftover=shift)
         check("only in-window pairs kept", len(rows) == 4, f"got {len(rows)}")
+        check("resolution_bp comes from the file's own accession, "
+              "not the caller's (wrong) argument",
+              all(r["resolution_bp"] == 10_000 for r in rows),
+              {r["resolution_bp"] for r in rows})
         # This is the one field a fragile comma-split of the human-readable
         # file_type string once got wrong for every GEO row (it read back
         # "lifted" instead of "RAW") -- pin it explicitly.

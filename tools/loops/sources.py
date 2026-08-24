@@ -359,8 +359,10 @@ def discover_geo(build: str) -> tuple[list[PortalFile], list[str]]:
         urls = geo_hicpro.discover_geo_files()
         pairs = geo_hicpro.classify_geo_files(urls)
         if not pairs:
-            return [], [f"GEO {geo_hicpro.GEO_SERIES}: listing had files but none "
-                        f"matched the expected cell/resolution naming"]
+            sample = [u.rsplit("/", 1)[-1] for u in urls[:25]]
+            return [], [f"GEO {geo_hicpro.GEO_SERIES}: listing had {len(urls)} files "
+                        f"but none matched the expected cell/resolution naming -- "
+                        f"first {len(sample)}: {sample}"]
         return geo_hicpro.to_portal_files(pairs), []
     except SourceError as exc:
         return [], [f"GEO {geo_hicpro.GEO_SERIES} unavailable: {exc}"]

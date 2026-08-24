@@ -18,6 +18,7 @@ from typing import Any, Callable
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import geo_hicpro  # noqa: E402
 import layers  # noqa: E402
 import query  # noqa: E402
 import sources  # noqa: E402
@@ -462,6 +463,156 @@ def test_cap_is_spread_across_cell_types() -> None:
           "LNCaP" in {p.cell_type for p in picked},
           str({p.cell_type for p in picked}))
 
+
+
+@case
+def test_geo_bucket_and_file_classification() -> None:
+    check("bucket replaces last 3 digits",
+          geo_hicpro._geo_bucket("GSE118629") == "GSE118nnn",
+          geo_hicpro._geo_bucket("GSE118629"))
+    try:
+        geo_hicpro._geo_bucket("not-a-gse")
+    except sources.SourceError:
+        check("rejects a non-GSE accession", True)
+    else:
+        check("rejects a non-GSE accession", False, "accepted it")
+
+    urls = [
+        "https://x/GSM01_RWPE1_40kb_iced.matrix.gz",
+        "https://x/GSM01_RWPE1_40kb_abs.bed.gz",
+        "https://x/GSM02_C4-2B_10kb_raw.matrix.gz",
+        "https://x/GSM02_C4-2B_10kb_iced.matrix.gz",  # same cell+resolution, other norm
+        "https://x/GSM02_C4-2B_10kb_abs.bed.gz",       # one bed serves both norms
+        "https://x/GSM03_22Rv1_40kb_iced.matrix.gz",
+        "https://x/GSM03_22Rv1_40kb_abs.bed.gz",
+        "https://x/README.txt",
+        "https://x/GSM05_RWPE1_5kb_iced.matrix.gz",    # no 5kb bed anywhere -- must drop
+    ]
+    pairs = geo_hicpro.classify_geo_files(urls)
+    check("four complete pairs found", len(pairs) == 4, f"got {len(pairs)}")
+    by_key = {(p.cell_type, p.resolution_bp, p.normalisation): p for p in pairs}
+    check("RWPE1 40kb ICE present", ("RWPE1", 40_000, "ICE") in by_key)
+    check("C4-2B 10kb RAW present", ("C4-2B", 10_000, "RAW") in by_key)
+    check("C4-2B 10kb ICE present, sharing the one bed file",
+          ("C4-2B", 10_000, "ICE") in by_key
+          and by_key[("C4-2B", 10_000, "ICE")].bed_url == by_key[("C4-2B", 10_000, "RAW")].bed_url)
+    check("22Rv1 40kb ICE present", ("22Rv1", 40_000, "ICE") in by_key)
+    check("matrix with no bed at that resolution is dropped, not guessed",
+          not any(p.resolution_bp == 5_000 for p in pairs))
+
+
+@case
+def test_geo_directory_listing_parses() -> None:
+    html = """<html><body>
+    <a href="GSM01_RWPE1_40kb_iced.matrix.gz">GSM01_RWPE1_40kb_iced.matrix.gz</a>
+    <a href="GSM01_RWPE1_40kb_abs.bed.gz">GSM01_RWPE1_40kb_abs.bed.gz</a>
+    <a href="../">parent</a>
+    </body></html>"""
+    original = geo_hicpro.fetch
+    geo_hicpro.fetch = lambda url, **kw: html.encode("utf-8")  # type: ignore[assignment]
+    try:
+        urls = geo_hicpro.discover_geo_files("GSE118629")
+        check("two real files listed, parent skipped", len(urls) == 2, f"got {urls}")
+        check("urls are absolute", all(u.startswith("https://") for u in urls))
+    finally:
+        geo_hicpro.fetch = original  # type: ignore[assignment]
+
+
+@case
+def test_liftover_position_wrapper() -> None:
+    class FakeLiftOver:
+        def __init__(self, table: dict[tuple[str, int], list[tuple[str, int, str, float]]]):
+            self.table = table
+
+        def convert_coordinate(self, chrom: str, pos: int):
+            return self.table.get((chrom, pos), [])
+
+    lo = FakeLiftOver({
+        ("chrX", 1_000): [("chrX", 2_000, "+", 1.0)],
+        ("chrX", 5_000): [("chr7", 2_000, "+", 1.0)],  # a translocated hit -- must be refused
+    })
+    check("maps a known position", geo_hicpro.liftover_position(lo, "chrX", 1_000) == 2_000)
+    check("bare chrom name gets chr-prefixed",
+          geo_hicpro.liftover_position(lo, "X", 1_000) == 2_000)
+    check("unmapped position returns None",
+          geo_hicpro.liftover_position(lo, "chrX", 9_999) is None)
+    check("cross-chromosome hit is refused, not trusted",
+          geo_hicpro.liftover_position(lo, "chrX", 5_000) is None)
+
+
+@case
+def test_bin_index_and_matrix_scan_end_to_end() -> None:
+    # Ten 10 kb hg19 bins on chrX starting at 0; liftover shifts everything
+    # by a fixed +1,000,000 so the arithmetic stays checkable by hand.
+    bed_text = "\n".join(
+        f"chrX\t{i * 10_000}\t{(i + 1) * 10_000}\t{i + 1}" for i in range(10))
+    matrix_text = "\n".join([
+        "1\t1\t100",   # distance 0 bins
+        "1\t2\t50",    # distance 1
+        "2\t3\t55",    # distance 1
+        "1\t3\t20",    # distance 2
+        "5\t6\t60",    # outside the query window -- must be excluded
+        "9\t10\t999",  # outside the query window -- must be excluded
+    ])
+
+    urls = {"bed://test": bed_text, "matrix://test": matrix_text}
+    original_lines = geo_hicpro.fetch_lines
+    geo_hicpro.fetch_lines = lambda url: iter(urls[url].split("\n"))  # type: ignore[assignment]
+    try:
+        shift = lambda chrom, pos: pos + 1_000_000  # noqa: E731
+        bin_index = geo_hicpro.load_bin_index("bed://test", "chrX", shift)
+        check("ten bins indexed", len(bin_index) == 10, str(len(bin_index)))
+        check("liftover shift applied", bin_index[1] == (1_000_000, 1_010_000),
+              str(bin_index[1]))
+
+        pf = sources.PortalFile(
+            accession="GSE118629:TEST:10000:RAW", portal="GEO", url="matrix://test",
+            file_format="hicpro", file_type="HiC-Pro sparse matrix, 10 kb, RAW -- hg19, lifted to hg38",
+            genome="hg38", cell_type="TEST", description="bed://test")
+        query = layers.Region("chrX", 1_015_000 - 15_000, 1_015_000 + 15_000)
+
+        rows = geo_hicpro.scan_matrix_file(pf, query, None, window=15_000,
+                                           resolution=10_000, liftover=shift)
+        check("only in-window pairs kept", len(rows) == 4, f"got {len(rows)}")
+
+        by_pair = {(r["bin1_start"], r["bin2_start"]): r for r in rows}
+        check("self pair present", (1_000_000, 1_000_000) in by_pair)
+        check("self-pair O/E is 1.0",
+              abs(by_pair[(1_000_000, 1_000_000)]["oe"] - 1.0) < 1e-9,
+              str(by_pair[(1_000_000, 1_000_000)]["oe"]))
+
+        far = (1_000_000, 1_020_000)
+        check("distance-2 pair present", far in by_pair)
+        check("distance-2 expected is its own only sample",
+              abs(by_pair[far]["expected"] - 20.0) < 1e-9, str(by_pair[far]["expected"]))
+
+        near_a = by_pair.get((1_000_000, 1_010_000))
+        near_b = by_pair.get((1_010_000, 1_020_000))
+        check("both distance-1 pairs present", near_a and near_b)
+        if near_a and near_b:
+            check("distance-1 expected is their shared mean (52.5)",
+                  abs(near_a["expected"] - 52.5) < 1e-9, str(near_a["expected"]))
+            check("distance-1 pairs share one expected value",
+                  near_a["expected"] == near_b["expected"])
+    finally:
+        geo_hicpro.fetch_lines = original_lines  # type: ignore[assignment]
+
+
+@case
+def test_bin_index_reports_when_nothing_survives() -> None:
+    bed_text = "chrX\t0\t10000\t1"
+    original_lines = geo_hicpro.fetch_lines
+    geo_hicpro.fetch_lines = lambda url: iter([bed_text])  # type: ignore[assignment]
+    try:
+        always_fails = lambda chrom, pos: None  # noqa: E731
+        try:
+            geo_hicpro.load_bin_index("bed://test", "chrX", always_fails)
+        except sources.SourceError:
+            check("empty-after-liftover is reported, not silently empty", True)
+        else:
+            check("empty-after-liftover is reported, not silently empty", False)
+    finally:
+        geo_hicpro.fetch_lines = original_lines  # type: ignore[assignment]
 
 @case
 def test_slug_and_cells() -> None:

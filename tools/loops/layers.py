@@ -16,8 +16,9 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
+import geo_hicpro
 from sources import (PortalFile, SourceError, fetch_ctcf_pfm, fetch_lines,
                      fetch_sequence)
 
@@ -237,7 +238,28 @@ def _best_resolution(hic, wanted: int) -> int:
 
 
 def scan_matrix_file(pf: PortalFile, query: Region, partner: Region | None,
-                     window: int, resolution: int) -> tuple[list[dict[str, Any]], str]:
+                     window: int, resolution: int,
+                     liftover: "Callable[[str, int], int | None] | None" = None
+                     ) -> tuple[list[dict[str, Any]], str]:
+    """Read one remote contact matrix; return long-format O/E rows.
+
+    Dispatches on the file's own format: `.hic` goes through straw (below),
+    `hicpro` goes through geo_hicpro's sparse-matrix reader, which needs the
+    liftover callable to place hg19 bins on the hg38 axis everything else in
+    this tool uses. A hicpro file with no liftover available is skipped by
+    the caller, not silently misread.
+    """
+    if pf.file_format == "hicpro":
+        if liftover is None:
+            raise SourceError(f"{pf.accession} needs a liftOver chain file; none provided")
+        rows = geo_hicpro.scan_matrix_file(pf, query, partner, window, resolution, liftover)
+        norm = rows[0]["normalisation"] if rows else ""
+        return rows, norm
+    return _scan_hic_file(pf, query, partner, window, resolution)
+
+
+def _scan_hic_file(pf: PortalFile, query: Region, partner: Region | None,
+                   window: int, resolution: int) -> tuple[list[dict[str, Any]], str]:
     """Read one remote .hic over range requests; return long-format O/E rows.
 
     Nothing is downloaded whole: straw fetches only the blocks covering the two
@@ -337,8 +359,9 @@ def pair_enrichment(rows: Sequence[dict[str, Any]], query: Region,
 
 def layer_raw_contact(files: Sequence[PortalFile], query: Region,
                       partner: Region | None, wanted_cells: Sequence[str],
-                      window: int, resolution: int,
-                      row_budget: int) -> tuple[list[dict[str, Any]], list[str]]:
+                      window: int, resolution: int, row_budget: int,
+                      liftover: "Callable[[str, int], int | None] | None" = None
+                      ) -> tuple[list[dict[str, Any]], list[str]]:
     chosen, capped = _select(files, wanted_cells, MAX_MATRIX_FILES)
     notes: list[str] = []
     if capped:
@@ -350,8 +373,13 @@ def layer_raw_contact(files: Sequence[PortalFile], query: Region,
             notes.append(f"Contact matrix truncated at {row_budget:,} rows; "
                          f"raise `resolution` or narrow `cells` for full coverage.")
             break
+        if pf.file_format == "hicpro" and liftover is None:
+            notes.append(f"Skipped {pf.accession}: needs a liftOver chain file, "
+                         f"none was supplied to this run.")
+            continue
         try:
-            new_rows, _ = scan_matrix_file(pf, query, partner, window, resolution)
+            new_rows, _ = scan_matrix_file(pf, query, partner, window, resolution,
+                                           liftover=liftover)
         except SourceError as exc:
             notes.append(f"Skipped matrix {pf.accession}: {exc}")
             continue

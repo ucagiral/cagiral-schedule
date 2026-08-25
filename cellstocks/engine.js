@@ -745,9 +745,18 @@
   }
 
   function segmentFor(state, entry, positions) {
+    // Whether these slots actually sit next to each other. A box with six free slots
+    // scattered around it can still take five vials, but calling that "E6-H8" would
+    // describe a block that does not exist -- and someone would open the box looking
+    // for one.
+    var idx = positions.map(function (p) {
+      var parsed = parsePosition(entry.box, p);
+      return parsed ? parsed.index : -1;
+    });
+    var contiguous = idx.every(function (n, i) { return n >= 0 && (i === 0 || n === idx[i - 1] + 1); });
     return {
       unitId: entry.unit.id, rackId: entry.rack.id, boxId: entry.box.id,
-      boxName: entry.box.name, positions: positions,
+      boxName: entry.box.name, positions: positions, contiguous: contiguous,
       path: entry.unit.name + " → " + entry.rack.name + " → " + entry.box.name
     };
   }
@@ -755,8 +764,9 @@
   function summarise(segments) {
     return segments.map(function (s) {
       var p = s.positions;
-      var range = p.length > 1 ? p[0] + "–" + p[p.length - 1] : p[0];
-      return s.boxName + ", " + range;
+      if (p.length === 1) return s.boxName + ", " + p[0];
+      if (s.contiguous) return s.boxName + ", " + p[0] + "–" + p[p.length - 1];
+      return s.boxName + ", " + p.join(" ");
     }).join(" + ");
   }
 
@@ -842,10 +852,19 @@
       var c2 = roomy[0];
       var p2 = takePositions(state, c2.entry.box.id, count);
       var segs2 = [segmentFor(state, c2.entry, p2)];
+      // Say why the line is NOT being kept together, when that is the reason we are
+      // here. "Box 6 is empty" on its own reads like the line has never been frozen
+      // before, which would be wrong and would look like a bug.
+      var crowded = candidates.filter(function (c) { return c.sameLine > 0; });
+      var why = crowded.length
+        ? crowded.map(function (c) { return c.entry.box.name; }).join(" and ") +
+          " already " + (crowded.length === 1 ? "holds" : "hold") + " this line, but " +
+          (crowded.length === 1 ? "has" : "have") + " no room for " + count + ". "
+        : "";
       return { ok: true, strategy: c2.occ.used === 0 ? "new-box" : "emptiest",
                segments: segs2, summary: summarise(segs2),
-               reason: c2.occ.used === 0 ? c2.entry.box.name + " is empty."
-                                         : c2.entry.box.name + " has the most room (" + c2.occ.free + " free)." };
+               reason: why + (c2.occ.used === 0 ? c2.entry.box.name + " is empty."
+                                                : c2.entry.box.name + " has the most room (" + c2.occ.free + " free).") };
     }
 
     // 3. Split, only when allowed, and always said out loud.
@@ -1100,7 +1119,7 @@
 
   // Guess what each column is, from its header and its content. The mapping screen
   // shows the guess and lets it be overridden -- it is a starting point, not a claim.
-  function guessColumns(rows, headerRowIndex) {
+  function guessColumns(rows, headerRowIndex, merges) {
     var header = rows[headerRowIndex || 0] || [];
     var guesses = [];
     var byHeader = [
@@ -1117,12 +1136,22 @@
       [/box|kutu|rack/i, "box"]
     ];
     var width = rows.reduce(function (m, r) { return Math.max(m, (r || []).length); }, 0);
+    var mergedColumns = {};
+    (merges || []).forEach(function (m) {
+      if (m.startCol === m.endCol && m.endRow - m.startRow >= 2) mergedColumns[m.startCol] = true;
+    });
     for (var c = 0; c < width; c++) {
       var head = header[c] && header[c].text ? String(header[c].text).trim() : "";
       var role = "ignore";
       for (var i = 0; i < byHeader.length; i++) {
         if (head && byHeader[i][0].test(head)) { role = byHeader[i][1]; break; }
       }
+      // A column carrying tall vertical merges is a block label -- one merged cell
+      // per box, which is how a freezer sheet is usually laid out. This is the only
+      // place the box column announces itself: its header is blank and 80 of its 81
+      // cells are empty, so nothing about its CONTENT would ever give it away.
+      if (role === "ignore" && mergedColumns[c]) role = "box";
+
       if (role === "ignore" && !head) {
         // Unheaded columns: the position column gives itself away.
         var looksPosition = 0, seen = 0;
@@ -1331,7 +1360,7 @@
         box ? box.unit.name : "", box ? box.rack.name : "", box ? box.box.name : "",
         v.location ? v.location.position : "",
         v.name, v.passage || "", v.passageKind || "",
-        v.frozenOn || "", v.frozenRaw || "", v.frozenNeedsReview ? "yes" : "",
+        v.frozenOn || "", v.frozenRaw || "", v.frozenOn ? "" : "yes",
         f.origin || "", f.koox || "", f.resistance || "", f.caspex || "", f.guide || "",
         (v.flags || []).join(", "), v.notes || "", v.status || "stored", v.id
       ]);

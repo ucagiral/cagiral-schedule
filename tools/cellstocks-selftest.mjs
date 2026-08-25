@@ -428,6 +428,24 @@ check("one freeze-down lands in one contiguous run", () => {
   return null;
 });
 
+check("scattered slots are listed, never described as a block that isn't there", () => {
+  // A box with free slots dotted around it can still take five vials, but calling
+  // that "E6-H8" describes a run somebody would open the box looking for.
+  var s = fixture();
+  var occ = E.occupancy(s, "b-c");
+  // Fill Box C leaving five free slots that are deliberately not adjacent.
+  var keep = { 0: true, 10: true, 20: true, 30: true, 40: true };
+  occ.slots.forEach((slot) => { if (!keep[slot.index]) s.vials.push(vial("scat-" + slot.index, "Filler line", "b-c", slot.position)); });
+  // Aimed at Box C explicitly: the other boxes have more room and would otherwise win.
+  const plan = E.suggestPlacement(s, { name: "Brand New Line", count: 5, boxId: "b-c" });
+  if (!plan.ok) return `plan failed: ${plan.reason}`;
+  const seg = plan.segments[0];
+  if (seg.contiguous) return "five scattered slots were reported as contiguous";
+  if (/–/.test(plan.summary)) return `summary claims a range: ${json(plan.summary)}`;
+  for (const p of seg.positions) if (plan.summary.indexOf(p) === -1) return `${p} is missing from the summary`;
+  return null;
+});
+
 check("a proposal never names an occupied slot, or the same slot twice", () => {
   const s = fixture();
   for (const count of [1, 2, 5, 20, 76]) {
@@ -469,6 +487,11 @@ check("a full box spills into another, and says so", () => {
   if (plan.segments.length !== 1) return "a single-box plan was expected";
   if (plan.segments[0].boxId === "b-a") return "5 vials were squeezed into a box with 2 free slots";
   if (plan.segments[0].positions.length !== 5) return "the plan did not cover all 5";
+  // And it has to SAY why the line was not kept together, or a full box looks like
+  // the app forgetting where the line lives.
+  if (!/Box A/.test(plan.reason) || !/no room/.test(plan.reason)) {
+    return `reason does not explain the full box: ${json(plan.reason)}`;
+  }
   return null;
 });
 
@@ -672,6 +695,17 @@ await checkAsync("a workbook survives being written and read back", async () => 
   return null;
 });
 
+await checkAsync("the deflated workbook is much smaller and reads back the same", async () => {
+  const sheets = E.vialsToSheets(fixture());
+  const stored = X.writeWorkbook(sheets);
+  const packed = await X.writeWorkbookAsync(sheets);
+  if (packed.length >= stored.length) return `deflating made it ${packed.length} vs ${stored.length} bytes`;
+  const a = await X.readWorkbook(stored);
+  const b = await X.readWorkbook(packed);
+  const flat = (wb) => json(wb.sheets.map((s) => [s.name, s.rows.map((r) => r.map((c) => (c ? c.value : null)))]));
+  return flat(a) === flat(b) ? null : "the two forms did not read back identically";
+});
+
 await checkAsync("a sheet name Excel would reject is cleaned, not passed through", async () => {
   const back = await X.readWorkbook(X.writeWorkbook([{ name: "a/b:c[d]*e?f-and-a-very-long-tail-beyond-31", rows: [["x"]] }]));
   const n = back.sheets[0].name;
@@ -714,6 +748,23 @@ check("guessColumns finds a position column that has no header", () => {
   g.forEach((x) => { byIndex[x.index] = x.role; });
   if (byIndex[1] !== "position") return `column B guessed as ${json(byIndex[1])}`;
   if (byIndex[2] !== "name") return `column C guessed as ${json(byIndex[2])}`;
+  return null;
+});
+
+check("the box column is found by its merges, since nothing else gives it away", () => {
+  // One merged label per block, a blank header, and 80 of 81 cells empty. Content
+  // heuristics cannot see this column; the merge list can.
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell(""), cell(""), cell("Cell Name")]];
+  for (let i = 0; i < 12; i++) rows.push([cell(i === 0 ? "BOX ONE" : ""), cell("A" + (i + 1)), cell("A line")]);
+  const merges = [{ ref: "A2:A13", startCol: 0, endCol: 0, startRow: 2, endRow: 13 }];
+  const withMerges = {};
+  E.guessColumns(rows, 0, merges).forEach((g) => { withMerges[g.index] = g.role; });
+  if (withMerges[0] !== "box") return `column A guessed as ${json(withMerges[0])}`;
+  // And without the merge list it must not invent one.
+  const without = {};
+  E.guessColumns(rows, 0).forEach((g) => { without[g.index] = g.role; });
+  if (without[0] === "box") return "a box column was guessed with no evidence for it";
   return null;
 });
 

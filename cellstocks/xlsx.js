@@ -119,36 +119,39 @@
   function put16(arr, o, v) { arr[o] = v & 255; arr[o + 1] = (v >>> 8) & 255; }
 
   function zipStore(files) {
-    // files: [{ name, bytes }]. Stored (method 0), no data descriptors, no zip64 --
-    // a cell inventory is kilobytes, not gigabytes.
+    // files: [{ name, bytes, deflated }]. No data descriptors, no zip64 -- a cell
+    // inventory is kilobytes, not gigabytes. An entry with `deflated` is written
+    // with method 8; everything else is stored, which needs no compressor at all.
     var local = [], central = [], offset = 0, i;
     for (i = 0; i < files.length; i++) {
       var nameBytes = utf8(files[i].name);
       var data = files[i].bytes;
+      var body = files[i].deflated || data;
+      var method = files[i].deflated ? 8 : 0;
       var crc = crc32(data);
 
       var lh = new Uint8Array(30 + nameBytes.length);
       put32(lh, 0, 0x04034b50);
       put16(lh, 4, 20);            // version needed
       put16(lh, 6, 0x0800);        // flags: UTF-8 names
-      put16(lh, 8, 0);             // method: stored
+      put16(lh, 8, method);
       put16(lh, 10, 0); put16(lh, 12, 0);   // mod time/date: fixed, so output is deterministic
       put32(lh, 14, crc);
-      put32(lh, 18, data.length);
+      put32(lh, 18, body.length);
       put32(lh, 22, data.length);
       put16(lh, 26, nameBytes.length);
       put16(lh, 28, 0);
       lh.set(nameBytes, 30);
-      local.push(lh, data);
+      local.push(lh, body);
 
       var ch = new Uint8Array(46 + nameBytes.length);
       put32(ch, 0, 0x02014b50);
       put16(ch, 4, 20); put16(ch, 6, 20);
       put16(ch, 8, 0x0800);
-      put16(ch, 10, 0);
+      put16(ch, 10, method);
       put16(ch, 12, 0); put16(ch, 14, 0);
       put32(ch, 16, crc);
-      put32(ch, 20, data.length);
+      put32(ch, 20, body.length);
       put32(ch, 24, data.length);
       put16(ch, 28, nameBytes.length);
       put16(ch, 30, 0); put16(ch, 32, 0); put16(ch, 34, 0);
@@ -157,7 +160,7 @@
       ch.set(nameBytes, 46);
       central.push(ch);
 
-      offset += lh.length + data.length;
+      offset += lh.length + body.length;
     }
     var centralBytes = concat(central);
     var eocd = new Uint8Array(22);
@@ -533,6 +536,10 @@
   }
 
   function writeWorkbook(sheets, options) {
+    return zipStore(buildParts(sheets, options));
+  }
+
+  function buildParts(sheets, options) {
     var opts = options || {};
     var used = {};
     var defs = sheets.map(function (s, i) {
@@ -578,12 +585,33 @@
       { name: "xl/styles.xml", bytes: utf8(STYLES_XML) }
     );
 
-    return zipStore(files);
+    return files;
+  }
+
+  function deflateRaw(bytes) {
+    if (typeof CompressionStream !== "function") return Promise.resolve(null);
+    var stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"));
+    return new Response(stream).arrayBuffer().then(function (buf) { return new Uint8Array(buf); });
+  }
+
+  // The same workbook, deflated. The stored form is around eight times larger, and
+  // this one is uploaded to GitHub on every single save, so it is worth the await.
+  // Falls back to the stored form wherever CompressionStream is missing -- the file
+  // is still perfectly valid, just fatter.
+  function writeWorkbookAsync(sheets, options) {
+    var stored = buildParts(sheets, options);
+    return Promise.all(stored.map(function (f) {
+      return deflateRaw(f.bytes).then(function (d) {
+        // Only take the compressed form if it actually saved something.
+        return (d && d.length < f.bytes.length) ? { name: f.name, bytes: f.bytes, deflated: d } : f;
+      });
+    })).then(zipStore);
   }
 
   root.XlsxLite = {
     readWorkbook: readWorkbook,
     writeWorkbook: writeWorkbook,
+    writeWorkbookAsync: writeWorkbookAsync,
     // Exported for the selftest and for anything that needs a column letter.
     colName: colName,
     colIndex: colIndex,

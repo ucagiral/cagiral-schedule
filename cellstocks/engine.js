@@ -198,6 +198,11 @@
   var DEFAULT_RULES = {
     origin: [
       { match: "HEK", value: "HEK293T" },
+      // Umut's answer for the 19 vials the sheet left as #N/A: the LCC-* series and
+      // LNC478 are both LnCap. The sheet itself half-says so -- it carries both
+      // "LNC478 #2 98%" and "LnCap478 #2 98%" for the same cell.
+      { match: "LCC", value: "LnCap" },
+      { match: "LNC", value: "LnCap" },
       { match: "LNCX", value: "LnCap" },
       { match: "LUCX", value: "LuCap35CR" },
       { match: "LuCap", value: "LuCap35CR" },
@@ -1506,6 +1511,34 @@
   // State shape
   // =====================================================================
 
+  // The inventory is written with empty fields left out -- a vial with no note simply
+  // has no `notes` key. Every reader guards with (v.x || default), so absent and empty
+  // mean the same thing, and dropping them keeps an edit's diff to the fields that
+  // actually changed instead of re-inflating a hundred `"notes": ""` lines.
+  //
+  // This is the shape the file is committed in, so it lives here rather than in the
+  // app: the selftest can then prove that loading the file and writing it back is a
+  // no-op, which is what stops the app and the committed inventory drifting apart.
+  function slim(state) {
+    var copy = clone(state);
+    function strip(obj, keep) {
+      Object.keys(obj).forEach(function (k) {
+        if (keep.indexOf(k) !== -1) return;
+        var v = obj[k];
+        if (v === "" || v === null || v === undefined || (Array.isArray(v) && !v.length)) delete obj[k];
+      });
+    }
+    (copy.vials || []).forEach(function (v) { strip(v, ["id", "name"]); });
+    (copy.lines || []).forEach(function (l) { strip(l, ["id", "name"]); });
+    eachBox(copy, function (box) { strip(box, ["id", "name", "rows", "cols"]); });
+    return copy;
+  }
+
+  // Exactly what the app commits, so "what would be written" is one call everywhere.
+  function serialise(state) {
+    return JSON.stringify(slim(state), null, 2) + "\n";
+  }
+
   function blankState() {
     return {
       storage: { units: [] },
@@ -1548,8 +1581,16 @@
       return v.status !== "withdrawn" && v.passageKind === "absolute" && v.passageNumber > IMPLAUSIBLE_PASSAGE;
     });
     var rows = mixedRows(state);
+    // Vials the sheet never recorded a passage for. Not an error and not urgent, but
+    // it is missing information and the app should say so rather than let 68 vials
+    // sit behind a "p?" nobody ever gets around to.
+    var unknownPassage = (state.vials || []).filter(function (v) {
+      return v.status !== "withdrawn" && (v.passageKind || "unknown") === "unknown";
+    });
     return { dates: dates, facets: ca.diffs, gaps: ca.gaps, passages: passages, rows: rows,
-             total: dates.length + ca.diffs.length + ca.gaps.length + passages.length + rows.length };
+             unknownPassage: unknownPassage,
+             total: dates.length + ca.diffs.length + ca.gaps.length + passages.length +
+                    rows.length + unknownPassage.length };
   }
 
   function confirmDate(state, vialId, iso) {
@@ -1591,6 +1632,7 @@
     gridFromPositions: gridFromPositions, importSheet: importSheet, vialsToSheets: vialsToSheets,
     // state
     blankState: blankState, mergeDefaults: mergeDefaults, indexById: indexById,
+    slim: slim, serialise: serialise,
     reviewQueue: reviewQueue, confirmDate: confirmDate
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

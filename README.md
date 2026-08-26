@@ -428,6 +428,7 @@ Screen**.
 | `cellstocks/index.html` | The app. Reads and writes the JSON through the GitHub API. |
 | `cellstocks/cell-stocks.xlsx` | **Generated.** Rewritten from the JSON on every save and committed with it. Never edit by hand — the next save overwrites it. |
 | `protocols/cryopreservation.md` | How long a −80 vial is good for, and what has to be recorded about one, with sources. |
+| `.github/workflows/cellstocks.yml` | Runs the self-test on every change, and checks the workbook still matches the inventory. |
 
 ### Finding a vial
 
@@ -457,8 +458,9 @@ a place and says why:
 > two different cells.
 
 **A row holds one kind of cell.** That is the whole placement rule, and it is not a preference —
-it is how the freezer already is: 47 of its 54 used rows hold exactly one cell, and six of the
-seven that don't are only mixed because no origin rule covers those vials yet.
+it is how the freezer already is: of its 43 rows currently in use, **42 hold exactly one cell**.
+The single exception is real — `UMUT CAA CELLS` row A, where one Du145 sits among eight HEK293T —
+and it is listed under Review rather than quietly tidied away.
 
 What counts as "one kind of cell" is the **origin**, not the line. HEK ATP7B KO, HEK TOX4 OX and
 HEK CASPEX all share a row; a Huh7 does not join them, **even if there is a free slot right there**.
@@ -476,8 +478,7 @@ Around that:
 - The proposal is a proposal — **Put it somewhere else** overrides the box, and tapping an empty
   slot in Boxes freezes straight into it. An override still cannot mix two cells in a row.
 
-Boxes are coloured by cell, so each row reads as one band and a stray vial is obvious. The seven
-rows that currently mix two cells are listed under **Review**.
+Boxes are coloured by cell, so each row reads as one band and a stray vial is obvious.
 
 ### The rules
 
@@ -522,12 +523,26 @@ laid out, and it is the only signal there is — the header is blank and eighty 
 cells are empty. Box geometry is read the same way, from the positions actually present, so 9×9 is
 never assumed.
 
+### Filling in what's missing
+
+Anything the spreadsheet didn't say is listed under **Review**, so it can be answered whenever it
+is convenient rather than remembered: dates that can be read two ways, vials with no passage
+recorded, a passage that is obviously a pasted date serial, rows holding two kinds of cell.
+
+**Edit** on any vial — from a search result, or by tapping its slot in Boxes — opens the lot: name,
+passage, date, notes, and the five derived facets. Each facet shows what the rules read; typing
+over one pins it by hand, and from then on `classify()` leaves it alone. Changing the name
+re-derives everything that isn't pinned.
+
 ### Setting up your freezer and tank
 
 Settings → **Storage**. A freezer and a nitrogen tank are the same shape here — a unit, its racks
 or towers, and boxes with a grid — differing only in what their children are called. Nothing about
-9×9 is built in. Shrinking a box that holds vials is refused, and the refusal names the vials in
-the way.
+9×9 is built in. Boxes can be renamed and resized; shrinking one that holds vials is refused, and
+the refusal names the vials in the way.
+
+The **−80 °C freezer** holds six 9×9 boxes, 350 vials. The **LN2 tank** is set up — one tower, two
+9×9 boxes — and deliberately still empty.
 
 ### Checking it
 
@@ -535,18 +550,21 @@ the way.
 node tools/cellstocks-selftest.mjs
 ```
 
-Eighty-four checks over a synthetic freezer and then over the real inventory: an explicit list of
+Eighty-six checks over a synthetic freezer and then over the real inventory: an explicit list of
 the rows the corrected rules are *supposed* to change, so a later rule edit that reclassifies a
 sixth thing fails here rather than in front of an open freezer door — and a sweep that proposes
 placements for nine different cells at four different counts against the real freezer and fails if
 any of them would put two kinds of cell in one row.
 
+The same suite runs in CI on every change to `cellstocks/` or the suite itself
+(`.github/workflows/cellstocks.yml`), along with a check that the committed `.xlsx` still matches
+the inventory it is generated from.
+
 ### What it deliberately doesn't do
 
 - **This repository is public.** Only Umut's own `UMUT -80` sheet was imported; the other nine
   people's sheets in that shared workbook were not, and that is not this app's decision to make.
-- **The nitrogen tank is not in it yet.** The location model already covers it — a tower is a rack
-  with a different name — but nothing has been entered.
+- **The nitrogen tank is empty.** It is set up — one tower, two 9×9 boxes — but nothing is in it.
 - The `.xlsx` is a report, not an input. It is regenerated from the JSON on every save, so editing
   it by hand achieves nothing.
 - No barcode scanning, no temperature logging, no low-stock alerts beyond a *low* tag under two

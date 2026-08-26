@@ -109,6 +109,23 @@
   .field label{display:block; font-size:11.5px; color:var(--muted); margin-bottom:4px; font-weight:600}
   .two{display:grid; grid-template-columns:1fr 1fr; gap:8px}
 
+  /* One vial is the common case, so the field starts at 1 and the two buttons do the
+     rest. They are 44px so a thumb hits them, and the number stays typeable for the
+     rare "I froze twelve". */
+  .stepper{display:flex; align-items:stretch; gap:6px}
+  .stepper button{
+    flex:0 0 44px; width:44px; font-size:19px; line-height:1; font-weight:600;
+    padding:0; display:flex; align-items:center; justify-content:center;
+  }
+  .stepper input{
+    flex:1; min-width:0; text-align:center; font-variant-numeric:tabular-nums;
+    font-size:16px; font-weight:600;
+  }
+  /* The spinners duplicate the buttons and shrink the tap target. */
+  .stepper input::-webkit-outer-spin-button,
+  .stepper input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .stepper input[type=number]{-moz-appearance:textfield; appearance:textfield}
+
   /* ---- chips ---- */
   .chips{display:flex; gap:5px; flex-wrap:wrap; align-items:center}
   .chip{
@@ -248,7 +265,14 @@
       <div class="chips" id="fzFacets" style="margin-top:9px"></div>
       <p class="note" id="fzLine"></p>
       <div class="two">
-        <div class="field"><label for="fzCount">How many vials?</label><input id="fzCount" type="number" min="1" max="81" value="5"></div>
+        <div class="field">
+          <label for="fzCount">How many vials?</label>
+          <div class="stepper">
+            <button type="button" id="fzMinus" aria-label="One fewer vial">−</button>
+            <input id="fzCount" type="number" min="1" max="81" step="1" value="1" inputmode="numeric">
+            <button type="button" id="fzPlus" aria-label="One more vial">+</button>
+          </div>
+        </div>
         <div class="field"><label for="fzUnit">Where</label><select id="fzUnit"></select></div>
       </div>
     </div>
@@ -534,7 +558,7 @@
     try {
       state._meta = { savedBy: getDevice(), savedAt: new Date().toISOString() };
       await commitFiles([
-        { path: DATA_PATH, text: JSON.stringify(state, null, 2) + "\n" },
+        { path: DATA_PATH, text: E.serialise(state) },
         { path: XLSX_PATH, base64: bytesToBase64(await workbookBytes()) }
       ], message + " from " + getDevice());
       dirty = false;
@@ -818,6 +842,10 @@
       var show = el("button", null, "Show in box");
       show.onclick = function(){ showInBox(v); };
       row.appendChild(show);
+      var ed = el("button", null, "Edit");
+      ed.disabled = !canWrite();
+      ed.onclick = function(){ editVial(v); };
+      row.appendChild(ed);
     }
     if (row.childNodes.length) card.appendChild(row);
     return card;
@@ -883,7 +911,7 @@
   // Freeze
   // =====================================================================
 
-  var freeze = { name:"", count:5, unitId:null, boxId:null, plan:null };
+  var freeze = { name:"", count:1, unitId:null, boxId:null, plan:null };
 
   function renderFreezeFacets(){
     var box = clear($("fzFacets"));
@@ -1070,6 +1098,126 @@
     return wrap;
   }
 
+  // Editing a vial. Everything the sheet carried is editable here, plus the five
+  // derived facets: each shows what the rules read, and typing over one pins it by
+  // hand so classify() will not touch it again.
+  function editVial(vial){
+    $("dlgTitle").textContent = "Edit " + vial.name;
+    var body = clear($("dlgBody"));
+
+    function field(label, node, hint){
+      var f = el("div", "field");
+      f.appendChild(el("label", null, label));
+      f.appendChild(node);
+      if (hint) f.appendChild(el("div", "sub", hint));
+      body.appendChild(f);
+      return node;
+    }
+
+    var name = document.createElement("input");
+    name.value = vial.name || "";
+    field("Name", name, "Everything below that isn't pinned is worked out from this.");
+
+    var facetBox = el("div");
+    body.appendChild(el("label", null, "Cell details"));
+    body.appendChild(facetBox);
+    var facetInputs = {};
+    function paintFacets(){
+      clear(facetBox);
+      var derived = E.classify(name.value.trim(), state.rules);
+      E.FACETS.forEach(function(f){
+        var pinned = vial.facetsSetByHand && vial.facetsSetByHand[f] !== undefined;
+        var row = el("div", "item");
+        var grow = el("div", "grow");
+        grow.appendChild(el("div", null, f));
+        grow.appendChild(el("div", "sub", derived[f] === null
+          ? "no rule covers this name"
+          : "rules read: " + derived[f]));
+        row.appendChild(grow);
+        var inp = facetInputs[f] || document.createElement("input");
+        facetInputs[f] = inp;
+        inp.style.width = "9em";
+        if (inp.value === undefined || inp.dataset.init !== "1"){
+          inp.value = pinned ? vial.facetsSetByHand[f] : "";
+          inp.dataset.init = "1";
+        }
+        inp.placeholder = derived[f] === null ? "—" : derived[f];
+        row.appendChild(inp);
+        facetBox.appendChild(row);
+      });
+    }
+    paintFacets();
+    name.oninput = paintFacets;
+
+    var passage = document.createElement("input");
+    passage.value = vial.passage || "";
+    passage.placeholder = "p12, p+3 or p?";
+    field("Passage", passage, "p12 counts from the line's origin; p+3 counts from the last thaw. p? means unknown.");
+
+    var date = document.createElement("input");
+    date.type = "date";
+    if (vial.frozenOn) date.value = vial.frozenOn;
+    field("Date frozen", date, vial.frozenRaw
+      ? "The sheet says " + vial.frozenRaw + (vial.frozenOn ? "" : ", which could be read two ways.")
+      : "The sheet had nothing here.");
+
+    var notes = document.createElement("input");
+    notes.value = vial.notes || "";
+    notes.placeholder = "myco -";
+    field("Notes", notes, "myco -, chip- and to-do become searchable tags.");
+
+    body.appendChild(el("p", "note", "In " + E.locationPath(state, vial.location) +
+      (vial.importedFrom ? " · from " + vial.importedFrom : "")));
+
+    var foot = clear($("dlgFoot"));
+    var save = el("button", "primary", "Save");
+    save.disabled = !canWrite();
+    save.onclick = function(){
+      var v = E.indexById(state.vials)[vial.id];
+      if (!v) return;
+      var newName = name.value.trim();
+      if (!newName){ showBanner("A vial needs a name."); return; }
+
+      var pinned = {};
+      var derived = E.classify(newName, state.rules);
+      E.FACETS.forEach(function(f){
+        var typed = facetInputs[f].value.trim();
+        if (typed && typed !== derived[f]) pinned[f] = typed;
+      });
+
+      var before = JSON.parse(JSON.stringify(v));
+      v.name = newName;
+      v.lineId = E.lineIdFor(newName, state.rules);
+      if (Object.keys(pinned).length) v.facetsSetByHand = pinned; else delete v.facetsSetByHand;
+
+      var p = E.parsePassage(passage.value);
+      v.passage = p.raw; v.passageNumber = p.number; v.passageKind = p.kind;
+
+      if (date.value){
+        var parsed = E.parseDate(date.value);
+        if (!parsed.iso){ showBanner("That date can't be read."); return; }
+        v.frozenOn = parsed.iso;
+      } else {
+        v.frozenOn = null;
+      }
+
+      v.notes = notes.value.trim();
+      v.flags = E.flagsFrom(v.notes);
+
+      var errors = E.errorsOnly(E.validate(state));
+      if (errors.length){
+        Object.keys(before).forEach(function(k){ v[k] = before[k]; });
+        showBanner("Not saving that: " + esc(errors[0].message));
+        return;
+      }
+      $("dlg").close();
+      markDirty("Edit " + newName);
+      renderAll();
+    };
+    foot.appendChild(save);
+    $("dlg").showModal();
+  }
+
   function slotDialog(boxId, slot){
     var occ = E.occupancy(state, boxId);
     $("dlgTitle").textContent = occ.box.name + " · " + slot.position;
@@ -1100,6 +1248,10 @@
     if (v.notes) body.appendChild(el("p", "note", "Notes: " + v.notes));
     if (v.importedFrom) body.appendChild(el("p", "note", "From " + v.importedFrom));
 
+    var edit = el("button", null, "Edit");
+    edit.disabled = !canWrite();
+    edit.onclick = function(){ $("dlg").close(); editVial(v); };
+    foot.appendChild(edit);
     var take = el("button", "primary", "Took it");
     take.disabled = !canWrite();
     take.onclick = function(){ $("dlg").close(); takeVial(v); };
@@ -1311,6 +1463,37 @@
       box.appendChild(gc);
     }
 
+    // ---- vials with no passage recorded ----
+    if (q.unknownPassage.length){
+      var uc = el("div", "card");
+      uc.appendChild(el("h3", null, "Passage not recorded (" + q.unknownPassage.length + ")"));
+      uc.appendChild(el("p", "note",
+        "The sheet says p? for these. They are still findable by name, and the passage slider " +
+        "keeps them behind its \u201cinclude unknown\u201d toggle rather than dropping them. " +
+        "Fill one in whenever you happen to know it."));
+      var byName = {};
+      q.unknownPassage.forEach(function(v){
+        if (!byName[v.name]) byName[v.name] = [];
+        byName[v.name].push(v);
+      });
+      Object.keys(byName).sort().slice(0, 60).forEach(function(n){
+        var list = byName[n];
+        var row = el("div", "item");
+        var grow = el("div", "grow");
+        grow.appendChild(el("div", null, n));
+        grow.appendChild(el("div", "sub", list.length + " vial" + (list.length === 1 ? "" : "s") +
+          " · " + list.map(function(v){ return E.locationPath(state, v.location).split(" → ").slice(-2).join(" "); }).join(", ")));
+        row.appendChild(grow);
+        var b = el("button", null, list.length === 1 ? "Fill in" : "Fill in first");
+        b.disabled = !canWrite();
+        b.onclick = function(){ editVial(list[0]); };
+        row.appendChild(b);
+        uc.appendChild(row);
+      });
+      if (Object.keys(byName).length > 60) uc.appendChild(el("p", "note", "…and more."));
+      box.appendChild(uc);
+    }
+
     // ---- rows holding more than one kind of cell ----
     if (q.rows.length){
       var rc = el("div", "card");
@@ -1355,7 +1538,7 @@
         row.appendChild(grow);
         var b = el("button", null, "Fix");
         b.disabled = !canWrite();
-        b.onclick = function(){ askPassage(v); };
+        b.onclick = function(){ editVial(v); };
         row.appendChild(b);
         pc.appendChild(row);
       });
@@ -1377,26 +1560,6 @@
       var r = E.confirmDate(state, vial.id, inp.value);
       if (!r.ok){ showBanner(esc(r.reason)); return; }
       state = r.state; $("dlg").close(); markDirty("Set a date"); renderAll();
-    };
-    foot.appendChild(ok);
-    $("dlg").showModal();
-  }
-
-  function askPassage(vial){
-    $("dlgTitle").textContent = "Passage for " + vial.name;
-    var body = clear($("dlgBody"));
-    body.appendChild(el("p", "note", "The sheet says " + vial.passage + "."));
-    var inp = document.createElement("input");
-    inp.value = "";
-    inp.placeholder = "p12, p+3 or p?";
-    body.appendChild(inp);
-    var foot = clear($("dlgFoot"));
-    var ok = el("button", "primary", "Save");
-    ok.onclick = function(){
-      var p = E.parsePassage(inp.value);
-      var v = E.indexById(state.vials)[vial.id];
-      v.passage = p.raw; v.passageNumber = p.number; v.passageKind = p.kind;
-      $("dlg").close(); markDirty("Fix a passage"); renderAll();
     };
     foot.appendChild(ok);
     $("dlg").showModal();
@@ -2036,11 +2199,27 @@
     renderFreezePlan();
     renderFreezeGuard();
   };
-  $("fzCount").oninput = function(){
-    freeze.count = Math.max(1, Number($("fzCount").value) || 1);
+  var COUNT_MIN = 1, COUNT_MAX = 81;
+  function setCount(n, fromTyping){
+    var v = Math.round(Number(n));
+    if (!isFinite(v)) v = COUNT_MIN;
+    v = Math.max(COUNT_MIN, Math.min(COUNT_MAX, v));
+    freeze.count = v;
+    // Don't fight the field while it is being typed in -- rewriting it mid-keystroke
+    // makes "12" impossible to type, because the 1 becomes a 1 and the cursor jumps.
+    if (!fromTyping) $("fzCount").value = String(v);
+    $("fzMinus").disabled = v <= COUNT_MIN;
+    $("fzPlus").disabled = v >= COUNT_MAX;
     renderFreezePlan();
     renderFreezeGuard();
-  };
+  }
+  $("fzCount").oninput = function(){ setCount($("fzCount").value, true); };
+  // On the way out, put back whatever was actually settled on, so an emptied or
+  // out-of-range field never sits there looking like it means something.
+  $("fzCount").onblur = function(){ setCount(freeze.count); };
+  $("fzMinus").onclick = function(){ setCount(freeze.count - 1); };
+  $("fzPlus").onclick = function(){ setCount(freeze.count + 1); };
+  setCount(freeze.count);
   $("fzUnit").onchange = function(){
     freeze.unitId = $("fzUnit").value; freeze.boxId = null; renderFreezePlan(); renderFreezeGuard();
   };

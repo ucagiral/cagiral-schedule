@@ -269,9 +269,21 @@ check("an uppercase G is not a guide", () => {
 });
 
 check("a name no rule covers reports a gap instead of inventing a value", () => {
-  const got = E.classify("LCC-V");
+  const got = E.classify("Zebrafish ZF4");
   if (got.origin !== null) return `origin was ${json(got.origin)}, expected null`;
   if (got.unmatched.indexOf("origin") === -1) return "origin was not listed as unmatched";
+  return null;
+});
+
+check("the LCC and LNC series read as LnCap", () => {
+  // Umut's answer for the 19 vials the sheet left as #N/A.
+  for (const name of ["LCC-V", "LCC-K no sort", "LCC-C*", "LNC478 #1", "LNC478 #2 98%"]) {
+    const got = E.classify(name).origin;
+    if (got !== "LnCap") return `${json(name)} read as ${json(got)}, expected LnCap`;
+  }
+  // And the rule must not have swallowed anything that was already right.
+  if (E.classify("LuCap35CR").origin !== "LuCap35CR") return "LuCap35CR was captured by the LnCap rule";
+  if (E.classify("HEK ATP7B KO g3").origin !== "HEK293T") return "a HEK name was captured by the LnCap rule";
   return null;
 });
 
@@ -285,9 +297,9 @@ check("a facet set by hand is never recomputed", () => {
 
 check("rules are data: a new label needs no code change", () => {
   const rules = JSON.parse(JSON.stringify(E.DEFAULT_RULES));
-  rules.origin.unshift({ match: "LCC", value: "LCC" });
-  if (E.classify("LCC-V", rules).origin !== "LCC") return "the added rule did not take effect";
-  if (E.classify("LCC-V").origin !== null) return "adding a rule mutated the defaults";
+  rules.origin.unshift({ match: "ZF", value: "ZF4" });
+  if (E.classify("Zebrafish ZF4", rules).origin !== "ZF4") return "the added rule did not take effect";
+  if (E.classify("Zebrafish ZF4").origin !== null) return "adding a rule mutated the defaults";
   return null;
 });
 
@@ -932,20 +944,41 @@ check("box geometry is read from the data, never assumed", () => {
 const REAL_PATH = join(ROOT, "cellstocks", "cellstocks.json");
 const real = existsSync(REAL_PATH) ? E.mergeDefaults(JSON.parse(readFileSync(REAL_PATH, "utf8"))) : null;
 
+check("saving the real inventory unchanged rewrites it byte for byte", () => {
+  if (!real) return null;
+  // The app writes the file through E.serialise. If loading it and writing it back
+  // is not a no-op, then every save churns lines nobody edited -- and worse, the
+  // committed file and what the app believes are already two different things.
+  const onDisk = readFileSync(REAL_PATH, "utf8");
+  const written = E.serialise(real);
+  if (written === onDisk) return null;
+  const a = onDisk.split("\n"), b = written.split("\n");
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if (a[i] !== b[i]) return `first difference at line ${i + 1}: on disk ${json(a[i])}, app would write ${json(b[i])}`;
+  }
+  return "the files differ in length only";
+});
+
 check("the real inventory validates with no errors", () => {
   if (!real) return null;   // not imported yet
   const errs = E.errorsOnly(E.validate(real));
   return errs.length ? `${errs.length} errors, first: ${errs[0].message}` : null;
 });
 
-check("the real inventory is six 9x9 boxes with nothing double-booked", () => {
+check("the real inventory is eight 9x9 boxes with nothing double-booked", () => {
   if (!real) return null;
   const boxes = [];
   E.eachBox(real, (b) => boxes.push(b));
-  if (boxes.length !== 6) return `found ${boxes.length} boxes`;
+  // Six in the -80 freezer, two in the nitrogen tank -- the tank is set up but
+  // deliberately still empty.
+  if (boxes.length !== 8) return `found ${boxes.length} boxes`;
   for (const b of boxes) if (b.rows !== 9 || b.cols !== 9) return `${b.name} is ${b.rows}x${b.cols}`;
   const total = boxes.reduce((n, b) => n + E.occupancy(real, b.id).used, 0);
   if (total !== 350) return `${total} vials are placed, expected 350`;
+  const tank = E.unitSummary(real, "u-ln2");
+  if (!tank) return "the nitrogen tank is missing";
+  if (tank.used !== 0) return `the tank holds ${tank.used} vials, expected 0`;
+  if (tank.capacity !== 162) return `the tank has ${tank.capacity} slots, expected 162`;
   return null;
 });
 
@@ -992,15 +1025,19 @@ check("the review queue is the size the import reported", () => {
   const q = E.reviewQueue(real);
   if (q.dates.length !== 141) return `${q.dates.length} dates need confirming, expected 141`;
   if (q.facets.length !== 49) return `${q.facets.length} rows have changed facets, expected 49`;
-  if (q.gaps.length !== 19) return `${q.gaps.length} rows have an unmatched facet, expected 19`;
+  // Zero gaps now that LCC and LNC are known to be LnCap; that answer also cleared
+  // six of the seven mixed rows, since they were only mixed for want of a rule.
+  if (q.gaps.length !== 0) return `${q.gaps.length} rows have an unmatched facet, expected 0`;
   if (q.passages.length !== 2) return `${q.passages.length} implausible passages, expected 2`;
-  if (q.rows.length !== 7) return `${q.rows.length} mixed rows, expected 7`;
+  if (q.rows.length !== 1) return `${q.rows.length} mixed rows, expected 1`;
+  if (q.unknownPassage.length !== 67) return `${q.unknownPassage.length} vials have no passage, expected 67`;
   return null;
 });
 
 // The row rule is not something this app imposed on the freezer -- it is how the
-// freezer already is. 47 of the 54 rows hold exactly one kind of cell, and six of
-// the seven that do not are rows carrying vials no origin rule covers yet.
+// freezer already is. Of the 43 rows currently holding anything, 42 hold exactly one
+// kind of cell. The single exception is a real one: UMUT CAA CELLS row A, where one
+// Du145 sits among eight HEK293T.
 check("the real freezer already keeps one cell per row", () => {
   if (!real) return null;
   let rows = 0, single = 0;
@@ -1011,10 +1048,31 @@ check("the real freezer already keeps one cell per row", () => {
       if (row.origins.length === 1) single++;
     });
   });
-  if (rows - single !== 7) return `${rows - single} of ${rows} used rows mix cells, expected 7`;
-  const stillUnclassified = E.mixedRows(real)
-    .filter((m) => m.origins.indexOf(E.NO_ORIGIN) !== -1).length;
-  if (stillUnclassified !== 6) return `${stillUnclassified} of the mixed rows are down to a missing origin rule, expected 6`;
+  // Pinned, because these exact numbers are quoted in README.md and CLAUDE.md as the
+  // evidence for the rule. If the data moves, the claim has to move with it.
+  if (rows !== 43) return `${rows} rows in use, expected 43`;
+  if (single !== 42) return `${single} rows hold exactly one cell, expected 42`;
+  const mixed = E.mixedRows(real);
+  if (mixed.length !== 1) return `${mixed.length} rows mix cells, expected 1`;
+  if (mixed[0].box !== "UMUT CAA CELLS" || mixed[0].label !== "A") {
+    return `the mixed row is ${mixed[0].box} ${mixed[0].label}, expected UMUT CAA CELLS A`;
+  }
+  // And none of them is mixed merely because a rule is missing any more.
+  const forWantOfARule = mixed.filter((m) => m.origins.indexOf(E.NO_ORIGIN) !== -1).length;
+  if (forWantOfARule !== 0) return `${forWantOfARule} rows are still mixed only for want of an origin rule`;
+  return null;
+});
+
+check("the nitrogen tank is modelled but empty, and can be placed into", () => {
+  if (!real) return null;
+  const tank = E.unitSummary(real, "u-ln2");
+  if (!tank) return "no nitrogen tank";
+  if (tank.boxes.length !== 2) return `${tank.boxes.length} boxes, expected 2`;
+  const plan = E.suggestPlacement(real, { name: "LnCap Canada", count: 5, unitId: "u-ln2" });
+  if (!plan.ok) return `nothing can be placed into it: ${plan.reason}`;
+  if (plan.segments[0].unitId !== "u-ln2") return "the plan left the tank";
+  // A tower is a rack with a different word, and the path has to say so.
+  if (!/Tower/.test(plan.segments[0].path)) return `path did not name a Tower: ${json(plan.segments[0].path)}`;
   return null;
 });
 

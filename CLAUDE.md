@@ -143,8 +143,8 @@ worker handles by sweeping only its own prefix.
 - **A row holds one kind of cell, and that is the placement rule.** The grouping key is the
   **origin** facet, not the line: KO, OX, CASPEX and guide of one cell all share a row. A different
   cell never takes a free slot beside it — it starts a fresh row, and failing that a fresh box.
-  This is not tidiness; it is how the freezer already is (47 of its 54 used rows hold exactly one
-  cell). One freeze-down stays in one row where a row can hold it, and in one box where a box can.
+  This is not tidiness; it is how the freezer already is (of the 43 rows in use, 42 hold exactly
+  one cell). One freeze-down stays in one row where a row can hold it, and in one box where a box can.
   Do not "optimise" this into first-free-slot packing.
 - **The name is the only thing typed.** Origin, KO/OX, resistance, CASPEX and guide are derived
   from it by `classify()`, which is the spreadsheet's five formulas — and **the rules are data in
@@ -165,9 +165,12 @@ worker handles by sweeping only its own prefix.
 - **The placement proposal is a proposal.** The override path stays — but even an override may not
   mix two cells in one row, and a plan never part-fills silently. If it cannot describe a run
   honestly it lists the slots instead.
-- **A row that already mixes two cells is a warning, not an error.** The imported sheet has seven,
-  six of them only because no origin rule covers those vials yet. They are listed for review; they
-  do not block a save, and nothing is moved to fix them without being asked.
+- **A row that already mixes two cells is a warning, not an error.** One row does — UMUT CAA CELLS
+  A, one Du145 among eight HEK293T. It is listed for review; it does not block a save, and nothing
+  is moved to fix it without being asked.
+- **Anything the sheet did not say is surfaced, not filled in.** Ambiguous dates, missing passages,
+  an implausible passage, a mixed row: all listed under Review for Umut to answer through the vial
+  editor. A facet he pins by hand is never recomputed.
 - **Nothing is repaired behind his back.** The import queues ambiguous dates rather than swapping
   them, reports every row where the corrected rules disagree with the sheet, and needs an explicit
   tick before it throws any row away. `#N/A` is not a value and is never imported as one.

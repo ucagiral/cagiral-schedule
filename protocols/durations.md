@@ -18,7 +18,9 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | qPCR run (40 cycles) | ~2 h | ~5 min | rest | Facilities book 2 h on the instrument. |
 | Cell passaging / trypsinisation | 20–30 min | all | — | Trypsin 1–3 min; the time is handling, spin and counting. |
 | Cell seeding | 20–30 min | all | — | As above, plus counting and plating. |
-| Freezing cells (to −80 °C) | ~30 min hands-on | ~30 min | 4 h+ in the freezer | Controlled −1 °C/min; ≥4 h at −80 °C before liquid nitrogen. |
+| Freezing cells (to −80 °C) | ~30 min hands-on | ~30 min | 4 h+ in the freezer | Controlled −1 °C/min; ≥4 h at −80 °C before liquid nitrogen. See [`cryopreservation.md`](cryopreservation.md). |
+| Thawing a frozen vial | ~30 min | all | — | Thaw fast (<1–2 min at 37 °C), then dilute the DMSO out stepwise and plate; the time is handling, not the thaw. See [`cryopreservation.md`](cryopreservation.md). |
+| Recovery after a thaw | 24–48 h | ~15 min | rest | Medium change the next day once the cells have attached; not confluent enough to passage before then. |
 | Lentivirus — transfection | ~1 h | all | — | Morning of day 1, then medium change 6 h later. |
 | Lentivirus — medium change | ~30 min | all | — | 6 h post-transfection in most protocols; some at ~42 h. |
 | Lentivirus — harvest | ~1 h | all | — | 48–72 h post-transfection is the usual window; often harvested twice. |

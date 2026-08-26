@@ -10,8 +10,15 @@ name: Cell stocks checks
 #
 # No dependencies, no network, no secrets: the suite is plain node against files in
 # the repo, and it takes a couple of seconds.
+#
+# Branches are covered by the pull_request trigger and main by the push one. They
+# do not overlap on purpose: with push unfiltered, every commit on a branch with an
+# open PR ran this twice on the same commit -- once for the push, once for the PR --
+# and the two runs cannot even cancel each other, because github.ref is
+# refs/heads/<branch> for one and refs/pull/<n>/merge for the other.
 on:
   push:
+    branches: [main]
     paths:
       - cellstocks/**
       - tools/cellstocks-selftest.mjs

@@ -143,8 +143,8 @@ worker handles by sweeping only its own prefix.
 - **A row holds one kind of cell, and that is the placement rule.** The grouping key is the
   **origin** facet, not the line: KO, OX, CASPEX and guide of one cell all share a row. A different
   cell never takes a free slot beside it — it starts a fresh row, and failing that a fresh box.
-  This is not tidiness; it is how the freezer already is (47 of its 54 used rows hold exactly one
-  cell). One freeze-down stays in one row where a row can hold it, and in one box where a box can.
+  This is not tidiness; it is how the freezer already is (of the 43 rows in use, 36 hold exactly
+  one cell). One freeze-down stays in one row where a row can hold it, and in one box where a box can.
   Do not "optimise" this into first-free-slot packing.
 - **The name is the only thing typed.** Origin, KO/OX, resistance, CASPEX and guide are derived
   from it by `classify()`, which is the spreadsheet's five formulas — and **the rules are data in

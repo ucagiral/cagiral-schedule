@@ -457,8 +457,8 @@ a place and says why:
 > two different cells.
 
 **A row holds one kind of cell.** That is the whole placement rule, and it is not a preference —
-it is how the freezer already is: 47 of its 54 used rows hold exactly one cell, and six of the
-seven that don't are only mixed because no origin rule covers those vials yet.
+it is how the freezer already is: of its 43 rows currently in use, 36 hold exactly one cell, and
+six of the seven that don't are only mixed because no origin rule covers those vials yet.
 
 What counts as "one kind of cell" is the **origin**, not the line. HEK ATP7B KO, HEK TOX4 OX and
 HEK CASPEX all share a row; a Huh7 does not join them, **even if there is a free slot right there**.

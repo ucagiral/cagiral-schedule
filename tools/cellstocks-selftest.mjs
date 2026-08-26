@@ -999,18 +999,25 @@ check("the review queue is the size the import reported", () => {
 });
 
 // The row rule is not something this app imposed on the freezer -- it is how the
-// freezer already is. 47 of the 54 rows hold exactly one kind of cell, and six of
-// the seven that do not are rows carrying vials no origin rule covers yet.
+// freezer already is. Of the 43 rows currently holding anything, 36 hold exactly one
+// kind of cell, and six of the seven that do not are rows carrying vials no origin
+// rule covers yet. (The box has 54 rows in all; 11 are still empty.)
 check("the real freezer already keeps one cell per row", () => {
   if (!real) return null;
-  let rows = 0, single = 0;
+  let all = 0, rows = 0, single = 0;
   E.eachBox(real, (box) => {
     E.rowsOf(real, box.id).forEach((row) => {
+      all++;
       if (!row.used) return;
       rows++;
       if (row.origins.length === 1) single++;
     });
   });
+  // Pinned, because these exact numbers are quoted in README.md and CLAUDE.md as the
+  // evidence for the rule. If the data moves, the claim has to move with it.
+  if (all !== 54) return `${all} rows in total, expected 54`;
+  if (rows !== 43) return `${rows} rows in use, expected 43`;
+  if (single !== 36) return `${single} rows hold exactly one cell, expected 36`;
   if (rows - single !== 7) return `${rows - single} of ${rows} used rows mix cells, expected 7`;
   const stillUnclassified = E.mixedRows(real)
     .filter((m) => m.origins.indexOf(E.NO_ORIGIN) !== -1).length;

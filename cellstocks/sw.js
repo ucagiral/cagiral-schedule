@@ -1,20 +1,24 @@
-// Service worker: makes the app open instantly and still open with no signal.
+// Service worker for the cell stocks app, scoped to /cellstocks/.
 //
-// Deliberately does NOT cache schedule data. claudeAgent.json, schedule.ics and every
-// GitHub API call go straight to the network — a stale schedule is worse than no schedule.
-// The app keeps its own last-known copy in localStorage for the offline case.
+// Scope is not the whole story: this host serves other apps from the same origin,
+// and one origin means one Cache Storage shared between all of them. That is why
+// the activate handler below sweeps only caches carrying this app's own prefix --
+// an unfiltered sweep would delete a neighbour's offline copy.
 //
-// This origin serves three apps -- the schedule here, the wardrobe under /wardrobe/
-// and the cell stocks inventory under /cellstocks/ -- which means they share one
-// Cache Storage and one scope tree. Both facts bite: see the activate and fetch
-// handlers below.
+// The shell is cached so the app opens instantly, and opens at all with no signal.
+// cellstocks.json is never cached: a stale inventory is worse than no inventory,
+// because it sends someone to a slot that was emptied this morning. The app keeps
+// its own last-known copy in localStorage for the offline case, and says out loud
+// that it is offline when it falls back to it.
 //
-// Bump CACHE when index.html / sw.js / icons change, so clients pick up the new shell.
-const CACHE = "cagiral-schedule-v8";
+// Bump CACHE when index.html / engine.js / xlsx.js / icons change.
+const CACHE = "cellstocks-v1";
 
 const SHELL = [
   ".",
   "index.html",
+  "engine.js",
+  "xlsx.js",
   "manifest.webmanifest",
   "icon-192.png",
   "icon-512.png",
@@ -31,9 +35,9 @@ self.addEventListener("install", (event) => {
 });
 
 // Drop this app's older caches -- and ONLY this app's. caches.keys() returns every
-// cache on the origin, including the other two apps', so an unfiltered sweep here
-// would delete their offline copies every time this worker updates.
-const OWN_CACHE_PREFIX = "cagiral-schedule-";
+// cache on the origin, including its neighbours'; an unfiltered sweep here would
+// delete their offline copies the first time this app is opened.
+const OWN_CACHE_PREFIX = "cellstocks-";
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
@@ -50,20 +54,13 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
 
   const url = new URL(req.url);
-
-  // Never intercept data or API traffic.
   if (url.origin !== self.location.origin) return;
-  if (/claudeAgent\.json|schedule\.ics/.test(url.pathname)) return;
 
-  // The other two apps sit inside this worker's scope but are not this worker's
-  // business. Without this, the very first visit to one of them -- before its own
-  // worker exists -- is served here, and the navigation handler below would cache
-  // its page under this app's "index.html" key, so opening the schedule offline
-  // afterwards would show the wardrobe, or the freezer.
-  if (url.pathname.includes("/wardrobe/")) return;
-  if (url.pathname.includes("/cellstocks/")) return;
+  // The inventory and the workbook generated from it are always live. Anything
+  // outside this app's own directory is none of this worker's business.
+  if (!url.pathname.includes("/cellstocks/")) return;
+  if (/cellstocks\.json|cell-stocks\.xlsx/.test(url.pathname)) return;
 
-  // Navigations: prefer the network so app updates land, fall back to cache offline.
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)

@@ -6,9 +6,11 @@ file, and a calendar feed that keeps Apple Calendar up to date by itself.
 - **App:** `https://<account>.github.io/cagiral-schedule/`
 - **Calendar feed:** `https://<account>.github.io/cagiral-schedule/schedule.ics`
 
-There is a **second, unrelated app** in here too — [Wardrobe](#wardrobe), which picks what to wear.
-It shares this repository's plumbing (Pages hosting, the GitHub token, the PWA shell) and nothing
-else: its own page, its own data file, its own service worker. See [`wardrobe/`](wardrobe/).
+There are **two more, unrelated apps** in here too — [Wardrobe](#wardrobe), which picks what to
+wear, and [Cell Stocks](#cell-stocks), which finds a frozen vial and says where to put a new one.
+Each shares this repository's plumbing (Pages hosting, the GitHub token, the PWA shell) and nothing
+else: its own page, its own data file, its own service worker. See [`wardrobe/`](wardrobe/) and
+[`cellstocks/`](cellstocks/).
 
 ## How it fits together
 
@@ -23,7 +25,8 @@ else: its own page, its own data file, its own service worker. See [`wardrobe/`]
 | `.github/workflows/ics.yml` | Runs that generator automatically on every schedule change. |
 | `tools/make-icons.mjs` | Regenerates the app icons. Only needed if the icon design changes. |
 | `sw.js` | Lets the app open instantly, and open at all with no signal (read-only). |
-| `wardrobe/` | The **other** app — see [Wardrobe](#wardrobe). Nothing in it touches the schedule. |
+| `wardrobe/` | The **second** app — see [Wardrobe](#wardrobe). Nothing in it touches the schedule. |
+| `cellstocks/` | The **third** app — see [Cell Stocks](#cell-stocks). Nothing in it touches the schedule either. |
 
 Data flow: edit in the app (or have Claude edit the JSON) → commit lands on `main` → the workflow
 rebuilds `schedule.ics` → Apple Calendar picks it up on its next refresh.
@@ -402,3 +405,155 @@ rather than as intent. It needs playwright; without it, it says so and exits wit
   prefix, and the schedule's worker ignores `/wardrobe/` entirely — without that, opening one app
   wipes the other's offline copy and can leave it serving the wrong shell. `tools/wardrobe-browser-test.mjs`
   guards both.
+
+---
+
+## Cell Stocks
+
+- **App:** `https://<account>.github.io/cagiral-schedule/cellstocks/`
+
+A third app, sharing this repository and nothing else — not the data, not the rules, not even the
+browser storage, so it asks for its own GitHub token once per device. It knows what is in the
+−80 °C freezer: type a few words and it says which box and which slot, and when you are freezing
+something new it says where to put it. Install it separately: Safari → Share → **Add to Home
+Screen**.
+
+### How it fits together
+
+| Piece | What it does |
+|---|---|
+| `cellstocks/cellstocks.json` | **The source of truth.** Every vial, every box, the classifier rules, the withdrawal log. |
+| `cellstocks/engine.js` | Every rule the app has, as pure functions. The browser loads it with a `<script>` tag and `tools/cellstocks-selftest.mjs` runs the same file in node — one copy of the rules, tested where it runs. |
+| `cellstocks/xlsx.js` | Reads and writes `.xlsx` with no dependencies. A spreadsheet is a zip of XML, so reading is a zip walk plus the browser's own `DecompressionStream`, and writing is the same XML zipped back up. |
+| `cellstocks/index.html` | The app. Reads and writes the JSON through the GitHub API. |
+| `cellstocks/cell-stocks.xlsx` | **Generated.** Rewritten from the JSON on every save and committed with it. Never edit by hand — the next save overwrites it. |
+| `protocols/cryopreservation.md` | How long a −80 vial is good for, and what has to be recorded about one, with sources. |
+
+### Finding a vial
+
+Type what you remember — `hela p12`, `dudtxr caspex g5.1`, `myco` — and each result gives the whole
+path down to the slot: **−80 °C Freezer → Rack 1 → ONGOING → C4**. A partial match says so
+(*"matched 2 of 3 words"*) so it never reads as a full one.
+
+Two sliders sit under the search box: **Frozen** and **Passage**. They filter before anything is
+scored, so dragging a handle only ever removes rows. The passage slider has an absolute/relative
+switch, because `p11` and `p+2` are not points on the same axis — one counts from the line's
+origin, the other from the last thaw — and averaging them would be a lie. Vials the sliders cannot
+place (no confirmed date, or `p?`) sit behind a toggle that says how many it is holding back,
+rather than disappearing.
+
+**Took it** frees the slot and writes the date to the log. It does not delete the vial: the record
+stays, marked as taken out, with a snapshot of where it was. There is an undo, and the undo refuses
+if something else has since taken the slot.
+
+### Freezing vials
+
+Type what you are freezing and the five facets appear as you type — origin, KO/OX, resistance,
+CASPEX, guide — derived from the name exactly as the spreadsheet's formulas do it. Then it proposes
+a place and says why:
+
+> **Put these in UMUT CELLS -4-, E7–E9 and H1–H9**
+> Row E of UMUT CELLS -4- already holds Du145. The rest start on a fresh row H — a row never holds
+> two different cells.
+
+**A row holds one kind of cell.** That is the whole placement rule, and it is not a preference —
+it is how the freezer already is: 47 of its 54 used rows hold exactly one cell, and six of the
+seven that don't are only mixed because no origin rule covers those vials yet.
+
+What counts as "one kind of cell" is the **origin**, not the line. HEK ATP7B KO, HEK TOX4 OX and
+HEK CASPEX all share a row; a Huh7 does not join them, **even if there is a free slot right there**.
+It starts a fresh row instead, and if the box has no free row, a fresh box.
+
+Around that:
+
+- **One freeze-down goes in one row** wherever a row can hold it, and in **one box** wherever a box
+  can — splitting across boxes is worse than opening a new row, and a split is always said out loud.
+- Twelve vials are wider than a nine-slot row, so they spill onto the **next row**, never sideways.
+- A single vial drops into a gap a withdrawal left in its own row, rather than opening a new one.
+- If a row has gaps in it, the slots are listed one by one instead of being described as a block
+  that isn't there.
+- Nothing is ever part-filled silently: if five will not fit, it says so rather than placing two.
+- The proposal is a proposal — **Put it somewhere else** overrides the box, and tapping an empty
+  slot in Boxes freezes straight into it. An override still cannot mix two cells in a row.
+
+Boxes are coloured by cell, so each row reads as one band and a stray vial is obvious. The seven
+rows that currently mix two cells are listed under **Review**.
+
+### The rules
+
+In the spreadsheet this came from, the cell name is the only thing typed. Origin, KO/OX,
+resistance, CASPEX and guide are all formulas over that one string. Those five formulas live in
+`cellstocks.json` as **data**, editable under Settings → Rules, so a new common label is an edit in
+the app and not a change to any code.
+
+Running the sheet's own formulas over its own 350 rows turned up five bugs, all fixed in the rules
+the app ships with, and the Review screen lists every row where the corrected reading disagrees
+with what the sheet said — 49 of them — so nothing changed quietly:
+
+- `OX` matched inside **TOX4**, so `Du145 TOX4 KO` was filed as an overexpression.
+- `ER` matched inside **mChERry** and **sortER**; four of the five EnzaR rows were wrong.
+- The `CR` in **LuCap35CR** is part of the line's name, not a resistance.
+- The guide pattern dropped the sub-clone digit (`g2.2` → `g2`), and its `DSg.12` branch could
+  never fire, because `.` is a wildcard in a regular expression.
+- CASPEX overrode KO/OX, so a name carrying both would have lost one.
+
+### Dates, and why 141 of them are still unanswered
+
+The date column was typed day-month-year. Google Sheets converted to a real date exactly those
+cells it could *also* read as month-day, and left the rest as text — which is why all 210 text
+dates start 13–31 and not one of the 135 converted ones has a day above 12. Those 135 have their
+day and month swapped, and 31 vials currently read as frozen in the future.
+
+The import does **not** repair this. Every date is kept verbatim, a date is only filled in where
+the reading is unambiguous, and the rest wait on the **Review** screen with the swap offered next
+to what the sheet says. Until one is confirmed the vial stays out of the date slider and is
+labelled *date unconfirmed* on its card — but it is still findable by name.
+
+### Importing a spreadsheet
+
+Settings → **Import a spreadsheet**. It reads the `.xlsx` in the browser, shows every sheet, then
+every column with a sample of its contents *and its formula* — so a column that was calculated from
+another can be mapped to its source instead of imported as though it had been typed. Then it says
+what it found before anything is written, and an import that would throw rows away needs an
+explicit tick.
+
+The box column is found by its **merged cells**: one tall merge per block is how a freezer sheet is
+laid out, and it is the only signal there is — the header is blank and eighty of its eighty-one
+cells are empty. Box geometry is read the same way, from the positions actually present, so 9×9 is
+never assumed.
+
+### Setting up your freezer and tank
+
+Settings → **Storage**. A freezer and a nitrogen tank are the same shape here — a unit, its racks
+or towers, and boxes with a grid — differing only in what their children are called. Nothing about
+9×9 is built in. Shrinking a box that holds vials is refused, and the refusal names the vials in
+the way.
+
+### Checking it
+
+```
+node tools/cellstocks-selftest.mjs
+```
+
+Eighty-four checks over a synthetic freezer and then over the real inventory: an explicit list of
+the rows the corrected rules are *supposed* to change, so a later rule edit that reclassifies a
+sixth thing fails here rather than in front of an open freezer door — and a sweep that proposes
+placements for nine different cells at four different counts against the real freezer and fails if
+any of them would put two kinds of cell in one row.
+
+### What it deliberately doesn't do
+
+- **This repository is public.** Only Umut's own `UMUT -80` sheet was imported; the other nine
+  people's sheets in that shared workbook were not, and that is not this app's decision to make.
+- **The nitrogen tank is not in it yet.** The location model already covers it — a tower is a rack
+  with a different name — but nothing has been entered.
+- The `.xlsx` is a report, not an input. It is regenerated from the JSON on every save, so editing
+  it by hand achieves nothing.
+- No barcode scanning, no temperature logging, no low-stock alerts beyond a *low* tag under two
+  vials.
+- Two people saving at once get a conflict banner; there is no locking.
+- Everything on this host is served from one origin, which means one shared Cache Storage. Each
+  app's service worker therefore clears only caches carrying its own name prefix and ignores paths
+  outside its own directory — without that, opening one app wipes another's offline copy and can
+  leave it serving the wrong shell. That is the only thing this app has in common with its
+  neighbours.

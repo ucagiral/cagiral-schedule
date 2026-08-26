@@ -7,9 +7,11 @@ behaviour from the first message goes here.
 The repo is Umut's lab schedule: `claudeAgent.json` is the source of truth, `index.html` is the app,
 `schedule.ics` is generated. See `README.md` for the mechanics.
 
-It also hosts a **second, unrelated app** under `wardrobe/` — it picks what to wear, and has nothing
-to do with the lab. Everything below is about the schedule unless it says otherwise; §6 covers the
-wardrobe. When a request is about clothes, weather or outfits, none of the scheduling rules apply.
+It also hosts **two more, unrelated apps**: `wardrobe/` picks what to wear, and `cellstocks/` keeps
+track of the frozen cell stocks in the −80 °C freezer. Everything below is about the schedule unless
+it says otherwise; §6 covers the wardrobe and §7 the cell stocks. When a request is about clothes,
+weather or outfits none of the scheduling rules apply; when it is about vials, boxes or freezers,
+§7 applies and the scheduling rules still don't.
 
 ---
 
@@ -51,6 +53,7 @@ Where things go:
 | App behaviour and data shape | `README.md` |
 | How warm a garment is, why, with sources | `protocols/clothing-insulation.md` |
 | What goes with what, and why | `protocols/outfit-matching.md` |
+| How long a frozen vial keeps, and what has to be recorded about it | `protocols/cryopreservation.md` |
 
 New topics get a new file under `protocols/` rather than being crammed into an existing one.
 
@@ -121,3 +124,56 @@ GitHub token and the PWA pattern; it shares no data and no rules with the schedu
   notes, which may contradict an answer and therefore quote the sentence and wait for acceptance.
 - New wardrobe facts — a garment's real warmth, a preference about what he will and won't wear,
   a correction — get written down the same as anything else, into the table above.
+
+---
+
+## 7. The cell stocks app
+
+`cellstocks/` is a separate app that happens to live in this repo. **It is not related to anything
+else in here.** It shares the Pages host and nothing else — not the data, not the rules, not even
+the browser storage: its own token, device name, theme and offline cache, all under `cst_*` keys.
+Do not "reuse" a helper from another app in it, and do not factor anything out of it into shared
+code. The only unavoidable overlap is that one origin means one Cache Storage, which each service
+worker handles by sweeping only its own prefix.
+
+- **Every rule lives in `cellstocks/engine.js`**, as pure functions with no DOM, no fetch and no
+  clock — ids, timestamps and "today" are always arguments. The browser loads that file and
+  `tools/cellstocks-selftest.mjs` runs the same file in node. Change a rule there, not in the app,
+  and add a check. Run the suite before claiming anything works.
+- **A row holds one kind of cell, and that is the placement rule.** The grouping key is the
+  **origin** facet, not the line: KO, OX, CASPEX and guide of one cell all share a row. A different
+  cell never takes a free slot beside it — it starts a fresh row, and failing that a fresh box.
+  This is not tidiness; it is how the freezer already is (47 of its 54 used rows hold exactly one
+  cell). One freeze-down stays in one row where a row can hold it, and in one box where a box can.
+  Do not "optimise" this into first-free-slot packing.
+- **The name is the only thing typed.** Origin, KO/OX, resistance, CASPEX and guide are derived
+  from it by `classify()`, which is the spreadsheet's five formulas — and **the rules are data in
+  `cellstocks.json`, never code**. Umut said he may define new common labels; that has to stay a
+  Rules-screen edit. A facet he has set by hand is never recomputed.
+- **`cellstocks.json` is the inventory. `cell-stocks.xlsx` is generated from it on every save** and
+  committed in the same commit, never the reverse. A hand edit to the workbook is thrown away by
+  the next save; do not add a path that reads it back.
+- **Two stored vials in one slot is an error, not a warning.** `validate()` returns it as one and
+  the save is refused. Do not downgrade it, and do not add a code path that places a vial without
+  going through `validate` first.
+- **Withdrawal does not delete a vial.** It sets `status:"withdrawn"`, clears the location and logs
+  a snapshot of where it was. History is not optional in a lab inventory. Undo restores the vial
+  only if its slot is still free.
+- **Freezer geometry is data, not code.** Never hardcode 9×9, a rack count or a position format. A
+  nitrogen tank and a freezer share one model and differ only by `type` and `childLabel`; the
+  positions in a box come from its own `rows`, `cols` and `scheme`.
+- **The placement proposal is a proposal.** The override path stays — but even an override may not
+  mix two cells in one row, and a plan never part-fills silently. If it cannot describe a run
+  honestly it lists the slots instead.
+- **A row that already mixes two cells is a warning, not an error.** The imported sheet has seven,
+  six of them only because no origin rule covers those vials yet. They are listed for review; they
+  do not block a save, and nothing is moved to fix them without being asked.
+- **Nothing is repaired behind his back.** The import queues ambiguous dates rather than swapping
+  them, reports every row where the corrected rules disagree with the sheet, and needs an explicit
+  tick before it throws any row away. `#N/A` is not a value and is never imported as one.
+- **Absolute and relative passages are separate scales.** `p+2` must never be comparable with `p2`,
+  and the 68 vials marked `p?` must never vanish from a search without the UI saying so.
+- Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
+  workbook are out of scope — this repository is public, and that is their call, not ours.
+- New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get
+  written down the same as anything else, into the table above.

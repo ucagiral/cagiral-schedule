@@ -1,13 +1,15 @@
-// Service worker for the cell stocks app, scoped to /cellstocks/ so it can't touch
-// the schedule app at the root or the wardrobe next door. Scope is not the whole
-// story though: all three apps share one Cache Storage, which the activate handler
-// below has to respect.
+// Service worker for the cell stocks app, scoped to /cellstocks/.
 //
-// Same reasoning as the other two workers: the shell is cached so the app opens
-// instantly and opens at all with no signal, but cellstocks.json is never cached.
-// A stale inventory is worse than no inventory -- it sends someone to a slot that
-// was emptied this morning -- and the app keeps its own last-known copy in
-// localStorage for the offline case, where it says out loud that it is offline.
+// Scope is not the whole story: this host serves other apps from the same origin,
+// and one origin means one Cache Storage shared between all of them. That is why
+// the activate handler below sweeps only caches carrying this app's own prefix --
+// an unfiltered sweep would delete a neighbour's offline copy.
+//
+// The shell is cached so the app opens instantly, and opens at all with no signal.
+// cellstocks.json is never cached: a stale inventory is worse than no inventory,
+// because it sends someone to a slot that was emptied this morning. The app keeps
+// its own last-known copy in localStorage for the offline case, and says out loud
+// that it is offline when it falls back to it.
 //
 // Bump CACHE when index.html / engine.js / xlsx.js / icons change.
 const CACHE = "cellstocks-v1";
@@ -33,8 +35,8 @@ self.addEventListener("install", (event) => {
 });
 
 // Drop this app's older caches -- and ONLY this app's. caches.keys() returns every
-// cache on the origin, and the two apps next door have their own; an unfiltered
-// sweep here would delete their offline copies the first time this app is opened.
+// cache on the origin, including its neighbours'; an unfiltered sweep here would
+// delete their offline copies the first time this app is opened.
 const OWN_CACHE_PREFIX = "cellstocks-";
 
 self.addEventListener("activate", (event) => {
@@ -54,9 +56,10 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // The inventory and the workbook generated from it are always live. So is the
-  // schedule, which this app does not read but shares an origin with.
-  if (/cellstocks\.json|cell-stocks\.xlsx|claudeAgent\.json/.test(url.pathname)) return;
+  // The inventory and the workbook generated from it are always live. Anything
+  // outside this app's own directory is none of this worker's business.
+  if (!url.pathname.includes("/cellstocks/")) return;
+  if (/cellstocks\.json|cell-stocks\.xlsx/.test(url.pathname)) return;
 
   if (req.mode === "navigate") {
     event.respondWith(

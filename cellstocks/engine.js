@@ -1,9 +1,8 @@
 // Every rule the Cell Stocks app has, as pure functions.
 //
 // Deliberately a plain script rather than a module: the app loads it with a <script>
-// tag (no build step, same as the schedule and wardrobe apps) and
-// tools/cellstocks-selftest.mjs evaluates this same file in node. One copy of the
-// rules, tested where it runs.
+// tag, with no build step, and tools/cellstocks-selftest.mjs evaluates this same file
+// in node. One copy of the rules, tested where it runs.
 //
 // Everything here is a pure function of the state you pass in. No fetch, no DOM, no
 // clock -- "today", ids and timestamps are always arguments, so tests can assert
@@ -319,8 +318,8 @@
     return out;
   }
 
-  // A facet the user has set by hand is never recomputed -- same rule as the wardrobe
-  // agent, which may fill a blank but may not overwrite an answer.
+  // A facet set by hand is never recomputed. A rule may fill a blank; it may not
+  // overwrite an answer somebody has already given.
   function facetsFor(vial, rules) {
     var derived = classify(vial.name, rules);
     var out = {};
@@ -693,9 +692,11 @@
     });
 
     results.sort(function (a, b) {
-      if (b.score !== a.score) return b.score - a.score;
+      // Status outranks score. A vial that has been taken out cannot be fetched, so
+      // however well it matches it belongs below everything that is still in a box.
       var aw = a.vial.status === "withdrawn" ? 1 : 0, bw = b.vial.status === "withdrawn" ? 1 : 0;
-      if (aw !== bw) return aw - bw;                       // stored before withdrawn
+      if (aw !== bw) return aw - bw;
+      if (b.score !== a.score) return b.score - a.score;
       var af = a.vial.frozenOn || "", bf = b.vial.frozenOn || "";
       if (af !== bf) return af < bf ? 1 : -1;               // most recent first
       return a.vial.id < b.vial.id ? -1 : 1;                // deterministic tail
@@ -729,10 +730,32 @@
   // =====================================================================
   // Placement
   //
-  // Keep a line together. That is the whole point: a box that already holds this
-  // line wins, then the emptiest box, then a split if allowed. Never a partial
-  // silent placement -- if it does not fit, say so.
+  // A ROW is the unit, and a row holds one kind of cell.
+  //
+  // This is not a tidiness preference, it is how the freezer is actually laid out:
+  // in the sheet this inventory came from, every row of every box is a single cell
+  // origin -- nine HEK293T, nine Du145, nine Huh7 -- and the only rows that mix are
+  // the ones holding vials no origin rule covers yet. So HEK never goes next to Huh7
+  // just because there is a gap. If the origin's own rows are full, the vials start a
+  // fresh row; if the box has no free row, they go to another box.
+  //
+  // The grouping key is the ORIGIN facet, not the line: KO, OX, CASPEX and guide all
+  // share a row, because they are all the same cell.
+  //
+  // Never a partial silent placement -- if it does not fit, say so.
   // =====================================================================
+
+  var NO_ORIGIN = "(no origin rule yet)";
+
+  function originOfVial(vial, rules) {
+    return facetsFor(vial, rules).origin || NO_ORIGIN;
+  }
+
+  function originForRequest(state, request, rules) {
+    if (request.origin) return request.origin;
+    if (request.name) return classify(request.name, rules).origin || NO_ORIGIN;
+    return NO_ORIGIN;
+  }
 
   function boxesFor(state, unitId) {
     var out = [];
@@ -744,46 +767,78 @@
     return out;
   }
 
+  // Every row of a box, with what lives in it. `origins` is the set of distinct cell
+  // origins the row holds -- empty for a free row, one entry for a row doing its job,
+  // more than one for a row that needs sorting out.
+  function rowsOf(state, boxId, rules) {
+    var occ = occupancy(state, boxId);
+    if (!occ) return [];
+    var cols = occ.box.cols, out = [];
+    for (var r = 0; r < occ.box.rows; r++) {
+      var slots = occ.slots.slice(r * cols, (r + 1) * cols);
+      var counts = {};
+      slots.forEach(function (s) {
+        if (!s.vial) return;
+        var o = originOfVial(s.vial, rules || state.rules || DEFAULT_RULES);
+        counts[o] = (counts[o] || 0) + 1;
+      });
+      out.push({
+        index: r, label: rowLabel(r),
+        positions: slots.map(function (s) { return s.position; }),
+        free: slots.filter(function (s) { return !s.vial; }).map(function (s) { return s.position; }),
+        used: slots.filter(function (s) { return !!s.vial; }).length,
+        counts: counts, origins: Object.keys(counts)
+      });
+    }
+    return out;
+  }
+
+  // Rows that may take this origin: an empty one, or one already holding it and
+  // nothing else.
+  function rowTakes(row, origin) {
+    if (!row.free.length) return false;
+    if (!row.origins.length) return true;
+    return row.origins.length === 1 && row.origins[0] === origin;
+  }
+
   function segmentFor(state, entry, positions) {
-    // Whether these slots actually sit next to each other. A box with six free slots
-    // scattered around it can still take five vials, but calling that "E6-H8" would
-    // describe a block that does not exist -- and someone would open the box looking
-    // for one.
-    var idx = positions.map(function (p) {
+    // Positions are grouped by the row they sit in, because that is the unit the
+    // freezer is organised by and it is how the plan should read back: "C4-C8 and
+    // D1-D3", not one invented range spanning both.
+    var byRow = {};
+    positions.forEach(function (p) {
       var parsed = parsePosition(entry.box, p);
-      return parsed ? parsed.index : -1;
+      if (!parsed) return;
+      if (!byRow[parsed.row]) byRow[parsed.row] = [];
+      byRow[parsed.row].push({ p: p, i: parsed.index });
     });
-    var contiguous = idx.every(function (n, i) { return n >= 0 && (i === 0 || n === idx[i - 1] + 1); });
+    var runs = Object.keys(byRow).map(Number).sort(function (a, b) { return a - b; }).map(function (r) {
+      var list = byRow[r].sort(function (a, b) { return a.i - b.i; });
+      // A row with gaps in it -- a withdrawal took a slot out of the middle -- can
+      // still take vials, but calling that "C2-C8" would describe a block that is
+      // not there, and someone would open the box looking for one.
+      var contiguous = list.every(function (x, i) { return i === 0 || x.i === list[i - 1].i + 1; });
+      return { row: r, label: rowLabel(r), positions: list.map(function (x) { return x.p; }), contiguous: contiguous };
+    });
     return {
       unitId: entry.unit.id, rackId: entry.rack.id, boxId: entry.box.id,
-      boxName: entry.box.name, positions: positions, contiguous: contiguous,
+      boxName: entry.box.name, positions: positions, runs: runs,
+      contiguous: runs.length === 1 && runs[0].contiguous,
       path: entry.unit.name + " → " + entry.rack.name + " → " + entry.box.name
     };
   }
 
-  function summarise(segments) {
-    return segments.map(function (s) {
-      var p = s.positions;
-      if (p.length === 1) return s.boxName + ", " + p[0];
-      if (s.contiguous) return s.boxName + ", " + p[0] + "–" + p[p.length - 1];
-      return s.boxName + ", " + p.join(" ");
-    }).join(" + ");
+  function describeRun(run) {
+    var p = run.positions;
+    if (p.length === 1) return p[0];
+    if (run.contiguous) return p[0] + "–" + p[p.length - 1];
+    return p.join(" ");
   }
 
-  function takePositions(state, boxId, count) {
-    // Best fit, not biggest fit: take the SMALLEST run that the request fits in.
-    // One vial should drop into the gap a withdrawal just left rather than open a
-    // fresh row, which keeps the long runs free for the next five-vial freeze-down.
-    var runs = freeRuns(state, boxId).slice().sort(function (a, b) {
-      return a.positions.length - b.positions.length || a.start - b.start;
-    });
-    for (var i = 0; i < runs.length; i++) {
-      if (runs[i].positions.length >= count) return runs[i].positions.slice(0, count);
-    }
-    // No single run long enough: fall back to the free slots in order.
-    var occ = occupancy(state, boxId);
-    var free = occ.slots.filter(function (s) { return !s.vial; }).map(function (s) { return s.position; });
-    return free.length >= count ? free.slice(0, count) : null;
+  function summarise(segments) {
+    return segments.map(function (s) {
+      return s.boxName + ", " + s.runs.map(describeRun).join(" and ");
+    }).join(" + ");
   }
 
   function suggestPlacement(state, request) {
@@ -791,108 +846,132 @@
     var count = Math.max(1, Number(req.count) || 1);
     var unitId = req.unitId || (state.settings && state.settings.defaultUnitId) || null;
     var rules = state.rules || DEFAULT_RULES;
-    var lineId = req.lineId || (req.name ? lineIdFor(req.name, rules) : null);
+    var origin = originForRequest(state, req, rules);
 
-    var candidates = boxesFor(state, unitId).map(function (entry) {
-      var occ = occupancy(state, entry.box.id);
-      var sameLine = 0;
-      occ.slots.forEach(function (s) { if (s.vial && lineId && s.vial.lineId === lineId) sameLine++; });
-      var runs = freeRuns(state, entry.box.id);
-      return { entry: entry, occ: occ, sameLine: sameLine,
-               longestRun: runs.length ? runs[0].positions.length : 0 };
+    var boxes = boxesFor(state, unitId).filter(function (entry) {
+      return req.boxId ? entry.box.id === req.boxId : true;
+    });
+    if (!boxes.length) {
+      return { ok: false, origin: origin, reason: req.boxId
+        ? "That box is not in this unit."
+        : "There are no boxes to put anything in yet. Add one in Setup first." };
+    }
+
+    // Every row that could take this origin, grouped by box.
+    var perBox = boxes.map(function (entry, boxOrder) {
+      var rows = rowsOf(state, entry.box.id, rules).filter(function (row) { return rowTakes(row, origin); });
+      var hasOrigin = rowsOf(state, entry.box.id, rules).some(function (r) { return r.counts[origin] > 0; });
+      return {
+        entry: entry, boxOrder: boxOrder, hasOrigin: hasOrigin, rows: rows,
+        free: rows.reduce(function (n, r) { return n + r.free.length; }, 0)
+      };
     });
 
-    if (!candidates.length) {
-      return { ok: false, reason: "There are no boxes to put anything in yet. Add one in Setup first." };
-    }
-
-    // 0. An explicit box wins, if it fits. The proposal is always overridable.
-    if (req.boxId) {
-      var chosen = candidates.filter(function (c) { return c.entry.box.id === req.boxId; })[0];
-      if (chosen) {
-        var pos = takePositions(state, req.boxId, count);
-        if (pos) {
-          var segs0 = [segmentFor(state, chosen.entry, pos)];
-          return { ok: true, strategy: "chosen", segments: segs0, summary: summarise(segs0),
-                   reason: "You picked this box." };
-        }
-        return { ok: false, reason: chosen.entry.box.name + " has only " + chosen.occ.free +
-                 " free slot" + (chosen.occ.free === 1 ? "" : "s") + ", and you asked for " + count + "." };
-      }
-    }
-
-    function rank(list) {
-      return list.sort(function (a, b) {
-        if (b.sameLine !== a.sameLine) return b.sameLine - a.sameLine;
-        if (b.longestRun !== a.longestRun) return b.longestRun - a.longestRun;
-        return a.entry.box.name < b.entry.box.name ? -1 : 1;
+    var freeForOrigin = perBox.reduce(function (n, b) { return n + b.free; }, 0);
+    if (freeForOrigin < count) {
+      var blocked = 0;
+      boxes.forEach(function (entry) {
+        rowsOf(state, entry.box.id, rules).forEach(function (row) {
+          if (!rowTakes(row, origin)) blocked += row.free.length;
+        });
       });
+      return { ok: false, origin: origin,
+               reason: "No room for " + count + " vial" + (count === 1 ? "" : "s") + " of " + origin +
+                       ": " + freeForOrigin + " free slot" + (freeForOrigin === 1 ? "" : "s") +
+                       " in rows that could take it" +
+                       (blocked ? ", and the other " + blocked + " are in rows holding a different cell" : "") + ".",
+               freeForOrigin: freeForOrigin, blockedByOtherCells: blocked };
     }
 
-    // 1. Same line together.
-    var affine = rank(candidates.filter(function (c) { return c.sameLine > 0 && c.occ.free >= count; }));
-    if (affine.length) {
-      var c1 = affine[0];
-      var p1 = takePositions(state, c1.entry.box.id, count);
-      var segs1 = [segmentFor(state, c1.entry, p1)];
-      return { ok: true, strategy: "same-line", segments: segs1, summary: summarise(segs1),
-               reason: c1.entry.box.name + " already holds " + c1.sameLine + " vial" +
-                       (c1.sameLine === 1 ? "" : "s") + " of this line." };
-    }
-
-    // 2. Emptiest box. A wholly empty box beats a partly used one at equal free count,
-    //    so a new line starts on clean ground.
-    var roomy = candidates.filter(function (c) { return c.occ.free >= count; })
-      .sort(function (a, b) {
-        if (b.occ.free !== a.occ.free) return b.occ.free - a.occ.free;
-        if ((a.occ.used === 0) !== (b.occ.used === 0)) return a.occ.used === 0 ? -1 : 1;
-        return a.entry.box.name < b.entry.box.name ? -1 : 1;
+    // Prefer to stay inside one box. Splitting a freeze-down across boxes is worse
+    // than opening a fresh row, so a box that can take the whole lot wins outright --
+    // one that already holds this cell first.
+    var whole = perBox.filter(function (b) { return b.free >= count; })
+      .sort(function (x, y) {
+        if (x.hasOrigin !== y.hasOrigin) return x.hasOrigin ? -1 : 1;
+        return x.boxOrder - y.boxOrder;
       });
-    if (roomy.length) {
-      var c2 = roomy[0];
-      var p2 = takePositions(state, c2.entry.box.id, count);
-      var segs2 = [segmentFor(state, c2.entry, p2)];
-      // Say why the line is NOT being kept together, when that is the reason we are
-      // here. "Box 6 is empty" on its own reads like the line has never been frozen
-      // before, which would be wrong and would look like a bug.
-      var crowded = candidates.filter(function (c) { return c.sameLine > 0; });
-      var why = crowded.length
-        ? crowded.map(function (c) { return c.entry.box.name; }).join(" and ") +
-          " already " + (crowded.length === 1 ? "holds" : "hold") + " this line, but " +
-          (crowded.length === 1 ? "has" : "have") + " no room for " + count + ". "
-        : "";
-      return { ok: true, strategy: c2.occ.used === 0 ? "new-box" : "emptiest",
-               segments: segs2, summary: summarise(segs2),
-               reason: why + (c2.occ.used === 0 ? c2.entry.box.name + " is empty."
-                                                : c2.entry.box.name + " has the most room (" + c2.occ.free + " free).") };
-    }
+    var pool = whole.length ? [whole[0]] : perBox;
 
-    // 3. Split, only when allowed, and always said out loud.
+    // Rank the rows of the chosen pool. Ascending, lexicographic:
+    //   1. a row already holding this cell beats a fresh one -- that is the rule;
+    //   2. among fresh rows, one in a box that already has this cell;
+    //   3. among this cell's own rows, the fullest first, so gaps close before
+    //      new rows open;
+    //   4. then box order, then row order, so the same state gives the same plan.
+    var options = [];
+    pool.forEach(function (b) {
+      b.rows.forEach(function (row) {
+        var mine = row.counts[origin] > 0;
+        options.push({ entry: b.entry, row: row, mine: mine, boxOrder: b.boxOrder,
+                       key: [mine ? 0 : 1, b.hasOrigin ? 0 : 1, mine ? row.free.length : 0, b.boxOrder, row.index] });
+      });
+    });
+    options.sort(function (x, y) {
+      for (var i = 0; i < x.key.length; i++) if (x.key[i] !== y.key[i]) return x.key[i] - y.key[i];
+      return 0;
+    });
+
+    // One freeze-down belongs in one row whenever a row can hold it. Only a request
+    // wider than a row -- or a freezer with nothing but gaps left -- spreads out.
+    var single = options.filter(function (o) { return o.row.free.length >= count; });
+    var picked = single.length ? [single[0]] : options;
+
+    var need = count, byBox = {}, order = [], usedRows = [], openedRow = false;
+    picked.forEach(function (o) {
+      if (need <= 0) return;
+      var take = o.row.free.slice(0, need);
+      need -= take.length;
+      if (!o.mine) openedRow = true;
+      usedRows.push({ boxId: o.entry.box.id, box: o.entry.box.name, label: o.row.label,
+                      mine: o.mine, n: take.length });
+      var id = o.entry.box.id;
+      if (!byBox[id]) { byBox[id] = { entry: o.entry, positions: [] }; order.push(id); }
+      byBox[id].positions = byBox[id].positions.concat(take);
+    });
+
+    var segments = order.map(function (id) { return segmentFor(state, byBox[id].entry, byBox[id].positions); });
+
     var allowSplit = !(state.settings && state.settings.placement &&
                        state.settings.placement.allowSplit === false);
-    var totalFree = candidates.reduce(function (n, c) { return n + c.occ.free; }, 0);
-    if (allowSplit && totalFree >= count) {
-      var need = count, segs3 = [];
-      rank(candidates.filter(function (c) { return c.occ.free > 0; })).forEach(function (c) {
-        if (need <= 0) return;
-        var take = Math.min(need, c.occ.free);
-        var pp = takePositions(state, c.entry.box.id, take);
-        if (!pp) return;
-        segs3.push(segmentFor(state, c.entry, pp));
-        need -= take;
-      });
-      if (need <= 0) {
-        return { ok: true, strategy: "split", segments: segs3, summary: summarise(segs3),
-                 reason: "No single box has room for " + count + ", so this is split across " +
-                         segs3.length + " boxes." };
-      }
+    var openedBox = segments.length > 1;
+    if (openedBox && !allowSplit && !req.boxId) {
+      return { ok: false, origin: origin,
+               reason: "This would have to be split across " + segments.length +
+                       " boxes, and splitting is switched off." };
     }
 
-    return { ok: false,
-             reason: "Nothing here has room for " + count + " vial" + (count === 1 ? "" : "s") +
-                     " (" + totalFree + " free slot" + (totalFree === 1 ? "" : "s") + " in total" +
-                     (allowSplit ? "" : ", and splitting is switched off") + ").",
-             freeByBox: candidates.map(function (c) { return { boxId: c.entry.box.id, name: c.entry.box.name, free: c.occ.free }; }) };
+    var strategy = req.boxId ? "chosen"
+      : (!openedRow ? "same-row" : (openedBox ? "split" : "new-row"));
+
+    // Name each row with its own box: "rows D and E" reads as one box, and two of
+    // them were not.
+    function nameRows(list) {
+      var oneBox = list.every(function (r) { return r.boxId === list[0].boxId; });
+      if (oneBox) {
+        return (list.length === 1 ? "row " : "rows ") +
+               list.map(function (r) { return r.label; }).join(" and ") + " of " + list[0].box;
+      }
+      return list.map(function (r) { return r.box + " " + r.label; }).join(" and ");
+    }
+    function upperFirst(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+
+    var mineRows = usedRows.filter(function (r) { return r.mine; });
+    var freshRows = usedRows.filter(function (r) { return !r.mine; });
+    var bits = [];
+    if (mineRows.length) {
+      bits.push(upperFirst(nameRows(mineRows)) + " already " + (mineRows.length === 1 ? "holds" : "hold") +
+                " " + origin + ".");
+    }
+    if (freshRows.length) {
+      bits.push((mineRows.length ? "The rest start on " : "Starting on ") +
+                (freshRows.length === 1 ? "a fresh " : "fresh ") + nameRows(freshRows) +
+                " — a row never holds two different cells.");
+    }
+    if (openedBox) bits.push("It does not fit in one box, so it is split across " + segments.length + ".");
+
+    return { ok: true, origin: origin, strategy: strategy, segments: segments,
+             summary: summarise(segments), rows: usedRows, reason: bits.join(" ") };
   }
 
   // ids and timestamps are arguments, never generated here -- that is what lets the
@@ -1019,6 +1098,22 @@
   // it blocks the save rather than showing a badge.
   // =====================================================================
 
+  // Rows holding more than one kind of cell. Reported rather than repaired: which
+  // vial is the odd one out, and where it should go instead, is not this code's call.
+  function mixedRows(state) {
+    var rules = state.rules || DEFAULT_RULES;
+    var out = [];
+    eachBox(state, function (box) {
+      rowsOf(state, box.id, rules).forEach(function (row) {
+        if (row.origins.length > 1) {
+          out.push({ boxId: box.id, box: box.name, label: row.label, index: row.index,
+                     origins: row.origins.slice(), counts: row.counts });
+        }
+      });
+    });
+    return out;
+  }
+
   function validate(state) {
     var problems = [];
     function err(code, message, ref) { problems.push({ level: "error", code: code, message: message, ref: ref || null }); }
@@ -1065,6 +1160,14 @@
 
     (state.withdrawals || []).forEach(function (w) {
       if (!vialIds[w.vialId]) warn("orphan-withdrawal", "A log entry refers to a vial that is gone (" + w.vialId + ").", w.id);
+    });
+
+    // A row is supposed to hold one kind of cell. The imported sheet has a handful
+    // that do not -- mostly rows of vials no origin rule covers yet -- so this is a
+    // warning to work through, not an error that would block every save.
+    mixedRows(state).forEach(function (m) {
+      warn("mixed-row", m.box + " row " + m.label + " holds " + m.origins.join(" and ") +
+           ". A row is meant to hold one kind of cell.", m.boxId);
     });
 
     // A passage of 45769 is an Excel date serial that landed in the wrong column, and
@@ -1444,8 +1547,9 @@
     var passages = (state.vials || []).filter(function (v) {
       return v.status !== "withdrawn" && v.passageKind === "absolute" && v.passageNumber > IMPLAUSIBLE_PASSAGE;
     });
-    return { dates: dates, facets: ca.diffs, gaps: ca.gaps, passages: passages,
-             total: dates.length + ca.diffs.length + ca.gaps.length + passages.length };
+    var rows = mixedRows(state);
+    return { dates: dates, facets: ca.diffs, gaps: ca.gaps, passages: passages, rows: rows,
+             total: dates.length + ca.diffs.length + ca.gaps.length + passages.length + rows.length };
   }
 
   function confirmDate(state, vialId, iso) {
@@ -1476,7 +1580,8 @@
     normaliseText: normaliseText, tokenise: tokenise, matchScore: matchScore,
     searchExtents: searchExtents, search: search, searchGroups: searchGroups,
     // placement
-    suggestPlacement: suggestPlacement, applyPlacement: applyPlacement,
+    NO_ORIGIN: NO_ORIGIN, originOfVial: originOfVial, rowsOf: rowsOf, rowTakes: rowTakes,
+    mixedRows: mixedRows, suggestPlacement: suggestPlacement, applyPlacement: applyPlacement,
     // withdrawal
     withdraw: withdraw, undoWithdrawal: undoWithdrawal,
     // integrity

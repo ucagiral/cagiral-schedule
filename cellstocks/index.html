@@ -14,8 +14,8 @@
 <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
 <style>
-  /* Same palette as the schedule and wardrobe apps next door, so the three read as
-     one family. The accent is cold cyan -- a freezer, not a calendar or a coat. */
+  /* The accent is cold cyan, for a freezer. The greys are the same neutral ramp the
+     other apps on this host use, so nothing here looks foreign next to them. */
   :root{
     --bg:#f6f7f9; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
     --accent:#0891b2; --accent-soft:#cffafe;
@@ -322,10 +322,11 @@
   var E = window.CellStocksEngine;
   var X = window.XlsxLite;
 
-  // Same localStorage keys as the schedule and wardrobe apps: all three are served
-  // from one origin, so opening this in Safari picks up a token that is already
-  // there. Only the cache key is this app's own.
-  var LS = { token:"cs_token", device:"cs_device", theme:"cs_theme", cache:"cst_cache", cfg:"cs_cfg" };
+  // This app's own storage, all of it. Nothing here is shared with anything else on
+  // the host: its own token, its own device name, its own theme, its own offline
+  // copy. That costs pasting a token once more on each device, and buys the app
+  // being genuinely separate rather than separate-looking.
+  var LS = { token:"cst_token", device:"cst_device", theme:"cst_theme", cache:"cst_cache", cfg:"cst_cfg" };
   var DATA_PATH = "cellstocks/cellstocks.json";
   var XLSX_PATH = "cellstocks/cell-stocks.xlsx";
 
@@ -564,6 +565,16 @@
     return h;
   }
   function tintFor(text){ return "hsl(" + hueFor(text) + " 62% 78%)"; }
+
+  // Boxes are coloured by CELL, not by line. A row holds one kind of cell, so this
+  // makes each row read as a single band and a stray vial obvious at a glance --
+  // which is the whole reason the freezer is laid out that way.
+  function originOf(vial){ return E.originOfVial(vial, state.rules); }
+  function shortOrigin(o){
+    if (o === E.NO_ORIGIN) return "?";
+    var t = String(o).replace(/[^A-Za-z0-9]/g, "").slice(0, 3);
+    return t || "?";
+  }
 
   // =====================================================================
   // Find
@@ -891,16 +902,34 @@
         }
       });
 
+    // What matters for where it goes is the CELL, not the line: KO, OX and CASPEX of
+    // one cell all share a row, and a different cell never joins them.
+    var origin = f.origin || E.NO_ORIGIN;
+    var rows = [], boxes = {}, slots = 0;
+    E.eachBox(state, function(box){
+      E.rowsOf(state, box.id, state.rules).forEach(function(r){
+        if (!r.counts[origin]) return;
+        rows.push(box.name + " " + r.label);
+        boxes[box.name] = true;
+        slots += r.counts[origin];
+      });
+    });
     var lineId = E.lineIdFor(name, state.rules);
-    var existing = E.vialsOfLine(state, lineId);
-    if (existing.length){
-      var boxes = {};
-      existing.forEach(function(v){ if (v.location) boxes[v.location.boxId] = true; });
-      var names = Object.keys(boxes).map(function(b){ var f2 = E.findBox(state, b); return f2 ? f2.box.name : b; });
-      $("fzLine").textContent = "Already have " + existing.length + " vial" + (existing.length === 1 ? "" : "s") +
-        " of this line, in " + names.join(", ") + ".";
+    var existing = E.vialsOfLine(state, lineId).length;
+    if (slots){
+      // Naming ten rows is not information, it is a wall. Say how much and where in
+      // the coarse sense; Boxes is one tap away for the detail.
+      var boxCount = Object.keys(boxes).length;
+      var where = rows.length <= 3
+        ? "row" + (rows.length === 1 ? " " : "s ") + rows.join(", ")
+        : rows.length + " rows across " + boxCount + " box" + (boxCount === 1 ? "" : "es");
+      $("fzLine").textContent = origin + " already has " + slots + " vial" + (slots === 1 ? "" : "s") +
+        " in " + where +
+        (existing ? " — " + existing + " of them this exact line." : ", but none of this exact line.");
     } else {
-      $("fzLine").textContent = "New line — nothing like this is stored yet.";
+      $("fzLine").textContent = origin === E.NO_ORIGIN
+        ? "No origin rule covers this name yet, so it will start a row of its own."
+        : "Nothing of " + origin + " is stored yet — this starts a row of its own.";
     }
   }
 
@@ -1018,9 +1047,13 @@
         var slot = occ.slots[r * cols + c2];
         var cell = el("div", "slot" + (slot.vial ? " taken" : ""));
         if (slot.vial){
-          cell.style.background = tintFor(slot.vial.lineId || slot.vial.name);
-          cell.title = slot.position + " · " + slot.vial.name;
-          cell.textContent = slot.vial.name.slice(0, 3);
+          // Not `o`: that is the options object above, and `var` is function-scoped,
+          // so reusing the name here silently emptied it for every later slot --
+          // which killed the highlighting on the freeze proposal.
+          var cellOrigin = originOf(slot.vial);
+          cell.style.background = tintFor(cellOrigin);
+          cell.title = slot.position + " · " + slot.vial.name + " (" + cellOrigin + ")";
+          cell.textContent = shortOrigin(cellOrigin);
         } else {
           cell.title = slot.position + " · empty";
           cell.textContent = "";
@@ -1116,27 +1149,40 @@
     // What is actually in this box, so the colours mean something.
     var lines = clear($("bxLines"));
     lines.appendChild(el("h3", null, "In this box"));
-    var counts = {};
+    var byOrigin = {};
     occ.slots.forEach(function(s){
       if (!s.vial) return;
+      var o = originOf(s.vial);
+      if (!byOrigin[o]) byOrigin[o] = { n: 0, rows: {}, lines: {} };
+      var g = byOrigin[o];
+      g.n++;
+      g.rows[s.position.replace(/\d+$/, "")] = true;
       var k = s.vial.lineId || s.vial.name;
-      if (!counts[k]) counts[k] = { name: s.vial.name, n: 0, positions: [] };
-      counts[k].n++;
-      counts[k].positions.push(s.position);
+      if (!g.lines[k]) g.lines[k] = { name: s.vial.name, n: 0, positions: [] };
+      g.lines[k].n++;
+      g.lines[k].positions.push(s.position);
     });
-    var keys = Object.keys(counts).sort(function(a, b){ return counts[b].n - counts[a].n; });
-    if (!keys.length){ lines.appendChild(el("div", "empty", "Empty.")); return; }
-    keys.forEach(function(k){
-      var c = counts[k];
-      var row = el("div", "item");
+    var origins = Object.keys(byOrigin).sort(function(a, b){ return byOrigin[b].n - byOrigin[a].n; });
+    if (!origins.length){ lines.appendChild(el("div", "empty", "Empty.")); return; }
+    origins.forEach(function(o){
+      var g = byOrigin[o];
+      var head = el("div", "item");
       var dot = el("div");
-      dot.style.cssText = "width:14px;height:14px;border-radius:4px;flex:0 0 auto;margin-top:2px;background:" + tintFor(k);
-      row.appendChild(dot);
+      dot.style.cssText = "width:14px;height:14px;border-radius:4px;flex:0 0 auto;margin-top:3px;background:" + tintFor(o);
+      head.appendChild(dot);
       var grow = el("div", "grow");
-      grow.appendChild(el("div", null, c.name));
-      grow.appendChild(el("div", "sub", c.n + " vial" + (c.n === 1 ? "" : "s") + " · " + c.positions.join(", ")));
-      row.appendChild(grow);
-      lines.appendChild(row);
+      var title = el("div", null, o);
+      title.style.fontWeight = "650";
+      grow.appendChild(title);
+      var rowNames = Object.keys(g.rows).sort();
+      grow.appendChild(el("div", "sub", g.n + " vial" + (g.n === 1 ? "" : "s") + " · row" +
+        (rowNames.length === 1 ? " " : "s ") + rowNames.join(", ")));
+      Object.keys(g.lines).sort(function(a, b){ return g.lines[b].n - g.lines[a].n; }).forEach(function(k){
+        var l = g.lines[k];
+        grow.appendChild(el("div", "sub", "· " + l.name + " — " + l.positions.join(", ")));
+      });
+      head.appendChild(grow);
+      lines.appendChild(head);
     });
   }
 
@@ -1265,6 +1311,35 @@
       box.appendChild(gc);
     }
 
+    // ---- rows holding more than one kind of cell ----
+    if (q.rows.length){
+      var rc = el("div", "card");
+      rc.appendChild(el("h3", null, "Rows holding two kinds of cell (" + q.rows.length + ")"));
+      rc.appendChild(el("p", "note",
+        "A row is meant to hold one kind of cell — that is how the freezer is laid out, and it is " +
+        "what the app follows when it proposes a place. These rows do not. Most of them are rows " +
+        "carrying vials no origin rule covers yet, so adding the rule fixes the row too."));
+      q.rows.forEach(function(m){
+        var row = el("div", "item");
+        var grow = el("div", "grow");
+        grow.appendChild(el("div", null, m.box + " row " + m.label));
+        grow.appendChild(el("div", "sub", m.origins.map(function(o){
+          return o + " × " + m.counts[o];
+        }).join("  ·  ")));
+        row.appendChild(grow);
+        var b = el("button", null, "Show");
+        b.onclick = function(){
+          boxView.unitId = E.findBox(state, m.boxId).unit.id;
+          boxView.boxId = m.boxId;
+          boxView.highlight = [];
+          go("boxes");
+        };
+        row.appendChild(b);
+        rc.appendChild(row);
+      });
+      box.appendChild(rc);
+    }
+
     // ---- implausible passages ----
     if (q.passages.length){
       var pc = el("div", "card");
@@ -1388,8 +1463,9 @@
       c.appendChild(out);
     } else {
       c.appendChild(el("p", "note",
-        "Paste a GitHub personal access token with " +
-        "Contents: Read and write for " + (REPO || "this repository") + ". It stays on this device."));
+        "Paste a GitHub personal access token with Contents: Read and write for " +
+        (REPO || "this repository") + ". It stays on this device, and it is this app's own — " +
+        "nothing else on this host reads or writes it."));
       var tok = document.createElement("input");
       tok.type = "password"; tok.placeholder = "github_pat_…"; tok.autocomplete = "off";
       var dev = document.createElement("input");

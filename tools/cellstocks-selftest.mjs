@@ -81,12 +81,14 @@ function fixture() {
           racks: [{ id: "t-1", name: "Tower 1", boxes: [box("b-t1", "Tower box 1", 10, 10, "linear")] }] }
       ]
     },
+    // Row A of Box A is HEK293T, row B of Box A is Huh7, row A of Box B is Du145.
+    // One kind of cell per row, which is how the real freezer is laid out and what
+    // placement has to preserve.
     vials: [
-      // Box A: four HeLa p12 and one HeLa p20, plus filler, leaving a known gap.
-      vial("v-1", "HeLa", "b-a", "A1", { passage: "p12" }),
-      vial("v-2", "HeLa", "b-a", "A2", { passage: "p12" }),
-      vial("v-3", "HeLa", "b-a", "A3", { passage: "p12" }),
-      vial("v-4", "HeLa", "b-a", "A4", { passage: "p20", frozenOn: "2024-01-01" }),
+      vial("v-1", "HEK ATP7B KO g3", "b-a", "A1", { passage: "p12" }),
+      vial("v-2", "HEK ATP7B KO g3", "b-a", "A2", { passage: "p12" }),
+      vial("v-3", "HEK TOX4 OX", "b-a", "A3", { passage: "p12" }),
+      vial("v-4", "HEK ATP7B KO g3", "b-a", "A4", { passage: "p20", frozenOn: "2024-01-01" }),
       vial("v-5", "Huh7 CBX3 KO g2", "b-a", "B1", { passage: "p+3", notes: "myco -" }),
       vial("v-6", "DuDtxR CASPEX g5.1", "b-b", "A1", { passage: "p?" })
     ]
@@ -94,18 +96,52 @@ function fixture() {
   return state;
 }
 
-// A box with every slot but three taken, for the placement corner cases.
-function nearlyFull(state, boxId, freeCount) {
+// Leaves a box with `freeCount` slots free. The filler is HepG2 unless told
+// otherwise -- a cell that appears nowhere else in the fixture -- so every row it
+// touches is closed to everything else, which is the pressure these tests are about.
+function nearlyFull(state, boxId, freeCount, fillerName) {
   const occ = E.occupancy(state, boxId);
   const next = JSON.parse(JSON.stringify(state));
   let n = 0;
   occ.slots.forEach((s) => {
     if (s.vial) return;
     if (occ.capacity - occ.used - n <= freeCount) return;
-    next.vials.push(vial("fill-" + boxId + "-" + s.index, "Filler line", boxId, s.position));
+    next.vials.push(vial("fill-" + boxId + "-" + s.index, fillerName || "HepG2 filler", boxId, s.position));
     n++;
   });
   return next;
+}
+
+// The same freezer with nothing in it, for the tests that need to control every row.
+function emptyFixture() {
+  const s = fixture();
+  s.vials = [];
+  return s;
+}
+
+// Fills every row of a box except the named ones, using a cell that appears nowhere
+// else -- so those rows are closed to everything, and the named rows stay open.
+function closeAllRowsBut(state, boxId, keepLabels) {
+  const next = JSON.parse(JSON.stringify(state));
+  const occ = E.occupancy(next, boxId);
+  occ.slots.forEach((slot) => {
+    if (slot.vial) return;
+    if (keepLabels.indexOf(rowOf(slot.position)) !== -1) return;
+    next.vials.push(vial("shut-" + boxId + "-" + slot.index, "HepG2 filler", boxId, slot.position));
+  });
+  return next;
+}
+
+// Which row a position sits in, and what a plan's slots resolve to. Used by the
+// placement checks, which are mostly about rows rather than individual slots.
+function rowOf(pos) { return String(pos).replace(/\d+$/, ""); }
+function planRows(plan) {
+  const out = [];
+  plan.segments.forEach((seg) => seg.positions.forEach((p) => {
+    const key = seg.boxId + "!" + rowOf(p);
+    if (out.indexOf(key) === -1) out.push(key);
+  }));
+  return out;
 }
 
 // ================================================================== geometry
@@ -308,8 +344,13 @@ check("notes become searchable flags", () => {
 
 check("a keyword finds the vial and names where it is", () => {
   const s = fixture();
-  const hits = E.search(s, { query: "hela p12" });
-  if (hits.length !== 3) return `expected the 3 p12 vials, got ${hits.length}`;
+  const hits = E.search(s, { query: "hek p12" });
+  // "hek" is distinctive enough to stand on its own, so the p20 HEK vial matches
+  // too -- but it matched one word of two, and the three p12 vials outrank it.
+  if (hits.length !== 4) return `expected all 4 HEK vials, got ${hits.length}`;
+  const top3 = hits.slice(0, 3).map((h) => h.vial.passage);
+  if (top3.some((p) => p !== "p12")) return `the top three were ${json(top3)}, not all p12`;
+  if (hits[3].vial.passage !== "p20") return "the p20 vial did not sort last";
   if (!/Box A/.test(hits[0].path)) return `path was ${json(hits[0].path)}`;
   return null;
 });
@@ -331,10 +372,10 @@ check("a flag is searchable", () => {
 
 check("a partial match says which word it missed", () => {
   const s = fixture();
-  const hits = E.search(s, { query: "hela p12 crispr" });
+  const hits = E.search(s, { query: "hek p12 crispr" });
   if (!hits.length) return "a 2-of-3 match was rejected";
   if (json(hits[0].missed) !== json(["crispr"])) return `missed was ${json(hits[0].missed)}`;
-  const full = E.search(s, { query: "hela p12" });
+  const full = E.search(s, { query: "hek p12" });
   if (full[0].missed.length) return "a full match reported a missed word";
   return null;
 });
@@ -342,27 +383,29 @@ check("a partial match says which word it missed", () => {
 check("a query that matches nothing returns nothing", () => {
   const s = fixture();
   if (E.search(s, { query: "zebrafish" }).length) return "nonsense matched something";
-  if (E.search(s, { query: "hela zebrafish quokka wombat" }).length) return "a 1-of-4 match was accepted";
+  // "g3" is not distinctive enough to stand alone, so one word out of four fails.
+  if (E.search(s, { query: "g3 zebrafish quokka wombat" }).length) return "a 1-of-4 match was accepted";
   return null;
 });
 
 check("results are ordered, and the same call twice gives the same order", () => {
   const s = fixture();
-  const a = E.search(s, { query: "hela" });
-  const b = E.search(s, { query: "hela" });
+  const a = E.search(s, { query: "hek" });
+  const b = E.search(s, { query: "hek" });
   for (let i = 1; i < a.length; i++) if (a[i - 1].score < a[i].score) return "results are not sorted by score";
+  if (a.some((r) => r.vial.status === "withdrawn")) return "this check assumes nothing is withdrawn";
   if (json(a.map((r) => r.vial.id)) !== json(b.map((r) => r.vial.id))) return "two identical calls disagreed";
   return null;
 });
 
 check("the sliders only ever narrow", () => {
   const s = fixture();
-  const all = E.search(s, { query: "hela" }).map((r) => r.vial.id);
-  const narrowed = E.search(s, { query: "hela", frozenFrom: "2025-01-01" }).map((r) => r.vial.id);
+  const all = E.search(s, { query: "hek" }).map((r) => r.vial.id);
+  const narrowed = E.search(s, { query: "hek", frozenFrom: "2025-01-01" }).map((r) => r.vial.id);
   if (narrowed.length > all.length) return "a date filter added results";
   for (const id of narrowed) if (all.indexOf(id) === -1) return `${id} appeared only once filtered`;
   if (narrowed.indexOf("v-4") !== -1) return "the 2024 vial survived a 2025 floor";
-  const byPassage = E.search(s, { query: "hela", passageKind: "absolute", passageMin: 15 }).map((r) => r.vial.id);
+  const byPassage = E.search(s, { query: "hek", passageKind: "absolute", passageMin: 15 }).map((r) => r.vial.id);
   if (json(byPassage) !== json(["v-4"])) return `passage floor gave ${json(byPassage)}`;
   return null;
 });
@@ -391,56 +434,122 @@ check("unknown passages are held back by a toggle, not lost", () => {
 check("withdrawn vials are out of the way but not hidden", () => {
   const s = fixture();
   const after = E.withdraw(s, "v-1", { date: "2026-08-25", by: "test", ids: ["w-1"] }).state;
-  if (E.search(after, { query: "hela p12" }).length !== 2) return "a withdrawn vial still shows by default";
-  const shown = E.search(after, { query: "hela p12", includeWithdrawn: true });
-  if (shown.length !== 3) return "includeWithdrawn did not bring it back";
+  if (E.search(after, { query: "hek p12" }).length !== 3) return "a withdrawn vial still shows by default";
+  const shown = E.search(after, { query: "hek p12", includeWithdrawn: true });
+  if (shown.length !== 4) return "includeWithdrawn did not bring it back";
   if (shown[shown.length - 1].vial.id !== "v-1") return "the withdrawn vial did not sort last";
   return null;
 });
 
 check("results group to one card per line and box", () => {
   const s = fixture();
-  const groups = E.searchGroups(E.search(s, { query: "hela p12" }));
-  if (groups.length !== 1) return `expected 1 group, got ${groups.length}`;
-  if (groups[0].count !== 3) return `group counted ${groups[0].count}`;
-  if (json(groups[0].positions) !== json(["A1", "A2", "A3"])) return `positions were ${json(groups[0].positions)}`;
+  const groups = E.searchGroups(E.search(s, { query: "hek p12" }));
+  // Grouping is per LINE, not per cell: the ATP7B KO and the TOX4 OX share a row
+  // but are different lines, so they get a card each.
+  if (groups.length !== 2) return `expected 2 groups, got ${groups.length}`;
+  const ko = groups.filter((g) => /ATP7B/.test(g.name))[0];
+  if (!ko) return "the ATP7B group is missing";
+  if (ko.count !== 3) return `the ATP7B group counted ${ko.count}`;
+  if (json(ko.positions) !== json(["A1", "A2", "A4"])) return `positions were ${json(ko.positions)}`;
   return null;
 });
 
 // ================================================================= placement
 
-check("a line goes back into the box that already holds it", () => {
+check("a freeze-down goes into a row that already holds that cell", () => {
   const s = fixture();
-  const plan = E.suggestPlacement(s, { name: "HeLa", count: 4 });
+  const plan = E.suggestPlacement(s, { name: "HEK CBX3 KO g1", count: 4 });
   if (!plan.ok) return `plan failed: ${plan.reason}`;
-  if (plan.strategy !== "same-line") return `strategy was ${plan.strategy}`;
-  if (plan.segments[0].boxId !== "b-a") return `landed in ${plan.segments[0].boxId}`;
-  if (plan.segments[0].positions.length !== 4) return "wrong number of positions";
+  if (plan.origin !== "HEK293T") return `origin read as ${json(plan.origin)}`;
+  if (plan.strategy !== "same-row") return `strategy was ${plan.strategy}`;
+  if (json(planRows(plan)) !== json(["b-a!A"])) return `landed in ${json(planRows(plan))}, expected Box A row A`;
   return null;
 });
 
-check("one freeze-down lands in one contiguous run", () => {
+check("KO, OX and CASPEX of the same cell share a row", () => {
+  // Row A of Box A holds HEK ATP7B KO and HEK TOX4 OX already. The edit does not
+  // make it a different cell, so a CASPEX line goes in beside them.
   const s = fixture();
-  const plan = E.suggestPlacement(s, { name: "HeLa", count: 5 });
-  const b = E.findBox(s, plan.segments[0].boxId).box;
-  const idx = plan.segments[0].positions.map((p) => E.parsePosition(b, p).index);
-  for (let i = 1; i < idx.length; i++) if (idx[i] !== idx[i - 1] + 1) return `positions are not contiguous: ${json(plan.segments[0].positions)}`;
+  for (const name of ["HEK TOX4 OX", "HEK CASPEX g1.1", "HEK ATP7B KO g3", "HEK 3xFLAG"]) {
+    const plan = E.suggestPlacement(s, { name, count: 1 });
+    if (!plan.ok) return `${name}: ${plan.reason}`;
+    if (json(planRows(plan)) !== json(["b-a!A"])) return `${name} landed in ${json(planRows(plan))}, not Box A row A`;
+  }
+  return null;
+});
+
+check("a different cell never goes next to another, even with room beside it", () => {
+  // This is the rule. Box A row A has five free slots and holds HEK293T; a Huh7
+  // must not take one of them, and neither must a Du145.
+  const s = fixture();
+  for (const name of ["Huh7 gNT", "DuDtxR CASPEX g3", "LnCap Canada", "LCC-V"]) {
+    const plan = E.suggestPlacement(s, { name, count: 1 });
+    if (!plan.ok) return `${name}: ${plan.reason}`;
+    for (const seg of plan.segments) {
+      for (const pos of seg.positions) {
+        const occ = E.occupancy(s, seg.boxId);
+        const row = E.rowsOf(s, seg.boxId)[E.parsePosition(occ.box, pos).row];
+        const mine = E.classify(name).origin || E.NO_ORIGIN;
+        const others = row.origins.filter((o) => o !== mine);
+        if (others.length) return `${name} was put in ${seg.boxName} row ${rowOf(pos)}, which holds ${others.join(", ")}`;
+      }
+    }
+  }
+  return null;
+});
+
+check("a full row starts a new one rather than spilling sideways", () => {
+  const s = fixture();
+  // Fill the rest of Box A row A with HEK, so its own row has no room left.
+  for (let c = 5; c <= 9; c++) s.vials.push(vial("hek-" + c, "HEK ATP7B KO g3", "b-a", "A" + c));
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 3 });
+  if (!plan.ok) return `plan failed: ${plan.reason}`;
+  if (plan.strategy !== "new-row") return `strategy was ${plan.strategy}`;
+  const rows = planRows(plan);
+  if (rows.length !== 1) return `spread over ${rows.length} rows`;
+  if (rows[0] === "b-a!A") return "it went back into the full row";
+  // And the row it opened must have been empty, not somebody else's.
+  const [boxId, label] = rows[0].split("!");
+  const row = E.rowsOf(s, boxId)[E.rowIndexFromLabel(label)];
+  if (row.origins.length) return `it opened ${label}, which already holds ${row.origins.join(", ")}`;
+  return null;
+});
+
+check("one freeze-down stays in one row when a row can hold it", () => {
+  const s = fixture();
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 5 });
+  if (!plan.ok) return `plan failed: ${plan.reason}`;
+  if (planRows(plan).length !== 1) return `spread over ${json(planRows(plan))}`;
+  if (!plan.segments[0].contiguous) return "the five slots are not next to each other";
+  return null;
+});
+
+check("more vials than a row is wide spills onto the next row, not sideways", () => {
+  const s = fixture();
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 12 });
+  if (!plan.ok) return `plan failed: ${plan.reason}`;
+  const rows = planRows(plan);
+  if (rows.length !== 2) return `used ${rows.length} rows, expected 2`;
+  if (rows[0] !== "b-a!A") return `did not start in the cell's own row: ${json(rows)}`;
+  const total = plan.segments.reduce((n, seg) => n + seg.positions.length, 0);
+  if (total !== 12) return `covered ${total} slots`;
+  // The second row must have been empty before.
+  const [boxId, label] = rows[1].split("!");
+  if (E.rowsOf(s, boxId)[E.rowIndexFromLabel(label)].origins.length) return `${label} already held something`;
   return null;
 });
 
 check("scattered slots are listed, never described as a block that isn't there", () => {
-  // A box with free slots dotted around it can still take five vials, but calling
-  // that "E6-H8" describes a run somebody would open the box looking for.
-  var s = fixture();
-  var occ = E.occupancy(s, "b-c");
-  // Fill Box C leaving five free slots that are deliberately not adjacent.
-  var keep = { 0: true, 10: true, 20: true, 30: true, 40: true };
-  occ.slots.forEach((slot) => { if (!keep[slot.index]) s.vials.push(vial("scat-" + slot.index, "Filler line", "b-c", slot.position)); });
-  // Aimed at Box C explicitly: the other boxes have more room and would otherwise win.
-  const plan = E.suggestPlacement(s, { name: "Brand New Line", count: 5, boxId: "b-c" });
+  // A row with gaps in it can still take vials, but calling that "A2-A8" describes
+  // a run somebody would open the box looking for.
+  const s = fixture();
+  s.vials.push(vial("gap-1", "HEK ATP7B KO g3", "b-a", "A6"));
+  s.vials.push(vial("gap-2", "HEK ATP7B KO g3", "b-a", "A8"));
+  // Row A now reads: A1-A4 taken, A5 free, A6 taken, A7 free, A8 taken, A9 free.
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 3 });
   if (!plan.ok) return `plan failed: ${plan.reason}`;
   const seg = plan.segments[0];
-  if (seg.contiguous) return "five scattered slots were reported as contiguous";
+  if (seg.contiguous) return "slots either side of a gap were reported as contiguous";
   if (/–/.test(plan.summary)) return `summary claims a range: ${json(plan.summary)}`;
   for (const p of seg.positions) if (plan.summary.indexOf(p) === -1) return `${p} is missing from the summary`;
   return null;
@@ -448,8 +557,8 @@ check("scattered slots are listed, never described as a block that isn't there",
 
 check("a proposal never names an occupied slot, or the same slot twice", () => {
   const s = fixture();
-  for (const count of [1, 2, 5, 20, 76]) {
-    const plan = E.suggestPlacement(s, { name: "HeLa", count });
+  for (const count of [1, 2, 5, 20, 70]) {
+    const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count });
     if (!plan.ok) return `count ${count} failed: ${plan.reason}`;
     const seen = {};
     let n = 0;
@@ -469,81 +578,116 @@ check("a proposal never names an occupied slot, or the same slot twice", () => {
   return null;
 });
 
-check("a new line takes the emptiest box, preferring a wholly empty one", () => {
+check("a cell nothing has seen before opens a clean row", () => {
   const s = fixture();
-  const plan = E.suggestPlacement(s, { name: "Brand New Line", count: 3 });
-  if (plan.strategy !== "new-box") return `strategy was ${plan.strategy} (${plan.reason})`;
-  if (plan.segments[0].boxId !== "b-c") return `landed in ${plan.segments[0].boxId}, expected the empty Box C`;
-  return null;
-});
-
-check("a full box spills into another, and says so", () => {
-  let s = fixture();
-  s = nearlyFull(s, "b-a", 2);   // Box A: only 2 free, and it holds the HeLa
-  const plan = E.suggestPlacement(s, { name: "HeLa", count: 5 });
+  const plan = E.suggestPlacement(s, { name: "MDA-MB-231 TOX4 OX", count: 3 });
   if (!plan.ok) return `plan failed: ${plan.reason}`;
-  // Box A holds the HeLa but has only 2 free, so keeping the line together loses to
-  // not part-filling: tier 1 passes it over entirely rather than placing 2 of the 5.
-  if (plan.segments.length !== 1) return "a single-box plan was expected";
-  if (plan.segments[0].boxId === "b-a") return "5 vials were squeezed into a box with 2 free slots";
-  if (plan.segments[0].positions.length !== 5) return "the plan did not cover all 5";
-  // And it has to SAY why the line was not kept together, or a full box looks like
-  // the app forgetting where the line lives.
-  if (!/Box A/.test(plan.reason) || !/no room/.test(plan.reason)) {
-    return `reason does not explain the full box: ${json(plan.reason)}`;
-  }
+  if (plan.strategy !== "new-row") return `strategy was ${plan.strategy} (${plan.reason})`;
+  const [boxId, label] = planRows(plan)[0].split("!");
+  if (E.rowsOf(s, boxId)[E.rowIndexFromLabel(label)].origins.length) return "it opened a row that was already in use";
   return null;
 });
 
-check("splitting is explicit, and switching it off never part-fills", () => {
+check("a box with no free row sends the vials to another box, and says so", () => {
   let s = fixture();
-  s = nearlyFull(s, "b-a", 2);
-  s = nearlyFull(s, "b-b", 2);
-  s = nearlyFull(s, "b-c", 2);
-  const split = E.suggestPlacement(s, { name: "HeLa", count: 5 });
-  if (!split.ok || split.strategy !== "split") return `expected a split, got ${json(split.strategy || split.reason)}`;
+  // Every row of Box A and Box B closed by a cell of its own.
+  s = nearlyFull(s, "b-a", 0);
+  s = nearlyFull(s, "b-b", 0);
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 4 });
+  if (!plan.ok) return `plan failed: ${plan.reason}`;
+  if (plan.segments[0].boxId !== "b-c") return `landed in ${plan.segments[0].boxId}, expected the free Box C`;
+  return null;
+});
+
+check("splitting across boxes is explicit, and switching it off never part-fills", () => {
+  // One free row in Box A and one in Box B, nothing in Box C. Twelve vials cannot
+  // fit in a single box's nine-slot row, so the only way is across two boxes.
+  let s = emptyFixture();
+  s = closeAllRowsBut(s, "b-a", ["I"]);
+  s = closeAllRowsBut(s, "b-b", ["I"]);
+  s = closeAllRowsBut(s, "b-c", []);
+  const split = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 12 });
+  if (!split.ok) return `expected a plan, got ${json(split.reason)}`;
+  if (split.strategy !== "split") return `strategy was ${split.strategy}`;
   const total = split.segments.reduce((n, seg) => n + seg.positions.length, 0);
-  if (total !== 5) return `split covered ${total} slots, not 5`;
+  if (total !== 12) return `split covered ${total} slots, not 12`;
+  if (!/split across/.test(split.reason)) return `reason does not say it was split: ${json(split.reason)}`;
 
   s.settings.placement.allowSplit = false;
-  const refused = E.suggestPlacement(s, { name: "HeLa", count: 5 });
+  const refused = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 12 });
   if (refused.ok) return "splitting was switched off but a plan came back anyway";
   if (!/switched off/.test(refused.reason)) return `reason did not mention the setting: ${refused.reason}`;
   return null;
 });
 
-check("a freezer with no room says so instead of overflowing into the tank", () => {
+check("a freezer with no free row says so, and blames the right thing", () => {
   let s = fixture();
   for (const id of ["b-a", "b-b", "b-c"]) s = nearlyFull(s, id, 0);
-  const plan = E.suggestPlacement(s, { name: "HeLa", count: 1, unitId: "u-f80" });
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 1, unitId: "u-f80" });
   if (plan.ok) return `a plan came back for a full unit: ${json(plan.segments)}`;
-  if (!/0 free/.test(plan.reason)) return `reason was ${json(plan.reason)}`;
+  if (!/No room/.test(plan.reason)) return `reason was ${json(plan.reason)}`;
+  return null;
+});
+
+check("a full unit does not quietly overflow into the tank", () => {
+  let s = fixture();
+  for (const id of ["b-a", "b-b", "b-c"]) s = nearlyFull(s, id, 0);
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 1, unitId: "u-f80" });
+  if (plan.ok && plan.segments.some((seg) => seg.unitId !== "u-f80")) return "it spilled into the other unit";
+  return plan.ok ? "a plan came back for a full unit" : null;
+});
+
+check("free slots in another cell's row are counted as blocked, not as room", () => {
+  const s = fixture();
+  // Box A row A holds HEK and has five free slots. To a Huh7 those are not room.
+  const plan = E.suggestPlacement(s, { name: "Huh7 gNT", count: 1 });
+  if (!plan.ok) return plan.reason;
+  if (planRows(plan)[0] === "b-a!A") return "a Huh7 took a slot in the HEK row";
+  // And when nothing else is left, the refusal has to say why.
+  let tight = fixture();
+  for (const id of ["b-a", "b-b", "b-c"]) tight = nearlyFull(tight, id, 0, "HepG2 filler");
+  // Free one slot in a row that belongs to HepG2.
+  tight.vials = tight.vials.filter((v) => v.id !== "fill-b-c-80");
+  const no = E.suggestPlacement(tight, { name: "Huh7 gNT", count: 1 });
+  if (no.ok) return "a Huh7 was placed in a HepG2 row";
+  if (!/different cell/.test(no.reason)) return `reason did not blame the row rule: ${json(no.reason)}`;
   return null;
 });
 
 check("an explicitly chosen box wins, or explains why it cannot", () => {
   const s = fixture();
-  const ok = E.suggestPlacement(s, { name: "HeLa", count: 2, boxId: "b-c" });
+  const ok = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 2, boxId: "b-c" });
   if (!ok.ok || ok.segments[0].boxId !== "b-c") return "an override was ignored";
   if (ok.strategy !== "chosen") return `strategy was ${ok.strategy}`;
-  const full = E.suggestPlacement(nearlyFull(s, "b-c", 1), { name: "HeLa", count: 4, boxId: "b-c" });
+  const full = E.suggestPlacement(nearlyFull(s, "b-c", 1), { name: "HEK ATP7B KO g3", count: 4, boxId: "b-c" });
   if (full.ok) return "an override was allowed to overfill a box";
-  if (!/free slot/.test(full.reason)) return `reason was ${json(full.reason)}`;
   return null;
+});
+
+check("an override still cannot mix two cells in one row", () => {
+  const s = fixture();
+  // Box A is named explicitly, but row A is HEK293T and this is a Huh7.
+  const plan = E.suggestPlacement(s, { name: "Huh7 gNT", count: 1, boxId: "b-a" });
+  if (!plan.ok) return plan.reason;
+  if (planRows(plan)[0] === "b-a!A") return "the override put a Huh7 in the HEK row";
+  if (planRows(plan)[0] === "b-a!B") return null;   // Huh7's own row -- correct
+  const [boxId, label] = planRows(plan)[0].split("!");
+  return E.rowsOf(s, boxId)[E.rowIndexFromLabel(label)].origins.length
+    ? "it opened a row that already held something" : null;
 });
 
 check("the same request twice gives the same plan", () => {
   const s = fixture();
-  const a = E.suggestPlacement(s, { name: "HeLa", count: 3 });
-  const b = E.suggestPlacement(s, { name: "HeLa", count: 3 });
+  const a = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 3 });
+  const b = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 3 });
   return json(a) === json(b) ? null : "two identical requests produced different plans";
 });
 
 check("applying a plan is byte-identical twice and touches nothing existing", () => {
   const s = fixture();
-  const plan = E.suggestPlacement(s, { name: "HeLa", count: 2 });
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 2 });
   const ctx = { ids: ["v-new-1", "v-new-2"], now: "2026-08-25T09:00:00Z", by: "test" };
-  const t = { name: "HeLa", passage: "p13", frozenOn: "25-08-26", notes: "" };
+  const t = { name: "HEK ATP7B KO g3", passage: "p13", frozenOn: "25-08-26", notes: "" };
   const a = E.applyPlacement(s, plan, t, ctx);
   const b = E.applyPlacement(s, plan, t, ctx);
   if (json(a.state) !== json(b.state)) return "two identical applies produced different states";
@@ -554,17 +698,21 @@ check("applying a plan is byte-identical twice and touches nothing existing", ()
   return null;
 });
 
-check("a freeze-down of five creates five records, one per slot", () => {
+check("a freeze-down of five creates five records, one per slot, in one row", () => {
   const s = fixture();
-  const plan = E.suggestPlacement(s, { name: "HeLa", count: 5 });
-  const out = E.applyPlacement(s, plan, { name: "HeLa", passage: "p13", frozenOn: "25-08-26" },
+  const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 5 });
+  const out = E.applyPlacement(s, plan, { name: "HEK ATP7B KO g3", passage: "p13", frozenOn: "25-08-26" },
                                { ids: ["a", "b", "c", "d", "e"], now: null, by: "test" });
   if (out.vials.length !== 5) return `made ${out.vials.length} records`;
   const slots = {};
   out.vials.forEach((v) => { slots[v.location.boxId + v.location.position] = (slots[v.location.boxId + v.location.position] || 0) + 1; });
   if (Object.values(slots).some((n) => n > 1)) return "two new vials share a slot";
+  const rows = [...new Set(out.vials.map((v) => v.location.boxId + "!" + rowOf(v.location.position)))];
+  if (rows.length !== 1) return `the five landed across ${rows.length} rows`;
   if (out.vials[0].passageKind !== "absolute" || out.vials[0].passageNumber !== 13) return "passage was not parsed";
   if (out.vials[0].frozenOn !== "2026-08-25") return `frozenOn was ${json(out.vials[0].frozenOn)}`;
+  // And the result must still have one cell per row.
+  if (E.mixedRows(out.state).length) return "applying the plan mixed two cells into one row";
   return null;
 });
 
@@ -575,7 +723,7 @@ check("taking a vial frees its slot for the very next placement", () => {
   const out = E.withdraw(s, "v-2", { date: "2026-08-25", by: "test", ids: ["w-1"] });
   const occ = E.occupancy(out.state, "b-a");
   if (occ.used !== 4) return `box still shows ${occ.used} used`;
-  const plan = E.suggestPlacement(out.state, { name: "HeLa", count: 1 });
+  const plan = E.suggestPlacement(out.state, { name: "HEK ATP7B KO g3", count: 1 });
   if (plan.segments[0].positions.indexOf("A2") === -1) return "the freed slot was not offered again";
   return null;
 });
@@ -619,9 +767,9 @@ check("undo puts a vial back, but refuses a slot that was refilled", () => {
 
 check("stock counts follow the vials", () => {
   const s = fixture();
-  const before = E.stockCounts(s).find((c) => c.name === "HeLa").stored;
+  const before = E.stockCounts(s).find((c) => c.name === "HEK ATP7B KO g3").stored;
   const after = E.stockCounts(E.withdraw(s, "v-1", { date: "2026-08-25", by: "t", ids: ["w-1"] }).state)
-                 .find((c) => c.name === "HeLa");
+                 .find((c) => c.name === "HEK ATP7B KO g3");
   if (after.stored !== before - 1) return `stored went ${before} -> ${after.stored}`;
   if (after.withdrawn !== 1) return `withdrawn is ${after.withdrawn}`;
   return null;
@@ -666,7 +814,7 @@ check("shrinking a box below its contents is refused, and names what is in the w
   const no = E.canResizeBox(s, "b-a", 1, 1);
   if (no.ok) return "a shrink that would strand vials was allowed";
   if (!no.blocked || !no.blocked.length) return "nothing was named as being in the way";
-  if (!/HeLa|Huh7/.test(no.reason)) return `reason did not name a vial: ${no.reason}`;
+  if (!/HEK|Huh7/.test(no.reason)) return `reason did not name a vial: ${no.reason}`;
   const yes = E.canResizeBox(s, "b-a", 9, 12);
   return yes.ok ? null : `growing a box was refused: ${yes.reason}`;
 });
@@ -846,6 +994,59 @@ check("the review queue is the size the import reported", () => {
   if (q.facets.length !== 49) return `${q.facets.length} rows have changed facets, expected 49`;
   if (q.gaps.length !== 19) return `${q.gaps.length} rows have an unmatched facet, expected 19`;
   if (q.passages.length !== 2) return `${q.passages.length} implausible passages, expected 2`;
+  if (q.rows.length !== 7) return `${q.rows.length} mixed rows, expected 7`;
+  return null;
+});
+
+// The row rule is not something this app imposed on the freezer -- it is how the
+// freezer already is. 47 of the 54 rows hold exactly one kind of cell, and six of
+// the seven that do not are rows carrying vials no origin rule covers yet.
+check("the real freezer already keeps one cell per row", () => {
+  if (!real) return null;
+  let rows = 0, single = 0;
+  E.eachBox(real, (box) => {
+    E.rowsOf(real, box.id).forEach((row) => {
+      if (!row.used) return;
+      rows++;
+      if (row.origins.length === 1) single++;
+    });
+  });
+  if (rows - single !== 7) return `${rows - single} of ${rows} used rows mix cells, expected 7`;
+  const stillUnclassified = E.mixedRows(real)
+    .filter((m) => m.origins.indexOf(E.NO_ORIGIN) !== -1).length;
+  if (stillUnclassified !== 6) return `${stillUnclassified} of the mixed rows are down to a missing origin rule, expected 6`;
+  return null;
+});
+
+check("no plan against the real freezer ever mixes two cells in a row", () => {
+  if (!real) return null;
+  const names = ["Huh7 CBX3 KO g2", "HEK ATP7B KO g3", "DuDtxR CASPEX g5.1", "LnCap Canada",
+                 "LuCap35CR", "MDA-MB-231 TOX4 OX", "HepG2 gNT", "LCC-V", "Brand New Cell"];
+  for (const name of names) {
+    for (const count of [1, 3, 9, 14]) {
+      const plan = E.suggestPlacement(real, { name, count });
+      if (!plan.ok) continue;                       // a full freezer is a fair answer
+      const mine = E.classify(name, real.rules).origin || E.NO_ORIGIN;
+      for (const seg of plan.segments) {
+        const occ = E.occupancy(real, seg.boxId);
+        const rows = E.rowsOf(real, seg.boxId);
+        for (const pos of seg.positions) {
+          const parsed = E.parsePosition(occ.box, pos);
+          if (occ.slots[parsed.index].vial) return `${name} x${count}: ${seg.boxName} ${pos} is taken`;
+          const others = rows[parsed.row].origins.filter((o) => o !== mine);
+          if (others.length) {
+            return `${name} x${count} was put in ${seg.boxName} row ${E.rowLabel(parsed.row)}, which holds ${others.join(", ")}`;
+          }
+        }
+      }
+      // And applying it must leave the freezer no more mixed than it started.
+      const before = E.mixedRows(real).length;
+      const ids = plan.segments.reduce((n, seg) => n + seg.positions.length, 0);
+      const out = E.applyPlacement(real, plan, { name, passage: "p1", frozenOn: "2026-08-25" },
+        { ids: Array.from({ length: ids }, (_, i) => "probe-" + i), now: null, by: "test" });
+      if (E.mixedRows(out.state).length !== before) return `${name} x${count} created a mixed row`;
+    }
+  }
   return null;
 });
 

@@ -1,0 +1,71 @@
+name: Cell stocks checks
+
+# The rules that decide where a vial goes -- and the inventory they run against --
+# live in cellstocks/. tools/cellstocks-selftest.mjs is the only thing that proves
+# they still hold, so run it on every change to either rather than on trust.
+#
+# Same reasoning the loops workflow gives for its own offline checks: a regression
+# should show up on the branch, not the first time somebody stands in front of an
+# open freezer door.
+#
+# No dependencies, no network, no secrets: the suite is plain node against files in
+# the repo, and it takes a couple of seconds.
+on:
+  push:
+    paths:
+      - cellstocks/**
+      - tools/cellstocks-selftest.mjs
+      - .github/workflows/cellstocks.yml
+  pull_request:
+    paths:
+      - cellstocks/**
+      - tools/cellstocks-selftest.mjs
+      - .github/workflows/cellstocks.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cellstocks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # The engine reads and writes .xlsx through DecompressionStream and
+      # CompressionStream, which node has had since 18. Pinned to 20 like the rest
+      # of this repository's tooling.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Self-test
+        run: node tools/cellstocks-selftest.mjs
+
+      # The inventory is the app's source of truth and the workbook is generated
+      # from it. If the two ever disagree, the sheet somebody downloads is wrong,
+      # so check rather than assume.
+      - name: The committed workbook still matches the inventory
+        run: |
+          node -e '
+            const fs = require("fs");
+            new Function(fs.readFileSync("cellstocks/xlsx.js", "utf8"))();
+            new Function(fs.readFileSync("cellstocks/engine.js", "utf8"))();
+            const E = globalThis.CellStocksEngine, X = globalThis.XlsxLite;
+            const state = E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/cellstocks.json", "utf8")));
+            X.writeWorkbookAsync(E.vialsToSheets(state)).then((bytes) => {
+              const onDisk = fs.readFileSync("cellstocks/cell-stocks.xlsx");
+              if (!onDisk.equals(Buffer.from(bytes))) {
+                console.error("cell-stocks.xlsx does not match cellstocks.json.");
+                console.error("Regenerate it — the app writes it on every save, so a mismatch means");
+                console.error("it was committed by hand or the generator changed.");
+                process.exit(1);
+              }
+              console.log("workbook matches the inventory (" + bytes.length + " bytes)");
+            }).catch((err) => { console.error(err); process.exit(1); });
+          '

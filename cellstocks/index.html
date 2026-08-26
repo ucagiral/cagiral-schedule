@@ -534,7 +534,7 @@
     try {
       state._meta = { savedBy: getDevice(), savedAt: new Date().toISOString() };
       await commitFiles([
-        { path: DATA_PATH, text: JSON.stringify(state, null, 2) + "\n" },
+        { path: DATA_PATH, text: E.serialise(state) },
         { path: XLSX_PATH, base64: bytesToBase64(await workbookBytes()) }
       ], message + " from " + getDevice());
       dirty = false;
@@ -818,6 +818,10 @@
       var show = el("button", null, "Show in box");
       show.onclick = function(){ showInBox(v); };
       row.appendChild(show);
+      var ed = el("button", null, "Edit");
+      ed.disabled = !canWrite();
+      ed.onclick = function(){ editVial(v); };
+      row.appendChild(ed);
     }
     if (row.childNodes.length) card.appendChild(row);
     return card;
@@ -1070,6 +1074,126 @@
     return wrap;
   }
 
+  // Editing a vial. Everything the sheet carried is editable here, plus the five
+  // derived facets: each shows what the rules read, and typing over one pins it by
+  // hand so classify() will not touch it again.
+  function editVial(vial){
+    $("dlgTitle").textContent = "Edit " + vial.name;
+    var body = clear($("dlgBody"));
+
+    function field(label, node, hint){
+      var f = el("div", "field");
+      f.appendChild(el("label", null, label));
+      f.appendChild(node);
+      if (hint) f.appendChild(el("div", "sub", hint));
+      body.appendChild(f);
+      return node;
+    }
+
+    var name = document.createElement("input");
+    name.value = vial.name || "";
+    field("Name", name, "Everything below that isn't pinned is worked out from this.");
+
+    var facetBox = el("div");
+    body.appendChild(el("label", null, "Cell details"));
+    body.appendChild(facetBox);
+    var facetInputs = {};
+    function paintFacets(){
+      clear(facetBox);
+      var derived = E.classify(name.value.trim(), state.rules);
+      E.FACETS.forEach(function(f){
+        var pinned = vial.facetsSetByHand && vial.facetsSetByHand[f] !== undefined;
+        var row = el("div", "item");
+        var grow = el("div", "grow");
+        grow.appendChild(el("div", null, f));
+        grow.appendChild(el("div", "sub", derived[f] === null
+          ? "no rule covers this name"
+          : "rules read: " + derived[f]));
+        row.appendChild(grow);
+        var inp = facetInputs[f] || document.createElement("input");
+        facetInputs[f] = inp;
+        inp.style.width = "9em";
+        if (inp.value === undefined || inp.dataset.init !== "1"){
+          inp.value = pinned ? vial.facetsSetByHand[f] : "";
+          inp.dataset.init = "1";
+        }
+        inp.placeholder = derived[f] === null ? "—" : derived[f];
+        row.appendChild(inp);
+        facetBox.appendChild(row);
+      });
+    }
+    paintFacets();
+    name.oninput = paintFacets;
+
+    var passage = document.createElement("input");
+    passage.value = vial.passage || "";
+    passage.placeholder = "p12, p+3 or p?";
+    field("Passage", passage, "p12 counts from the line's origin; p+3 counts from the last thaw. p? means unknown.");
+
+    var date = document.createElement("input");
+    date.type = "date";
+    if (vial.frozenOn) date.value = vial.frozenOn;
+    field("Date frozen", date, vial.frozenRaw
+      ? "The sheet says " + vial.frozenRaw + (vial.frozenOn ? "" : ", which could be read two ways.")
+      : "The sheet had nothing here.");
+
+    var notes = document.createElement("input");
+    notes.value = vial.notes || "";
+    notes.placeholder = "myco -";
+    field("Notes", notes, "myco -, chip- and to-do become searchable tags.");
+
+    body.appendChild(el("p", "note", "In " + E.locationPath(state, vial.location) +
+      (vial.importedFrom ? " · from " + vial.importedFrom : "")));
+
+    var foot = clear($("dlgFoot"));
+    var save = el("button", "primary", "Save");
+    save.disabled = !canWrite();
+    save.onclick = function(){
+      var v = E.indexById(state.vials)[vial.id];
+      if (!v) return;
+      var newName = name.value.trim();
+      if (!newName){ showBanner("A vial needs a name."); return; }
+
+      var pinned = {};
+      var derived = E.classify(newName, state.rules);
+      E.FACETS.forEach(function(f){
+        var typed = facetInputs[f].value.trim();
+        if (typed && typed !== derived[f]) pinned[f] = typed;
+      });
+
+      var before = JSON.parse(JSON.stringify(v));
+      v.name = newName;
+      v.lineId = E.lineIdFor(newName, state.rules);
+      if (Object.keys(pinned).length) v.facetsSetByHand = pinned; else delete v.facetsSetByHand;
+
+      var p = E.parsePassage(passage.value);
+      v.passage = p.raw; v.passageNumber = p.number; v.passageKind = p.kind;
+
+      if (date.value){
+        var parsed = E.parseDate(date.value);
+        if (!parsed.iso){ showBanner("That date can't be read."); return; }
+        v.frozenOn = parsed.iso;
+      } else {
+        v.frozenOn = null;
+      }
+
+      v.notes = notes.value.trim();
+      v.flags = E.flagsFrom(v.notes);
+
+      var errors = E.errorsOnly(E.validate(state));
+      if (errors.length){
+        Object.keys(before).forEach(function(k){ v[k] = before[k]; });
+        showBanner("Not saving that: " + esc(errors[0].message));
+        return;
+      }
+      $("dlg").close();
+      markDirty("Edit " + newName);
+      renderAll();
+    };
+    foot.appendChild(save);
+    $("dlg").showModal();
+  }
+
   function slotDialog(boxId, slot){
     var occ = E.occupancy(state, boxId);
     $("dlgTitle").textContent = occ.box.name + " · " + slot.position;
@@ -1100,6 +1224,10 @@
     if (v.notes) body.appendChild(el("p", "note", "Notes: " + v.notes));
     if (v.importedFrom) body.appendChild(el("p", "note", "From " + v.importedFrom));
 
+    var edit = el("button", null, "Edit");
+    edit.disabled = !canWrite();
+    edit.onclick = function(){ $("dlg").close(); editVial(v); };
+    foot.appendChild(edit);
     var take = el("button", "primary", "Took it");
     take.disabled = !canWrite();
     take.onclick = function(){ $("dlg").close(); takeVial(v); };
@@ -1311,6 +1439,37 @@
       box.appendChild(gc);
     }
 
+    // ---- vials with no passage recorded ----
+    if (q.unknownPassage.length){
+      var uc = el("div", "card");
+      uc.appendChild(el("h3", null, "Passage not recorded (" + q.unknownPassage.length + ")"));
+      uc.appendChild(el("p", "note",
+        "The sheet says p? for these. They are still findable by name, and the passage slider " +
+        "keeps them behind its \u201cinclude unknown\u201d toggle rather than dropping them. " +
+        "Fill one in whenever you happen to know it."));
+      var byName = {};
+      q.unknownPassage.forEach(function(v){
+        if (!byName[v.name]) byName[v.name] = [];
+        byName[v.name].push(v);
+      });
+      Object.keys(byName).sort().slice(0, 60).forEach(function(n){
+        var list = byName[n];
+        var row = el("div", "item");
+        var grow = el("div", "grow");
+        grow.appendChild(el("div", null, n));
+        grow.appendChild(el("div", "sub", list.length + " vial" + (list.length === 1 ? "" : "s") +
+          " · " + list.map(function(v){ return E.locationPath(state, v.location).split(" → ").slice(-2).join(" "); }).join(", ")));
+        row.appendChild(grow);
+        var b = el("button", null, list.length === 1 ? "Fill in" : "Fill in first");
+        b.disabled = !canWrite();
+        b.onclick = function(){ editVial(list[0]); };
+        row.appendChild(b);
+        uc.appendChild(row);
+      });
+      if (Object.keys(byName).length > 60) uc.appendChild(el("p", "note", "…and more."));
+      box.appendChild(uc);
+    }
+
     // ---- rows holding more than one kind of cell ----
     if (q.rows.length){
       var rc = el("div", "card");
@@ -1355,7 +1514,7 @@
         row.appendChild(grow);
         var b = el("button", null, "Fix");
         b.disabled = !canWrite();
-        b.onclick = function(){ askPassage(v); };
+        b.onclick = function(){ editVial(v); };
         row.appendChild(b);
         pc.appendChild(row);
       });
@@ -1377,26 +1536,6 @@
       var r = E.confirmDate(state, vial.id, inp.value);
       if (!r.ok){ showBanner(esc(r.reason)); return; }
       state = r.state; $("dlg").close(); markDirty("Set a date"); renderAll();
-    };
-    foot.appendChild(ok);
-    $("dlg").showModal();
-  }
-
-  function askPassage(vial){
-    $("dlgTitle").textContent = "Passage for " + vial.name;
-    var body = clear($("dlgBody"));
-    body.appendChild(el("p", "note", "The sheet says " + vial.passage + "."));
-    var inp = document.createElement("input");
-    inp.value = "";
-    inp.placeholder = "p12, p+3 or p?";
-    body.appendChild(inp);
-    var foot = clear($("dlgFoot"));
-    var ok = el("button", "primary", "Save");
-    ok.onclick = function(){
-      var p = E.parsePassage(inp.value);
-      var v = E.indexById(state.vials)[vial.id];
-      v.passage = p.raw; v.passageNumber = p.number; v.passageKind = p.kind;
-      $("dlg").close(); markDirty("Fix a passage"); renderAll();
     };
     foot.appendChild(ok);
     $("dlg").showModal();

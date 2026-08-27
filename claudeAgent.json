@@ -2338,8 +2338,8 @@
     {
       "id": "e-yy1-diag-digest-incubate",
       "date": "2026-09-02",
-      "start": "11:15",
-      "end": "11:30",
+      "start": "09:55",
+      "end": "10:10",
       "title": "Diagnostic digest incubation",
       "category": "experiment",
       "type": "passive",
@@ -2457,7 +2457,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T21:19:12.036Z",
+    "lastModified": "2026-08-27T21:19:16.706Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

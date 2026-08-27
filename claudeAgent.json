@@ -2326,8 +2326,8 @@
     {
       "id": "e-yy1-diag-digest-setup",
       "date": "2026-09-02",
-      "start": "11:10",
-      "end": "11:15",
+      "start": "09:55",
+      "end": "10:00",
       "title": "Set up diagnostic restriction digest",
       "category": "experiment",
       "type": "active",
@@ -2457,7 +2457,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T21:19:43.396Z",
+    "lastModified": "2026-08-27T21:19:45.935Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

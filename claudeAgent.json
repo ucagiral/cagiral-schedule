@@ -2302,8 +2302,8 @@
     {
       "id": "e-yy1-diag-gel-pour",
       "date": "2026-09-02",
-      "start": "08:40",
-      "end": "08:50",
+      "start": "09:45",
+      "end": "09:55",
       "title": "Pour agarose gel (1%) for diagnostic digest gel check",
       "category": "experiment",
       "type": "active",
@@ -2469,7 +2469,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T17:06:36.086Z",
+    "lastModified": "2026-08-27T17:19:39.550Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

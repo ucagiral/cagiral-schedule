@@ -282,3 +282,23 @@ The planner proposes; nothing is written until the events are reviewed and accep
 - Repeating commitments are stored as individual dated events — there is no recurrence engine, so
   they need regenerating when they run past their last date.
 - Days should not run past roughly **18:00** unless there is no alternative.
+
+### A "gel check" needs a gel and a finished digest, not just a load step
+
+Caught 27 Aug 2026: the 31 Aug–2 Sep Nek2→YY1 schedule had a "Load combined gel" step and a
+"Diagnostic restriction digest + gel check" step, neither of which had anywhere for the gel itself
+to come from, and the second folded "run the digest" and "read the gel" into one block as if the
+digest's own incubation time didn't need to elapse first. A gel check has **two** real
+prerequisites, every time one is scheduled:
+
+1. **The digest (or PCR) has actually finished** — its own setup + incubation time has to elapse
+   *before* the load step, as its own sub-steps. Never collapse "digest + gel check" into a single
+   opaque block; it hides whether the cutting has actually happened yet.
+2. **A gel has been poured and has had time to solidify** — 20–30 min at room temperature, or
+   10–15 min at 4 °C (see [`protocols/durations.md`](protocols/durations.md)). It doesn't need to be
+   poured right before loading — casting it inside an earlier passive stretch that's already on the
+   calendar (a long digest, an AP incubation, first thing before the day's other work) costs nothing
+   extra, so that's preferred over adding to the critical path.
+
+This is the same class of thing as "boil before loading" and "transfer before any antibody" in §5 —
+apply it every time a gel shows up, not just when asked.

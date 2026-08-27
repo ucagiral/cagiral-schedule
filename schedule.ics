@@ -3102,6 +3102,41 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:e-yy1-gel-pour@cagiral-schedule
+DTSTAMP:20260827T170636Z
+SEQUENCE:29797506
+DTSTART;TZID=Europe/Istanbul:20260831T110500
+DTEND;TZID=Europe/Istanbul:20260831T111500
+SUMMARY:Pour agarose gel (1%) for backbone + insert gel check
+DESCRIPTION:Nek2(K37R) → YY1 swap. Added because the 16:20 load had no ge
+ l to load onto — poured here\, inside the 10:55-14:55 digest window\, so
+  it's set hours before it's needed. See durations.md.\nActive — needs yo
+ u there\nGroup: Nek2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Pour agarose gel (1%) for backbone + insert gel check
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-gel-solidify@cagiral-schedule
+DTSTAMP:20260827T170636Z
+SEQUENCE:29797506
+DTSTART;TZID=Europe/Istanbul:20260831T111500
+DTEND;TZID=Europe/Istanbul:20260831T114500
+SUMMARY:Gel solidifying (RT)
+DESCRIPTION:Nek2(K37R) → YY1 swap. 20-30 min RT to set\; top of range tak
+ en. Runs unattended alongside the digests and the 11:30 ATF3 thaw.\nPassiv
+ e — runs unattended\, does not block time\nGroup: Nek2→YY1\nCategory: 
+ experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:e-yy1-ap-treat@cagiral-schedule
 DTSTAMP:20260827T170636Z
 SEQUENCE:29797506
@@ -3156,8 +3191,8 @@ DTSTART;TZID=Europe/Istanbul:20260831T162000
 DTEND;TZID=Europe/Istanbul:20260831T163500
 SUMMARY:Load combined gel (backbone + insert)
 DESCRIPTION:Nek2(K37R) → YY1 swap. Both digested fragments run on the sam
- e gel.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: experimen
- t
+ e gel — gel poured and set at 11:05-11:45.\nActive — needs you there\n
+ Group: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3353,6 +3388,40 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:e-yy1-diag-gel-pour@cagiral-schedule
+DTSTAMP:20260827T170636Z
+SEQUENCE:29797506
+DTSTART;TZID=Europe/Istanbul:20260902T084000
+DTEND;TZID=Europe/Istanbul:20260902T085000
+SUMMARY:Pour agarose gel (1%) for diagnostic digest gel check
+DESCRIPTION:Nek2(K37R) → YY1 swap. Poured first thing so it's set well be
+ fore the 11:30 load — no gel existed for the old single-block "diagnosti
+ c digest + gel check" event to load onto. See durations.md.\nActive — ne
+ eds you there\nGroup: Nek2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Pour agarose gel (1%) for diagnostic digest gel check
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-diag-gel-solidify@cagiral-schedule
+DTSTAMP:20260827T170636Z
+SEQUENCE:29797506
+DTSTART;TZID=Europe/Istanbul:20260902T085000
+DTEND;TZID=Europe/Istanbul:20260902T092000
+SUMMARY:Gel solidifying (RT)
+DESCRIPTION:Nek2(K37R) → YY1 swap. 20-30 min RT to set\; top of range tak
+ en. Runs unattended before miniprep starts.\nPassive — runs unattended\,
+  does not block time\nGroup: Nek2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:e-yy1-miniprep@cagiral-schedule
 DTSTAMP:20260827T170636Z
 SEQUENCE:29797506
@@ -3371,29 +3440,101 @@ TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:e-yy1-diag-digest@cagiral-schedule
+UID:e-yy1-diag-digest-setup@cagiral-schedule
 DTSTAMP:20260827T170636Z
 SEQUENCE:29797506
 DTSTART;TZID=Europe/Istanbul:20260902T111000
-DTEND;TZID=Europe/Istanbul:20260902T121500
-SUMMARY:Diagnostic restriction digest + gel check
+DTEND;TZID=Europe/Istanbul:20260902T111500
+SUMMARY:Set up diagnostic restriction digest
 DESCRIPTION:Nek2(K37R) → YY1 swap. Confirms correct insert size before se
  nding for sequencing. Starts after the 10:00-11:00 existing block plus cle
- arance.\nPassive — runs unattended\, does not block time\nGroup: Nek2→
- YY1\nCategory: experiment
+ arance. Split out from the old single "digest + gel check" block — the d
+ igest has to actually finish before there's anything to load.\nActive — 
+ needs you there\nGroup: Nek2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Set up diagnostic restriction digest
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-diag-digest-incubate@cagiral-schedule
+DTSTAMP:20260827T170636Z
+SEQUENCE:29797506
+DTSTART;TZID=Europe/Istanbul:20260902T111500
+DTEND;TZID=Europe/Istanbul:20260902T113000
+SUMMARY:Diagnostic digest incubation
+DESCRIPTION:Nek2(K37R) → YY1 swap. NEB HF Time-Saver default\, 5-15 min\;
+  top of range taken.\nPassive — runs unattended\, does not block time\nG
+ roup: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:e-yy1-diag-gel-load@cagiral-schedule
+DTSTAMP:20260827T170636Z
+SEQUENCE:29797506
+DTSTART;TZID=Europe/Istanbul:20260902T113000
+DTEND;TZID=Europe/Istanbul:20260902T113500
+SUMMARY:Load diagnostic digest on gel
+DESCRIPTION:Nek2(K37R) → YY1 swap. Gel poured and set at 08:40-09:20.\nAc
+ tive — needs you there\nGroup: Nek2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Load diagnostic digest on gel
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-diag-gel-run@cagiral-schedule
+DTSTAMP:20260827T170636Z
+SEQUENCE:29797506
+DTSTART;TZID=Europe/Istanbul:20260902T113500
+DTEND;TZID=Europe/Istanbul:20260902T121000
+SUMMARY:Gel run
+DESCRIPTION:Nek2(K37R) → YY1 swap. 1% gel\, ~35 min run.\nPassive — run
+ s unattended\, does not block time\nGroup: Nek2→YY1\nCategory: experimen
+ t
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e-yy1-diag-gel-visualize@cagiral-schedule
+DTSTAMP:20260827T170636Z
+SEQUENCE:29797506
+DTSTART;TZID=Europe/Istanbul:20260902T121000
+DTEND;TZID=Europe/Istanbul:20260902T122500
+SUMMARY:Visualize gel\, confirm insert size
+DESCRIPTION:Nek2(K37R) → YY1 swap.\nActive — needs you there\nGroup: Ne
+ k2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Visualize gel\, confirm insert size
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
 UID:e-yy1-send-seq@cagiral-schedule
 DTSTAMP:20260827T170636Z
 SEQUENCE:29797506
-DTSTART;TZID=Europe/Istanbul:20260902T121500
-DTEND;TZID=Europe/Istanbul:20260902T123000
+DTSTART;TZID=Europe/Istanbul:20260902T122500
+DTEND;TZID=Europe/Istanbul:20260902T124000
 SUMMARY:Send YY1 clone for Sanger sequencing
-DESCRIPTION:Nek2(K37R) → YY1 swap.\nActive — needs you there\nGroup: Ne
- k2→YY1\nCategory: experiment
+DESCRIPTION:Nek2(K37R) → YY1 swap. Pushed 10 min later than before — th
+ e old block had no room for the digest to actually finish or the gel to ac
+ tually run before this.\nActive — needs you there\nGroup: Nek2→YY1\nCa
+ tegory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE

@@ -40,6 +40,7 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | PCR amplification (Q5/HF polymerase, ~1.3 kb product) | ~55–60 min | ~15–20 min setup | ~35–40 min run | Q5 extension runs 20–30 s/kb for complex templates, faster for a simple plasmid template. |
 | Restriction digestion (NEB HF enzyme, published default) | 5–15 min | all | — | HF enzymes are Time-Saver qualified — digest 1 µg substrate in 5–15 min. **Superseded for the Nek2→YY1 swap by Umut's 4 h value below.** |
 | Backbone dephosphorylation (Antarctic Phosphatase, NEB M0289) | ~80–85 min | ~5 min setup | ~60 min @ 37 °C + ~20 min heat-inactivation @ 80 °C | Standard protocol: 1 h @ 37 °C, then heat-inactivate 20 min @ 80 °C. |
+| Agarose gel casting (melt, pour, comb, solidify) | ~30–40 min | ~5–10 min | 20–30 min RT (10–15 min @ 4 °C) | Melting and pouring is a few minutes' hands-on; standard protocols quote 20–30 min at room temperature to fully solidify, or 10–15 min chilled at 4 °C. **A gel has to already exist before a "load gel" step — it is not implicit.** |
 | Agarose gel run (1%, standard fragment sizes) | ~40 min | ~5 min load | ~35 min run | Common protocol: 1% gel, 40 min at 50 V. |
 | Gel extraction / PCR cleanup (spin column) | ~20–25 min | all | — | Gel dissolve ~10 min @ 50 °C plus successive 1-min spins. **Umut flags ~30% recovery efficiency for the kit in use — a yield risk, not a time change.** |
 | Ligation (T4 DNA ligase, sticky ends, published default) | 10 min | all | — | NEB's standard quick protocol: 10 min RT for cohesive ends. **Superseded for the Nek2→YY1 swap by Umut's 2 h value below.** |
@@ -100,6 +101,8 @@ These came from Umut directly and override any published range — see
 - [NEB — Faster Digests (Time-Saver qualified HF enzymes)](https://www.neb.com/en-us/products/restriction-endonucleases/hf-nicking-master-mix-time-saver-other/high-fidelity-restriction-enzymes/high-fidelity-restriction-endonucleases/faster-digests)
 - [NEB — vector dephosphorylation protocol (Antarctic Phosphatase, M0289)](https://www.neb.com/protocols/0001/01/01/vector-dephosphorylation-protocol)
 - [Addgene — how to run an agarose gel](https://www.addgene.org/protocols/gel-electrophoresis/)
+- [BBS OER Lab Manual — protocol for preparing 1% agarose gels](https://ecampusontario.pressbooks.pub/biochem2l06/chapter/1-2-2-protocol-for-preparing-1-agarose-gels/)
+- [Biology LibreTexts — casting agarose gel](https://bio.libretexts.org/Bookshelves/Biotechnology/Introduction_to_Biotechnology_Laboratory_Manual_(Barron)/06:_Restriction_Digest_and_Gel_Electrophoresis_(New)/6.04:_Part_II-_Casting_Agarose_Gel)
 - [QIAGEN — QIAquick Spin Handbook (PCR/gel cleanup)](https://www.qiagen.com/en-US/resources/download/Protocols/hb-0901-003-1114358-pcard-qq-pcr-gel-cleanup-kit-0718-ww)
 - [NEB — DNA ligation with T4 DNA Ligase (M0202)](https://www.neb.com/en/protocols/dna-ligation-with-t4-dna-ligase-m0202?pdf=true)
 - [NEB — high efficiency transformation protocol](https://www.neb.com/en/protocols/high-efficiency-transformation-protocol-c2987)

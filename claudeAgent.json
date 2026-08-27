@@ -2096,6 +2096,30 @@
       "group": "Nek2→YY1"
     },
     {
+      "id": "e-yy1-gel-pour",
+      "date": "2026-08-31",
+      "start": "11:05",
+      "end": "11:15",
+      "title": "Pour agarose gel (1%) for backbone + insert gel check",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Nek2(K37R) → YY1 swap. Added because the 16:20 load had no gel to load onto — poured here, inside the 10:55-14:55 digest window, so it's set hours before it's needed. See durations.md.",
+      "group": "Nek2→YY1"
+    },
+    {
+      "id": "e-yy1-gel-solidify",
+      "date": "2026-08-31",
+      "start": "11:15",
+      "end": "11:45",
+      "title": "Gel solidifying (RT)",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "Nek2(K37R) → YY1 swap. 20-30 min RT to set; top of range taken. Runs unattended alongside the digests and the 11:30 ATF3 thaw.",
+      "group": "Nek2→YY1"
+    },
+    {
       "id": "e-yy1-ap-treat",
       "date": "2026-08-31",
       "start": "14:55",
@@ -2140,7 +2164,7 @@
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "Nek2(K37R) → YY1 swap. Both digested fragments run on the same gel.",
+      "notes": "Nek2(K37R) → YY1 swap. Both digested fragments run on the same gel — gel poured and set at 11:05-11:45.",
       "group": "Nek2→YY1"
     },
     {
@@ -2276,6 +2300,30 @@
       "group": "Nek2→YY1"
     },
     {
+      "id": "e-yy1-diag-gel-pour",
+      "date": "2026-09-02",
+      "start": "08:40",
+      "end": "08:50",
+      "title": "Pour agarose gel (1%) for diagnostic digest gel check",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Nek2(K37R) → YY1 swap. Poured first thing so it's set well before the 11:30 load — no gel existed for the old single-block \"diagnostic digest + gel check\" event to load onto. See durations.md.",
+      "group": "Nek2→YY1"
+    },
+    {
+      "id": "e-yy1-diag-gel-solidify",
+      "date": "2026-09-02",
+      "start": "08:50",
+      "end": "09:20",
+      "title": "Gel solidifying (RT)",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "Nek2(K37R) → YY1 swap. 20-30 min RT to set; top of range taken. Runs unattended before miniprep starts.",
+      "group": "Nek2→YY1"
+    },
+    {
       "id": "e-yy1-miniprep",
       "date": "2026-09-02",
       "start": "09:00",
@@ -2288,27 +2336,75 @@
       "group": "Nek2→YY1"
     },
     {
-      "id": "e-yy1-diag-digest",
+      "id": "e-yy1-diag-digest-setup",
       "date": "2026-09-02",
       "start": "11:10",
-      "end": "12:15",
-      "title": "Diagnostic restriction digest + gel check",
+      "end": "11:15",
+      "title": "Set up diagnostic restriction digest",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Nek2(K37R) → YY1 swap. Confirms correct insert size before sending for sequencing. Starts after the 10:00-11:00 existing block plus clearance. Split out from the old single \"digest + gel check\" block — the digest has to actually finish before there's anything to load.",
+      "group": "Nek2→YY1"
+    },
+    {
+      "id": "e-yy1-diag-digest-incubate",
+      "date": "2026-09-02",
+      "start": "11:15",
+      "end": "11:30",
+      "title": "Diagnostic digest incubation",
       "category": "experiment",
       "type": "passive",
       "status": "pending",
-      "notes": "Nek2(K37R) → YY1 swap. Confirms correct insert size before sending for sequencing. Starts after the 10:00-11:00 existing block plus clearance.",
+      "notes": "Nek2(K37R) → YY1 swap. NEB HF Time-Saver default, 5-15 min; top of range taken.",
+      "group": "Nek2→YY1"
+    },
+    {
+      "id": "e-yy1-diag-gel-load",
+      "date": "2026-09-02",
+      "start": "11:30",
+      "end": "11:35",
+      "title": "Load diagnostic digest on gel",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Nek2(K37R) → YY1 swap. Gel poured and set at 08:40-09:20.",
+      "group": "Nek2→YY1"
+    },
+    {
+      "id": "e-yy1-diag-gel-run",
+      "date": "2026-09-02",
+      "start": "11:35",
+      "end": "12:10",
+      "title": "Gel run",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "Nek2(K37R) → YY1 swap. 1% gel, ~35 min run.",
+      "group": "Nek2→YY1"
+    },
+    {
+      "id": "e-yy1-diag-gel-visualize",
+      "date": "2026-09-02",
+      "start": "12:10",
+      "end": "12:25",
+      "title": "Visualize gel, confirm insert size",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Nek2(K37R) → YY1 swap.",
       "group": "Nek2→YY1"
     },
     {
       "id": "e-yy1-send-seq",
       "date": "2026-09-02",
-      "start": "12:15",
-      "end": "12:30",
+      "start": "12:25",
+      "end": "12:40",
       "title": "Send YY1 clone for Sanger sequencing",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "Nek2(K37R) → YY1 swap.",
+      "notes": "Nek2(K37R) → YY1 swap. Pushed 10 min later than before — the old block had no room for the digest to actually finish or the gel to actually run before this.",
       "group": "Nek2→YY1"
     },
     {

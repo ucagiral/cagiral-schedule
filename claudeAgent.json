@@ -2312,18 +2312,6 @@
       "group": "Nek2→YY1"
     },
     {
-      "id": "e-yy1-diag-gel-solidify",
-      "date": "2026-09-02",
-      "start": "08:50",
-      "end": "09:20",
-      "title": "Gel solidifying (RT)",
-      "category": "experiment",
-      "type": "passive",
-      "status": "pending",
-      "notes": "Nek2(K37R) → YY1 swap. 20-30 min RT to set; top of range taken. Runs unattended before miniprep starts.",
-      "group": "Nek2→YY1"
-    },
-    {
       "id": "e-yy1-miniprep",
       "date": "2026-09-02",
       "start": "09:00",
@@ -2469,7 +2457,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T17:19:46.504Z",
+    "lastModified": "2026-08-27T17:19:58.581Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

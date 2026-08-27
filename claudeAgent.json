@@ -2362,8 +2362,8 @@
     {
       "id": "e-yy1-diag-gel-run",
       "date": "2026-09-02",
-      "start": "11:35",
-      "end": "12:10",
+      "start": "11:05",
+      "end": "11:40",
       "title": "Gel run",
       "category": "experiment",
       "type": "passive",
@@ -2457,7 +2457,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T21:19:54.706Z",
+    "lastModified": "2026-08-27T21:19:57.155Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

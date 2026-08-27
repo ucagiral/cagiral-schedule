@@ -2252,18 +2252,6 @@
       "group": "Nek2→YY1"
     },
     {
-      "id": "e-yy1-colony-pcr",
-      "date": "2026-09-01",
-      "start": "13:10",
-      "end": "14:40",
-      "title": "Colony PCR screen + gel check",
-      "category": "experiment",
-      "type": "passive",
-      "status": "pending",
-      "notes": "Nek2(K37R) → YY1 swap. Screens test, negative-control and positive-control plates before committing to overnight culture. Starts after the day's existing 09:00-13:00 blocks plus clearance.",
-      "group": "Nek2→YY1"
-    },
-    {
       "id": "e-yy1-inoculate",
       "date": "2026-09-01",
       "start": "14:40",
@@ -2385,7 +2373,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-21T22:24:58.561Z",
+    "lastModified": "2026-08-27T17:02:19.776Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

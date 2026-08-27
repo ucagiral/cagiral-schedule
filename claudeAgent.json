@@ -2384,18 +2384,6 @@
       "group": "Nek2→YY1"
     },
     {
-      "id": "e-yy1-send-seq",
-      "date": "2026-09-02",
-      "start": "12:25",
-      "end": "12:40",
-      "title": "Send YY1 clone for Sanger sequencing",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "Nek2(K37R) → YY1 swap. Pushed 10 min later than before — the old block had no room for the digest to actually finish or the gel to actually run before this.",
-      "group": "Nek2→YY1"
-    },
-    {
       "id": "e-yy1-check-seq-reminder",
       "date": "2026-09-03",
       "title": "Check YY1 clone sequencing results",
@@ -2457,7 +2445,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T21:19:59.998Z",
+    "lastModified": "2026-08-27T21:20:04.630Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

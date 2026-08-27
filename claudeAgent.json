@@ -2350,8 +2350,8 @@
     {
       "id": "e-yy1-diag-gel-load",
       "date": "2026-09-02",
-      "start": "11:30",
-      "end": "11:35",
+      "start": "11:00",
+      "end": "11:05",
       "title": "Load diagnostic digest on gel",
       "category": "experiment",
       "type": "active",
@@ -2457,7 +2457,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T21:19:45.935Z",
+    "lastModified": "2026-08-27T21:19:54.706Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

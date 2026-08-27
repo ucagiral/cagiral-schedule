@@ -2374,8 +2374,8 @@
     {
       "id": "e-yy1-diag-gel-visualize",
       "date": "2026-09-02",
-      "start": "12:10",
-      "end": "12:25",
+      "start": "11:40",
+      "end": "11:55",
       "title": "Visualize gel, confirm insert size",
       "category": "experiment",
       "type": "active",
@@ -2457,7 +2457,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T21:19:57.155Z",
+    "lastModified": "2026-08-27T21:19:59.998Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

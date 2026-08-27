@@ -2392,18 +2392,6 @@
       "status": "pending",
       "notes": "Nek2(K37R) → YY1 swap. Submitted 2 Sep — results expected next business day.",
       "group": "Nek2→YY1"
-    },
-    {
-      "id": "e-yy1-confirm-clone",
-      "date": "2026-09-03",
-      "start": "13:25",
-      "end": "13:45",
-      "title": "Review sequencing results, confirm correct clone",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "Nek2(K37R) → YY1 swap. Starts after the day's existing 09:00-13:15 blocks plus clearance.",
-      "group": "Nek2→YY1"
     }
   ],
   "_groups": {
@@ -2445,7 +2433,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-27T21:20:04.630Z",
+    "lastModified": "2026-08-27T21:20:10.382Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

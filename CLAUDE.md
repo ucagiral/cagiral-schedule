@@ -7,11 +7,13 @@ behaviour from the first message goes here.
 The repo is Umut's lab schedule: `claudeAgent.json` is the source of truth, `index.html` is the app,
 `schedule.ics` is generated. See `README.md` for the mechanics.
 
-It also hosts **two more, unrelated apps**: `wardrobe/` picks what to wear, and `cellstocks/` keeps
-track of the frozen cell stocks in the −80 °C freezer. Everything below is about the schedule unless
-it says otherwise; §6 covers the wardrobe and §7 the cell stocks. When a request is about clothes,
-weather or outfits none of the scheduling rules apply; when it is about vials, boxes or freezers,
-§7 applies and the scheduling rules still don't.
+It also hosts **two more, unrelated apps** — `wardrobe/` picks what to wear, and `cellstocks/` keeps
+track of the frozen cell stocks in the −80 °C freezer — plus `phd-prep/`, which isn't an app at all,
+just markdown running Umut's doctoral qualifying exam preparation. Everything below is about the
+schedule unless it says otherwise; §6 covers the wardrobe, §7 the cell stocks, §8 the exam prep.
+When a request is about clothes, weather or outfits none of the scheduling rules apply; when it is
+about vials, boxes or freezers, §7 applies; when it's about the qualifying exam, jury questions or
+study topics, §8 applies — and the scheduling rules still don't.
 
 ---
 
@@ -180,3 +182,20 @@ worker handles by sweeping only its own prefix.
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get
   written down the same as anything else, into the table above.
+
+---
+
+## 8. The PhD qualifying exam prep
+
+`phd-prep/` runs Umut's doctoral qualifying exam preparation for KUTTAM CAA Lab. It has nothing to
+do with the schedule, the wardrobe or the cell stocks — it never touches `claudeAgent.json` or
+`schedule.ics`, and study blocks are never scheduled as real calendar events, only tracked in this
+folder's files.
+
+- **All the rules live in [`phd-prep/CLAUDE.md`](phd-prep/CLAUDE.md)** — role, jury members, weekly
+  planning, question types, constraints. Read it before acting on anything exam-related.
+- **Weekly progress goes in `phd-prep/progress.md`**, appended every week, never overwritten.
+- **Topic and question history goes in `phd-prep/topics-log.md`** — this is what stops a rejected
+  topic from being suggested again.
+- New exam facts — a jury change, a topic preference, a correction to an answer — get written down
+  the same as anything else, into those files.

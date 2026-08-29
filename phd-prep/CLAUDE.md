@@ -3,7 +3,9 @@
 Bu klasör, Umut'un Koç Üniversitesi KUTTAM CAA Lab'da (Ceyda Açılan Ayhan) yürüttüğü doktora
 yeterlilik sınavı hazırlığını yönetir. Ana takvimden (`../claudeAgent.json`, `../schedule.ics`)
 tamamen bağımsızdır — sınav hazırlığı hiçbir zaman gerçek takvime işlenmez, sadece bu klasördeki
-dosyalarda yaşar.
+dosyalarda yaşar: konu sırası [`curriculum.md`](curriculum.md)'de, haftalık ilerleme
+[`progress.md`](progress.md)'de, soru geçmişi [`topics-log.md`](topics-log.md)'de, konu başına
+key-concept özetleri `cheat-sheets/`'te.
 
 ## Sınav
 
@@ -36,12 +38,19 @@ Jüri kesinleşmemiştir; şu an elimizdeki isimler (değişirse burada güncell
 ## Görevler
 
 ### 1. Haftalık planlama
-- Her hafta başında konu başlıkları önerilir; öncelik genel MBG, tez-özel konular arasına
-  serpiştirilir.
-- Öneriler **tek tek evet/hayır** olarak sunulur. Onaylananlar haftanın planına girer; reddedilenler
-  [`topics-log.md`](topics-log.md)'ye "reddedildi" olarak işlenir ve bir daha önerilmez.
-- Plan hafta içi 09:00–17:00 bloklarına dağıtılır; her blok için hedef (okuma / aktif hatırlama /
-  deney tasarımı) belirtilir. Bu dağıtım sadece bu dosyalarda yaşar, takvime yazılmaz.
+- **Her haftaya menü değil, tek bir konu atanır.** Sıra [`curriculum.md`](curriculum.md)'deki ön
+  koşul mantığına göredir — bir konu bitmeden bir sonrakine atlanmaz (örn. DNA hasar yanıtı, DNA
+  replikasyonu işlenmeden başlamaz). Genel MBG öncelikli; tez-özel konular müfredatın **arasına**
+  yerleştirilmiştir, sona yığılmamıştır.
+- **Bir konu gerekirse 2 haftaya yayılır.** Sabit bir hafta sınırı yok; konu bitene kadar devam
+  edilir, `curriculum.md`'deki süre sadece ilk tahmindir.
+- **Her konu için bir key-concept cheat sheet üretilir**, `cheat-sheets/<NN>-<konu-slug>.md` olarak.
+  Doktora seviyesinde, kaynaklı (bkz. Kısıtlar). Konu 2 haftaya yayılırsa aynı dosya genişletilir.
+- Yeni konu atanmadan önce mevcut konunun bittiği [`progress.md`](progress.md)'ye işlenir. Sıra veya
+  bir konunun kapsamı Umut'un müdahalesiyle değişirse [`curriculum.md`](curriculum.md) güncellenir,
+  gerekçesiyle.
+- Hafta içi 09:00–17:00 bloklarına dağıtım (okuma / aktif hatırlama / deney tasarımı) mekanik bir
+  adımdır, izin istenmeden yapılır. Bu dağıtım sadece bu dosyalarda yaşar, takvime yazılmaz.
 
 ### 2. Aktif hatırlama soruları
 - Ezber değil muhakeme gerektiren sorular: mekanizma karşılaştırması, "neden bu yöntem değil öteki",
@@ -83,8 +92,9 @@ Jüri kesinleşmemiştir; şu an elimizdeki isimler (değişirse burada güncell
 Her hafta sonunda [`progress.md`](progress.md)'ye eklenir: tamamlanan konular, zorlanılan soru
 tipleri, sonraki haftaya taşınan açık noktalar. Bu kayıt bir sonraki haftalık planlamanın girdisidir.
 
-Konu/soru geçmişi (önerilen, onaylanan, reddedilen, sorulan) [`topics-log.md`](topics-log.md)'de
-tutulur — reddedilen bir konunun tekrar önerilmemesi buradan kontrol edilir.
+Konu sırası ve kapsamı [`curriculum.md`](curriculum.md)'de tutulur — hangi konunun ne zaman
+işleneceği buradan kontrol edilir, menü sunulup onay beklenmez. Sorulan aktif hatırlama sorularının
+geçmişi (soru, jüri etiketi, sonuç) [`topics-log.md`](topics-log.md)'de tutulur.
 
 Yeni sınav gerçeği — jüri değişikliği, konu tercihi, bir cevaba yapılan düzeltme — her şey gibi
 buraya (veya ilgili log dosyasına) yazılır.

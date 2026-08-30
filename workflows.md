@@ -302,3 +302,20 @@ prerequisites, every time one is scheduled:
 
 This is the same class of thing as "boil before loading" and "transfer before any antibody" in §5 —
 apply it every time a gel shows up, not just when asked.
+
+### When a protocol day runs late, check whether the last step can go overnight
+
+Caught 30 Aug 2026: the Nek2→YY1 Monday (31 Aug) ran same-day ligation → transformation → plating,
+pushing the finish to ~23:00. Umut's fix was to make the ligation itself overnight instead — it
+doesn't need watching either way, so there's no cost to letting it run unattended overnight rather
+than for 2h same-day. That single change moved transformation and plating off that evening entirely
+(onto the next calendar day), which is what actually got him out at a reasonable hour — shaving the
+earlier active steps wouldn't have, since those were already researched, fixed durations.
+
+**When a day is running late because of what comes after an already-passive step, check whether that
+step can simply run longer unattended (overnight, or into whatever gap exists) instead of shortening
+active work that has a real researched duration behind it.** This shifts everything downstream by
+however long the step now takes — inoculate/culture/miniprep/etc. all slide together, one day later
+in this case — so it has to be applied consistently for every subsequent step, not just the one that
+was overflowing, and it isn't free if a later step in the chain also has a hard deadline (e.g. a
+booked instrument) it would now miss.

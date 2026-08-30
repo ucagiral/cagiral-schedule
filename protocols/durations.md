@@ -63,7 +63,7 @@ These came from Umut directly and override any published range — see
 | Western strip | 20 min |
 | Virus medium change | 6.5 mL per vessel |
 | Nek2→YY1: BamHI-EcoRI digestion (insert and backbone) | 4 h |
-| Nek2→YY1: ligation | 2 h, room temperature |
+| Nek2→YY1: ligation | overnight (changed 30 Aug 2026, was 2 h RT) — 16°C or 4°C, ~12-16 h |
 
 ## Sources
 
@@ -103,6 +103,8 @@ These came from Umut directly and override any published range — see
 - [Addgene — how to run an agarose gel](https://www.addgene.org/protocols/gel-electrophoresis/)
 - [BBS OER Lab Manual — protocol for preparing 1% agarose gels](https://ecampusontario.pressbooks.pub/biochem2l06/chapter/1-2-2-protocol-for-preparing-1-agarose-gels/)
 - [Biology LibreTexts — casting agarose gel](https://bio.libretexts.org/Bookshelves/Biotechnology/Introduction_to_Biotechnology_Laboratory_Manual_(Barron)/06:_Restriction_Digest_and_Gel_Electrophoresis_(New)/6.04:_Part_II-_Casting_Agarose_Gel)
+- [NEB — quick tip: ideal incubation temperature for ligation](https://www.neb.com/en-us/tools-and-resources/video-library/quick-tip-what-is-the-ideal-incubation-temperature-for-ligation)
+- [NEB — T4 DNA Ligase (M0202)](https://www.neb.com/en-us/products/m0202-t4-dna-ligase)
 - [QIAGEN — QIAquick Spin Handbook (PCR/gel cleanup)](https://www.qiagen.com/en-US/resources/download/Protocols/hb-0901-003-1114358-pcard-qq-pcr-gel-cleanup-kit-0718-ww)
 - [NEB — DNA ligation with T4 DNA Ligase (M0202)](https://www.neb.com/en/protocols/dna-ligation-with-t4-dna-ligase-m0202?pdf=true)
 - [NEB — high efficiency transformation protocol](https://www.neb.com/en/protocols/high-efficiency-transformation-protocol-c2987)

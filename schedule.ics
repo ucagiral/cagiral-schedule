@@ -3016,13 +3016,15 @@ BEGIN:VEVENT
 UID:e-yy1-pcr-setup@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T090000
-DTEND;TZID=Europe/Istanbul:20260831T092000
+DTSTART;TZID=Europe/Istanbul:20260831T081500
+DTEND;TZID=Europe/Istanbul:20260831T083500
 SUMMARY:Set up YY1 PCR (MORF library template)
 DESCRIPTION:Nek2(K37R) → YY1 swap in pCDH backbone. Primers already in ha
  nd. PCR runs first\, alone — both digestions start together only once th
- is is done.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: expe
- riment
+ is is done. Whole day moved 45 min earlier (was 09:00) so ligation can go 
+ overnight and Umut is still out by ~16:40 instead of past 23:00 — see cl
+ oning.md.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: experi
+ ment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3036,8 +3038,8 @@ BEGIN:VEVENT
 UID:e-yy1-pcr-run@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T092000
-DTEND;TZID=Europe/Istanbul:20260831T100000
+DTSTART;TZID=Europe/Istanbul:20260831T083500
+DTEND;TZID=Europe/Istanbul:20260831T091500
 SUMMARY:YY1 PCR run (thermocycler)
 DESCRIPTION:Nek2(K37R) → YY1 swap. Q5/HF-style run\, ~1.3 kb product.\nPa
  ssive — runs unattended\, does not block time\nGroup: Nek2→YY1\nCatego
@@ -3050,13 +3052,14 @@ BEGIN:VEVENT
 UID:e-yy1-digest-setup@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T104000
-DTEND;TZID=Europe/Istanbul:20260831T105500
+DTSTART;TZID=Europe/Istanbul:20260831T091500
+DTEND;TZID=Europe/Istanbul:20260831T093000
 SUMMARY:Set up YY1 insert + pCDH backbone digestion
 DESCRIPTION:Nek2(K37R) → YY1 swap. BamHI-EcoRI double digest\, both react
- ions set up together so they run in parallel — per Umut. Starts after th
- e 10:00-10:30 block plus clearance.\nActive — needs you there\nGroup: Ne
- k2→YY1\nCategory: experiment
+ ions set up together so they run in parallel — per Umut. Now runs before
+  the 10:00-10:30 LNCX seed instead of after it\, since the whole chain mov
+ ed earlier.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: expe
+ riment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3070,13 +3073,15 @@ BEGIN:VEVENT
 UID:e-yy1-insert-digest@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T105500
-DTEND;TZID=Europe/Istanbul:20260831T145500
+DTSTART;TZID=Europe/Istanbul:20260831T093000
+DTEND;TZID=Europe/Istanbul:20260831T133000
 SUMMARY:YY1 insert digestion (BamHI-EcoRI)
 DESCRIPTION:Nek2(K37R) → YY1 swap. 4h digest of the PCR product — durat
  ion per Umut\, overrides the ~5-15 min NEB Time-Saver default. Runs alongs
- ide the backbone digest\, finishing together.\nPassive — runs unattended
- \, does not block time\nGroup: Nek2→YY1\nCategory: experiment
+ ide the backbone digest\, finishing together. Ends right when Umut is free
+  again after the 12:20-13:20 CuAdapt thaw\, so no time is lost either way.
+ \nPassive — runs unattended\, does not block time\nGroup: Nek2→YY1\nCa
+ tegory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
@@ -3085,8 +3090,8 @@ BEGIN:VEVENT
 UID:e-yy1-backbone-digest@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T105500
-DTEND;TZID=Europe/Istanbul:20260831T145500
+DTSTART;TZID=Europe/Istanbul:20260831T093000
+DTEND;TZID=Europe/Istanbul:20260831T133000
 SUMMARY:pCDH-Nek2(K37R) backbone digestion (BamHI-EcoRI)
 DESCRIPTION:Nek2(K37R) → YY1 swap. 4h digest\, excises Nek2(K37R) and lin
  earizes the vector — duration per Umut. Runs alongside the insert digest
@@ -3100,13 +3105,13 @@ BEGIN:VEVENT
 UID:e-yy1-gel-pour@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T110500
-DTEND;TZID=Europe/Istanbul:20260831T111500
+DTSTART;TZID=Europe/Istanbul:20260831T094000
+DTEND;TZID=Europe/Istanbul:20260831T095000
 SUMMARY:Pour agarose gel (1%) for backbone + insert gel check
-DESCRIPTION:Nek2(K37R) → YY1 swap. Added because the 16:20 load had no ge
- l to load onto — poured here\, inside the 10:55-14:55 digest window\, so
-  it's set hours before it's needed. See durations.md.\nActive — needs yo
- u there\nGroup: Nek2→YY1\nCategory: experiment
+DESCRIPTION:Nek2(K37R) → YY1 swap. Poured inside the digest's passive win
+ dow\, before the 10:00 LNCX seed\, so it's set hours before the 14:55 load
+ . See durations.md.\nActive — needs you there\nGroup: Nek2→YY1\nCatego
+ ry: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3120,11 +3125,11 @@ BEGIN:VEVENT
 UID:e-yy1-gel-solidify@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T111500
-DTEND;TZID=Europe/Istanbul:20260831T114500
+DTSTART;TZID=Europe/Istanbul:20260831T095000
+DTEND;TZID=Europe/Istanbul:20260831T102000
 SUMMARY:Gel solidifying (RT)
 DESCRIPTION:Nek2(K37R) → YY1 swap. 20-30 min RT to set\; top of range tak
- en. Runs unattended alongside the digests and the 11:30 ATF3 thaw.\nPassiv
+ en. Runs unattended alongside the digests and the 10:00 LNCX seed.\nPassiv
  e — runs unattended\, does not block time\nGroup: Nek2→YY1\nCategory: 
  experiment
 CATEGORIES:Nek2→YY1,experiment
@@ -3135,12 +3140,13 @@ BEGIN:VEVENT
 UID:e-yy1-ap-treat@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T145500
-DTEND;TZID=Europe/Istanbul:20260831T150000
+DTSTART;TZID=Europe/Istanbul:20260831T133000
+DTEND;TZID=Europe/Istanbul:20260831T133500
 SUMMARY:Add Antarctic Phosphatase to digested backbone
 DESCRIPTION:Nek2(K37R) → YY1 swap. Both digestions finished together at 1
- 4:55\; AP added directly to the backbone digest tube.\nActive — needs yo
- u there\nGroup: Nek2→YY1\nCategory: experiment
+ 3:30 — the same moment Umut is free again after the CuAdapt thaw\, so no
+ thing waits either way. AP added directly to the backbone digest tube.\nAc
+ tive — needs you there\nGroup: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3154,8 +3160,8 @@ BEGIN:VEVENT
 UID:e-yy1-ap-incubate@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T150000
-DTEND;TZID=Europe/Istanbul:20260831T160000
+DTSTART;TZID=Europe/Istanbul:20260831T133500
+DTEND;TZID=Europe/Istanbul:20260831T143500
 SUMMARY:AP incubation @ 37°C
 DESCRIPTION:Nek2(K37R) → YY1 swap. Standard 1h Antarctic Phosphatase incu
  bation.\nPassive — runs unattended\, does not block time\nGroup: Nek2→
@@ -3168,8 +3174,8 @@ BEGIN:VEVENT
 UID:e-yy1-ap-heatkill@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T160000
-DTEND;TZID=Europe/Istanbul:20260831T162000
+DTSTART;TZID=Europe/Istanbul:20260831T143500
+DTEND;TZID=Europe/Istanbul:20260831T145500
 SUMMARY:Heat-inactivate AP @ 80°C
 DESCRIPTION:Nek2(K37R) → YY1 swap. 20 min heat inactivation\; backbone re
  ady for gel after this.\nPassive — runs unattended\, does not block time
@@ -3182,11 +3188,11 @@ BEGIN:VEVENT
 UID:e-yy1-gel-load@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T162000
-DTEND;TZID=Europe/Istanbul:20260831T163500
+DTSTART;TZID=Europe/Istanbul:20260831T145500
+DTEND;TZID=Europe/Istanbul:20260831T151000
 SUMMARY:Load combined gel (backbone + insert)
 DESCRIPTION:Nek2(K37R) → YY1 swap. Both digested fragments run on the sam
- e gel — gel poured and set at 11:05-11:45.\nActive — needs you there\n
+ e gel — gel poured and set at 09:40-10:20.\nActive — needs you there\n
  Group: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
@@ -3201,8 +3207,8 @@ BEGIN:VEVENT
 UID:e-yy1-gel-run@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T163500
-DTEND;TZID=Europe/Istanbul:20260831T171000
+DTSTART;TZID=Europe/Istanbul:20260831T151000
+DTEND;TZID=Europe/Istanbul:20260831T154500
 SUMMARY:Gel run
 DESCRIPTION:Nek2(K37R) → YY1 swap. 1% gel\, ~35 min run.\nPassive — run
  s unattended\, does not block time\nGroup: Nek2→YY1\nCategory: experimen
@@ -3215,8 +3221,8 @@ BEGIN:VEVENT
 UID:e-yy1-gel-excise@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T171000
-DTEND;TZID=Europe/Istanbul:20260831T172500
+DTSTART;TZID=Europe/Istanbul:20260831T154500
+DTEND;TZID=Europe/Istanbul:20260831T160000
 SUMMARY:Visualize gel\, excise backbone + insert bands
 DESCRIPTION:Nek2(K37R) → YY1 swap.\nActive — needs you there\nGroup: Ne
  k2→YY1\nCategory: experiment
@@ -3233,8 +3239,8 @@ BEGIN:VEVENT
 UID:e-yy1-gel-extract@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T172500
-DTEND;TZID=Europe/Istanbul:20260831T175000
+DTSTART;TZID=Europe/Istanbul:20260831T160000
+DTEND;TZID=Europe/Istanbul:20260831T162500
 SUMMARY:Gel extraction / clean-up (backbone + insert)
 DESCRIPTION:Nek2(K37R) → YY1 swap. ~30% recovery efficiency per Umut — 
  yield risk to keep in mind downstream\, not a time change.\nActive — nee
@@ -3252,12 +3258,13 @@ BEGIN:VEVENT
 UID:e-yy1-ligation-setup@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T175000
-DTEND;TZID=Europe/Istanbul:20260831T180500
+DTSTART;TZID=Europe/Istanbul:20260831T162500
+DTEND;TZID=Europe/Istanbul:20260831T164000
 SUMMARY:Ligation setup — test + negative control
 DESCRIPTION:Nek2(K37R) → YY1 swap. Test = insert+backbone. Negative contr
- ol = AP-treated backbone alone\, no insert.\nActive — needs you there\nG
- roup: Nek2→YY1\nCategory: experiment
+ ol = AP-treated backbone alone\, no insert. Last hands-on step of the day 
+ — Umut is out by 16:40 now that ligation runs overnight.\nActive — nee
+ ds you there\nGroup: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3271,12 +3278,16 @@ BEGIN:VEVENT
 UID:e-yy1-ligation@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T180500
-DTEND;TZID=Europe/Istanbul:20260831T200500
-SUMMARY:Ligation\, 2h RT
-DESCRIPTION:Nek2(K37R) → YY1 swap. 2h room temperature — per Umut\, ove
- rrides the ~10 min NEB quick-ligase default.\nPassive — runs unattended\
- , does not block time\nGroup: Nek2→YY1\nCategory: experiment
+DTSTART;TZID=Europe/Istanbul:20260831T164000
+DTEND;TZID=Europe/Istanbul:20260831T230000
+SUMMARY:Ligation\, overnight
+DESCRIPTION:Nek2(K37R) → YY1 swap. Changed from same-day 2h RT to overnig
+ ht per Umut (30 Aug 2026)\, specifically so he doesn't have to stay for tr
+ ansformation/plating that night. 16°C (NEB) or 4°C (Promega) both standa
+ rd for overnight sticky-end ligation\, ~12-16h — either works\, whicheve
+ r block is free. Placeholder end — continues overnight past this grid's 
+ 23:00 window. Transformation moves to 1 Sep afternoon.\nPassive — runs u
+ nattended\, does not block time\nGroup: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
@@ -3285,13 +3296,16 @@ BEGIN:VEVENT
 UID:e-yy1-transform@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T200500
-DTEND;TZID=Europe/Istanbul:20260831T202500
+DTSTART;TZID=Europe/Istanbul:20260901T131000
+DTEND;TZID=Europe/Istanbul:20260901T133000
 SUMMARY:Transformation — heat shock (test\, negative\, positive controls)
-DESCRIPTION:Nek2(K37R) → YY1 swap. 3 tubes: test ligation\, negative cont
- rol\, and a positive control (undigested pCDH-Nek2(K37R) stock\, transform
- ed directly\, no ligation).\nActive — needs you there\nGroup: Nek2→YY1
- \nCategory: experiment
+DESCRIPTION:Nek2(K37R) → YY1 swap. Moved here from the night of 31 Aug no
+ w that ligation runs overnight — starts after the day's existing 09:00-1
+ 3:00 blocks (copper feed\, ATF3 and CuAdapt medium changes\, LNCX/LUCX vir
+ us medium change) plus clearance\; ligation has had well over 12h by now. 
+ 3 tubes: test ligation\, negative control\, and a positive control (undige
+ sted pCDH-Nek2(K37R) stock\, transformed directly\, no ligation).\nActive 
+ — needs you there\nGroup: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3306,8 +3320,8 @@ BEGIN:VEVENT
 UID:e-yy1-soc@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T202500
-DTEND;TZID=Europe/Istanbul:20260831T212500
+DTSTART;TZID=Europe/Istanbul:20260901T133000
+DTEND;TZID=Europe/Istanbul:20260901T143000
 SUMMARY:SOC recovery @ 37°C shaking
 DESCRIPTION:Nek2(K37R) → YY1 swap.\nPassive — runs unattended\, does no
  t block time\nGroup: Nek2→YY1\nCategory: experiment
@@ -3319,12 +3333,12 @@ BEGIN:VEVENT
 UID:e-yy1-plate@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T212500
-DTEND;TZID=Europe/Istanbul:20260831T214500
+DTSTART;TZID=Europe/Istanbul:20260901T143000
+DTEND;TZID=Europe/Istanbul:20260901T145000
 SUMMARY:Plate all 3 conditions
-DESCRIPTION:Nek2(K37R) → YY1 swap. Runs late — flagged and confirmed wi
- th Umut (single-day path chosen over splitting to Tuesday AM).\nActive —
-  needs you there\nGroup: Nek2→YY1\nCategory: experiment
+DESCRIPTION:Nek2(K37R) → YY1 swap. No longer runs late — moved off the 
+ night of 31 Aug along with transformation.\nActive — needs you there\nGr
+ oup: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3338,13 +3352,13 @@ BEGIN:VEVENT
 UID:e-yy1-overnight-plates@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260831T214500
-DTEND;TZID=Europe/Istanbul:20260831T230000
+DTSTART;TZID=Europe/Istanbul:20260901T145000
+DTEND;TZID=Europe/Istanbul:20260901T230000
 SUMMARY:Overnight plate incubation @ 37°C
 DESCRIPTION:Nek2(K37R) → YY1 swap. Placeholder end — continues overnigh
- t past this grid's 23:00 window\, colonies ready by Tuesday.\nPassive — 
- runs unattended\, does not block time\nGroup: Nek2→YY1\nCategory: experi
- ment
+ t past this grid's 23:00 window\, colonies ready by Wednesday morning (2 S
+ ep).\nPassive — runs unattended\, does not block time\nGroup: Nek2→YY1
+ \nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
@@ -3353,11 +3367,13 @@ BEGIN:VEVENT
 UID:e-yy1-inoculate@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260901T144000
-DTEND;TZID=Europe/Istanbul:20260901T145000
+DTSTART;TZID=Europe/Istanbul:20260902T090000
+DTEND;TZID=Europe/Istanbul:20260902T091000
 SUMMARY:Inoculate overnight culture from a PCR-positive colony
-DESCRIPTION:Nek2(K37R) → YY1 swap.\nActive — needs you there\nGroup: Ne
- k2→YY1\nCategory: experiment
+DESCRIPTION:Nek2(K37R) → YY1 swap. Moved from 1 Sep to 2 Sep — colonies
+  aren't ready to pick until the morning after the (now 1 Sep afternoon) pl
+ ating.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: experimen
+ t
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3371,46 +3387,30 @@ BEGIN:VEVENT
 UID:e-yy1-overnight-culture@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260901T145000
-DTEND;TZID=Europe/Istanbul:20260901T230000
+DTSTART;TZID=Europe/Istanbul:20260902T091000
+DTEND;TZID=Europe/Istanbul:20260902T230000
 SUMMARY:Overnight bacterial culture
 DESCRIPTION:Nek2(K37R) → YY1 swap. Placeholder end — continues overnigh
- t past this grid's 23:00 window\, ready for miniprep Wednesday morning.\nP
- assive — runs unattended\, does not block time\nGroup: Nek2→YY1\nCateg
- ory: experiment
+ t past this grid's 23:00 window\, ready for miniprep Thursday morning (3 S
+ ep).\nPassive — runs unattended\, does not block time\nGroup: Nek2→YY1
+ \nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:e-yy1-diag-gel-pour@cagiral-schedule
-DTSTAMP:20260828T122858Z
-SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260902T094500
-DTEND;TZID=Europe/Istanbul:20260902T095500
-SUMMARY:Pour agarose gel (1%) for diagnostic digest gel check
-DESCRIPTION:Nek2(K37R) → YY1 swap. Poured first thing so it's set well be
- fore the 11:30 load — no gel existed for the old single-block "diagnosti
- c digest + gel check" event to load onto. See durations.md.\nActive — ne
- eds you there\nGroup: Nek2→YY1\nCategory: experiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Pour agarose gel (1%) for diagnostic digest gel check
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
 UID:e-yy1-miniprep@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260902T090000
-DTEND;TZID=Europe/Istanbul:20260902T094500
+DTSTART;TZID=Europe/Istanbul:20260903T132500
+DTEND;TZID=Europe/Istanbul:20260903T141000
 SUMMARY:Miniprep
-DESCRIPTION:Nek2(K37R) → YY1 swap.\nActive — needs you there\nGroup: Ne
- k2→YY1\nCategory: experiment
+DESCRIPTION:Nek2(K37R) → YY1 swap. Moved from 2 Sep to 3 Sep along with t
+ he rest of the diagnostic-digest chain\, one day later than Umut's own tim
+ ing for it — the overnight culture it depends on isn't ready until this 
+ morning. Starts after the day's existing 09:00-13:15 blocks (CuAdapt passa
+ ge\, LNCX/LUCX Hygromycin\, ATF3 mutants SRB) plus clearance.\nActive — 
+ needs you there\nGroup: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3421,17 +3421,35 @@ TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
+UID:e-yy1-diag-gel-pour@cagiral-schedule
+DTSTAMP:20260828T122858Z
+SEQUENCE:29798668
+DTSTART;TZID=Europe/Istanbul:20260903T141000
+DTEND;TZID=Europe/Istanbul:20260903T142000
+SUMMARY:Pour agarose gel (1%) for diagnostic digest gel check
+DESCRIPTION:Nek2(K37R) → YY1 swap. Same 10 min pour Umut had it as\, just
+  a day later and refit around this day's other bookings. See durations.md.
+ \nActive — needs you there\nGroup: Nek2→YY1\nCategory: experiment
+CATEGORIES:Nek2→YY1,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Pour agarose gel (1%) for diagnostic digest gel check
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
 UID:e-yy1-diag-digest-setup@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260902T095500
-DTEND;TZID=Europe/Istanbul:20260902T100000
+DTSTART;TZID=Europe/Istanbul:20260903T142000
+DTEND;TZID=Europe/Istanbul:20260903T142500
 SUMMARY:Set up diagnostic restriction digest
 DESCRIPTION:Nek2(K37R) → YY1 swap. Confirms correct insert size before se
- nding for sequencing. Starts after the 10:00-11:00 existing block plus cle
- arance. Split out from the old single "digest + gel check" block — the d
- igest has to actually finish before there's anything to load.\nActive — 
- needs you there\nGroup: Nek2→YY1\nCategory: experiment
+ nding for sequencing. The digest has to actually finish before there's any
+ thing to load.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: e
+ xperiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3445,8 +3463,8 @@ BEGIN:VEVENT
 UID:e-yy1-diag-digest-incubate@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260902T100000
-DTEND;TZID=Europe/Istanbul:20260902T101500
+DTSTART;TZID=Europe/Istanbul:20260903T142500
+DTEND;TZID=Europe/Istanbul:20260903T144000
 SUMMARY:Diagnostic digest incubation
 DESCRIPTION:Nek2(K37R) → YY1 swap. NEB HF Time-Saver default\, 5-15 min\;
   top of range taken.\nPassive — runs unattended\, does not block time\nG
@@ -3459,11 +3477,12 @@ BEGIN:VEVENT
 UID:e-yy1-diag-gel-load@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260902T110000
-DTEND;TZID=Europe/Istanbul:20260902T110500
+DTSTART;TZID=Europe/Istanbul:20260903T144000
+DTEND;TZID=Europe/Istanbul:20260903T144500
 SUMMARY:Load diagnostic digest on gel
-DESCRIPTION:Nek2(K37R) → YY1 swap. Gel poured and set at 08:40-09:20.\nAc
- tive — needs you there\nGroup: Nek2→YY1\nCategory: experiment
+DESCRIPTION:Nek2(K37R) → YY1 swap. Gel poured and set at 14:10-14:40ish\,
+  same as the digest's own incubation — both are ready together.\nActive 
+ — needs you there\nGroup: Nek2→YY1\nCategory: experiment
 CATEGORIES:Nek2→YY1,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
@@ -3477,8 +3496,8 @@ BEGIN:VEVENT
 UID:e-yy1-diag-gel-run@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260902T110500
-DTEND;TZID=Europe/Istanbul:20260902T114000
+DTSTART;TZID=Europe/Istanbul:20260903T144500
+DTEND;TZID=Europe/Istanbul:20260903T152000
 SUMMARY:Gel run
 DESCRIPTION:Nek2(K37R) → YY1 swap. 1% gel\, ~35 min run.\nPassive — run
  s unattended\, does not block time\nGroup: Nek2→YY1\nCategory: experimen
@@ -3491,8 +3510,8 @@ BEGIN:VEVENT
 UID:e-yy1-diag-gel-visualize@cagiral-schedule
 DTSTAMP:20260828T122858Z
 SEQUENCE:29798668
-DTSTART;TZID=Europe/Istanbul:20260902T114000
-DTEND;TZID=Europe/Istanbul:20260902T115500
+DTSTART;TZID=Europe/Istanbul:20260903T152000
+DTEND;TZID=Europe/Istanbul:20260903T153500
 SUMMARY:Visualize gel\, confirm insert size
 DESCRIPTION:Nek2(K37R) → YY1 swap.\nActive — needs you there\nGroup: Ne
  k2→YY1\nCategory: experiment

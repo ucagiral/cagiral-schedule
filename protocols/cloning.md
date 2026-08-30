@@ -5,10 +5,27 @@
 Cutting Nek2(K37R) out of the `pCDH-Nek2(K37R)` plasmid and replacing it with a YY1 sequence
 PCR-amplified from a MORF library template. Started 31 Aug 2026, first day back from vacation.
 
-**Fully scheduled, 31 Aug–3 Sep**, all through in one long Monday (PCR through plating, ending
-~21:45 — flagged past the usual 18:00 cutoff and confirmed with Umut rather than split across two
-days), then colony PCR + overnight culture Tuesday, miniprep + diagnostic digest + sequencing
-submission Wednesday, and a reminder to check results Thursday.
+**Fully scheduled, 31 Aug–3 Sep.** Originally PCR through plating in one long Monday, ending ~21:45.
+**Changed 30 Aug 2026, per Umut:** ligation now runs **overnight** instead of the same-day 2h RT,
+specifically so he isn't in lab for transformation and plating that night. That pushes transformation
+and plating to Tuesday afternoon, which pushes colony-picking to Wednesday, miniprep + diagnostic
+digest to Thursday, and the results check to Friday — each downstream step slides exactly one day.
+Monday itself also starts 45 min earlier (08:15 instead of 09:00) so ligation setup — now the day's
+last hands-on step — finishes by ~16:40 rather than 18:05.
+
+- **Mon 31 Aug:** PCR → digestion → gel check → dephosphorylation → ligation setup → **ligation runs
+  overnight**, done by ~16:40.
+- **Tue 1 Sep:** transformation + SOC + plating, fit around that day's other bookings (afternoon).
+- **Wed 2 Sep:** colony pick + overnight culture.
+- **Thu 3 Sep:** miniprep + diagnostic digest + gel check.
+
+**Still stale from before this change:** Umut's own recent phone edit to the (then) Wed 2 Sep
+diagnostic-digest block had already dropped the "send for Sanger sequencing" event and the Thu 3 Sep
+"confirm clone" step — only the "check sequencing results" reminder (dated Thu 3 Sep, saying
+"submitted 2 Sep") was left standing. That reminder wasn't touched by this pass, since there's no
+submission event anymore to hang it off and it isn't this change's call to make — it now shares
+Thursday with the miniprep/digest work rather than a quiet "just check email" day. Needs Umut's own
+decision on when/whether sequencing gets submitted this round.
 
 **Standalone thread.** Not related to GATA6, AR-CasPEx, or LNCX/LUCX — no shared group, no shared
 notes, nothing linking it to any of them. Also not tracked as a project: no `projects.md` entry, no
@@ -36,7 +53,7 @@ Per the working agreement, anything he states directly overrides a published ran
 | Parameter | Value | Published default it overrides |
 |---|---|---|
 | Restriction digestion (BamHI-EcoRI, insert and backbone) | **4 hours** | NEB HF "Time-Saver" enzymes are rated 5–15 min |
-| Ligation (T4 DNA ligase, RT) | **2 hours** | NEB's standard quick protocol is ~10 min RT |
+| Ligation (T4 DNA ligase) | **overnight** (changed 30 Aug 2026, was 2h RT) | NEB's standard quick protocol is ~10 min RT; NEB recommends 16°C overnight, Promega 4°C overnight, both ~12-16h, for higher transformant yield than RT |
 
 ### Other fixed parameters
 

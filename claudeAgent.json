@@ -2067,7 +2067,7 @@
       "title": "Set up YY1 insert + pCDH backbone digestion",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. BamHI-EcoRI double digest, both reactions set up together so they run in parallel — per Umut. Now runs before the 10:00-10:30 LNCX seed instead of after it, since the whole chain moved earlier.",
       "group": "Nek2→YY1"
     },
@@ -2433,7 +2433,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T07:21:05.826Z",
+    "lastModified": "2026-08-31T07:21:11.331Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

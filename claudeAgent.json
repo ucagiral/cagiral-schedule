@@ -2163,7 +2163,7 @@
       "title": "Load combined gel (backbone + insert)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Both digested fragments run on the same gel — gel poured and set at 09:40-10:20.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:49:09.787Z",
+    "lastModified": "2026-08-31T14:49:13.932Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

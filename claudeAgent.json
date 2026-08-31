@@ -2103,7 +2103,7 @@
       "title": "Pour agarose gel (1%) for backbone + insert gel check",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Poured inside the digest's passive window, before the 10:00 LNCX seed, so it's set hours before the 14:55 load. See durations.md.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:48:47.681Z",
+    "lastModified": "2026-08-31T14:48:49.626Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

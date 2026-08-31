@@ -2115,7 +2115,7 @@
       "title": "Gel solidifying (RT)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. 20-30 min RT to set; top of range taken. Runs unattended alongside the digests and the 10:00 LNCX seed.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:48:49.626Z",
+    "lastModified": "2026-08-31T14:48:54.471Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

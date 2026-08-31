@@ -62,7 +62,8 @@ These came from Umut directly and override any published range — see
 | Western primary / secondary antibody | 1 h each |
 | Western strip | 20 min |
 | Virus medium change | 6.5 mL per vessel |
-| Nek2→YY1: BamHI-EcoRI digestion (insert and backbone) | 4 h |
+| Nek2→YY1: BamHI-EcoRI digestion (insert and backbone) | 4 h — **this enzyme pair failed 31 Aug 2026, replaced** |
+| Nek2→YY1: replacement-enzyme digestion (1 Sep redo) | ~1 h @ 37°C, standard (not Time-Saver) — Umut's call, specific to this pair |
 | Nek2→YY1: ligation | overnight (changed 30 Aug 2026, was 2 h RT) — 16°C or 4°C, ~12-16 h |
 
 ## Sources

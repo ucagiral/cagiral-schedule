@@ -13,18 +13,32 @@ digest to Thursday, and the results check to Friday — each downstream step sli
 Monday itself also starts 45 min earlier (08:15 instead of 09:00) so ligation setup — now the day's
 last hands-on step — finishes by ~16:40 rather than 18:05.
 
-- **Mon 31 Aug:** PCR → digestion → gel check → dephosphorylation → ligation setup → **ligation runs
-  overnight**, done by ~16:40.
-- **Tue 1 Sep:** transformation + SOC + plating, fit around that day's other bookings (afternoon).
-- **Wed 2 Sep:** colony pick + overnight culture.
-- **Thu 3 Sep:** miniprep + diagnostic digest + gel check.
+- **Mon 31 Aug:** PCR → digestion → gel check → dephosphorylation → ligation setup → ligation
+  (originally planned to run overnight, done by ~16:40) — **superseded, see below.**
 
-**Still stale from before this change:** Umut's own recent phone edit to the (then) Wed 2 Sep
-diagnostic-digest block had already dropped the "send for Sanger sequencing" event and the Thu 3 Sep
-"confirm clone" step — only the "check sequencing results" reminder (dated Thu 3 Sep, saying
-"submitted 2 Sep") was left standing. That reminder wasn't touched by this pass, since there's no
-submission event anymore to hang it off and it isn't this change's call to make — it now shares
-Thursday with the miniprep/digest work rather than a quiet "just check email" day. Needs Umut's own
+**One of the original restriction enzymes failed (found 31 Aug, end of day).** Umut ran the day as
+planned but the digest didn't work — one of the enzyme pair wasn't cutting. Before leaving, he set
+up a fresh backbone-only digest with a different, working enzyme pair; the original insert digest
+was a write-off. **31 Aug's own calendar events were left exactly as they were run** — this is a
+correction to the days *after*, not a rewrite of what already happened.
+
+- **Tue 1 Sep** (redo, replaces the original Mon 31 Aug afternoon): insert **re-amplified by PCR**
+  from scratch (the original digest consumed it), then digested with the replacement enzymes; backbone
+  (already digested 31 Aug) gets AP treatment in parallel; fresh gel check, extraction, ligation setup
+  → **ligation overnight** again, done by ~17:05.
+- **Wed 2 Sep:** transformation + SOC + plating, fit around that day's other bookings.
+- **Thu 3 Sep:** colony pick + overnight culture.
+- **Fri 4 Sep:** miniprep + diagnostic digest + gel check, fit around the 09:30-12:30 Weekly meeting.
+
+**Insert digest duration for the replacement enzymes: standard ~1h @ 37°C** (Umut's call, 31 Aug
+2026) — not his usual 4h override, which was specific to the original BamHI-EcoRI pair and doesn't
+automatically carry over to a different enzyme pair. If the replacement enzymes turn out to need a
+different time, that's a new value to record, not an extension of the old one.
+
+**Still stale, independent of the redo:** Umut's own earlier phone edit to the (then) diagnostic-digest
+block had already dropped the "send for Sanger sequencing" event and the "confirm clone" step — only
+the "check sequencing results" reminder was left standing, still saying "submitted 2 Sep" and still
+not attached to any actual submission event. Not touched by this pass either — needs Umut's own
 decision on when/whether sequencing gets submitted this round.
 
 **Standalone thread.** Not related to GATA6, AR-CasPEx, or LNCX/LUCX — no shared group, no shared
@@ -52,7 +66,8 @@ Per the working agreement, anything he states directly overrides a published ran
 
 | Parameter | Value | Published default it overrides |
 |---|---|---|
-| Restriction digestion (BamHI-EcoRI, insert and backbone) | **4 hours** | NEB HF "Time-Saver" enzymes are rated 5–15 min |
+| Restriction digestion (original BamHI-EcoRI pair, insert and backbone) | **4 hours** | NEB HF "Time-Saver" enzymes are rated 5–15 min. **This enzyme pair failed 31 Aug 2026** — one of the two wasn't cutting — and was replaced. |
+| Restriction digestion (replacement enzyme pair, 1 Sep redo) | **~1 hour @ 37°C** | Standard, not Time-Saver-rated — Umut's call for this specific pair, doesn't inherit the 4h value above |
 | Ligation (T4 DNA ligase) | **overnight** (changed 30 Aug 2026, was 2h RT) | NEB's standard quick protocol is ~10 min RT; NEB recommends 16°C overnight, Promega 4°C overnight, both ~12-16h, for higher transformant yield than RT |
 
 ### Other fixed parameters

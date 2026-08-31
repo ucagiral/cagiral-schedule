@@ -1468,7 +1468,7 @@
       "title": "LNCX and LUCX seed",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "group": "LNCX/LUCX"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:48:54.471Z",
+    "lastModified": "2026-08-31T14:48:56.344Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

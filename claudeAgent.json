@@ -2127,7 +2127,7 @@
       "title": "Add Antarctic Phosphatase to digested backbone",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Both digestions finished together at 13:30 — the same moment Umut is free again after the CuAdapt thaw, so nothing waits either way. AP added directly to the backbone digest tube.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:49:03.943Z",
+    "lastModified": "2026-08-31T14:49:05.891Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

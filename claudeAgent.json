@@ -2187,7 +2187,7 @@
       "title": "Visualize gel, excise backbone + insert bands",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:49:15.872Z",
+    "lastModified": "2026-08-31T14:49:17.781Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

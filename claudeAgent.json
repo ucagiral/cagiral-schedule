@@ -2175,7 +2175,7 @@
       "title": "Gel run",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. 1% gel, ~35 min run.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:49:13.932Z",
+    "lastModified": "2026-08-31T14:49:15.872Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

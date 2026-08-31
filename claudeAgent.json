@@ -2079,7 +2079,7 @@
       "title": "YY1 insert digestion (BamHI-EcoRI)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. 4h digest of the PCR product — duration per Umut, overrides the ~5-15 min NEB Time-Saver default. Runs alongside the backbone digest, finishing together. Ends right when Umut is free again after the 12:20-13:20 CuAdapt thaw, so no time is lost either way.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:48:43.477Z",
+    "lastModified": "2026-08-31T14:48:45.162Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

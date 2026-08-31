@@ -2043,7 +2043,7 @@
       "title": "Set up YY1 PCR (MORF library template)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap in pCDH backbone. Primers already in hand. PCR runs first, alone — both digestions start together only once this is done. Whole day moved 45 min earlier (was 09:00) so ligation can go overnight and Umut is still out by ~16:40 instead of past 23:00 — see cloning.md.",
       "group": "Nek2→YY1"
     },
@@ -2433,7 +2433,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-28T12:28:58.470Z",
+    "lastModified": "2026-08-31T07:21:05.826Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

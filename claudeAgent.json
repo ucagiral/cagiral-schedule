@@ -2199,7 +2199,7 @@
       "title": "Gel extraction / clean-up (backbone + insert)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. ~30% recovery efficiency per Umut — yield risk to keep in mind downstream, not a time change.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:49:17.781Z",
+    "lastModified": "2026-08-31T14:49:19.380Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2091,7 +2091,7 @@
       "title": "pCDH-Nek2(K37R) backbone digestion (BamHI-EcoRI)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. 4h digest, excises Nek2(K37R) and linearizes the vector — duration per Umut. Runs alongside the insert digest, finishing together.",
       "group": "Nek2→YY1"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:48:45.162Z",
+    "lastModified": "2026-08-31T14:48:47.681Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

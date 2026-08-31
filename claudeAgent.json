@@ -2029,7 +2029,7 @@
       "title": "Thaw ATF3 celld",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "11:30",
       "end": "12:00",
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:48:56.344Z",
+    "lastModified": "2026-08-31T14:49:00.180Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -1550,7 +1550,7 @@
       "title": "Thaw cells (CuAdapts)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "From -80C. No experiment same day (thaw-cell rule). Mandatory medium change next day (2026-09-01). Duration defaulted to 1h. Separate from the ongoing recurring CuAdapt passage/copper-feeding routine.",
       "group": "CuAdapt"
     },
@@ -2613,7 +2613,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:49:01.886Z",
+    "lastModified": "2026-08-31T14:49:03.943Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2562,16 +2562,6 @@
       "status": "pending",
       "notes": "Nek2(K37R) → YY1 swap. Well clear of the 15:30 CuAdapt copper feed.",
       "group": "Nek2→YY1"
-    },
-    {
-      "id": "e-yy1-check-seq-reminder",
-      "date": "2026-09-03",
-      "title": "Check YY1 clone sequencing results",
-      "category": "experiment",
-      "type": "reminder",
-      "status": "pending",
-      "notes": "Nek2(K37R) → YY1 swap. Submitted 2 Sep — results expected next business day.",
-      "group": "Nek2→YY1"
     }
   ],
   "_groups": {
@@ -2613,7 +2603,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-08-31T14:49:19.380Z",
+    "lastModified": "2026-09-01T13:02:42.728Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -15,12 +15,17 @@
 <meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
 <style>
   :root{
-    --bg:#f6f7f9; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
+    --bg:#f2f2f7; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
     --grid-line:#e5e7eb; --hour-line:#cfd4db; --halfhour-line:#eef0f3;
     --cat-experiment:#3b82f6; --cat-meeting:#ef4444; --cat-writing:#8b5cf6;
     --cat-personal:#22c55e; --cat-other:#6b7280;
-    --accent:#2563eb; --warn-bg:#fff7ed; --warn-border:#fde68a; --warn-text:#7c2d12;
-    --ok:#15803d; --bad:#b91c1c;
+    /* Apple's own system blue/red/green, not an arbitrary pick — this is what
+       "feels like Apple" cashes out to for an accent colour. */
+    --accent:#007aff; --warn-bg:#fff7ed; --warn-border:#fde68a; --warn-text:#7c2d12;
+    --ok:#34c759; --bad:#ff3b30;
+    /* iOS's "filled gray" secondary-button treatment — a tinted fill instead of
+       an outlined box, used for Cancel/Close-type actions. */
+    --fill:rgba(120,120,128,.12); --fill-strong:rgba(120,120,128,.20);
     /* Fixed and neutral on purpose — a reminder's whole point is to be visually distinct
        from every category/group colour, not join their system. */
     --reminder-bg:#78716c; --reminder-border:#57534e;
@@ -28,18 +33,20 @@
   }
   @media (prefers-color-scheme: dark){
     html:not([data-theme="light"]){
-      --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+      --bg:#000000; --panel:#1c1c1e; --border:#38383a; --text:#f2f2f7; --muted:#9aa1ac;
       --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
-      --accent:#5b8def; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
-      --ok:#4ade80; --bad:#f87171;
+      --accent:#0a84ff; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
+      --ok:#30d158; --bad:#ff453a;
+      --fill:rgba(120,120,128,.24); --fill-strong:rgba(120,120,128,.36);
       --reminder-bg:#8a8580; --reminder-border:#a8a29e;
     }
   }
   html[data-theme="dark"]{
-    --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+    --bg:#000000; --panel:#1c1c1e; --border:#38383a; --text:#f2f2f7; --muted:#9aa1ac;
     --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
-    --accent:#5b8def; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
-    --ok:#4ade80; --bad:#f87171;
+    --accent:#0a84ff; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
+    --ok:#30d158; --bad:#ff453a;
+    --fill:rgba(120,120,128,.24); --fill-strong:rgba(120,120,128,.36);
     --reminder-bg:#8a8580; --reminder-border:#a8a29e;
   }
   *{box-sizing:border-box}
@@ -48,19 +55,28 @@
     margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg); color:var(--text); -webkit-text-size-adjust:100%;
   }
+  #topBar{
+    position:sticky; top:0; z-index:15;
+    background:color-mix(in srgb, var(--panel) 72%, transparent);
+    -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px);
+  }
   header{
     display:flex; align-items:center; gap:8px; padding:8px 12px;
-    background:var(--panel); border-bottom:1px solid var(--border); flex-wrap:wrap;
+    border-bottom:1px solid var(--border); flex-wrap:wrap;
   }
   header h1{font-size:15px; margin:0 8px 0 0; font-weight:650; letter-spacing:-.01em}
   button{
-    font:inherit; padding:6px 11px; border-radius:7px; border:1px solid var(--border);
-    background:var(--panel); cursor:pointer; color:var(--text);
+    font:inherit; padding:6px 12px; border-radius:9px; border:none;
+    background:var(--fill); cursor:pointer; color:var(--accent); font-weight:500;
+    transition:opacity .15s, background .15s;
   }
-  button:hover{border-color:var(--accent)}
-  button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
-  button.danger{color:var(--bad); border-color:var(--border)}
-  button:disabled{opacity:.45; cursor:not-allowed}
+  button:hover{background:var(--fill-strong)}
+  button:active{opacity:.6}
+  button.primary{background:var(--accent); color:#fff; font-weight:600}
+  button.primary:hover{background:var(--accent); opacity:.88}
+  button.danger{color:var(--bad); background:var(--fill)}
+  button:disabled{opacity:.4; cursor:not-allowed}
+  button:disabled:active{opacity:.4}
   #status{font-size:12px; color:var(--muted); margin-left:auto; text-align:right; min-width:120px}
   #status.saving{color:var(--accent)}
   #status.saved{color:var(--ok)}
@@ -175,13 +191,30 @@
 
   /* ---------- day agenda (phones) ---------- */
   #agenda{display:flex; flex-direction:column; gap:7px}
+  /* .ag-item clips and anchors the delete button; .ag-item-inner is what actually
+     slides on a left swipe, revealing the button underneath — the iOS Mail/Reminders
+     pattern. Content lives in the inner layer so the border/radius/delete button
+     stay put while it moves. */
   .ag-item{
-    display:flex; align-items:flex-start; gap:10px; background:var(--panel);
+    position:relative; overflow:hidden; background:var(--panel);
     border:1px solid var(--border); border-left:4px solid var(--cat-other);
-    border-radius:9px; padding:10px 11px;
+    border-radius:10px;
   }
   .ag-item.passive{border-style:dashed}
   .ag-item.reminder{border-left-color:var(--reminder-bg)}
+  .ag-item-inner{
+    display:flex; align-items:flex-start; gap:10px; padding:10px 11px;
+    background:var(--panel); position:relative;
+    transition:transform .22s cubic-bezier(.25,.8,.4,1);
+    touch-action:pan-y;
+  }
+  .ag-item-inner.no-transition{transition:none}
+  .ag-delete{
+    position:absolute; top:0; bottom:0; right:0; width:76px;
+    background:var(--bad); color:#fff; border:none; font-size:13.5px; font-weight:600;
+    border-radius:0; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:0;
+  }
   .ag-time{font-size:12px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; padding-top:1px; min-width:82px}
   .ag-main{flex:1; min-width:0; cursor:pointer}
   .ag-title{font-size:14.5px; font-weight:600; line-height:1.3; word-break:break-word}
@@ -205,11 +238,55 @@
   .daybar .dlabel small{display:block; font-weight:400; color:var(--muted); font-size:11.5px}
 
   /* ---------- dialogs ---------- */
+  /* Desktop: a centered panel with a soft scale+fade entrance. Below the 820px
+     breakpoint it becomes an iOS-style sheet that slides up from the bottom
+     instead (see the media query below) — @starting-style supplies the "before"
+     frame a freshly-opened <dialog> needs for its very first paint to actually
+     transition from, rather than just appearing. .closing is added by closeSheet()
+     to play the same transition in reverse before the element really closes. */
   dialog{
-    border:1px solid var(--border); border-radius:12px; padding:0; width:min(380px, 94vw);
+    border:1px solid var(--border); border-radius:14px; padding:0; width:min(380px, 94vw);
     background:var(--panel); color:var(--text); box-shadow:0 10px 30px rgba(0,0,0,.28);
+    transition:opacity .22s ease, transform .22s ease;
+    opacity:1; transform:scale(1);
   }
-  dialog::backdrop{background:rgba(0,0,0,.4)}
+  dialog.closing{opacity:0; transform:scale(.96)}
+  @starting-style{ dialog[open]{opacity:0; transform:scale(.96)} }
+  dialog::backdrop{background:rgba(0,0,0,.4); transition:background .22s ease}
+  dialog.closing::backdrop{background:rgba(0,0,0,0)}
+  @starting-style{ dialog[open]::backdrop{background:rgba(0,0,0,0)} }
+  @media (max-width: 820px){
+    dialog:not(.ios-alert){
+      position:fixed; inset:auto 0 0 0; margin:0; width:100%; max-width:100%;
+      border-radius:16px 16px 0 0; border:none; border-top:1px solid var(--border);
+      transform:translateY(0); max-height:88vh;
+      padding-bottom:var(--safe-b);
+    }
+    dialog:not(.ios-alert).closing{transform:translateY(100%)}
+    @starting-style{ dialog:not(.ios-alert)[open]{transform:translateY(100%)} }
+    /* Purely decorative grab-handle, the iOS sheet convention — no drag-to-dismiss
+       gesture wired to it, tapping the backdrop or Cancel/Close still closes it. */
+    dialog:not(.ios-alert)::before{
+      content:""; display:block; width:36px; height:5px; border-radius:3px;
+      background:var(--border); margin:9px auto 1px;
+    }
+  }
+  /* ---- iOS-style alert/confirm, replacing window.alert()/confirm() ---- */
+  dialog.ios-alert{
+    width:min(270px, 88vw); border-radius:14px; overflow:hidden; text-align:center;
+  }
+  .ios-alert-body{padding:19px 16px 14px}
+  .ios-alert-body h3{margin:0 0 4px; font-size:15.5px; font-weight:650}
+  .ios-alert-body p{margin:0; font-size:13px; color:var(--muted); line-height:1.4; white-space:pre-wrap}
+  .ios-alert-actions{display:flex; border-top:1px solid var(--border)}
+  .ios-alert-actions button{
+    flex:1; border:none; border-radius:0; background:transparent; padding:11px 8px;
+    font-size:15.5px; color:var(--accent); font-weight:400;
+  }
+  .ios-alert-actions button:hover{background:var(--fill)}
+  .ios-alert-actions button + button{border-left:1px solid var(--border)}
+  .ios-alert-actions button.destructive{color:var(--bad)}
+  .ios-alert-actions button.emphasized{font-weight:650}
   .dlg-body{padding:15px; max-height:74vh; overflow-y:auto}
   .dlg-body h2{font-size:15px; margin:0 0 12px}
   .field{margin-bottom:10px}
@@ -263,6 +340,7 @@
 </head>
 <body>
 
+<div id="topBar">
 <header>
   <h1>Cagiral Schedule</h1>
   <button id="btnView" title="Switch between week grid and day list">Day</button>
@@ -299,6 +377,7 @@
   <span id="weekLabel"></span>
   <button id="btnRefresh" style="margin-left:auto" title="Check for changes now">↻</button>
 </header>
+</div>
 
 <div id="legend">
   <span><span class="swatch" style="background:var(--cat-experiment)"></span>Experiment</span>
@@ -337,7 +416,7 @@
 <button id="fab" aria-label="Add event">+</button>
 
 <!-- ---------- event editor ---------- -->
-<dialog id="dlg">
+<dialog id="dlg" tabindex="-1">
   <div class="dlg-body">
     <h2 id="dlgTitle">New event</h2>
     <div class="field">
@@ -350,7 +429,10 @@
     </div>
     <div class="row2" id="fStartEndRow">
       <div class="field"><label>Start</label><select id="fStart"></select></div>
-      <div class="field"><label>End</label><select id="fEnd"></select></div>
+      <div class="field">
+        <label>End</label><select id="fEnd"></select>
+        <div id="fEndHint" class="hint" style="display:none; margin-top:4px"></div>
+      </div>
     </div>
     <div class="row2">
       <div class="field">
@@ -406,7 +488,7 @@
 </dialog>
 
 <!-- ---------- token setup ---------- -->
-<dialog id="dlgToken">
+<dialog id="dlgToken" tabindex="-1">
   <div class="dlg-body">
     <h2>Let this device save changes</h2>
     <div class="hint" id="tokenHint">
@@ -442,7 +524,7 @@
 </dialog>
 
 <!-- ---------- calendar feed ---------- -->
-<dialog id="dlgFeed">
+<dialog id="dlgFeed" tabindex="-1">
   <div class="dlg-body">
     <h2>Reminders in your Calendar app</h2>
     <div class="hint">
@@ -466,7 +548,7 @@
 </dialog>
 
 <!-- ---------- PI summary ---------- -->
-<dialog id="dlgPI">
+<dialog id="dlgPI" tabindex="-1">
   <div class="dlg-body">
     <h2>PI Summary (TR)</h2>
     <div class="field">
@@ -484,7 +566,7 @@
 </dialog>
 
 <!-- ---------- project planning ---------- -->
-<dialog id="dlgProject">
+<dialog id="dlgProject" tabindex="-1">
   <div class="dlg-body">
     <h2>Plan a Project Phase</h2>
     <div id="projectState" style="display:none">
@@ -582,6 +664,10 @@
     view: null,              // "week" | "day"
     viewLocked: false,       // true once the user picks a view by hand — then we stop auto-switching
     editingId: null,
+    // True once the End field has been changed by hand during the current New
+    // event session — after that, typing in Title stops overwriting it with a
+    // durations.md match. Reset each time openDialog() starts a new event.
+    newEventEndTouched: false,
     drag: null,
     dirty: false,            // unsaved local changes exist
     revision: 0,             // bumped on every local edit, so an edit made mid-save isn't lost
@@ -608,6 +694,87 @@
   function getDevice(){ try { return localStorage.getItem(LS.device) || "unknown device"; } catch(e){ return "unknown device"; } }
   function canWrite(){ return !!(getToken() && API); }
 
+  // ---------------- sheet open/close (shared by every <dialog>) ----------------
+  // A tap on empty grid space, or on an event, opens a dialog with a text field
+  // in it — but nobody wants the on-screen keyboard popping up before they've
+  // actually tapped into that field. showModal() otherwise auto-focuses the
+  // first focusable control, so every dialog gets tabindex="-1" in its markup
+  // and openSheet() steals focus back to the dialog itself right after.
+  function openSheet(el){
+    if (!el) return;
+    el.classList.remove("closing");
+    if (typeof el.showModal === "function" && !el.open) el.showModal();
+    el.focus({ preventScroll: true });
+  }
+  // Plays the CSS close transition (see the dialog/.closing rules) before the
+  // element actually leaves the top layer, instead of just vanishing.
+  function closeSheet(el){
+    if (!el || !el.open) return;
+    el.classList.add("closing");
+    var done = function(){
+      clearTimeout(timer);
+      el.removeEventListener("transitionend", done);
+      el.classList.remove("closing");
+      el.close();
+    };
+    var timer = setTimeout(done, 300);
+    el.addEventListener("transitionend", done);
+  }
+
+  // ---------------- iOS-style alert/confirm ----------------
+  // Replaces window.alert()/confirm(), which render as an ugly, distinctly
+  // not-Apple browser chrome box. Built on the same <dialog> + openSheet/closeSheet
+  // machinery, just with its own centered "ios-alert" styling (see CSS) rather
+  // than the sheet-on-mobile treatment every other dialog gets.
+  var iosAlertEl = null;
+  function ensureIosAlert(){
+    if (iosAlertEl) return iosAlertEl;
+    iosAlertEl = document.createElement("dialog");
+    iosAlertEl.className = "ios-alert";
+    iosAlertEl.tabIndex = -1;
+    iosAlertEl.innerHTML =
+      '<div class="ios-alert-body"><h3 id="iosAlertTitle"></h3><p id="iosAlertMsg"></p></div>' +
+      '<div class="ios-alert-actions" id="iosAlertActions"></div>';
+    document.body.appendChild(iosAlertEl);
+    return iosAlertEl;
+  }
+  // opts: {title, message, buttons:[{label, value, destructive, emphasized}]}.
+  // Resolves with the chosen button's value once the user taps one.
+  function iosDialog(opts){
+    var el = ensureIosAlert();
+    var titleEl = el.querySelector("#iosAlertTitle");
+    titleEl.textContent = opts.title || "";
+    titleEl.style.display = opts.title ? "" : "none";
+    el.querySelector("#iosAlertMsg").textContent = opts.message || "";
+    var actions = el.querySelector("#iosAlertActions");
+    actions.innerHTML = "";
+    return new Promise(function(resolve){
+      (opts.buttons || [{label:"OK", value:true, emphasized:true}]).forEach(function(b){
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = b.label;
+        if (b.destructive) btn.classList.add("destructive");
+        if (b.emphasized) btn.classList.add("emphasized");
+        btn.addEventListener("click", function(){ closeSheet(el); resolve(b.value); });
+        actions.appendChild(btn);
+      });
+      openSheet(el);
+    });
+  }
+  function iosAlertMsg(message, title){
+    return iosDialog({ title: title, message: message, buttons: [{label:"OK", value:true, emphasized:true}] });
+  }
+  function iosConfirm(message, opts){
+    opts = opts || {};
+    return iosDialog({
+      title: opts.title, message: message,
+      buttons: [
+        {label: opts.cancelLabel || "Cancel", value:false},
+        {label: opts.okLabel || "OK", value:true, destructive: !!opts.destructive, emphasized:true}
+      ]
+    });
+  }
+
   // ---------------- date helpers ----------------
   function startOfDay(d){ d = new Date(d); d.setHours(0,0,0,0); return d; }
   function getMonday(d){
@@ -626,6 +793,10 @@
   var DAY_NAMES = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   var DAY_NAMES_TR = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"];
   var START_HOUR = 7, END_HOUR = 23, SLOT_MIN = 5;
+  // Nobody taps the grid meaning to book 5 minutes — that's just one grid row.
+  // A plain tap (no real drag) gets this instead; an actual drag is still sized
+  // exactly as dragged.
+  var DEFAULT_NEW_EVENT_MIN = 30;
   var ROWS = (END_HOUR - START_HOUR) * 60 / SLOT_MIN;
 
   // ---- week grid zoom — vertical only, per-device, gesture-driven --------
@@ -1022,9 +1193,19 @@
   }
 
   // ---- day agenda (phone-first) ----
+  // The day-view row currently swiped open (revealing its delete button), so a
+  // tap elsewhere — or the next re-render — can close it. Re-rendering rebuilds
+  // every row from scratch, so this can't outlive that; renderAgenda() clears it.
+  var openSwipeInner = null;
+  function closeSwipe(){
+    if (openSwipeInner) openSwipeInner.style.transform = "translateX(0)";
+    openSwipeInner = null;
+  }
+
   function renderAgenda(){
     var box = $("agenda");
     box.innerHTML = "";
+    openSwipeInner = null;
     var iso = isoDate(state.dayDate);
     var items = visibleEvents()
       .filter(function(e){ return e.date === iso; })
@@ -1047,6 +1228,16 @@
       var el = document.createElement("div");
       el.className = "ag-item" + (isPassive ? " passive" : "") + (isReminder ? " reminder" : "") + (isDone ? " done" : "");
       el.style.borderLeftColor = color;
+
+      var inner = document.createElement("div");
+      inner.className = "ag-item-inner";
+
+      var delBtn = document.createElement("button");
+      delBtn.type = "button"; delBtn.className = "ag-delete"; delBtn.textContent = "Delete";
+      delBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        deleteEvent(ev.id);
+      });
 
       var chk = document.createElement("input");
       chk.type = "checkbox"; chk.className = "ag-chk"; chk.checked = isDone;
@@ -1079,7 +1270,12 @@
           '<div class="ag-tags">' + escapeHtml(tags.join(" · ")) + "</div>" +
           (ev.notes ? '<div class="ag-notes">' + escapeHtml(ev.notes) + "</div>" : "");
       }
-      mainDiv.addEventListener("click", function(){ openDialog(ev); });
+      mainDiv.addEventListener("click", function(){
+        // A tap while this row is swiped open just closes it, matching iOS —
+        // it doesn't also open the editor underneath.
+        if (openSwipeInner === inner){ closeSwipe(); return; }
+        openDialog(ev);
+      });
 
       // A list has no time axis to drag along, so moving happens with explicit steps.
       // A reminder has no time to nudge, only a day to move it to.
@@ -1113,10 +1309,59 @@
       });
       mainDiv.appendChild(moveRow);
 
-      el.appendChild(chk); el.appendChild(time); el.appendChild(mainDiv);
+      inner.appendChild(chk); inner.appendChild(time); inner.appendChild(mainDiv);
+      el.appendChild(delBtn); el.appendChild(inner);
+      wireSwipeToDelete(inner);
       box.appendChild(el);
     });
     renderGroupLegend();
+  }
+
+  // Swipe-left-to-reveal-delete on a day-view row, the iOS Mail/Reminders
+  // pattern. REVEAL is how far the row slides to fully expose its delete
+  // button (matches .ag-delete's width in CSS). Vertical scrolling is left to
+  // the browser (touch-action: pan-y) until a clearly horizontal drag commits
+  // this gesture to itself — the same "arm it first" approach the week grid's
+  // press-and-hold drag uses, just committing on direction instead of a hold.
+  var REVEAL = 76, SWIPE_COMMIT_PX = 8;
+  function wireSwipeToDelete(inner){
+    var startX = 0, startY = 0, base = 0, dragging = null; // null | "h" | "v"
+    inner.addEventListener("touchstart", function(e){
+      if (e.touches.length !== 1) return;
+      if (openSwipeInner && openSwipeInner !== inner) closeSwipe();
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      base = openSwipeInner === inner ? -REVEAL : 0;
+      dragging = null;
+      inner.classList.add("no-transition");
+    }, { passive:true });
+    inner.addEventListener("touchmove", function(e){
+      if (e.touches.length !== 1) return;
+      var dx = e.touches[0].clientX - startX, dy = e.touches[0].clientY - startY;
+      if (dragging === null){
+        if (Math.abs(dx) < SWIPE_COMMIT_PX && Math.abs(dy) < SWIPE_COMMIT_PX) return;
+        dragging = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+      }
+      if (dragging !== "h") return;
+      e.preventDefault();
+      var t = clamp(base + dx, -REVEAL, 0);
+      inner.style.transform = "translateX(" + t + "px)";
+    }, { passive:false });
+    function finish(e){
+      inner.classList.remove("no-transition");
+      if (dragging !== "h"){ dragging = null; return; }
+      dragging = null;
+      var dx = (e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : startX) - startX;
+      var t = clamp(base + dx, -REVEAL, 0);
+      if (t <= -REVEAL / 2){
+        inner.style.transform = "translateX(-" + REVEAL + "px)";
+        openSwipeInner = inner;
+      } else {
+        inner.style.transform = "translateX(0)";
+        if (openSwipeInner === inner) openSwipeInner = null;
+      }
+    }
+    inner.addEventListener("touchend", finish);
+    inner.addEventListener("touchcancel", finish);
   }
 
   // Shift start and end together, keeping the length, without leaving the 07:00–23:00 grid.
@@ -1682,6 +1927,10 @@
     if (!state.drag) return;
     var d = state.drag;
     var r0 = Math.min(d.startRow, d.curRow), r1 = Math.max(d.startRow, d.curRow) + 1;
+    // No real drag happened (mouseup landed on the same row it started) — use
+    // the sensible default length instead of the single 5-minute grid row that
+    // r0/r1 alone would give.
+    if (d.startRow === d.curRow) r1 = r0 + DEFAULT_NEW_EVENT_MIN / SLOT_MIN;
     if (previewEl){ previewEl.remove(); previewEl = null; }
     state.drag = null;
     openDialog({ id:null, date: isoDate(addDays(state.weekStart, d.dayIdx)),
@@ -1737,8 +1986,41 @@
   }
   fType.addEventListener("change", updateStartEndVisibility);
 
+  // Guards the fEnd "change" listener below from treating a match's own write
+  // to fEnd.value as the user touching it by hand.
+  var suppressEndTouch = false;
+  function setEndHint(text){
+    var hint = $("fEndHint");
+    hint.textContent = text;
+    hint.style.display = text ? "" : "none";
+  }
+  // While creating a brand-new event (never while editing one, and never once
+  // the End field has been touched by hand), typing a title tries to match it
+  // against protocols/durations.md the same way the Project planner does —
+  // same top-of-range convention, same "say so rather than guess" rule: it
+  // only ever touches End on an actual researched match, never invents a
+  // number for an unmatched title.
+  fTitle.addEventListener("input", function(){
+    if (state.editingId || state.newEventEndTouched) return;
+    var title = fTitle.value.trim();
+    if (title.length < 3 || !DURATIONS || !DURATIONS.length){ setEndHint(""); return; }
+    var d = durationFor(title);
+    if (!d.researched){ setEndHint(""); return; }
+    var newEnd = minToTime(clamp(timeToMin(fStart.value) + d.total, timeToMin(fStart.value) + SLOT_MIN, END_HOUR * 60));
+    suppressEndTouch = true;
+    fEnd.value = newEnd;
+    if (fEnd.value !== newEnd) addLooseOption(fEnd, newEnd);
+    suppressEndTouch = false;
+    setEndHint("Matched “" + d.name + "” — " + d.total + " min. From protocols/durations.md.");
+  });
+  fEnd.addEventListener("change", function(){
+    if (!suppressEndTouch) state.newEventEndTouched = true;
+  });
+
   function openDialog(ev){
     state.editingId = ev.id;
+    state.newEventEndTouched = !!ev.id;   // matching only ever runs for a brand-new event
+    setEndHint("");
     refreshGroupOptions();
     $("dlgTitle").textContent = ev.id ? "Edit event" : "New event";
     fGroup.value = ev.group || "";
@@ -1756,7 +2038,7 @@
     fNotes.value = ev.notes || "";
     btnDelete.style.display = ev.id ? "" : "none";
     updateStartEndVisibility();
-    dlg.showModal();
+    openSheet(dlg);
   }
   // Times that aren't on the 5-minute grid (or outside 07:00–23:00) must stay editable, not be silently rewritten.
   function addLooseOption(sel, val){
@@ -1765,19 +2047,20 @@
     sel.appendChild(o); sel.value = val;
   }
 
-  $("btnCancel").addEventListener("click", function(){ dlg.close(); });
+  $("btnCancel").addEventListener("click", function(){ closeSheet(dlg); });
   $("fab").addEventListener("click", function(){
     var base = state.view === "day" ? state.dayDate : new Date();
     var d = state.view === "day" ? base : (isSameDay(new Date(), base) ? base : state.weekStart);
-    openDialog({ id:null, date: isoDate(d), start:"09:00", end:"10:00", title:"",
+    openDialog({ id:null, date: isoDate(d), start:"09:00",
+      end: minToTime(timeToMin("09:00") + DEFAULT_NEW_EVENT_MIN), title:"",
       category:"experiment", type:"active", status:"pending", notes:"" });
   });
 
   $("btnSaveEvent").addEventListener("click", function(){
     var date = fDate.value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)){ alert("Date must look like 2026-08-14."); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)){ iosAlertMsg("Date must look like 2026-08-14."); return; }
     var isReminder = fType.value === "reminder";
-    if (!isReminder && fEnd.value <= fStart.value){ alert("End time must be after start time."); return; }
+    if (!isReminder && fEnd.value <= fStart.value){ iosAlertMsg("End time must be after start time."); return; }
     var group = fGroup.value.trim();
     var chosen = fColor.value;
     var payload = {
@@ -1801,16 +2084,26 @@
 
     var idx = state.events.findIndex(function(e){ return e.id === payload.id; });
     if (idx >= 0) state.events[idx] = payload; else state.events.push(payload);
-    dlg.close();
+    closeSheet(dlg);
     if (state.view === "day") state.dayDate = startOfDay(new Date(date + "T00:00:00"));
     state.weekStart = getMonday(new Date(date + "T00:00:00"));
     render(); scheduleSave(); warnIfConflicting(payload);
   });
 
-  btnDelete.addEventListener("click", function(){
-    if (!confirm("Delete this event? Marking it Cancelled keeps a record instead.")) return;
-    state.events = state.events.filter(function(e){ return e.id !== state.editingId; });
-    dlg.close(); render(); scheduleSave();
+  // Shared by the dialog's Delete button and a day-view swipe-to-delete — same
+  // confirm, same effect, whichever way it's triggered.
+  async function deleteEvent(id){
+    var ok = await iosConfirm("Marking it Cancelled keeps a record instead.",
+      { title:"Delete this event?", okLabel:"Delete", destructive:true });
+    if (!ok) return false;
+    state.events = state.events.filter(function(e){ return e.id !== id; });
+    render(); scheduleSave();
+    return true;
+  }
+
+  btnDelete.addEventListener("click", async function(){
+    if (!(await deleteEvent(state.editingId))) return;
+    closeSheet(dlg);
   });
 
   // =====================================================================
@@ -1822,7 +2115,7 @@
     $("fToken").value = "";
     $("fDevice").value = getDevice() === "unknown device" ? guessDevice() : getDevice();
     $("btnForget").style.display = getToken() ? "" : "none";
-    if (!dlgToken.open) dlgToken.showModal();
+    if (!dlgToken.open) openSheet(dlgToken);
   }
   function guessDevice(){
     var ua = navigator.userAgent;
@@ -1834,10 +2127,10 @@
   }
   $("btnConnect").addEventListener("click", openToken);
   $("bannerConnectBtn").addEventListener("click", openToken);
-  $("btnTokenCancel").addEventListener("click", function(){ dlgToken.close(); });
+  $("btnTokenCancel").addEventListener("click", function(){ closeSheet(dlgToken); });
   $("btnForget").addEventListener("click", function(){
     try { localStorage.removeItem(LS.token); } catch(e){}
-    dlgToken.close();
+    closeSheet(dlgToken);
     updateWriteUI();
     setStatus("Disconnected — read-only", "");
   });
@@ -1862,7 +2155,7 @@
       }
       $("tokenStatus").innerHTML = "<span style='color:var(--ok)'>Connected. This device can save now.</span>";
       updateWriteUI();
-      setTimeout(function(){ dlgToken.close(); load(); startPolling(); }, 700);
+      setTimeout(function(){ closeSheet(dlgToken); load(); startPolling(); }, 700);
     } catch(err){
       $("tokenStatus").innerHTML = "<span style='color:var(--bad)'>Couldn't reach GitHub: " + escapeHtml(err.message||"") + "</span>";
     }
@@ -1883,9 +2176,9 @@
   }
   $("btnFeed").addEventListener("click", function(){
     $("feedUrl").textContent = feedUrl();
-    dlgFeed.showModal();
+    openSheet(dlgFeed);
   });
-  $("btnFeedClose").addEventListener("click", function(){ dlgFeed.close(); });
+  $("btnFeedClose").addEventListener("click", function(){ closeSheet(dlgFeed); });
   $("btnFeedCopy").addEventListener("click", async function(){
     try { await navigator.clipboard.writeText(feedUrl()); $("btnFeedCopy").textContent = "Copied"; }
     catch(e){
@@ -1917,9 +2210,9 @@
   $("btnPI").addEventListener("click", function(){
     $("piText").value = buildPIText();
     $("piCopyStatus").textContent = "";
-    dlgPI.showModal();
+    openSheet(dlgPI);
   });
-  $("btnPIClose").addEventListener("click", function(){ dlgPI.close(); });
+  $("btnPIClose").addEventListener("click", function(){ closeSheet(dlgPI); });
   $("btnPICopy").addEventListener("click", async function(){
     try { await navigator.clipboard.writeText($("piText").value); $("piCopyStatus").textContent = "Copied."; }
     catch(e){ $("piText").select(); $("piCopyStatus").textContent = "Selected — copy it."; }
@@ -2359,9 +2652,9 @@
     allProjects = loaded[0];
 
     if (Object.keys(allProjects).length === 0){
-      alert("No projects found in projects.md.\n\nAdd your first project there, then come back.");
+      await iosAlertMsg("Add your first project there, then come back.", "No projects found in projects.md");
       $("btnProject").disabled = false;
-      dlgProject.close();
+      closeSheet(dlgProject);
       return;
     }
 
@@ -2384,17 +2677,17 @@
       $("projectName").appendChild(opt);
     });
 
-    dlgProject.showModal();
+    openSheet(dlgProject);
     setStatus("Ready.", "saved");
     $("btnProject").disabled = false;
   });
 
-  $("btnProjectCancel").addEventListener("click", function(){ dlgProject.close(); });
+  $("btnProjectCancel").addEventListener("click", function(){ closeSheet(dlgProject); });
   $("projectName").addEventListener("change", updateProjectPhases);
   $("projectPhase").addEventListener("change", updatePhaseEvents);
 
   $("btnProjectPlan").addEventListener("click", function(){
-    if (suggestedEvents.length === 0){ alert("No events to add."); return; }
+    if (suggestedEvents.length === 0){ iosAlertMsg("No events to add."); return; }
 
     // Add events to calendar
     suggestedEvents.forEach(function(ev){
@@ -2407,7 +2700,7 @@
     render();
     scheduleSave();
     setStatus("Added " + suggestedEvents.length + " event(s).", "saved");
-    dlgProject.close();
+    closeSheet(dlgProject);
   });
 
   // =====================================================================
@@ -2487,6 +2780,10 @@
     var cached = cacheLoad();
     if (cached){ state.events = cached.events; render(); setStatus("Showing saved copy — checking…", ""); }
     load().then(startPolling);
+    // Fetched early and cached in DURATIONS so a new event's title can be
+    // matched against it immediately, rather than waiting on the Project
+    // dialog (the only other place that reads this file) to have been opened first.
+    loadDurations();
   }
 })();
 </script>

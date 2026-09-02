@@ -2247,7 +2247,7 @@
       "title": "Add Antarctic Phosphatase to redigested backbone",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Backbone was redigested with the replacement enzymes on 31 Aug and is ready — this runs alongside the insert PCR rather than waiting for it, since the two don't depend on each other yet.",
       "group": "Nek2→YY1"
     },
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:26.275Z",
+    "lastModified": "2026-09-02T04:44:28.209Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

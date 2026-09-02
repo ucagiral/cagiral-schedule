@@ -3440,231 +3440,64 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:e-yy1-transform@cagiral-schedule
+UID:e-thaw-atf3-2026-09-02@cagiral-schedule
+DTSTAMP:20260902T043055Z
+SEQUENCE:29805390
+DTSTART;TZID=Europe/Istanbul:20260902T090000
+DTEND;TZID=Europe/Istanbul:20260902T093000
+SUMMARY:Thaw ATF3 cells
+DESCRIPTION:From -80C. No experiment same day (thaw-cell rule). Mandatory m
+ edium change next day (2026-09-03). Duration per durations.md (~30 min\, a
+ ll hands-on).\nActive — needs you there\nGroup: ATF3 mutants\nCategory: 
+ experiment
+CATEGORIES:ATF3 mutants,experiment
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Thaw ATF3 cells
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:e-cuadapt-10cmplate-2026-09-02@cagiral-schedule
 DTSTAMP:20260902T043055Z
 SEQUENCE:29805390
 DTSTART;TZID=Europe/Istanbul:20260902T111000
-DTEND;TZID=Europe/Istanbul:20260902T113000
-SUMMARY:Transformation — heat shock (test\, negative\, positive controls)
-DESCRIPTION:Nek2(K37R) → YY1 swap. Moved a further day out (2 Sep\, not 1
-  Sep) because of the enzyme redo — starts after the day's 10:00-11:00 LN
- CX/LUCX medium change plus clearance. 3 tubes: test ligation\, negative co
- ntrol\, and a positive control (undigested pCDH-Nek2(K37R) stock\, transfo
- rmed directly\, no ligation).\nActive — needs you there\nGroup: Nek2→Y
- Y1\nCategory: experiment
-CATEGORIES:Nek2→YY1,experiment
+DTEND;TZID=Europe/Istanbul:20260902T114000
+SUMMARY:CuAdapt cells — move to 10cm plate
+DESCRIPTION:Replating into a 10cm dish\, not the recurring Mon/Thu passage 
+ or Tue/Fri copper feed. Starts after the day's 10:00-11:00 LNCX/LUCX mediu
+ m change plus clearance. Duration per durations.md's passaging/replating r
+ ange (20-30 min)\, top of range.\nActive — needs you there\nGroup: CuAda
+ pt\nCategory: experiment
+CATEGORIES:CuAdapt,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Transformation — heat shock (test\, negative\, positive contr
- ols)
+DESCRIPTION:CuAdapt cells — move to 10cm plate
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:e-yy1-soc@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260902T113000
-DTEND;TZID=Europe/Istanbul:20260902T123000
-SUMMARY:SOC recovery @ 37°C shaking
-DESCRIPTION:Nek2(K37R) → YY1 swap.\nPassive — runs unattended\, does no
- t block time\nGroup: Nek2→YY1\nCategory: experiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-plate@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260902T123000
-DTEND;TZID=Europe/Istanbul:20260902T125000
-SUMMARY:Plate all 3 conditions
-DESCRIPTION:Nek2(K37R) → YY1 swap.\nActive — needs you there\nGroup: Ne
- k2→YY1\nCategory: experiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Plate all 3 conditions
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-overnight-plates@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260902T125000
-DTEND;TZID=Europe/Istanbul:20260902T230000
-SUMMARY:Overnight plate incubation @ 37°C
-DESCRIPTION:Nek2(K37R) → YY1 swap. Placeholder end — continues overnigh
- t past this grid's 23:00 window\, colonies ready by Thursday morning (3 Se
- p).\nPassive — runs unattended\, does not block time\nGroup: Nek2→YY1\
- nCategory: experiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-inoculate@cagiral-schedule
+UID:e-medchange-atf3-2026-09-03@cagiral-schedule
 DTSTAMP:20260902T043055Z
 SEQUENCE:29805390
 DTSTART;TZID=Europe/Istanbul:20260903T132500
-DTEND;TZID=Europe/Istanbul:20260903T133500
-SUMMARY:Inoculate overnight culture from a PCR-positive colony
-DESCRIPTION:Nek2(K37R) → YY1 swap. Starts after the day's existing 09:00-
- 13:15 blocks (CuAdapt passage\, LNCX/LUCX Hygromycin\, ATF3 mutants SRB) p
- lus clearance.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: e
- xperiment
-CATEGORIES:Nek2→YY1,experiment
+DTEND;TZID=Europe/Istanbul:20260903T142500
+SUMMARY:Medium change (ATF3 cells\, newly thawed)
+DESCRIPTION:Mandatory day-1 medium change after 2026-09-02 thaw (thaw-cell 
+ rule). Starts after the day's existing 09:00-13:15 blocks (CuAdapt passage
+ \, LNCX/LUCX Hygromycin\, ATF3 mutants SRB) plus clearance. Duration defau
+ lted to 1h\, matching the 1 Sep precedent.\nActive — needs you there\nGr
+ oup: ATF3 mutants\nCategory: experiment
+CATEGORIES:ATF3 mutants,experiment
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Inoculate overnight culture from a PCR-positive colony
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-overnight-culture@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260903T133500
-DTEND;TZID=Europe/Istanbul:20260903T230000
-SUMMARY:Overnight bacterial culture
-DESCRIPTION:Nek2(K37R) → YY1 swap. Placeholder end — continues overnigh
- t past this grid's 23:00 window\, ready for miniprep Friday morning (4 Sep
- ).\nPassive — runs unattended\, does not block time\nGroup: Nek2→YY1\n
- Category: experiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-miniprep@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260904T124000
-DTEND;TZID=Europe/Istanbul:20260904T132500
-SUMMARY:Miniprep
-DESCRIPTION:Nek2(K37R) → YY1 swap. Starts after the day's 09:30-12:30 Wee
- kly meeting plus clearance\, well clear of the 15:30 CuAdapt copper feed.\
- nActive — needs you there\nGroup: Nek2→YY1\nCategory: experiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Miniprep
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-diag-gel-pour@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260904T132500
-DTEND;TZID=Europe/Istanbul:20260904T133500
-SUMMARY:Pour agarose gel (1%) for diagnostic digest gel check
-DESCRIPTION:Nek2(K37R) → YY1 swap. See durations.md.\nActive — needs yo
- u there\nGroup: Nek2→YY1\nCategory: experiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Pour agarose gel (1%) for diagnostic digest gel check
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-diag-digest-setup@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260904T133500
-DTEND;TZID=Europe/Istanbul:20260904T134000
-SUMMARY:Set up diagnostic restriction digest
-DESCRIPTION:Nek2(K37R) → YY1 swap. Confirms correct insert size before se
- nding for sequencing. The digest has to actually finish before there's any
- thing to load.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: e
- xperiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Set up diagnostic restriction digest
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-diag-digest-incubate@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260904T134000
-DTEND;TZID=Europe/Istanbul:20260904T135500
-SUMMARY:Diagnostic digest incubation
-DESCRIPTION:Nek2(K37R) → YY1 swap. NEB HF Time-Saver default\, 5-15 min\;
-  top of range taken. (Diagnostic digest only — separate from the insert/
- backbone replacement-enzyme redo\, unaffected by that change.)\nPassive 
- — runs unattended\, does not block time\nGroup: Nek2→YY1\nCategory: ex
- periment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-diag-gel-load@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260904T135500
-DTEND;TZID=Europe/Istanbul:20260904T140000
-SUMMARY:Load diagnostic digest on gel
-DESCRIPTION:Nek2(K37R) → YY1 swap. Gel poured and set at 13:25-13:55ish\,
-  same as the digest's own incubation — both are ready together.\nActive 
- — needs you there\nGroup: Nek2→YY1\nCategory: experiment
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Load diagnostic digest on gel
-TRIGGER:-PT15M
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-diag-gel-run@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260904T140000
-DTEND;TZID=Europe/Istanbul:20260904T143500
-SUMMARY:Gel run
-DESCRIPTION:Nek2(K37R) → YY1 swap. 1% gel\, ~35 min run.\nPassive — run
- s unattended\, does not block time\nGroup: Nek2→YY1\nCategory: experimen
- t
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:e-yy1-diag-gel-visualize@cagiral-schedule
-DTSTAMP:20260902T043055Z
-SEQUENCE:29805390
-DTSTART;TZID=Europe/Istanbul:20260904T143500
-DTEND;TZID=Europe/Istanbul:20260904T145000
-SUMMARY:Visualize gel\, confirm insert size
-DESCRIPTION:Nek2(K37R) → YY1 swap. Well clear of the 15:30 CuAdapt copper
-  feed.\nActive — needs you there\nGroup: Nek2→YY1\nCategory: experimen
- t
-CATEGORIES:Nek2→YY1,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:Visualize gel\, confirm insert size
+DESCRIPTION:Medium change (ATF3 cells\, newly thawed)
 TRIGGER:-PT15M
 END:VALARM
 END:VEVENT

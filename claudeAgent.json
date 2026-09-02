@@ -2391,7 +2391,7 @@
       "title": "Thaw ATF3 cells",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "From -80C. No experiment same day (thaw-cell rule). Mandatory medium change next day (2026-09-03). Duration per durations.md (~30 min, all hands-on).",
       "group": "ATF3 mutants"
     },
@@ -2403,7 +2403,7 @@
       "title": "CuAdapt cells — move to 10cm plate",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Replating into a 10cm dish, not the recurring Mon/Thu passage or Tue/Fri copper feed. Starts after the day's 10:00-11:00 LNCX/LUCX medium change plus clearance. Duration per durations.md's passaging/replating range (20-30 min), top of range.",
       "group": "CuAdapt"
     },
@@ -2500,7 +2500,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T11:22:14.153Z",
+    "lastModified": "2026-09-02T11:22:16.916Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

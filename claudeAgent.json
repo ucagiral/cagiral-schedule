@@ -2259,7 +2259,7 @@
       "title": "Heat-inactivate AP @ 80°C",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "cancelled",
       "notes": "Nek2(K37R) → YY1 swap. 20 min heat inactivation; backbone ready for gel after this.",
       "group": "Nek2→YY1"
     },
@@ -2500,7 +2500,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T12:00:19.697Z",
+    "lastModified": "2026-09-02T12:00:22.280Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

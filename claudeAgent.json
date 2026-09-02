@@ -2211,7 +2211,7 @@
       "title": "Ligation, overnight",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Changed from same-day 2h RT to overnight per Umut (30 Aug 2026), specifically so he doesn't have to stay for transformation/plating that night. 16°C (NEB) or 4°C (Promega) both standard for overnight sticky-end ligation, ~12-16h — either works, whichever block is free. Placeholder end — continues overnight past this grid's 23:00 window. Transformation moves to 1 Sep afternoon.",
       "group": "Nek2→YY1"
     },
@@ -2343,7 +2343,7 @@
       "title": "Gel run",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. 1% gel, ~35 min run.",
       "group": "Nek2→YY1"
     },
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:35.579Z",
+    "lastModified": "2026-09-02T04:44:39.040Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

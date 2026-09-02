@@ -2450,7 +2450,7 @@
       "status": "pending",
       "notes": "",
       "start": "09:00",
-      "end": "09:05"
+      "end": "09:30"
     }
   ],
   "_groups": {
@@ -2489,7 +2489,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:53:01.574Z",
+    "lastModified": "2026-09-02T04:53:07.363Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

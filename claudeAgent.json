@@ -2254,13 +2254,13 @@
     {
       "id": "e-yy1-redo-ap-incubate",
       "date": "2026-09-01",
-      "start": "13:35",
-      "end": "14:35",
       "title": "AP incubation @ 37°C",
       "category": "experiment",
       "type": "passive",
       "status": "pending",
       "notes": "Nek2(K37R) → YY1 swap. Standard 1h Antarctic Phosphatase incubation.",
+      "start": "13:35",
+      "end": "14:35",
       "group": "Nek2→YY1"
     },
     {
@@ -2465,13 +2465,10 @@
     },
     "Colony formation": {
       "color": "#f97316"
-    },
-    "Nek2→YY1": {
-      "color": "#d946ef"
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:04.999Z",
+    "lastModified": "2026-09-02T04:44:22.281Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

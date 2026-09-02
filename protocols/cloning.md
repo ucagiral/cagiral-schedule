@@ -2,6 +2,13 @@
 
 ## Nek2(K37R) → YY1 swap in pCDH backbone
 
+**Cancelled 2 Sep 2026, per Umut.** Everything below is the record of what actually ran, 31 Aug–1
+Sep, kept for reference — nothing past that point (transformation onward) happened, and no calendar
+events for it exist from 2 Sep on. If this swap comes back later it's a fresh planning pass, not a
+resume of this one — check with Umut on cell/reagent state (the ligated product from 1 Sep, whether
+the replacement-enzyme digest conditions above are still the right starting point) rather than
+assuming this thread just continues.
+
 Cutting Nek2(K37R) out of the `pCDH-Nek2(K37R)` plasmid and replacing it with a YY1 sequence
 PCR-amplified from a MORF library template. Started 31 Aug 2026, first day back from vacation.
 
@@ -25,10 +32,12 @@ correction to the days *after*, not a rewrite of what already happened.
 - **Tue 1 Sep** (redo, replaces the original Mon 31 Aug afternoon): insert **re-amplified by PCR**
   from scratch (the original digest consumed it), then digested with the replacement enzymes; backbone
   (already digested 31 Aug) gets AP treatment in parallel; fresh gel check, extraction, ligation setup
-  → **ligation overnight** again, done by ~17:05.
-- **Wed 2 Sep:** transformation + SOC + plating, fit around that day's other bookings.
-- **Thu 3 Sep:** colony pick + overnight culture.
-- **Fri 4 Sep:** miniprep + diagnostic digest + gel check, fit around the 09:30-12:30 Weekly meeting.
+  → **ligation overnight** again, done by ~17:05. Last real step — the project was cancelled the
+  next day, before transformation.
+
+The rest of the plan as it stood when the project was cancelled, never scheduled or run:
+transformation + SOC + plating (was going to be Wed 2 Sep), colony pick + overnight culture (Thu 3
+Sep), miniprep + diagnostic digest + gel check (Fri 4 Sep).
 
 **Insert digest duration for the replacement enzymes: standard ~1h @ 37°C** (Umut's call, 31 Aug
 2026) — not his usual 4h override, which was specific to the original BamHI-EcoRI pair and doesn't

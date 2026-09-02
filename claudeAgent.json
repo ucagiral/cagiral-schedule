@@ -1574,7 +1574,7 @@
       "title": "Medium change (CuAdapts, newly thawed)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell rule). Duration defaulted to 1h.",
       "group": "CuAdapt"
     },
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:54.200Z",
+    "lastModified": "2026-09-02T04:44:59.482Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

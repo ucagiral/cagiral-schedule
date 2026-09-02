@@ -2025,14 +2025,14 @@
     },
     {
       "id": "emsvlu5w8bh32c",
-      "date": "2026-08-31",
+      "date": "2026-09-02",
       "title": "Thaw ATF3 celld",
       "category": "experiment",
       "type": "active",
       "status": "pending",
       "notes": "",
-      "start": "11:30",
-      "end": "12:00",
+      "start": "09:30",
+      "end": "10:00",
       "color": "#06b6d4"
     },
     {
@@ -2483,7 +2483,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:30:55.696Z",
+    "lastModified": "2026-09-02T04:44:00.871Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

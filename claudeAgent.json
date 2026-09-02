@@ -1586,7 +1586,7 @@
       "title": "LNCX and LUCX Virus",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell rule) — this is the recovery-flask medium change, separate from the 2026-09-02 seeding into assay wells at 100k/well. Duration defaulted to 1h.",
       "group": "LNCX/LUCX"
     },
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:49.014Z",
+    "lastModified": "2026-09-02T04:44:54.200Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

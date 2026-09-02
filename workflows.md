@@ -191,34 +191,62 @@ Dependency chain, each step feeding the next:
 ## Colour groups
 
 Related work shares one colour across the week through the event's `group` field, so a whole
-experiment thread reads as a single strand on the grid. The twelve in use:
+experiment thread reads as a single strand on the grid. Eleven are pinned in `_groups`; a twelfth
+group exists but isn't:
 
 | Group | Colour | Covers |
 |---|---|---|
-| Virus prep | teal `#14b8a6` | HEK293T seeding, pLentiGuide transfection, virus medium change, harvest |
-| Western — biotin | red `#ef4444` | every `Western — …` step plus the protein boil |
-| ATF3 qPCR | amber `#f59e0b` | RNA isolation, cDNA conversion, qPCR prep, qPCR run |
-| CuAdapt | green `#22c55e` | copper treatment, passage, freeze, thaw, medium change |
-| Cloning | violet `#8b5cf6` | bacterial culture, miniprep, plasmids to sequencing |
-| SRB assay | pink `#ec4899` | seeding, copper/cisplatin treatment, TCA fixation and wash, pelleting |
-| LNCX/LUCX | indigo `#6366f1` | the **AR-CasPEx** work — thaw, seed, transduction, hygromycin selection. The group still carries the old name on the calendar; renaming it would retag the five existing events and change the feed, so it is left until asked. |
-| ATF3 mutants | cyan `#06b6d4` | thaw and medium change for the HEK/Huh7 mutants |
-| Zoom — Wednesday | purple `#a855f7` | the standing Wednesday 21:10 Zoom |
-| Weekly meeting | lime `#84cc16` | the standing Friday 09:30 meeting |
-| Colony formation | orange `#f97316` | fixation across consecutive days, then drying |
-| Nek2→YY1 | fuchsia `#d946ef` | swapping Nek2(K37R) out of the pCDH backbone for a PCR-amplified YY1 insert. Standalone thread, not related to any other group — including the generic "Cloning" group above, which only tags unrelated one-off plasmid-prep steps. Not tracked as a project either. |
+| Virus prep | teal `#0d9488` | HEK293T seeding, pLentiGuide transfection, virus medium change, harvest |
+| Western — biotin | red `#dc2626` | every `Western — …` step plus the protein boil |
+| ATF3 qPCR | amber `#a16207` | RNA isolation, cDNA conversion, qPCR prep, qPCR run |
+| CuAdapt | green `#15803d` | copper treatment, passage, freeze, thaw, medium change |
+| Cloning | violet `#7c3aed` | bacterial culture, miniprep, plasmids to sequencing |
+| SRB assay | pink `#db2777` | seeding, copper/cisplatin treatment, TCA fixation and wash, pelleting |
+| LNCX/LUCX | indigo `#6d28d9` | the **AR-CasPEx** work — thaw, seed, transduction, hygromycin selection. The group still carries the old name on the calendar; renaming it would retag the five existing events and change the feed, so it is left until asked. |
+| ATF3 mutants | cyan `#0891b2` | thaw and medium change for the HEK/Huh7 mutants |
+| Zoom — Wednesday | purple `#9333ea` | the standing Wednesday 21:10 Zoom |
+| Weekly meeting | olive `#65a30d` | the standing Friday 09:30 meeting. Was "lime" `#84cc16` — renamed with the 30 Aug 2026 palette widening, see below. |
+| Colony formation | orange `#ea580c` | fixation across consecutive days, then drying |
+
+**Nek2→YY1** (fuchsia-ish, currently `#a21caf` under the new palette) tags the cancelled
+Nek2(K37R)→YY1 swap — see [`protocols/cloning.md`](protocols/cloning.md). It has never actually had a
+`_groups` entry of its own, despite this table long implying otherwise: its colour has only ever come
+from the automatic hash-on-name fallback (`autoGroupColor()` in `index.html`), which is also why it
+shifted when the palette below was widened. Not pinning it hasn't caused a problem since it's a
+standalone, now-archival thread, not related to any other group — including the generic "Cloning"
+group above, which only tags unrelated one-off plasmid-prep steps.
 
 **Every event carries a group, so no block falls back to a category colour.** That matters because
 the category palette overlaps the group palette — `personal` green is CuAdapt's green and `meeting`
 red is the Western red, which is exactly how the Wednesday Zoom and the Friday meeting ended up
 looking like experiments. Grouping them fixes it at the root.
 
-All twelve colours are pinned in `_groups` and are distinct from one another. The Wednesday Zoom's
-purple and the Friday meeting's lime are used by nothing else. Any of them can be changed from the
-app's colour dropdown. Passive events keep their pale treatment, tinted with the group's colour.
+The eleven pinned colours above are distinct from one another and can be changed from the app's
+colour dropdown. Passive events keep their pale treatment, tinted with the group's colour.
 
 **A new recurring commitment gets its own group and its own unused colour**, rather than being left
 on a category colour where it will collide with an experiment.
+
+### The palette itself was widened and re-picked, 30 Aug 2026
+
+Umut's own read: the old 14-colour palette had several pairs that looked too close on screen to tell
+apart at a glance. Checked, not just eyeballed — the old set really did have three real clusters
+(Violet/Indigo/Purple all within about 30° of hue; Teal/Cyan 16° apart; Amber/Orange 13° apart), which
+is exactly what "too close" looks like numerically. The replacement — 16 colours, in `index.html`'s
+`PALETTE` array — was built with the `dataviz` skill's method (`references/color-formula.md`):
+OKLab distance, checked under simulated protanopia/deuteranopia as well as plain vision, ordered so
+every *adjacent* entry clears the hard normal-vision floor (≥15 OKLab ΔE×100) and the CVD floor (≥6,
+legal only because a colour here is never the only way an event is identified — its group name is
+always shown as text next to it). The eleven pinned colours above were re-picked from that same set,
+keeping each group's original colour *identity* (teal stayed teal, red stayed red, etc.) — only lime
+became olive, since a distinct "lime" didn't survive the distance check against green.
+
+A genuinely colour-blind-safe *and* wide palette has a real ceiling: pushing past 16 while holding
+every pair — not just neighbours — apart reliably starts reintroducing the same clustering this was
+meant to fix, which is why the count stopped there rather than higher. If a 13th group is ever pinned,
+pick from `PALETTE` (or run `dataviz`'s `scripts/validate_palette.js` on a candidate) rather than
+eyeballing a new hex — that's the whole reason this stayed fixable instead of drifting back to
+"looks close enough."
 
 ## Things that complete themselves
 

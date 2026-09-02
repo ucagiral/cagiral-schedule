@@ -2458,7 +2458,7 @@
       "title": "OX virüsleri ver",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "10:50",
       "end": "11:20"
@@ -2500,7 +2500,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:54:20.846Z",
+    "lastModified": "2026-09-02T04:54:22.559Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

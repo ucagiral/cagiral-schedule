@@ -2398,8 +2398,8 @@
     {
       "id": "e-thaw-atf3-2026-09-02",
       "date": "2026-09-02",
-      "start": "10:00",
-      "end": "10:30",
+      "start": "09:30",
+      "end": "10:00",
       "title": "Thaw ATF3 cells",
       "category": "experiment",
       "type": "active",
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:45:40.034Z",
+    "lastModified": "2026-09-02T04:45:42.405Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

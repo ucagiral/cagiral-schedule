@@ -2386,13 +2386,13 @@
     {
       "id": "e-yy1-redo-ligation",
       "date": "2026-09-01",
-      "start": "17:05",
-      "end": "23:00",
       "title": "Ligation, overnight",
       "category": "experiment",
       "type": "passive",
       "status": "pending",
       "notes": "Nek2(K37R) → YY1 swap. Overnight per the 30 Aug 2026 standing change (see cloning.md) — applies here same as before. 16°C or 4°C, ~12-16h. Placeholder end — continues overnight past this grid's 23:00 window.",
+      "start": "17:05",
+      "end": "23:00",
       "group": "Nek2→YY1"
     },
     {
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:39.040Z",
+    "lastModified": "2026-09-02T04:44:42.386Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

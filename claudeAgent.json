@@ -1475,13 +1475,13 @@
     {
       "id": "emsma11dcoz8k5",
       "date": "2026-09-02",
-      "start": "09:00",
-      "end": "10:00",
       "title": "LNCX and LUCX medium change",
       "category": "experiment",
       "type": "active",
       "status": "pending",
       "notes": "",
+      "start": "09:00",
+      "end": "09:30",
       "group": "LNCX/LUCX"
     },
     {
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:45:31.564Z",
+    "lastModified": "2026-09-02T04:45:40.034Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

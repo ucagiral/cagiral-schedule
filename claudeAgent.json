@@ -2283,7 +2283,7 @@
       "title": "YY1 insert digestion (replacement enzymes)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "cancelled",
       "notes": "Nek2(K37R) → YY1 swap. Standard ~1h @ 37°C for this enzyme pair — Umut's call (31 Aug 2026), not his usual 4h override, which was specific to the original BamHI-EcoRI pair.",
       "group": "Nek2→YY1"
     },
@@ -2500,7 +2500,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T11:22:16.916Z",
+    "lastModified": "2026-09-02T12:00:19.697Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

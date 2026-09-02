@@ -819,14 +819,31 @@
   // A group's colour is derived from its name, so the same group looks identical on
   // every device with nothing to keep in sync. An explicit override in _groups wins,
   // and an ungrouped event can still carry its own one-off colour.
+  //
+  // Ordered (not alphabetical) so that adjacent entries are the ones farthest
+  // apart perceptually — chosen by a script that maximized each neighbour's
+  // OKLab distance, both in plain vision and simulated protanopia/deuteranopia,
+  // then checked against the anti-clustering method in the dataviz skill
+  // (references/color-formula.md): every adjacent pair clears the hard
+  // normal-vision floor (>=15) and the CVD floor (>=6, legal at that floor only
+  // because every colour here always sits next to its group's name as text —
+  // never carries meaning by itself). Two near-neighbours in hue (e.g. Violet
+  // and Purple, or Teal and Cyan) are both still here — dropping either was the
+  // easy fix, but it shrinks the palette back toward the original 14 nearly-
+  // identical set this replaced — so instead each is placed far from its own
+  // near-relative in the order below, which is what the distance check
+  // actually verified. Widened from 14 to 16 on request (30 Aug 2026 UI pass) —
+  // the original set had six colours in three close clusters (Violet/Purple/
+  // Indigo, Teal/Cyan, Amber/Orange); this one has none.
   var PALETTE = [
-    {name:"Blue",   hex:"#3b82f6"}, {name:"Red",     hex:"#ef4444"},
-    {name:"Green",  hex:"#22c55e"}, {name:"Violet",  hex:"#8b5cf6"},
-    {name:"Amber",  hex:"#f59e0b"}, {name:"Cyan",    hex:"#06b6d4"},
-    {name:"Pink",   hex:"#ec4899"}, {name:"Lime",    hex:"#84cc16"},
-    {name:"Orange", hex:"#f97316"}, {name:"Indigo",  hex:"#6366f1"},
-    {name:"Teal",   hex:"#14b8a6"}, {name:"Purple",  hex:"#a855f7"},
-    {name:"Slate",  hex:"#64748b"}, {name:"Rose",    hex:"#f43f5e"}
+    {name:"Rose",    hex:"#e11d48"}, {name:"Purple",  hex:"#9333ea"},
+    {name:"Amber",   hex:"#a16207"}, {name:"Olive",   hex:"#65a30d"},
+    {name:"Brown",   hex:"#b45309"}, {name:"Cyan",    hex:"#0891b2"},
+    {name:"Orange",  hex:"#ea580c"}, {name:"Indigo",  hex:"#6d28d9"},
+    {name:"Pink",    hex:"#db2777"}, {name:"Violet",  hex:"#7c3aed"},
+    {name:"Sky",     hex:"#0369a1"}, {name:"Green",   hex:"#15803d"},
+    {name:"Fuchsia", hex:"#a21caf"}, {name:"Blue",    hex:"#2563eb"},
+    {name:"Red",     hex:"#dc2626"}, {name:"Teal",    hex:"#0d9488"}
   ];
   function hashString(s){
     var h = 0;
@@ -888,30 +905,44 @@
   function uid(){ return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
   // ---------------- theme ----------------
+  // Three states, not two: Auto (follows the system setting, including a live
+  // day/night switch as the OS's own changes) is the default and where a tap
+  // cycle always returns to — Auto -> Light -> Dark -> Auto. Picking Light or
+  // Dark pins it, same as before; the only change is that pinning isn't a dead
+  // end anymore, since cycling all the way round gets back to automatic.
   var btnTheme = $("btnTheme");
-  function applyTheme(){
+  var THEME_CYCLE = ["auto", "light", "dark"];
+  var THEME_ICON = { auto: "🌗", light: "☀️", dark: "🌙" };
+  var THEME_TITLE = {
+    auto: "Theme: Auto (follows system) — tap for Light",
+    light: "Theme: Light — tap for Dark",
+    dark: "Theme: Dark — tap for Auto"
+  };
+  function getThemeState(){
     var stored = null;
     try { stored = localStorage.getItem(LS.theme); } catch(e){}
-    if (stored === "dark" || stored === "light") document.documentElement.setAttribute("data-theme", stored);
-    else document.documentElement.removeAttribute("data-theme");
-    var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var effectiveDark = stored ? stored === "dark" : systemDark;
-    btnTheme.textContent = effectiveDark ? "☀️" : "🌙";
+    return (stored === "dark" || stored === "light") ? stored : "auto";
+  }
+  function applyTheme(){
+    var state = getThemeState();
+    if (state === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", state);
+    btnTheme.textContent = THEME_ICON[state];
+    btnTheme.title = THEME_TITLE[state];
   }
   btnTheme.addEventListener("click", function(){
-    var stored = null;
-    try { stored = localStorage.getItem(LS.theme); } catch(e){}
-    var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var effectiveDark = stored ? stored === "dark" : systemDark;
-    try { localStorage.setItem(LS.theme, effectiveDark ? "light" : "dark"); } catch(e){}
+    var next = THEME_CYCLE[(THEME_CYCLE.indexOf(getThemeState()) + 1) % THEME_CYCLE.length];
+    try {
+      if (next === "auto") localStorage.removeItem(LS.theme);
+      else localStorage.setItem(LS.theme, next);
+    } catch(e){}
     applyTheme();
   });
   applyTheme();
   if (window.matchMedia) {
     try {
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){
-        var s = null; try { s = localStorage.getItem(LS.theme); } catch(e){}
-        if (!s) applyTheme();
+        if (getThemeState() === "auto") applyTheme();
       });
     } catch(e){}
   }

@@ -2420,17 +2420,6 @@
       "group": "ATF3 mutants"
     },
     {
-      "id": "emtjm7vgx5c4ye",
-      "date": "2026-09-02",
-      "title": "Digest PCDH-EF1",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "",
-      "start": "10:30",
-      "end": "11:30"
-    },
-    {
       "id": "emtjm8a6vf5b81",
       "date": "2026-09-02",
       "title": "AP treatment",
@@ -2500,7 +2489,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T12:00:24.462Z",
+    "lastModified": "2026-09-02T12:00:28.918Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

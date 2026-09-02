@@ -2447,21 +2447,21 @@
       "title": "H460’lara 12,5ug Blast",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "09:00",
       "end": "09:30"
     },
     {
       "id": "emtjmg30w6u92c",
-      "date": "2026-08-31",
+      "date": "2026-09-01",
       "title": "OX virüsleri ver",
       "category": "experiment",
       "type": "active",
       "status": "done",
       "notes": "",
-      "start": "10:50",
-      "end": "11:20"
+      "start": "09:55",
+      "end": "10:25"
     }
   ],
   "_groups": {
@@ -2500,7 +2500,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:54:22.559Z",
+    "lastModified": "2026-09-02T04:54:34.046Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

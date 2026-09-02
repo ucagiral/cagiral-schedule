@@ -2223,7 +2223,7 @@
       "title": "YY1 PCR run (thermocycler)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Q5/HF-style run, ~1.3 kb product — same as the original.",
       "group": "Nek2→YY1"
     },
@@ -2500,7 +2500,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T12:00:22.280Z",
+    "lastModified": "2026-09-02T12:00:24.462Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

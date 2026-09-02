@@ -2199,7 +2199,7 @@
       "title": "Ligation setup — test + negative control",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Test = insert+backbone. Negative control = AP-treated backbone alone, no insert. Last hands-on step of the day — Umut is out by 16:40 now that ligation runs overnight.",
       "group": "Nek2→YY1"
     },
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:32.134Z",
+    "lastModified": "2026-09-02T04:44:33.854Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

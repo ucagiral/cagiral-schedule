@@ -2257,7 +2257,7 @@
       "title": "AP incubation @ 37°C",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Standard 1h Antarctic Phosphatase incubation.",
       "start": "13:35",
       "end": "14:35",
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:47.243Z",
+    "lastModified": "2026-09-02T04:44:49.014Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

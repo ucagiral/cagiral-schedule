@@ -2367,7 +2367,7 @@
       "title": "Gel extraction / clean-up (backbone + insert)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. ~30% recovery efficiency per Umut — yield risk to keep in mind downstream, not a time change.",
       "group": "Nek2→YY1"
     },
@@ -2379,7 +2379,7 @@
       "title": "Ligation setup — test + negative control",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Test = insert+backbone. Negative control = AP-treated backbone alone, no insert. Last hands-on step of the day.",
       "group": "Nek2→YY1"
     },
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:33.854Z",
+    "lastModified": "2026-09-02T04:44:35.579Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

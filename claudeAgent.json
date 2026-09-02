@@ -2440,6 +2440,17 @@
       "notes": "",
       "start": "11:30",
       "end": "12:30"
+    },
+    {
+      "id": "emtjmefz8gow4g",
+      "date": "2026-09-01",
+      "title": "H460’lara 12,5ug Blast",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "09:00",
+      "end": "09:05"
     }
   ],
   "_groups": {
@@ -2478,7 +2489,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:48:21.665Z",
+    "lastModified": "2026-09-02T04:53:01.574Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

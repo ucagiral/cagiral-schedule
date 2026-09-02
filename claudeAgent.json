@@ -2418,6 +2418,17 @@
       "status": "pending",
       "notes": "Mandatory day-1 medium change after 2026-09-02 thaw (thaw-cell rule). Starts after the day's existing 09:00-13:15 blocks (CuAdapt passage, LNCX/LUCX Hygromycin, ATF3 mutants SRB) plus clearance. Duration defaulted to 1h, matching the 1 Sep precedent.",
       "group": "ATF3 mutants"
+    },
+    {
+      "id": "emtjm7vgx5c4ye",
+      "date": "2026-09-02",
+      "title": "Digest PCDH-EF1",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "09:00",
+      "end": "10:00"
     }
   ],
   "_groups": {
@@ -2456,7 +2467,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:47:37.341Z",
+    "lastModified": "2026-09-02T04:47:55.056Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

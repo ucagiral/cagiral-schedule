@@ -2420,17 +2420,6 @@
       "group": "ATF3 mutants"
     },
     {
-      "id": "emtjm8a6vf5b81",
-      "date": "2026-09-02",
-      "title": "AP treatment",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "",
-      "start": "11:30",
-      "end": "12:30"
-    },
-    {
       "id": "emtjmefz8gow4g",
       "date": "2026-09-01",
       "title": "H460’lara 12,5ug Blast",
@@ -2489,7 +2478,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T12:00:28.918Z",
+    "lastModified": "2026-09-02T12:00:30.914Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

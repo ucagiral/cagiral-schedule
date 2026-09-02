@@ -1543,18 +1543,6 @@
       "group": "CuAdapt"
     },
     {
-      "id": "e-medchange-hekhuh7-atf3-2026-09-01",
-      "date": "2026-09-02",
-      "start": "16:00",
-      "end": "17:00",
-      "title": "Medium change (Hek and Huh7 ATF3 mutants)",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "Mandatory day-1 medium change after 2026-08-31 thaw (thaw-cell rule). Duration defaulted to 1h.",
-      "group": "ATF3 mutants"
-    },
-    {
       "id": "e-medchange-cuadapts-2026-09-01",
       "date": "2026-09-01",
       "start": "10:50",
@@ -2478,7 +2466,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T13:17:36.786Z",
+    "lastModified": "2026-09-02T13:17:42.847Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

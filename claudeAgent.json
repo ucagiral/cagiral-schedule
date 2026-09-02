@@ -2331,7 +2331,7 @@
       "title": "Load combined gel (backbone + insert)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Both digested fragments run on the same gel — gel poured and set at 14:20-15:00, backbone ready since 14:55, insert digest done at 15:20.",
       "group": "Nek2→YY1"
     },
@@ -2355,7 +2355,7 @@
       "title": "Visualize gel, excise backbone + insert bands",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap.",
       "group": "Nek2→YY1"
     },
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:29.815Z",
+    "lastModified": "2026-09-02T04:44:32.134Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

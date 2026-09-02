@@ -2454,14 +2454,14 @@
     },
     {
       "id": "emtjmg30w6u92c",
-      "date": "2026-09-01",
+      "date": "2026-08-31",
       "title": "OX virüsleri ver",
       "category": "experiment",
       "type": "active",
       "status": "pending",
       "notes": "",
-      "start": "10:10",
-      "end": "10:40"
+      "start": "10:50",
+      "end": "11:20"
     }
   ],
   "_groups": {
@@ -2500,7 +2500,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:54:18.098Z",
+    "lastModified": "2026-09-02T04:54:20.846Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

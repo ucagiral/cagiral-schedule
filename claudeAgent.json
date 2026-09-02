@@ -2283,7 +2283,7 @@
       "title": "Set up YY1 insert digestion (replacement enzymes)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Same replacement enzyme pair as the 31 Aug backbone redo. Starts right as the PCR run ends.",
       "group": "Nek2→YY1"
     },
@@ -2307,7 +2307,7 @@
       "title": "Pour agarose gel (1%) for backbone + insert gel check",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. Fresh gel — yesterday's was for the original (failed) digest. Poured inside the insert digest's passive window so it's set well before the 15:20 load. See durations.md.",
       "group": "Nek2→YY1"
     },
@@ -2468,7 +2468,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-02T04:44:28.209Z",
+    "lastModified": "2026-09-02T04:44:29.815Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

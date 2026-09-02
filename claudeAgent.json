@@ -2235,7 +2235,7 @@
       "title": "Re-amplify YY1 insert by PCR (redo)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Nek2(K37R) → YY1 swap. One of the original restriction enzymes turned out not to be working (found 31 Aug) — the original insert digest is a write-off, so the insert is re-amplified from scratch. The backbone didn't need this: it was re-digested same-day, 31 Aug, with a different, working enzyme pair before Umut left, and only needs AP treatment now. Starts after the day's existing 09:00-13:00 blocks (copper feed, ATF3 and CuAdapt medium changes, LNCX/LUCX virus medium change) plus clearance.",
       "group": "Nek2→YY1"
     },
@@ -2603,7 +2603,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-01T13:02:42.728Z",
+    "lastModified": "2026-09-02T04:30:55.696Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

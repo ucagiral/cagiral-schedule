@@ -4956,9 +4956,8 @@
       "id": "v-144",
       "name": "LnCapCASPEX no select E",
       "lineId": "l-lncapcaspex-e",
-      "passage": "p45769",
-      "passageNumber": 45769,
-      "passageKind": "absolute",
+      "passage": "p?",
+      "passageKind": "unknown",
       "location": {
         "unitId": "u-f80",
         "rackId": "r-1",
@@ -9826,6 +9825,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-03T18:55:36.199Z"
+    "savedAt": "2026-09-03T18:57:23.807Z"
   }
 }

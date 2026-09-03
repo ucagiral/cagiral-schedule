@@ -7069,13 +7069,7 @@
       "passageKind": "absolute",
       "frozenRaw": "31-07-26",
       "frozenOn": "2026-07-31",
-      "location": {
-        "unitId": "u-f80",
-        "rackId": "r-1",
-        "boxId": "b-duzenle",
-        "position": "I8"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell_Stocks_UC_80.xlsx!UMUT -80!row 243",
       "facetsFromSheet": {
         "origin": "HEK293T",
@@ -8918,13 +8912,7 @@
       "passageNumber": 18,
       "passageKind": "absolute",
       "frozenRaw": "10/8/2026",
-      "location": {
-        "unitId": "u-f80",
-        "rackId": "r-1",
-        "boxId": "b-umut-cells-4",
-        "position": "A6"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell_Stocks_UC_80.xlsx!UMUT -80!row 331",
       "facetsFromSheet": {
         "origin": "HEK293T",
@@ -9632,7 +9620,38 @@
       }
     }
   ],
-  "withdrawals": [],
+  "withdrawals": [
+    {
+      "id": "w-mtlvqzzj",
+      "vialId": "v-243",
+      "name": "HEK ATF3 KO rep2",
+      "from": {
+        "unitId": "u-f80",
+        "rackId": "r-1",
+        "boxId": "b-duzenle",
+        "position": "I8"
+      },
+      "date": "2026-09-03",
+      "by": "Umut iphone cell stocks",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mtlvr0f7",
+      "vialId": "v-331",
+      "name": "HEK 3xFLAG",
+      "from": {
+        "unitId": "u-f80",
+        "rackId": "r-1",
+        "boxId": "b-umut-cells-4",
+        "position": "A6"
+      },
+      "date": "2026-09-03",
+      "by": "Umut iphone cell stocks",
+      "purpose": "thaw",
+      "notes": ""
+    }
+  ],
   "rules": {
     "origin": [
       {
@@ -9753,6 +9772,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-03T18:49:39.140Z"
+    "savedAt": "2026-09-03T18:50:16.824Z"
   }
 }

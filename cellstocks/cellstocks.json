@@ -9324,13 +9324,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "10/8/2026",
-      "location": {
-        "unitId": "u-f80",
-        "rackId": "r-1",
-        "boxId": "b-umut-cells-4",
-        "position": "D3"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell_Stocks_UC_80.xlsx!UMUT -80!row 355",
       "facetsFromSheet": {
         "origin": "Huh7",
@@ -9650,6 +9644,21 @@
       "by": "Umut iphone cell stocks",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtlvsorq",
+      "vialId": "v-355",
+      "name": "Huh7 gNT",
+      "from": {
+        "unitId": "u-f80",
+        "rackId": "r-1",
+        "boxId": "b-umut-cells-4",
+        "position": "D3"
+      },
+      "date": "2026-09-03",
+      "by": "Umut iphone cell stocks",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "rules": {
@@ -9772,6 +9781,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-03T18:50:16.824Z"
+    "savedAt": "2026-09-03T18:51:35.034Z"
   }
 }

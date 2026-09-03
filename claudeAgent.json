@@ -97,18 +97,6 @@
       "group": "CuAdapt"
     },
     {
-      "id": "e-cuadapt-passage-2026-09-03",
-      "date": "2026-09-03",
-      "title": "CuAdapt cells — Cu Treatment",
-      "category": "experiment",
-      "type": "active",
-      "status": "pending",
-      "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
-      "start": "09:00",
-      "end": "09:30",
-      "group": "CuAdapt"
-    },
-    {
       "id": "e-cuadapt-copper-2026-09-04",
       "date": "2026-09-04",
       "start": "15:30",
@@ -2452,7 +2440,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-03T12:44:06.441Z",
+    "lastModified": "2026-09-03T12:44:14.420Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

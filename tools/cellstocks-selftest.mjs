@@ -944,6 +944,20 @@ check("box geometry is read from the data, never assumed", () => {
 const REAL_PATH = join(ROOT, "cellstocks", "cellstocks.json");
 const real = existsSync(REAL_PATH) ? E.mergeDefaults(JSON.parse(readFileSync(REAL_PATH, "utf8"))) : null;
 
+// Umut edits this file from his phone -- takes vials out, confirms dates in bulk,
+// fixes a passage -- and this suite runs on every one of those saves. A check here
+// is only allowed to assert something that stays true under ANY sequence of
+// legitimate app actions. A number captured at one point in time (how many vials
+// were imported, how many dates were still ambiguous, which facets the sheet's own
+// formulas got wrong) is exactly the kind of thing normal use is designed to change,
+// and pinning it here means every correct use of a feature turns CI red forever.
+// That happened for real: confirming the 135 ambiguous dates via Review's own
+// "Accept the swap for all" button broke three checks that used to hardcode 141,
+// 209 and "no vial may have frozenOn set from an ambiguous frozenRaw" -- the very
+// thing that button exists to do. The importer's own correctness (the five regex
+// fixes, parseDate's day/month handling) stays fully covered above by the synthetic
+// fixture, which the app can never edit.
+
 check("saving the real inventory unchanged rewrites it byte for byte", () => {
   if (!real) return null;
   // The app writes the file through E.serialise. If loading it and writing it back
@@ -974,93 +988,49 @@ check("the real inventory is eight 9x9 boxes with nothing double-booked", () => 
   if (boxes.length !== 8) return `found ${boxes.length} boxes`;
   for (const b of boxes) if (b.rows !== 9 || b.cols !== 9) return `${b.name} is ${b.rows}x${b.cols}`;
   const total = boxes.reduce((n, b) => n + E.occupancy(real, b.id).used, 0);
-  if (total !== 350) return `${total} vials are placed, expected 350`;
+  // Not a fixed head-count: every stored (non-withdrawn) vial occupies exactly one
+  // slot, no more, no fewer. Withdrawals change how many that is; they must never
+  // change whether occupancy and vial status agree with each other.
+  const stored = real.vials.filter((v) => v.status !== "withdrawn").length;
+  if (total !== stored) return `${total} slots are occupied but ${stored} vials are marked stored`;
   const tank = E.unitSummary(real, "u-ln2");
   if (!tank) return "the nitrogen tank is missing";
-  if (tank.used !== 0) return `the tank holds ${tank.used} vials, expected 0`;
+  // Not "must be empty": the tank exists to be frozen into, and the moment it holds
+  // its first vial is the moment this app is fully doing its job. total === stored
+  // above already covers the tank's occupancy along with everything else's.
   if (tank.capacity !== 162) return `the tank has ${tank.capacity} slots, expected 162`;
   return null;
 });
 
-// The five deliberate corrections, and nothing else. If a later rule edit changes a
-// sixth thing, this fails and names it.
-const EXPECTED_DIFFS = {
-  "koox: OX -> KO": 26,
-  "resistance: CR -> -": 12,
-  "resistance: EnzaR -> -": 4,
-  "guide: g1 -> DSg1.2": 7,
-  "guide: g1 -> g1.2": 2,
-  "guide: g2 -> g2.2": 4
-};
+// classify() correctness -- the five regex fixes, and origin/CASPEX staying stable --
+// is fully covered above by the synthetic fixture, which is fixed strings the app can
+// never edit. Checking it again here, against classifyAll(real).diffs, used to compare
+// against exact per-rule counts (26 OX->KO, 12 CR->-, ...) captured right after import.
+// That was the wrong place for it: Review's own "Accept all of these" button clears
+// facetsFromSheet on purpose, and a hand-pinned facet does the same for one vial --
+// both zero out rows this used to insist on, for reasons that are the app working
+// correctly. Deleted rather than chasing a moving target with a growing exception list.
 
-check("the corrected rules change exactly the rows they are meant to", () => {
-  if (!real) return null;
-  const seen = {};
-  E.classifyAll(real).diffs.forEach((d) => {
-    Object.keys(d.changed).forEach((f) => {
-      const key = `${f}: ${d.changed[f].sheet} -> ${d.changed[f].now}`;
-      seen[key] = (seen[key] || 0) + 1;
-    });
-  });
-  const keys = new Set([...Object.keys(EXPECTED_DIFFS), ...Object.keys(seen)]);
-  for (const k of keys) {
-    if ((seen[k] || 0) !== (EXPECTED_DIFFS[k] || 0)) {
-      return `${json(k)}: sheet disagrees on ${seen[k] || 0} vials, expected ${EXPECTED_DIFFS[k] || 0}`;
-    }
-  }
-  return null;
-});
+// Same story for a fixed review-queue size (141 dates, 49 facets, 67 unknown passages
+// at import time): every one of those numbers is exactly what Find/Freeze/Review exist
+// to change. Not re-tested here; searchExtents/search/withdraw already have their own
+// synthetic-fixture coverage above for the mechanics reviewQueue is built from.
 
-check("origin and CASPEX still read exactly as the sheet did", () => {
+// The row rule -- one kind of cell per row -- is not something this app imposes on the
+// freezer, it is how the freezer already is; that is documented (with the count at the
+// time) in README.md and CLAUDE.md. It is not re-asserted here as a row/box head-count,
+// because a withdrawal or an edit can freely change which rows are in use or how many
+// cells they hold, and none of that is a bug. What has to stay true regardless is
+// narrower: nothing is EVER mixed merely because no rule covers it -- since LCC and LNC
+// both resolve to LnCap, that gap is closed for good, and a name with a real gap should
+// surface in Review, not sit silently doubled up in a row.
+check("no row is left mixed only because an origin rule is missing", () => {
   if (!real) return null;
-  const bad = [];
-  E.classifyAll(real).diffs.forEach((d) => {
-    ["origin", "caspex"].forEach((f) => { if (d.changed[f]) bad.push(`${d.name} ${f}`); });
-  });
-  return bad.length ? `${bad.length} rows differ, e.g. ${bad[0]}` : null;
-});
-
-check("the review queue is the size the import reported", () => {
-  if (!real) return null;
-  const q = E.reviewQueue(real);
-  if (q.dates.length !== 141) return `${q.dates.length} dates need confirming, expected 141`;
-  if (q.facets.length !== 49) return `${q.facets.length} rows have changed facets, expected 49`;
-  // Zero gaps now that LCC and LNC are known to be LnCap; that answer also cleared
-  // six of the seven mixed rows, since they were only mixed for want of a rule.
-  if (q.gaps.length !== 0) return `${q.gaps.length} rows have an unmatched facet, expected 0`;
-  if (q.passages.length !== 2) return `${q.passages.length} implausible passages, expected 2`;
-  if (q.rows.length !== 1) return `${q.rows.length} mixed rows, expected 1`;
-  if (q.unknownPassage.length !== 67) return `${q.unknownPassage.length} vials have no passage, expected 67`;
-  return null;
-});
-
-// The row rule is not something this app imposed on the freezer -- it is how the
-// freezer already is. Of the 43 rows currently holding anything, 42 hold exactly one
-// kind of cell. The single exception is a real one: UMUT CAA CELLS row A, where one
-// Du145 sits among eight HEK293T.
-check("the real freezer already keeps one cell per row", () => {
-  if (!real) return null;
-  let rows = 0, single = 0;
-  E.eachBox(real, (box) => {
-    E.rowsOf(real, box.id).forEach((row) => {
-      if (!row.used) return;
-      rows++;
-      if (row.origins.length === 1) single++;
-    });
-  });
-  // Pinned, because these exact numbers are quoted in README.md and CLAUDE.md as the
-  // evidence for the rule. If the data moves, the claim has to move with it.
-  if (rows !== 43) return `${rows} rows in use, expected 43`;
-  if (single !== 42) return `${single} rows hold exactly one cell, expected 42`;
-  const mixed = E.mixedRows(real);
-  if (mixed.length !== 1) return `${mixed.length} rows mix cells, expected 1`;
-  if (mixed[0].box !== "UMUT CAA CELLS" || mixed[0].label !== "A") {
-    return `the mixed row is ${mixed[0].box} ${mixed[0].label}, expected UMUT CAA CELLS A`;
-  }
-  // And none of them is mixed merely because a rule is missing any more.
-  const forWantOfARule = mixed.filter((m) => m.origins.indexOf(E.NO_ORIGIN) !== -1).length;
-  if (forWantOfARule !== 0) return `${forWantOfARule} rows are still mixed only for want of an origin rule`;
-  return null;
+  const forWantOfARule = E.mixedRows(real).filter((m) => m.origins.indexOf(E.NO_ORIGIN) !== -1);
+  return forWantOfARule.length
+    ? `${forWantOfARule.length} rows are mixed only because no rule covers a name there, e.g. ` +
+      `${forWantOfARule[0].box} row ${forWantOfARule[0].label}`
+    : null;
 });
 
 check("the nitrogen tank is modelled but empty, and can be placed into", () => {
@@ -1108,21 +1078,24 @@ check("no plan against the real freezer ever mixes two cells in a row", () => {
   return null;
 });
 
-check("no ambiguous date was quietly resolved", () => {
-  if (!real) return null;
-  const wrong = real.vials.filter((v) => v.frozenOn && E.parseDate(v.frozenRaw || "").needsReview);
-  if (wrong.length) return `${wrong.length} vials carry a date the raw text does not support, e.g. ${wrong[0].name}`;
-  const dated = real.vials.filter((v) => v.frozenOn).length;
-  if (dated !== 209) return `${dated} vials have a confirmed date, expected 209`;
-  return null;
-});
+// A vial with frozenOn set from an ambiguous frozenRaw is exactly what confirming a
+// date through Review produces on purpose -- E.confirmDate() sets frozenOn and leaves
+// the original frozenRaw text untouched, so a human-confirmed vial and an importer bug
+// are indistinguishable from the file alone. That is why this can only be tested where
+// it was above: parseDate() and importSheet() directly, against fixed input strings,
+// never against a file Review is designed to keep changing.
 
 check("every real vial keeps its passage on the right scale", () => {
   if (!real) return null;
   const counts = { absolute: 0, relative: 0, unknown: 0 };
   real.vials.forEach((v) => { counts[v.passageKind || "unknown"]++; });
-  if (counts.unknown !== 67) return `${counts.unknown} unknown passages, expected 67`;
-  if (counts.absolute + counts.relative + counts.unknown !== 350) return "the kinds do not add up to 350";
+  // How many are still unknown is a Review-queue number like any other -- it only ever
+  // goes down as vials get filled in. record count isn't fixed either: freezing new
+  // vials adds records, and none of them get deleted. What must always hold is that
+  // the three kinds still account for every record that exists right now.
+  if (counts.absolute + counts.relative + counts.unknown !== real.vials.length) {
+    return `the kinds add up to ${counts.absolute + counts.relative + counts.unknown}, not ${real.vials.length} vials`;
+  }
   const wrong = real.vials.filter((v) => v.passage && /\+/.test(v.passage) && v.passageKind !== "relative");
   return wrong.length ? `${wrong.length} p+N vials are not marked relative` : null;
 });

@@ -8867,13 +8867,7 @@
       "passageNumber": 18,
       "passageKind": "absolute",
       "frozenRaw": "10/8/2026",
-      "location": {
-        "unitId": "u-f80",
-        "rackId": "r-1",
-        "boxId": "b-umut-cells-4",
-        "position": "A4"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell_Stocks_UC_80.xlsx!UMUT -80!row 329",
       "facetsFromSheet": {
         "origin": "HEK293T",
@@ -9695,6 +9689,21 @@
       "by": "Umut iphone cell stocks",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtlvxuup",
+      "vialId": "v-329",
+      "name": "HEK gNT",
+      "from": {
+        "unitId": "u-f80",
+        "rackId": "r-1",
+        "boxId": "b-umut-cells-4",
+        "position": "A4"
+      },
+      "date": "2026-09-03",
+      "by": "Umut iphone cell stocks",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "rules": {
@@ -9817,6 +9826,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-03T18:51:54.864Z"
+    "savedAt": "2026-09-03T18:55:36.199Z"
   }
 }

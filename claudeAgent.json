@@ -1481,7 +1481,7 @@
       "title": "LNCX and LUCX Hygromycin",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Renamed from \"medium change\" (2026-08-10) — this is \"next day\" after the 2026-09-02 seeding, matching Umut's plan to transduce the day after seeding, with viruses frozen before vacation. Day 1 of the 6-day transduction+hygromycin-selection window (2026-09-03 to 2026-09-08), which ends on a Tuesday (not Fri/Sat/Sun) per Umut's constraint.",
       "group": "LNCX/LUCX"
     },
@@ -2452,7 +2452,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-03T04:54:31.404Z",
+    "lastModified": "2026-09-03T12:44:04.643Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

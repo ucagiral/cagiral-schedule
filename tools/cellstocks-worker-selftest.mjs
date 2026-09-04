@@ -8,7 +8,7 @@
 // No network, no Cloudflare account, no deploy. See that file's own header for why it is
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
-import { handleRequest, dataPathFor, canWrite } from "../cellstocks-worker/worker.js";
+import { handleRequest, dataPathFor, xlsxPathFor, canWrite } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -59,22 +59,37 @@ function makeKv() {
 
 // ------------------------------------------------------------- stubbed GitHub
 //
-// githubPutFile() in worker.js calls `(env.fetch || fetch)(url, opts)`, so tests inject a
-// fake here instead of hitting the network. It records every call so tests can assert on
-// exactly what would have been committed.
+// commitFilesAtomic() in worker.js drives the git data API through githubApi(), which
+// calls `(env.fetch || fetch)(url, opts)` -- tests inject a fake here instead of hitting
+// the network. It plays along with the real six-call sequence (ref -> base commit ->
+// N blobs -> tree -> commit -> ref update) so a test can assert on exactly what would
+// have been committed, and `failOn` lets a test make one specific step fail without
+// having to fake the calls before it.
 
-function makeGithubFetch({ fail } = {}) {
+function makeGithubFetch({ failOn } = {}) {
   const calls = [];
+  let blobN = 0;
   const fn = async (url, opts) => {
-    calls.push({ url, body: JSON.parse(opts.body) });
-    if (fail) {
-      return { ok: false, status: fail, json: async () => ({ message: "stubbed failure" }) };
+    const body = opts.body ? JSON.parse(opts.body) : undefined;
+    calls.push({ url, method: opts.method, body });
+    const step = url.includes("/git/blobs") ? "blob"
+      : url.includes("/git/trees") ? "tree"
+      : url.includes("/git/refs/heads/") ? "ref-update"
+      : url.includes("/git/ref/heads/") ? "ref"
+      : url.includes("/git/commits/") && opts.method === "GET" ? "base-commit"
+      : url.includes("/git/commits") ? "commit"
+      : "unknown";
+    if (failOn && step === failOn) {
+      return { ok: false, status: 422, text: async () => JSON.stringify({ message: `stubbed failure at ${step}` }) };
     }
-    return {
-      ok: true,
-      status: 200,
-      json: async () => ({ commit: { sha: "deadbeef" }, content: { sha: "cafef00d", path: calls[calls.length - 1].url } })
-    };
+    const reply = (obj) => ({ ok: true, status: 200, text: async () => JSON.stringify(obj) });
+    if (step === "ref") return reply({ object: { sha: "base-ref-sha" } });
+    if (step === "base-commit") return reply({ tree: { sha: "base-tree-sha" } });
+    if (step === "blob") { blobN++; return reply({ sha: `blob-sha-${blobN}` }); }
+    if (step === "tree") return reply({ sha: "new-tree-sha" });
+    if (step === "commit") return reply({ sha: "new-commit-sha" });
+    if (step === "ref-update") return reply({});
+    return reply({});
   };
   fn.calls = calls;
   return fn;
@@ -288,31 +303,52 @@ await check("an admin may write any user's file, still only under cellstocks/dat
   return null;
 });
 
-// ==================================================================== /write endpoint
+await check("a member may write their own .xlsx, not just their .json", () => {
+  const member = { name: "Umut", role: "member" };
+  return canWrite(member, xlsxPathFor("Umut")) ? null : "a member could not write their own workbook path";
+});
 
-await check("a member can write their own data file, and the commit reaches GitHub with the right path", async () => {
+// ==================================================================== /commit endpoint
+//
+// The app always saves the JSON and the generated .xlsx together (see
+// cellstocks/index.html's commitFiles()) -- /commit is what makes that atomic through
+// the worker, so these exercise it with both files at once, the way the app actually
+// will, not just a single file in isolation.
+
+function bothFiles(name, opts) {
+  return [
+    { path: dataPathFor(name), content: '{"vials":[]}' },
+    { path: xlsxPathFor(name), content: "ZmFrZS14bHN4", base64: true }
+  ].map((f) => Object.assign(f, opts || {}));
+}
+
+await check("a member can commit their own data+workbook pair in one atomic commit", async () => {
   const { env, token } = await adminEnvWithToken();
   await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "lab-password" }, token), env);
   const { body: memberLogin } = await login(env, "Umut", "lab-password");
   const res = await handleRequest(
-    req("POST", "/write", { path: dataPathFor("Umut"), content: '{"vials":[]}', message: "test write" }, memberLogin.token),
+    req("POST", "/commit", { files: bothFiles("Umut"), message: "test commit" }, memberLogin.token),
     env
   );
   const body = await res.json();
-  if (res.status !== 200) return `write failed: ${json(body)}`;
-  const call = env.fetch.calls[env.fetch.calls.length - 1];
-  if (!call.url.endsWith(`/contents/${dataPathFor("Umut")}`)) return `unexpected GitHub URL: ${call.url}`;
-  if (call.body.branch !== "main") return `unexpected branch: ${json(call.body)}`;
+  if (res.status !== 200) return `commit failed: ${json(body)}`;
+  if (!body.commit) return `no commit sha returned: ${json(body)}`;
+  // ref -> base commit -> 2 blobs -> tree -> commit -> ref update = 7 GitHub calls.
+  if (env.fetch.calls.length !== 7) return `expected 7 GitHub calls, got ${env.fetch.calls.length}: ${json(env.fetch.calls.map((c) => c.url))}`;
+  const treeCall = env.fetch.calls.find((c) => c.url.includes("/git/trees"));
+  if (treeCall.body.tree.length !== 2) return `tree did not include both files: ${json(treeCall.body)}`;
+  const refUpdate = env.fetch.calls[env.fetch.calls.length - 1];
+  if (!refUpdate.url.includes("/git/refs/heads/main")) return `last call was not the ref update: ${refUpdate.url}`;
   return null;
 });
 
-await check("a member cannot write another member's data file", async () => {
+await check("a member cannot commit another member's data file, and nothing reaches GitHub", async () => {
   const { env, token } = await adminEnvWithToken();
   await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "a" }, token), env);
   await handleRequest(req("POST", "/admin/users", { name: "Labmate", password: "b" }, token), env);
   const { body: memberLogin } = await login(env, "Labmate", "b");
   const res = await handleRequest(
-    req("POST", "/write", { path: dataPathFor("Umut"), content: "{}", message: "sneaky" }, memberLogin.token),
+    req("POST", "/commit", { files: bothFiles("Umut"), message: "sneaky" }, memberLogin.token),
     env
   );
   if (res.status !== 403) return `expected 403, got ${res.status}`;
@@ -320,30 +356,44 @@ await check("a member cannot write another member's data file", async () => {
   return null;
 });
 
-await check("an unauthenticated write is rejected before any ownership check runs", async () => {
+await check("mixing one writable file with one forbidden file rejects the whole commit, not just the bad file", async () => {
+  const { env, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "a" }, token), env);
+  await handleRequest(req("POST", "/admin/users", { name: "Labmate", password: "b" }, token), env);
+  const { body: memberLogin } = await login(env, "Labmate", "b");
+  const res = await handleRequest(
+    req("POST", "/commit", { files: bothFiles("Labmate").concat(bothFiles("Umut")), message: "half-legit" }, memberLogin.token),
+    env
+  );
+  if (res.status !== 403) return `expected 403, got ${res.status}`;
+  if (env.fetch.calls.length) return "the own-file half of the commit reached GitHub before the mix was rejected";
+  return null;
+});
+
+await check("an unauthenticated commit is rejected before any ownership check runs", async () => {
   const env = makeEnv();
-  const res = await handleRequest(req("POST", "/write", { path: "cellstocks/data/x.json", content: "{}", message: "m" }), env);
+  const res = await handleRequest(req("POST", "/commit", { files: bothFiles("x"), message: "m" }), env);
   if (res.status !== 401) return `expected 401, got ${res.status}`;
   return null;
 });
 
-await check("an admin can write into another user's data file", async () => {
+await check("an admin can commit into another user's data+workbook pair", async () => {
   const { env, token } = await adminEnvWithToken();
   await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "a" }, token), env);
   const res = await handleRequest(
-    req("POST", "/write", { path: dataPathFor("Umut"), content: '{"vials":[]}', message: "admin override" }, token),
+    req("POST", "/commit", { files: bothFiles("Umut"), message: "admin override" }, token),
     env
   );
   if (res.status !== 200) return `expected 200, got ${res.status}: ${json(await res.json())}`;
   return null;
 });
 
-await check("a GitHub failure surfaces as an error response, not a silent 200", async () => {
-  const env = makeEnv({ fetch: makeGithubFetch({ fail: 422 }) });
+await check("a GitHub failure partway through surfaces as an error, not a silent 200", async () => {
+  const env = makeEnv({ fetch: makeGithubFetch({ failOn: "tree" }) });
   await bootstrapAdmin(env, "admin", "correct-password");
   const { body: adminLogin } = await login(env, "admin", "correct-password");
   const res = await handleRequest(
-    req("POST", "/write", { path: dataPathFor("admin"), content: "{}", message: "m" }, adminLogin.token),
+    req("POST", "/commit", { files: bothFiles("admin"), message: "m" }, adminLogin.token),
     env
   );
   if (res.status < 400) return `expected an error status, got ${res.status}`;
@@ -354,7 +404,7 @@ await check("a GitHub failure surfaces as an error response, not a silent 200", 
 
 await check("an OPTIONS preflight gets CORS headers and no body", async () => {
   const env = makeEnv();
-  const res = await handleRequest(new Request("https://worker.example/write", { method: "OPTIONS" }), env);
+  const res = await handleRequest(new Request("https://worker.example/commit", { method: "OPTIONS" }), env);
   if (res.status !== 204) return `expected 204, got ${res.status}`;
   if (res.headers.get("Access-Control-Allow-Origin") !== "https://ucagiral.github.io") {
     return `missing/wrong CORS origin: ${res.headers.get("Access-Control-Allow-Origin")}`;

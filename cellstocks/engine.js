@@ -849,8 +849,84 @@
     }).join(" + ");
   }
 
+  // Grouping strategies a user can pick in Settings (see mergeDefaults). "category-row"
+  // is the only one suggestPlacement() itself has ever implemented -- the one-cell-
+  // per-row rule this file has been about from the start, and what the real freezer's
+  // real data is checked against. "random" is the one other strategy actually wired in
+  // below: no grouping constraint at all, first free slot found. "box" (confine a whole
+  // category to one box) and "keyword" (group by a hand-assigned tag rather than the
+  // derived origin) are recorded as valid settings values -- mergeDefaults will not
+  // reject them -- but are not implemented yet; a request under either currently falls
+  // back to "random" rather than silently pretending to group by something it doesn't.
+  var GROUPING_STRATEGIES = ["category-row", "box", "random", "keyword"];
+  var IMPLEMENTED_GROUPING_STRATEGIES = ["category-row", "random"];
+
+  function groupingStrategyFor(state) {
+    var s = state && state.settings && state.settings.groupingStrategy;
+    return GROUPING_STRATEGIES.indexOf(s) !== -1 ? s : "category-row";
+  }
+
   function suggestPlacement(state, request) {
     var req = request || {};
+    var strategy = groupingStrategyFor(state);
+    if (IMPLEMENTED_GROUPING_STRATEGIES.indexOf(strategy) === -1) strategy = "random";
+    if (strategy === "random") return suggestPlacementRandom(state, req);
+    return suggestPlacementCategoryRow(state, req);
+  }
+
+  // No grouping constraint: the first free slot(s) found, box by box, row by row. Still
+  // prefers one box over splitting across several when one can hold the whole request --
+  // that preference is about not scattering a freeze-down, not about grouping cells.
+  function suggestPlacementRandom(state, req) {
+    var count = Math.max(1, Number(req.count) || 1);
+    var unitId = req.unitId || (state.settings && state.settings.defaultUnitId) || null;
+    var boxes = boxesFor(state, unitId).filter(function (entry) {
+      return req.boxId ? entry.box.id === req.boxId : true;
+    });
+    if (!boxes.length) {
+      return { ok: false, strategy: "random", reason: req.boxId
+        ? "That box is not in this unit."
+        : "There are no boxes to put anything in yet. Add one in Setup first." };
+    }
+    var perBox = boxes.map(function (entry, boxOrder) {
+      var occ = occupancy(state, entry.box.id);
+      var free = occ ? occ.slots.filter(function (s) { return !s.vial; }).map(function (s) { return s.position; }) : [];
+      return { entry: entry, boxOrder: boxOrder, free: free };
+    });
+    var totalFree = perBox.reduce(function (n, b) { return n + b.free.length; }, 0);
+    if (totalFree < count) {
+      return { ok: false, strategy: "random",
+        reason: "No room for " + count + " vial" + (count === 1 ? "" : "s") + ": only " + totalFree +
+                " free slot" + (totalFree === 1 ? "" : "s") + " in total." };
+    }
+    var whole = perBox.filter(function (b) { return b.free.length >= count; })
+      .sort(function (x, y) { return x.boxOrder - y.boxOrder; });
+    var pool = whole.length ? [whole[0]] : perBox.slice().sort(function (x, y) { return x.boxOrder - y.boxOrder; });
+
+    var need = count, byBox = {}, order = [];
+    for (var i = 0; i < pool.length && need > 0; i++) {
+      var b = pool[i];
+      var take = b.free.slice(0, need);
+      if (!take.length) continue;
+      need -= take.length;
+      var id = b.entry.box.id;
+      byBox[id] = { entry: b.entry, positions: take };
+      order.push(id);
+    }
+    var segments = order.map(function (id) { return segmentFor(state, byBox[id].entry, byBox[id].positions); });
+    var allowSplit = !(state.settings && state.settings.placement && state.settings.placement.allowSplit === false);
+    if (segments.length > 1 && !allowSplit && !req.boxId) {
+      return { ok: false, strategy: "random",
+        reason: "This would have to be split across " + segments.length + " boxes, and splitting is switched off." };
+    }
+    return {
+      ok: true, strategy: "random", segments: segments, summary: summarise(segments),
+      reason: "No grouping rule is applied for this freezer, so this is simply the first free " +
+              (segments.length > 1 ? "space -- split across " + segments.length + " boxes." : "space found.")
+    };
+  }
+
+  function suggestPlacementCategoryRow(state, req) {
     var count = Math.max(1, Number(req.count) || 1);
     var unitId = req.unitId || (state.settings && state.settings.defaultUnitId) || null;
     var rules = state.rules || DEFAULT_RULES;
@@ -1652,6 +1728,8 @@
     // placement
     NO_ORIGIN: NO_ORIGIN, originOfVial: originOfVial, rowsOf: rowsOf, rowTakes: rowTakes,
     mixedRows: mixedRows, suggestPlacement: suggestPlacement, applyPlacement: applyPlacement,
+    GROUPING_STRATEGIES: GROUPING_STRATEGIES, IMPLEMENTED_GROUPING_STRATEGIES: IMPLEMENTED_GROUPING_STRATEGIES,
+    groupingStrategyFor: groupingStrategyFor,
     // withdrawal
     withdraw: withdraw, undoWithdrawal: undoWithdrawal,
     // integrity

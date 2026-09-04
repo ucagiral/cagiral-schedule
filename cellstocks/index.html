@@ -1855,6 +1855,28 @@
     s.appendChild(el("p", "note",
       "A freezer and a nitrogen tank are the same shape here — a unit, its racks or towers, and " +
       "boxes with a grid. Nothing about 9×9 is built in."));
+
+    var GROUPING_OPTIONS = [
+      { id:"category-row", name:"One row per cell", note:"The rule this app has always used: a row holds one cell, never two." },
+      { id:"random", name:"No rule", note:"No grouping at all — a new freeze-down just takes the first free space." }
+    ];
+    var groupField = el("div", "field");
+    groupField.appendChild(el("label", null, "How new freezes get grouped"));
+    var groupSeg = el("div", "seg");
+    var currentGrouping = E.groupingStrategyFor(state);
+    GROUPING_OPTIONS.forEach(function(opt){
+      var b = el("button", currentGrouping === opt.id ? "on" : null, opt.name);
+      b.onclick = function(){
+        state.settings.groupingStrategy = opt.id;
+        markDirty("Switch grouping to " + opt.name.toLowerCase());
+        renderAll();
+      };
+      groupSeg.appendChild(b);
+    });
+    groupField.appendChild(groupSeg);
+    var currentGroupingOpt = GROUPING_OPTIONS.filter(function(o){ return o.id === currentGrouping; })[0];
+    groupField.appendChild(el("p", "note", currentGroupingOpt ? currentGroupingOpt.note : ""));
+    s.appendChild(groupField);
     (state.storage.units || []).forEach(function(unit){
       var head = el("div", "item");
       var grow = el("div", "grow");

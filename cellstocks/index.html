@@ -67,6 +67,15 @@
     display:flex; align-items:center; gap:8px; padding:calc(8px + var(--safe-t)) 12px 8px;
     background:var(--panel); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20;
   }
+  /* iOS translucency where the browser supports it; @supports keeps the solid
+     var(--panel) fill (already set above) as the fallback everywhere else. */
+  @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    header,nav{
+      background:color-mix(in srgb, var(--panel) 82%, transparent);
+      -webkit-backdrop-filter:saturate(180%) blur(14px);
+      backdrop-filter:saturate(180%) blur(14px);
+    }
+  }
   header h1{font-size:15px; margin:0; font-weight:650; letter-spacing:-.01em}
   #status{font-size:12px; color:var(--muted); margin-left:auto; text-align:right}
   #status.saving{color:var(--accent)} #status.saved{color:var(--ok)} #status.error{color:var(--bad)}
@@ -177,7 +186,21 @@
   .seg button.on{background:var(--accent-soft); color:var(--accent); font-weight:650}
 
   .toggle{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin-top:8px}
-  .toggle input{width:auto}
+  /* An iOS-style pill switch, drawn entirely from the checkbox itself -- no extra
+     markup, so every existing <label class="toggle"><input type=checkbox> keeps
+     working unchanged. */
+  .toggle input[type=checkbox]{
+    -webkit-appearance:none; appearance:none; width:38px; height:23px; min-width:38px;
+    border-radius:99px; background:var(--border); border:none; position:relative;
+    cursor:pointer; transition:background-color .15s ease;
+  }
+  .toggle input[type=checkbox]::before{
+    content:""; position:absolute; top:2px; left:2px; width:19px; height:19px;
+    border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3);
+    transition:transform .15s ease;
+  }
+  .toggle input[type=checkbox]:checked{background:var(--ok)}
+  .toggle input[type=checkbox]:checked::before{transform:translateX(15px)}
 
   /* ---- results ---- */
   .res{
@@ -1657,15 +1680,26 @@
       };
       c.appendChild(go2);
     }
-    var theme = el("button", null, "Switch theme");
-    theme.style.marginTop = "8px";
-    theme.onclick = function(){
-      var now = document.documentElement.getAttribute("data-theme");
-      var next = now === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", next);
-      try { localStorage.setItem(LS.theme, next); } catch(e){}
-    };
-    c.appendChild(theme);
+    var themeField = el("div", "field");
+    themeField.appendChild(el("label", null, "Appearance"));
+    var themeSeg = el("div", "seg");
+    var currentTheme = (function(){ try { return localStorage.getItem(LS.theme) || "system"; } catch(e){ return "system"; } })();
+    [{ id:"system", name:"System" }, { id:"light", name:"Light" }, { id:"dark", name:"Dark" }].forEach(function(opt){
+      var b = el("button", currentTheme === opt.id ? "on" : null, opt.name);
+      b.onclick = function(){
+        if (opt.id === "system") {
+          document.documentElement.removeAttribute("data-theme");
+          try { localStorage.removeItem(LS.theme); } catch(e){}
+        } else {
+          document.documentElement.setAttribute("data-theme", opt.id);
+          try { localStorage.setItem(LS.theme, opt.id); } catch(e){}
+        }
+        renderSettings();
+      };
+      themeSeg.appendChild(b);
+    });
+    themeField.appendChild(themeSeg);
+    c.appendChild(themeField);
 
     // ---- storage ----
     var s = clear($("storageCard"));

@@ -104,7 +104,7 @@
       "title": "CuAdapt cells — copper treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Tue/Fri copper feeding. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -2440,7 +2440,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-04T16:40:33.621Z",
+    "lastModified": "2026-09-04T16:40:36.058Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

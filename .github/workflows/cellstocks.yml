@@ -57,6 +57,16 @@ jobs:
       # The inventory is the app's source of truth and the workbook is generated
       # from it. If the two ever disagree, the sheet somebody downloads is wrong,
       # so check rather than assume.
+      #
+      # Compares LOGICAL content -- sheet names and cell values after decompressing
+      # both -- never raw compressed bytes. Those legitimately differ: the app saves
+      # from whatever browser is on hand (Safari's CompressionStream on Umut's
+      # phone), this step regenerates with Node's zlib in GitHub's runner, and
+      # DEFLATE has many valid encodings of the same bytes -- different compressors
+      # choose different ones for identical input. A byte-equality version of this
+      # check first found that out here, on this very PR, on a workbook nothing had
+      # touched: two 9x9 boxes' worth of rows read back byte-for-byte identical, only
+      # the zlib stream around them differed.
       - name: The committed workbook still matches the inventory
         run: |
           node -e '
@@ -65,14 +75,18 @@ jobs:
             new Function(fs.readFileSync("cellstocks/engine.js", "utf8"))();
             const E = globalThis.CellStocksEngine, X = globalThis.XlsxLite;
             const state = E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/cellstocks.json", "utf8")));
-            X.writeWorkbookAsync(E.vialsToSheets(state)).then((bytes) => {
-              const onDisk = fs.readFileSync("cellstocks/cell-stocks.xlsx");
-              if (!onDisk.equals(Buffer.from(bytes))) {
+            const flatten = (wb) => wb.sheets.map((s) => [s.name, s.rows.map((r) => r.map((c) => (c ? c.value : null)))]);
+            Promise.all([
+              X.writeWorkbookAsync(E.vialsToSheets(state)).then(X.readWorkbook),
+              X.readWorkbook(fs.readFileSync("cellstocks/cell-stocks.xlsx"))
+            ]).then(([fresh, onDisk]) => {
+              const a = JSON.stringify(flatten(fresh)), b = JSON.stringify(flatten(onDisk));
+              if (a !== b) {
                 console.error("cell-stocks.xlsx does not match cellstocks.json.");
-                console.error("Regenerate it — the app writes it on every save, so a mismatch means");
-                console.error("it was committed by hand or the generator changed.");
+                console.error("Regenerate it — the app writes it on every save, so a content mismatch");
+                console.error("means it was committed by hand or the generator changed.");
                 process.exit(1);
               }
-              console.log("workbook matches the inventory (" + bytes.length + " bytes)");
+              console.log("workbook content matches the inventory (" + onDisk.sheets.length + " sheets)");
             }).catch((err) => { console.error(err); process.exit(1); });
           '

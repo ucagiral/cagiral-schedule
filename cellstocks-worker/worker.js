@@ -79,6 +79,23 @@ function newToken() {
 
 const userKey = (name) => `user:${name.toLowerCase()}`;
 const sessionKey = (token) => `session:${token}`;
+const requestKey = (id) => `request:${id}`;
+const notificationKey = (user, id) => `notification:${user.toLowerCase()}:${id}`;
+
+function newId() {
+  return bytesToHex(crypto.getRandomValues(new Uint8Array(12)));
+}
+
+// One id, used both as the KV key's suffix and the stored value's own .id field -- so a
+// client that later addresses a notification by the id it was given (from GET
+// /notifications) actually finds the same record, rather than two independently
+// generated ids that happen to look alike.
+async function notify(env, user, fields) {
+  const id = newId();
+  const record = Object.assign({ id, user }, fields, { id });
+  await kvPutJson(env.CST_KV, notificationKey(user, id), record);
+  return record;
+}
 
 async function kvGetJson(kv, key) {
   const raw = await kv.get(key);
@@ -101,6 +118,20 @@ async function listUsers(kv) {
     cursor = page.list_complete ? undefined : page.cursor;
   } while (cursor);
   return users;
+}
+
+async function listByPrefix(kv, prefix) {
+  const values = [];
+  let cursor;
+  do {
+    const page = await kv.list({ prefix, cursor });
+    for (const k of page.keys) {
+      const v = await kvGetJson(kv, k.name);
+      if (v) values.push(v);
+    }
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  return values;
 }
 
 // ============================================================================ auth
@@ -201,6 +232,78 @@ function canWrite(user, path) {
   if (!path.startsWith(DATA_PREFIX) || !/\.(json|xlsx)$/.test(path)) return false;
   if (user.role === "admin") return true;
   return path === dataPathFor(user.name) || path === xlsxPathFor(user.name);
+}
+
+// ============================================================================ requests & notifications
+//
+// The physical vial never moves through any of this -- Umut's answer was explicit: an
+// approved request just marks the vial "reserved for" the requester on the owner's own
+// side, because physically it is still sitting in the owner's own freezer until someone
+// actually hands it over. That marking is an ordinary edit to the owner's own
+// cellstocks/data/<owner>.json, made through the normal /commit path above like any
+// other save -- this Worker has no idea what a "vial" is and never touches one. What it
+// *does* own is the bookkeeping neither side could otherwise see: the pending request
+// itself (a requester cannot write into someone else's file to leave a note there) and
+// the notification that tells the other side something happened.
+
+async function createRequest(env, fromUser, body) {
+  if (!body || !body.toUser || !body.itemName) {
+    const err = new Error("toUser and itemName are required");
+    err.status = 400;
+    throw err;
+  }
+  if (body.toUser.toLowerCase() === fromUser.toLowerCase()) {
+    const err = new Error("cannot request your own item");
+    err.status = 400;
+    throw err;
+  }
+  const toUser = await kvGetJson(env.CST_KV, userKey(body.toUser));
+  if (!toUser) {
+    const err = new Error("no such user");
+    err.status = 404;
+    throw err;
+  }
+  const reqRecord = {
+    id: newId(), fromUser, toUser: toUser.name, vialId: body.vialId || null, itemName: body.itemName,
+    note: body.note || "", status: "pending", createdAt: new Date().toISOString(), resolvedAt: null
+  };
+  await kvPutJson(env.CST_KV, requestKey(reqRecord.id), reqRecord);
+  await notify(env, toUser.name, {
+    type: "request", requestId: reqRecord.id, fromUser,
+    text: `${fromUser} is asking about ${body.itemName}${body.note ? `: "${body.note}"` : ""}`,
+    read: false, createdAt: reqRecord.createdAt
+  });
+  return reqRecord;
+}
+
+async function resolveRequest(env, actingUser, id, decision) {
+  const reqRecord = await kvGetJson(env.CST_KV, requestKey(id));
+  if (!reqRecord) {
+    const err = new Error("no such request");
+    err.status = 404;
+    throw err;
+  }
+  if (actingUser.role !== "admin" && actingUser.name.toLowerCase() !== reqRecord.toUser.toLowerCase()) {
+    const err = new Error("only the item's owner may respond to this request");
+    err.status = 403;
+    throw err;
+  }
+  if (reqRecord.status !== "pending") {
+    const err = new Error(`this request was already ${reqRecord.status}`);
+    err.status = 409;
+    throw err;
+  }
+  reqRecord.status = decision;
+  reqRecord.resolvedAt = new Date().toISOString();
+  await kvPutJson(env.CST_KV, requestKey(id), reqRecord);
+  await notify(env, reqRecord.fromUser, {
+    type: "request-resolved", requestId: id, fromUser: reqRecord.toUser,
+    text: decision === "approved"
+      ? `${reqRecord.toUser} approved your request for ${reqRecord.itemName}.`
+      : `${reqRecord.toUser} said no to your request for ${reqRecord.itemName}.`,
+    read: false, createdAt: reqRecord.resolvedAt
+  });
+  return reqRecord;
 }
 
 // ============================================================================ HTTP plumbing
@@ -343,6 +446,62 @@ async function routeCommit(request, env) {
   }
 }
 
+function requestErrorStatus(err) {
+  return err.status && err.status >= 400 && err.status < 600 ? err.status : 500;
+}
+
+async function routeCreateRequest(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const body = await request.json().catch(() => null);
+  try {
+    const reqRecord = await createRequest(env, session.user.name, body);
+    return json({ request: reqRecord }, 201);
+  } catch (err) {
+    return json({ error: err.message }, requestErrorStatus(err));
+  }
+}
+
+async function routeListRequests(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const all = await listByPrefix(env.CST_KV, "request:");
+  const name = session.user.name.toLowerCase();
+  const mine = all.filter((r) => r.fromUser.toLowerCase() === name || r.toUser.toLowerCase() === name);
+  mine.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return json({ requests: mine });
+}
+
+async function routeResolveRequest(request, env, id, decision) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  try {
+    const reqRecord = await resolveRequest(env, session.user, id, decision);
+    return json({ request: reqRecord });
+  } catch (err) {
+    return json({ error: err.message }, requestErrorStatus(err));
+  }
+}
+
+async function routeListNotifications(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const mine = await listByPrefix(env.CST_KV, `notification:${session.user.name.toLowerCase()}:`);
+  mine.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return json({ notifications: mine });
+}
+
+async function routeMarkNotificationRead(request, env, id) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const key = notificationKey(session.user.name, id);
+  const n = await kvGetJson(env.CST_KV, key);
+  if (!n) return json({ error: "no such notification" }, 404);
+  n.read = true;
+  await kvPutJson(env.CST_KV, key, n);
+  return json({ notification: n });
+}
+
 // ============================================================================ entry point
 
 async function handleRequest(request, env) {
@@ -366,7 +525,16 @@ async function handleRequest(request, env) {
     } else if (/^\/admin\/users\/[^/]+\/reset-password$/.test(path) && request.method === "POST") {
       response = await routeResetPassword(request, env, decodeURIComponent(path.split("/")[3]));
     } else if (path === "/commit" && request.method === "POST") response = await routeCommit(request, env);
-    else response = json({ error: "not found" }, 404);
+    else if (path === "/requests" && request.method === "POST") response = await routeCreateRequest(request, env);
+    else if (path === "/requests" && request.method === "GET") response = await routeListRequests(request, env);
+    else if (/^\/requests\/[^/]+\/approve$/.test(path) && request.method === "POST") {
+      response = await routeResolveRequest(request, env, decodeURIComponent(path.split("/")[2]), "approved");
+    } else if (/^\/requests\/[^/]+\/deny$/.test(path) && request.method === "POST") {
+      response = await routeResolveRequest(request, env, decodeURIComponent(path.split("/")[2]), "denied");
+    } else if (path === "/notifications" && request.method === "GET") response = await routeListNotifications(request, env);
+    else if (/^\/notifications\/[^/]+\/read$/.test(path) && request.method === "POST") {
+      response = await routeMarkNotificationRead(request, env, decodeURIComponent(path.split("/")[2]));
+    } else response = json({ error: "not found" }, 404);
   } catch (err) {
     response = json({ error: err && err.message ? err.message : "internal error" }, 500);
   }
@@ -388,5 +556,7 @@ export {
   xlsxPathFor,
   canWrite,
   userKey,
-  sessionKey
+  sessionKey,
+  requestKey,
+  notificationKey
 };

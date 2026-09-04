@@ -1542,6 +1542,30 @@
     return JSON.stringify(slim(state), null, 2) + "\n";
   }
 
+  // A stored item's kind -- "cell", eventually "plasmid", "reagent", etc, as the lab-wide
+  // expansion adds them. Missing on every item today because only cells exist so far; never
+  // written to a vial just to fill the field in, so the real inventory's bytes don't move
+  // for no reason. Read it through this helper rather than `vial.kind` directly.
+  var DEFAULT_KIND = "cell";
+  function kindOf(item) { return (item && item.kind) || DEFAULT_KIND; }
+
+  // rulesByKind is the forward-looking shape: one ruleset per item kind, so a plasmid or a
+  // reagent can eventually get its own facets without touching the cell rules. It is
+  // computed on read, never written into the state mergeDefaults returns -- adding a new
+  // top-level field there would change what serialise() commits on the very next save, and
+  // nothing should move in the real inventory's bytes just for this scaffolding to exist.
+  // A file that genuinely carries its own state.rulesByKind (a future export from a
+  // multi-kind inventory) is read as-is; state.rules stays the cell entry either way, and
+  // nothing here changes how classify(), search() or placement read it for cell items,
+  // which is all that exists in real data right now. Wiring a second kind's rules into
+  // classify/search/placement is deliberately not done yet: there is no real ruleset for a
+  // plasmid or a reagent to test against until Umut defines one (CLAUDE.md: rules are data
+  // he confirms, never invented).
+  function rulesForKind(state, kind) {
+    if (kind === DEFAULT_KIND || !kind) return (state && state.rules) || DEFAULT_RULES;
+    return (state && state.rulesByKind && state.rulesByKind[kind]) || null;
+  }
+
   function blankState() {
     return {
       storage: { units: [] },
@@ -1615,6 +1639,8 @@
     // classification
     FACETS: FACETS, DEFAULT_RULES: DEFAULT_RULES, classify: classify, facetsFor: facetsFor,
     classifyAll: classifyAll, parsePassage: parsePassage, passageLabel: passageLabel,
+    // item kind (lab-wide expansion scaffolding -- see mergeDefaults/rulesForKind comments)
+    DEFAULT_KIND: DEFAULT_KIND, kindOf: kindOf, rulesForKind: rulesForKind,
     parseDate: parseDate, flagsFrom: flagsFrom, FLAG_RULES: FLAG_RULES,
     // lines
     lineKey: lineKey, lineIdFor: lineIdFor, vialsOfLine: vialsOfLine, stockCounts: stockCounts,

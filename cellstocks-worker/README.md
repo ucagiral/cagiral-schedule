@@ -59,15 +59,24 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?}`. |
 | DELETE | `/admin/users/:name` | admin | Delete an account. Revokes its sessions immediately. |
 | POST | `/admin/users/:name/reset-password` | admin | `{password}`. |
-| POST | `/write` | Bearer token | `{path, content, message, sha?}` — commit a file under `cellstocks/data/`. See below. |
+| POST | `/commit` | Bearer token | `{files: [{path, content, base64?}], message}` — one atomic commit under `cellstocks/data/`. See below. |
 
-## Ownership on `/write`
+## Ownership and atomicity on `/commit`
 
-A member may only write their own `cellstocks/data/<name>.json`. An admin may write any file
-under `cellstocks/data/`. Nothing outside that prefix is ever writable through this endpoint —
-it is not a general GitHub proxy, only enough surface for this one job. `content` is the raw
-file text (the Worker base64-encodes it); pass the file's current `sha` (from a prior read via
-GitHub's Contents API) when updating an existing file, omit it when creating a new one.
+A member may only commit their own `cellstocks/data/<name>.json` and `cellstocks/data/<name>.xlsx`.
+An admin may commit any file under `cellstocks/data/`. Nothing outside that prefix is ever
+writable through this endpoint — it is not a general GitHub proxy, only enough surface for this
+one job. Every file in a `/commit` request is ownership-checked before any GitHub call is made,
+so a request that mixes one writable path with one forbidden path is rejected whole — nothing is
+partially committed.
+
+`/commit` takes one or more files and lands them in a single git commit via the git data API
+(blob → tree → commit → ref update), the same sequence `cellstocks/index.html`'s own
+`commitFiles()` already used against GitHub directly. That matters because the app always saves
+the JSON and its generated `.xlsx` together: a two-request version of this endpoint would leave a
+window where the committed workbook and the inventory it's supposed to describe disagree, which
+is exactly what `CLAUDE.md` says must never happen. `content` is the raw file text for JSON,
+base64 (`base64: true`) for the binary workbook.
 
 Ownership beyond "this is or isn't my file" — approving someone else's request to take or edit
 an item — is not in this endpoint yet; it lands with the request/approval flow.
@@ -79,7 +88,7 @@ Web platform primitives (`fetch`, `Request`/`Response`, `crypto.subtle`) that bo
 runtime and Node 20 implement — no build step, same as the rest of this repository.
 `tools/cellstocks-worker-selftest.mjs` runs it directly in Node against an in-memory stand-in
 for KV and a stubbed GitHub API, so the whole request lifecycle (bootstrap → login → admin
-user CRUD → ownership-checked write) is provable without deploying anything:
+user CRUD → ownership-checked atomic commit) is provable without deploying anything:
 
 ```bash
 node tools/cellstocks-worker-selftest.mjs

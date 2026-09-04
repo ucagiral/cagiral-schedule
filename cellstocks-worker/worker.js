@@ -132,50 +132,75 @@ function publicUser(u) {
 // writer of cellstocks/data/**. Reads never come through here (see the file header) so this
 // is the entire GitHub surface this Worker needs.
 
-async function githubPutFile(env, path, contentText, message, sha) {
-  const url = `https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/contents/${path}`;
-  const body = {
-    message,
-    content: btoa(unescape(encodeURIComponent(contentText))),
-    branch: env.GITHUB_BRANCH || "main"
-  };
-  if (sha) body.sha = sha;
+async function githubApi(env, method, path, body) {
+  const url = `https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}${path}`;
   const doFetch = env.fetch || fetch;
   const res = await doFetch(url, {
-    method: "PUT",
+    method,
     headers: {
       Authorization: `Bearer ${env.GITHUB_TOKEN}`,
       Accept: "application/vnd.github+json",
       "Content-Type": "application/json",
       "User-Agent": "cellstocks-worker"
     },
-    body: JSON.stringify(body)
+    body: body === undefined ? undefined : JSON.stringify(body)
   });
-  const json = await res.json();
+  // A PATCH ref update returns no body worth parsing; everything else does.
+  const text = await res.text();
+  const parsed = text ? JSON.parse(text) : {};
   if (!res.ok) {
-    const err = new Error(json && json.message ? json.message : `GitHub write failed (${res.status})`);
+    const err = new Error(parsed && parsed.message ? parsed.message : `GitHub API call failed (${res.status})`);
     err.status = res.status;
-    err.githubBody = json;
+    err.githubBody = parsed;
     throw err;
   }
-  return json;
+  return parsed;
 }
 
-// Every user's data lives under this prefix, one JSON file per user, named after their
-// account -- this is the ownership boundary the write endpoint enforces.
+// Commits one or more files in a single atomic commit, via the git data API rather than
+// the simpler Contents API -- the app always saves cellstocks/data/<name>.json and its
+// generated .xlsx together (see cellstocks/index.html's own commitFiles()), and a
+// two-request version of this would leave a window where the workbook and the inventory
+// it is supposed to describe disagree, exactly what CLAUDE.md says must never happen.
+// `files` is [{ path, content, base64 }] -- base64 content for the binary workbook, plain
+// text otherwise.
+async function commitFilesAtomic(env, files, message) {
+  const branch = env.GITHUB_BRANCH || "main";
+  const ref = await githubApi(env, "GET", `/git/ref/heads/${branch}`);
+  const baseSha = ref.object.sha;
+  const baseCommit = await githubApi(env, "GET", `/git/commits/${baseSha}`);
+  const tree = [];
+  for (const f of files) {
+    const blob = await githubApi(env, "POST", "/git/blobs", f.base64 ? { content: f.content, encoding: "base64" } : { content: f.content, encoding: "utf-8" });
+    tree.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
+  }
+  const newTree = await githubApi(env, "POST", "/git/trees", { base_tree: baseCommit.tree.sha, tree });
+  const commit = await githubApi(env, "POST", "/git/commits", { message, tree: newTree.sha, parents: [baseSha] });
+  await githubApi(env, "PATCH", `/git/refs/heads/${branch}`, { sha: commit.sha });
+  return commit.sha;
+}
+
+// Every user's data lives under this prefix, one JSON file and one generated .xlsx per
+// user, named after their account -- this is the ownership boundary the commit endpoint
+// enforces.
 const DATA_PREFIX = "cellstocks/data/";
 
 function dataPathFor(name) {
   return `${DATA_PREFIX}${name.toLowerCase()}.json`;
 }
 
-// A path is writable by `user` if it is that user's own file, or `user` is an admin writing
-// anywhere under the shared data prefix. Nothing outside cellstocks/data/** is ever writable
-// through this endpoint -- it is not a general-purpose GitHub proxy.
+function xlsxPathFor(name) {
+  return `${DATA_PREFIX}${name.toLowerCase()}.xlsx`;
+}
+
+// A path is writable by `user` if it is that user's own data/workbook pair, or `user` is
+// an admin writing anywhere under the shared data prefix. Nothing outside
+// cellstocks/data/** is ever writable through this endpoint -- it is not a
+// general-purpose GitHub proxy.
 function canWrite(user, path) {
-  if (!path.startsWith(DATA_PREFIX) || !path.endsWith(".json")) return false;
+  if (!path.startsWith(DATA_PREFIX) || !/\.(json|xlsx)$/.test(path)) return false;
   if (user.role === "admin") return true;
-  return path === dataPathFor(user.name);
+  return path === dataPathFor(user.name) || path === xlsxPathFor(user.name);
 }
 
 // ============================================================================ HTTP plumbing
@@ -294,19 +319,25 @@ async function routeResetPassword(request, env, name) {
   return json({ ok: true });
 }
 
-async function routeWrite(request, env) {
+async function routeCommit(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
   const body = await request.json().catch(() => null);
-  if (!body || !body.path || typeof body.content !== "string" || !body.message) {
-    return json({ error: "path, content and message are required" }, 400);
+  if (!body || !Array.isArray(body.files) || !body.files.length || !body.message) {
+    return json({ error: "files (a non-empty array) and message are required" }, 400);
   }
-  if (!canWrite(session.user, body.path)) {
-    return json({ error: `${session.user.name} may not write ${body.path}` }, 403);
+  for (const f of body.files) {
+    if (!f || !f.path || typeof f.content !== "string") return json({ error: "every file needs a path and content" }, 400);
   }
+  // Every file in the commit has to be ownership-checked before any GitHub call is made --
+  // otherwise a request mixing one writable path with one that is not could commit the
+  // writable one and only then discover the other is forbidden, which is not atomic in
+  // the sense that matters here (an unauthorized write must never partially happen).
+  const forbidden = body.files.find((f) => !canWrite(session.user, f.path));
+  if (forbidden) return json({ error: `${session.user.name} may not write ${forbidden.path}` }, 403);
   try {
-    const result = await githubPutFile(env, body.path, body.content, body.message, body.sha);
-    return json({ commit: result.commit, content: result.content });
+    const sha = await commitFilesAtomic(env, body.files, body.message);
+    return json({ commit: sha });
   } catch (err) {
     return json({ error: err.message }, err.status && err.status >= 400 && err.status < 600 ? err.status : 502);
   }
@@ -334,7 +365,7 @@ async function handleRequest(request, env) {
       response = await routeDeleteUser(request, env, decodeURIComponent(path.split("/")[3]));
     } else if (/^\/admin\/users\/[^/]+\/reset-password$/.test(path) && request.method === "POST") {
       response = await routeResetPassword(request, env, decodeURIComponent(path.split("/")[3]));
-    } else if (path === "/write" && request.method === "POST") response = await routeWrite(request, env);
+    } else if (path === "/commit" && request.method === "POST") response = await routeCommit(request, env);
     else response = json({ error: "not found" }, 404);
   } catch (err) {
     response = json({ error: err && err.message ? err.message : "internal error" }, 500);
@@ -354,6 +385,7 @@ export {
   verifyPassword,
   derivePasswordHash,
   dataPathFor,
+  xlsxPathFor,
   canWrite,
   userKey,
   sessionKey

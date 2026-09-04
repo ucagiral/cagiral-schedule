@@ -123,6 +123,18 @@ try {
     return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
   });
 
+  // POST /requests: the catch-all above would 404 it (only /login and /logout are
+  // handled there), so this is registered separately -- a later page.route()
+  // registration takes priority over an earlier, broader one for the same URL.
+  await page.route("https://fake-worker.example/requests", (route) => {
+    const req = route.request();
+    workerCalls.push({ path: "/requests", method: req.method(), auth: req.headers()["authorization"], body: req.postData() });
+    return route.fulfill({
+      status: 201, contentType: "application/json",
+      body: JSON.stringify({ request: { id: "req-1", status: "pending" } })
+    });
+  });
+
   await page.goto(`http://localhost:8797/cellstocks/`);
   await page.waitForSelector("nav button[data-screen=settings]");
   await page.click("nav button[data-screen=settings]");
@@ -203,10 +215,13 @@ try {
   const loggedInNote = await page.evaluate(() => document.querySelector("#connectCard p.note").textContent);
   check("Settings shows who is logged in and through which worker", /Logged in as Umut/.test(loggedInNote) && /fake-worker\.example/.test(loggedInNote), loggedInNote);
 
-  // One failed + one successful login attempt so far -- both /login. The point of this
-  // check is that nothing else (a read, a data fetch) ever went to the worker: only
-  // save() and the login/logout calls are meant to talk to it.
-  check("reads never go through the worker -- only /login calls happened", workerCalls.every((c) => c.path === "/login"), JSON.stringify(workerCalls));
+  // One failed + one successful login attempt so far, plus renderSettings() fetching
+  // notifications right after the successful one. The point of this check is that no
+  // *cellstocks data* read ever goes to the worker: only auth, saves, and the worker's
+  // own native bookkeeping (notifications, requests) are meant to talk to it -- a vial,
+  // a box, an inventory file never is.
+  check("cellstocks data reads never go through the worker -- only auth/notification calls happened",
+    workerCalls.every((c) => c.path === "/login" || c.path === "/notifications"), JSON.stringify(workerCalls));
 
   // ---- onboarding banner for a fresh account ----
   // The stubbed cellstocks/data/umut.json is an empty inventory (no units, no vials),
@@ -243,14 +258,80 @@ try {
   check("the result is labeled with whose boxes it's in", /labmate/i.test(labResultText), labResultText);
 
   const labCardButtons = await page.$$eval(".res:has-text('Special Guest Line') button", (btns) => btns.map((b) => b.textContent.trim()));
-  check("a lab result has no Took it / Edit / Show in box actions -- nothing to act on yet",
-    labCardButtons.length === 0, JSON.stringify(labCardButtons));
+  check("a lab result offers only Request this -- no Took it / Edit / Show in box",
+    JSON.stringify(labCardButtons) === JSON.stringify(["Request this"]), JSON.stringify(labCardButtons));
+
+  // ---- requesting an item (Phase 4b-ii) ----
+  await page.click(".res:has-text('Special Guest Line') button:has-text('Request this')");
+  await page.waitForSelector("dialog[open]");
+  await page.fill("#dlgBody textarea", "need it for a rescue");
+  await page.click("#dlgFoot button:has-text('Send request')");
+  await page.waitForFunction(() => /Asked labmate about/.test(document.querySelector(".banner")?.textContent || ""));
+  const requestCall = workerCalls.find((c) => c.path === "/requests" && c.method === "POST");
+  check("sending a request posts to the worker's /requests", !!requestCall, JSON.stringify(workerCalls));
+  const requestBody = requestCall && JSON.parse(requestCall.body || "{}");
+  check("the request names the right owner, item and vial",
+    requestBody && requestBody.toUser === "labmate" && requestBody.itemName === "Special Guest Line" && requestBody.vialId === "v-lm-1",
+    JSON.stringify(requestBody));
+  check("the request carries the typed note", requestBody && requestBody.note === "need it for a rescue", JSON.stringify(requestBody));
+
+  await page.waitForFunction(() => /Request sent\./.test(document.querySelector(".res")?.textContent || ""));
+  const afterRequestButtons = await page.$$eval(".res:has-text('Special Guest Line') button", (btns) => btns.map((b) => b.textContent.trim()));
+  check("after sending, the button is replaced so it can't be sent twice", afterRequestButtons.length === 0, JSON.stringify(afterRequestButtons));
 
   await page.click("#filters .toggle input[type=checkbox]");
   await page.waitForFunction(() => !/Special Guest Line/.test(document.getElementById("results").textContent));
   check("turning search-in-lab back off hides the lab-mate's vial again", true);
 
+  // ---- notifications: approving a request (Phase 4b-ii) ----
+  // A pending request FOR Umut, from a fictitious lab-mate -- stubbed directly rather
+  // than driving a second logged-in session, the same way the worker's own request/
+  // approve/notify lifecycle is already proven end-to-end in
+  // cellstocks-worker-selftest.mjs. This is only about the app's side of acting on one.
+  // The GET /notifications stub is swapped in now (route.fulfill of the LATEST matching
+  // page.route() registration wins) -- notifications is cached client-side once fetched
+  // (see renderNotifications() in the app), and it was already fetched once, empty, the
+  // first time this session visited Settings via the onboarding banner earlier.
+  await page.unroute("https://fake-worker.example/**");
+  await page.route("https://fake-worker.example/notifications", (route) =>
+    route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify({ notifications: [{
+        id: "notif-1", type: "request", requestId: "req-1", fromUser: "Someone",
+        vialId: "v-does-not-exist", itemName: "Nonexistent Vial", text: "Someone is asking about Nonexistent Vial",
+        read: false, createdAt: "2026-01-01T00:00:00.000Z"
+      }] })
+    }));
+  await page.route("https://fake-worker.example/requests/req-1/approve", (route) => {
+    workerCalls.push({ path: "/requests/req-1/approve", method: route.request().method(), auth: route.request().headers()["authorization"] });
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ request: { id: "req-1", status: "approved" } }) });
+  });
+  await page.route("https://fake-worker.example/notifications/notif-1/read", (route) => {
+    workerCalls.push({ path: "/notifications/notif-1/read", method: route.request().method(), auth: route.request().headers()["authorization"] });
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ notification: { id: "notif-1", read: true } }) });
+  });
+  await page.route("https://fake-worker.example/logout", (route) => {
+    workerCalls.push({ path: "/logout", method: route.request().method(), auth: route.request().headers()["authorization"] });
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+  });
+  await page.evaluate(() => { window.location.reload(); });
+  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "fake-session-token");
+  await page.waitForSelector("nav button[data-screen=settings]");
   await page.click("nav button[data-screen=settings]");
+  await page.waitForFunction(() => /Someone is asking about Nonexistent Vial/.test(document.getElementById("notificationsCard").textContent));
+  const notifButtons = await page.$$eval("#notificationsCard .item button", (btns) => btns.map((b) => b.textContent.trim()));
+  check("a pending request notification offers Approve and Deny", JSON.stringify(notifButtons) === JSON.stringify(["Approve", "Deny"]), JSON.stringify(notifButtons));
+
+  await page.click("#notificationsCard button:has-text('Approve')");
+  await page.waitForFunction(() => {
+    const c = document.getElementById("notificationsCard");
+    return c && !/Approve/.test(c.textContent);
+  });
+  check("approving calls the worker's approve endpoint",
+    workerCalls.some((c) => c.path === "/requests/req-1/approve" && c.method === "POST"), JSON.stringify(workerCalls));
+  check("approving also marks the notification read",
+    workerCalls.some((c) => c.path === "/notifications/notif-1/read" && c.method === "POST"), JSON.stringify(workerCalls));
+
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
   const afterLogout = await page.evaluate(() => ({

@@ -268,8 +268,12 @@ async function createRequest(env, fromUser, body) {
     note: body.note || "", status: "pending", createdAt: new Date().toISOString(), resolvedAt: null
   };
   await kvPutJson(env.CST_KV, requestKey(reqRecord.id), reqRecord);
+  // vialId and itemName ride along on the notification itself, not just embedded in the
+  // text -- so acting on it (approve marks the app's own vial "reserved for" the
+  // requester) is one round-trip against GET /notifications, not a second fetch of the
+  // request record just to find out which vial it was about.
   await notify(env, toUser.name, {
-    type: "request", requestId: reqRecord.id, fromUser,
+    type: "request", requestId: reqRecord.id, fromUser, vialId: reqRecord.vialId, itemName: reqRecord.itemName,
     text: `${fromUser} is asking about ${body.itemName}${body.note ? `: "${body.note}"` : ""}`,
     read: false, createdAt: reqRecord.createdAt
   });

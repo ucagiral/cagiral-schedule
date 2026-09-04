@@ -432,6 +432,12 @@ await check("requesting an item notifies its owner, not the requester", async ()
   const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
   if (labmateNotifs.notifications.length !== 1) return `Labmate got ${labmateNotifs.notifications.length} notifications, expected 1`;
   if (!/Umut is asking about HEK293T p12/.test(labmateNotifs.notifications[0].text)) return `unexpected text: ${labmateNotifs.notifications[0].text}`;
+  // vialId and itemName ride on the notification itself, not just embedded in the text --
+  // that's what lets the app act on approval (mark its own vial reserved) without a
+  // second round-trip to look the request record back up.
+  if (labmateNotifs.notifications[0].vialId !== "v-1" || labmateNotifs.notifications[0].itemName !== "HEK293T p12") {
+    return `notification did not carry vialId/itemName: ${json(labmateNotifs.notifications[0])}`;
+  }
   const umutNotifs = await (await handleRequest(req("GET", "/notifications", undefined, umutToken), env)).json();
   if (umutNotifs.notifications.length !== 0) return "the requester got notified about their own request";
   return null;

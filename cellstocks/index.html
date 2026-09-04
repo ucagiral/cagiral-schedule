@@ -463,6 +463,13 @@
   }
 
   function canWrite(){ return !!(getWorkerToken() && getWorkerUrl()) || !!(getToken() && API); }
+
+  // A brand-new worker login with nothing imported yet. Scoped to worker auth only --
+  // the classic GitHub-token flow already has its own long-standing empty-state message
+  // (Settings -> Stock: "Nothing imported yet"), so this isn't shown twice.
+  function isFreshAccount(){
+    return !!getWorkerUser() && !(state.storage.units || []).length && !(state.vials || []).length;
+  }
   function ghHeaders(){
     var h = { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
     var t = getToken();
@@ -567,6 +574,15 @@
       if (!canWrite()){
         showBanner("Read-only: nothing can be frozen or taken out until this device is connected. " +
                    "Log in, or add a GitHub token, under Settings → Connect.");
+      } else if (isFreshAccount()){
+        // A worker login with no file yet (text stayed null, a 404) or one that loaded
+        // an empty inventory look the same to whoever is looking at the screen -- both
+        // just mean "nothing here to import into yet". importSheet() builds its own
+        // boxes straight from the spreadsheet's own box column (see engine.js), so
+        // there is nothing to set up by hand first unless someone wants to.
+        var wu = getWorkerUser();
+        showBanner("Welcome" + (wu ? ", " + esc(wu.name) : "") + " — nothing imported yet.",
+          [{ label:"Import a spreadsheet", onClick: function(){ hideBanner(); go("settings"); openImport(); } }]);
       }
     } catch(err){
       var at = cacheLoad();

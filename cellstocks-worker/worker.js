@@ -81,6 +81,7 @@ const userKey = (name) => `user:${name.toLowerCase()}`;
 const sessionKey = (token) => `session:${token}`;
 const requestKey = (id) => `request:${id}`;
 const notificationKey = (user, id) => `notification:${user.toLowerCase()}:${id}`;
+const broadcastKey = (id) => `broadcast:${id}`;
 
 function newId() {
   return bytesToHex(crypto.getRandomValues(new Uint8Array(12)));
@@ -154,7 +155,7 @@ async function requireSession(request, env) {
 }
 
 function publicUser(u) {
-  return { name: u.name, role: u.role, hidden: !!u.hidden, createdAt: u.createdAt };
+  return { name: u.name, role: u.role, hidden: !!u.hidden, canBroadcast: !!u.canBroadcast, createdAt: u.createdAt };
 }
 
 // ============================================================================ GitHub writes
@@ -310,6 +311,96 @@ async function resolveRequest(env, actingUser, id, decision) {
   return reqRecord;
 }
 
+// ============================================================================ broadcasts
+//
+// "Only Umut has authority over lab-wide things" (CLAUDE.md's admin-panel scoping) --
+// but Umut's own everyday login is an ordinary "member" account (see the two-account
+// design in cellstocks-worker/README.md and the plan this shipped from); he said
+// explicitly he will not switch to the hidden admin account unless he has to. So
+// broadcast authority is not just "role === admin": it is a per-user canBroadcast flag,
+// true always for admin and settable on any other account by an admin (i.e. on Umut's
+// own "Umut" login) at creation. hasBroadcastAuthority() is the one place that decision
+// is made, so nothing else has to reason about the two ways to get it.
+
+function hasBroadcastAuthority(user) {
+  return user.role === "admin" || !!user.canBroadcast;
+}
+
+async function createBroadcast(env, fromUser, body) {
+  if (!body || !body.text || !body.text.trim()) {
+    const err = new Error("text is required");
+    err.status = 400;
+    throw err;
+  }
+  const text = body.text.trim();
+  const sent = hasBroadcastAuthority(fromUser);
+  const record = {
+    id: newId(), fromUser: fromUser.name, text, status: sent ? "sent" : "pending",
+    createdAt: new Date().toISOString(), resolvedAt: sent ? new Date().toISOString() : null
+  };
+  await kvPutJson(env.CST_KV, broadcastKey(record.id), record);
+  const allUsers = await listUsers(env.CST_KV);
+  if (sent) {
+    // Fanned out to every other visible member -- never to a hidden account (admin),
+    // which is not "in the lab" for notification purposes any more than it is for
+    // search-in-lab (see cellstocks/index.html's ensureLabCache()).
+    await Promise.all(allUsers
+      .filter((u) => u.name.toLowerCase() !== fromUser.name.toLowerCase() && !u.hidden)
+      .map((u) => notify(env, u.name, {
+        type: "broadcast", broadcastId: record.id, fromUser: fromUser.name,
+        text: `${fromUser.name}: ${text}`, read: false, createdAt: record.createdAt
+      })));
+  } else {
+    // Only people who can actually approve it need to hear about it yet.
+    await Promise.all(allUsers
+      .filter(hasBroadcastAuthority)
+      .map((u) => notify(env, u.name, {
+        type: "broadcast-pending", broadcastId: record.id, fromUser: fromUser.name,
+        text: `${fromUser.name} wants to send to the whole lab: "${text}"`, read: false, createdAt: record.createdAt
+      })));
+  }
+  return record;
+}
+
+async function resolveBroadcast(env, actingUser, id, decision) {
+  if (!hasBroadcastAuthority(actingUser)) {
+    const err = new Error("only someone with broadcast authority may approve or deny this");
+    err.status = 403;
+    throw err;
+  }
+  const record = await kvGetJson(env.CST_KV, broadcastKey(id));
+  if (!record) {
+    const err = new Error("no such broadcast");
+    err.status = 404;
+    throw err;
+  }
+  if (record.status !== "pending") {
+    const err = new Error(`this broadcast was already ${record.status}`);
+    err.status = 409;
+    throw err;
+  }
+  record.status = decision === "approve" ? "sent" : "denied";
+  record.resolvedAt = new Date().toISOString();
+  await kvPutJson(env.CST_KV, broadcastKey(id), record);
+  if (record.status === "sent") {
+    const allUsers = await listUsers(env.CST_KV);
+    await Promise.all(allUsers
+      .filter((u) => u.name.toLowerCase() !== record.fromUser.toLowerCase() && !u.hidden)
+      .map((u) => notify(env, u.name, {
+        type: "broadcast", broadcastId: id, fromUser: record.fromUser,
+        text: `${record.fromUser}: ${record.text}`, read: false, createdAt: record.resolvedAt
+      })));
+  }
+  await notify(env, record.fromUser, {
+    type: "broadcast-resolved", broadcastId: id, fromUser: actingUser.name,
+    text: record.status === "sent"
+      ? `Your message to the lab was sent: "${record.text}"`
+      : `${actingUser.name} did not send your message to the lab: "${record.text}"`,
+    read: false, createdAt: record.resolvedAt
+  });
+  return record;
+}
+
 // ============================================================================ HTTP plumbing
 
 function json(data, status, extraHeaders) {
@@ -395,6 +486,7 @@ async function routeCreateUser(request, env) {
     salt,
     role: body.role === "admin" ? "admin" : "member",
     hidden: !!body.hidden,
+    canBroadcast: !!body.canBroadcast,
     createdAt: new Date().toISOString()
   };
   await kvPutJson(env.CST_KV, userKey(user.name), user);
@@ -506,6 +598,43 @@ async function routeMarkNotificationRead(request, env, id) {
   return json({ notification: n });
 }
 
+async function routeCreateBroadcast(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const body = await request.json().catch(() => null);
+  try {
+    const record = await createBroadcast(env, session.user, body);
+    return json({ broadcast: record }, 201);
+  } catch (err) {
+    return json({ error: err.message }, requestErrorStatus(err));
+  }
+}
+
+async function routeListBroadcasts(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const all = await listByPrefix(env.CST_KV, "broadcast:");
+  // Broadcast authority sees everything (there is a pending queue to work through);
+  // everyone else sees only their own -- a pending broadcast's text is not public
+  // until it is actually sent.
+  const mine = hasBroadcastAuthority(session.user)
+    ? all
+    : all.filter((b) => b.fromUser.toLowerCase() === session.user.name.toLowerCase());
+  mine.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return json({ broadcasts: mine });
+}
+
+async function routeResolveBroadcast(request, env, id, decision) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  try {
+    const record = await resolveBroadcast(env, session.user, id, decision);
+    return json({ broadcast: record });
+  } catch (err) {
+    return json({ error: err.message }, requestErrorStatus(err));
+  }
+}
+
 // ============================================================================ entry point
 
 async function handleRequest(request, env) {
@@ -538,6 +667,12 @@ async function handleRequest(request, env) {
     } else if (path === "/notifications" && request.method === "GET") response = await routeListNotifications(request, env);
     else if (/^\/notifications\/[^/]+\/read$/.test(path) && request.method === "POST") {
       response = await routeMarkNotificationRead(request, env, decodeURIComponent(path.split("/")[2]));
+    } else if (path === "/broadcasts" && request.method === "POST") response = await routeCreateBroadcast(request, env);
+    else if (path === "/broadcasts" && request.method === "GET") response = await routeListBroadcasts(request, env);
+    else if (/^\/broadcasts\/[^/]+\/approve$/.test(path) && request.method === "POST") {
+      response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "approve");
+    } else if (/^\/broadcasts\/[^/]+\/deny$/.test(path) && request.method === "POST") {
+      response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "deny");
     } else response = json({ error: "not found" }, 404);
   } catch (err) {
     response = json({ error: err && err.message ? err.message : "internal error" }, 500);
@@ -562,5 +697,7 @@ export {
   userKey,
   sessionKey,
   requestKey,
-  notificationKey
+  notificationKey,
+  broadcastKey,
+  hasBroadcastAuthority
 };

@@ -56,7 +56,7 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | POST | `/logout` | Bearer token | Invalidate the session. |
 | GET | `/session` | Bearer token | `{user}` — confirms who a token belongs to. |
 | GET | `/admin/users` | admin | List every account (no password data). |
-| POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?}`. |
+| POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?, canBroadcast?}`. |
 | DELETE | `/admin/users/:name` | admin | Delete an account. Revokes its sessions immediately. |
 | POST | `/admin/users/:name/reset-password` | admin | `{password}`. |
 | POST | `/commit` | Bearer token | `{files: [{path, content, base64?}], message}` — one atomic commit under `cellstocks/data/`. See below. |
@@ -66,6 +66,21 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | POST | `/requests/:id/deny` | owner or admin | Marks the request denied and notifies the requester. |
 | GET | `/notifications` | Bearer token | This account's own notifications, newest first. |
 | POST | `/notifications/:id/read` | that notification's own recipient | Marks one notification read. 404s for anyone else, including admin — there is no cross-account notification access. |
+| POST | `/broadcasts` | Bearer token | `{text}` — a lab-wide message. Sends immediately if this account has broadcast authority (see below); otherwise queues for approval. |
+| GET | `/broadcasts` | Bearer token | Broadcast authority sees every broadcast, pending or resolved; anyone else sees only their own. |
+| POST | `/broadcasts/:id/approve` | broadcast authority | Sends a pending broadcast to the lab and tells the original sender it went out. |
+| POST | `/broadcasts/:id/deny` | broadcast authority | Refuses a pending broadcast; it never reaches the lab. Tells the original sender. |
+
+### Who has broadcast authority
+
+Not just `role === "admin"`. Umut's own everyday login is an ordinary member account — the plan this
+shipped from is explicit that he won't switch to the hidden admin account unless he has to — so
+broadcast authority is a `canBroadcast` flag on the user record: always true for `role: "admin"`,
+and settable on any other account (in practice, Umut's own "Umut" login) via `POST /admin/users`.
+A message from an account without it queues as `"pending"` and notifies only the accounts that
+*can* approve it, not the whole lab — that would defeat the point of asking first. A hidden account
+(`hidden: true`, i.e. the admin login) never receives a broadcast itself — same "not really in the
+lab for notification purposes" rule search-in-lab already follows.
 
 ## Ownership and atomicity on `/commit`
 

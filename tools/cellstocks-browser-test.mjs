@@ -332,6 +332,59 @@ try {
   check("approving also marks the notification read",
     workerCalls.some((c) => c.path === "/notifications/notif-1/read" && c.method === "POST"), JSON.stringify(workerCalls));
 
+  // ---- sending a broadcast (Phase 4c-ii) ----
+  await page.route("https://fake-worker.example/broadcasts", (route) => {
+    const req = route.request();
+    workerCalls.push({ path: "/broadcasts", method: req.method(), auth: req.headers()["authorization"], body: req.postData() });
+    return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ broadcast: { id: "bc-1", status: "pending" } }) });
+  });
+  await page.fill("#notificationsCard textarea", "Anyone seen my pipette?");
+  await page.click("#notificationsCard button:has-text('Send')");
+  await page.waitForFunction(() => /Sent to an admin for approval/.test(document.querySelector(".banner")?.textContent || ""));
+  const broadcastCall = workerCalls.find((c) => c.path === "/broadcasts" && c.method === "POST");
+  check("sending a broadcast posts the typed text", broadcastCall && JSON.parse(broadcastCall.body).text === "Anyone seen my pipette?", JSON.stringify(broadcastCall));
+  check("an account without broadcast authority is told it needs approval, not that it was sent",
+    /Sent to an admin for approval/.test(await page.evaluate(() => document.querySelector(".banner").textContent)));
+  const textareaAfterSend = await page.$eval("#notificationsCard textarea", (t) => t.value);
+  check("the compose box clears after sending", textareaAfterSend === "", `left with ${JSON.stringify(textareaAfterSend)}`);
+
+  // ---- approving a pending broadcast from a notification ----
+  await page.route("https://fake-worker.example/notifications", (route) =>
+    route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify({ notifications: [{
+        id: "notif-2", type: "broadcast-pending", broadcastId: "bc-2", fromUser: "Labmate",
+        text: "Labmate wants to send to the whole lab: \"free pizza in the break room\"",
+        read: false, createdAt: "2026-01-01T00:00:00.000Z"
+      }] })
+    }));
+  await page.route("https://fake-worker.example/broadcasts/bc-2/approve", (route) => {
+    workerCalls.push({ path: "/broadcasts/bc-2/approve", method: route.request().method(), auth: route.request().headers()["authorization"] });
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ broadcast: { id: "bc-2", status: "sent" } }) });
+  });
+  await page.route("https://fake-worker.example/notifications/notif-2/read", (route) => {
+    workerCalls.push({ path: "/notifications/notif-2/read", method: route.request().method(), auth: route.request().headers()["authorization"] });
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ notification: { id: "notif-2", read: true } }) });
+  });
+  await page.evaluate(() => { window.location.reload(); });
+  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "fake-session-token");
+  await page.waitForSelector("nav button[data-screen=settings]");
+  await page.click("nav button[data-screen=settings]");
+  await page.waitForFunction(() => /free pizza in the break room/.test(document.getElementById("notificationsCard").textContent));
+  const pendingBroadcastButtons = await page.$$eval("#notificationsCard .item button", (btns) => btns.map((b) => b.textContent.trim()));
+  check("a pending broadcast notification offers Send it / Don't send",
+    JSON.stringify(pendingBroadcastButtons) === JSON.stringify(["Send it", "Don't send"]), JSON.stringify(pendingBroadcastButtons));
+
+  await page.click("#notificationsCard button:has-text('Send it')");
+  await page.waitForFunction(() => {
+    const c = document.getElementById("notificationsCard");
+    return c && !/Send it/.test(c.textContent);
+  });
+  check("approving a pending broadcast calls the worker's approve endpoint",
+    workerCalls.some((c) => c.path === "/broadcasts/bc-2/approve" && c.method === "POST"), JSON.stringify(workerCalls));
+  check("approving a pending broadcast also marks its notification read",
+    workerCalls.some((c) => c.path === "/notifications/notif-2/read" && c.method === "POST"), JSON.stringify(workerCalls));
+
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
   const afterLogout = await page.evaluate(() => ({

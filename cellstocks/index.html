@@ -1876,6 +1876,38 @@
     var n = clear($("notificationsCard"));
     if (!wu) return;
     n.appendChild(el("h3", null, "Notifications"));
+
+    var bField = el("div", "field");
+    bField.appendChild(el("label", null, "Send to the lab"));
+    var bText = document.createElement("textarea");
+    bText.rows = 2;
+    bText.placeholder = wu.canBroadcast || wu.role === "admin"
+      ? "Goes straight to everyone…"
+      : "Goes to an admin for approval first…";
+    bField.appendChild(bText);
+    var bSend = el("button", null, "Send");
+    bSend.style.marginTop = "6px";
+    bSend.onclick = async function(){
+      var text = bText.value.trim();
+      if (!text) return;
+      bSend.disabled = true;
+      try {
+        var res = await workerFetch("/broadcasts", {
+          method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() },
+          body: JSON.stringify({ text:text })
+        });
+        bText.value = "";
+        showBanner(res.broadcast && res.broadcast.status === "sent"
+          ? "Sent to the lab."
+          : "Sent to an admin for approval.");
+      } catch(err){
+        showBanner("Couldn't send that: " + esc(err.message));
+      }
+      bSend.disabled = false;
+    };
+    bField.appendChild(bSend);
+    n.appendChild(bField);
+
     if (notifications === null){
       n.appendChild(el("p", "note", "Checking…"));
       workerFetch("/notifications", { headers:{ Authorization:"Bearer " + getWorkerToken() } })
@@ -1900,6 +1932,13 @@
         var deny = el("button", "danger", "Deny");
         deny.onclick = function(){ resolveRequestNotification(note, "deny"); };
         item.appendChild(deny);
+      } else if (note.type === "broadcast-pending" && !note.read){
+        var bApprove = el("button", "primary", "Send it");
+        bApprove.onclick = function(){ resolveBroadcastNotification(note, "approve"); };
+        item.appendChild(bApprove);
+        var bDeny = el("button", "danger", "Don't send");
+        bDeny.onclick = function(){ resolveBroadcastNotification(note, "deny"); };
+        item.appendChild(bDeny);
       } else if (!note.read){
         var ok = el("button", null, "OK");
         ok.onclick = function(){ markNotificationRead(note); };
@@ -1942,6 +1981,18 @@
     }
     await markNotificationRead(note);
     renderAll();
+  }
+
+  async function resolveBroadcastNotification(note, decision){
+    try {
+      await workerFetch("/broadcasts/" + note.broadcastId + "/" + decision, {
+        method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() }
+      });
+    } catch(err){
+      showBanner("Couldn't " + (decision === "approve" ? "send" : "refuse") + " that: " + esc(err.message));
+      return;
+    }
+    await markNotificationRead(note);
   }
 
   function renderSettings(){

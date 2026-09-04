@@ -614,17 +614,20 @@
   function matchScore(vial, queryTokens, state, rules) {
     if (!queryTokens.length) return { score: 0, matched: [], missed: [], accept: true };
     var bag = fieldTokens(vial, state, rules);
-    var score = 0, matched = [], missed = [], strong = false;
+    var score = 0, matched = [], missed = [];
     queryTokens.forEach(function (qt) {
       var hit = tokenHits(bag, qt);
       if (!hit) { missed.push(qt); return; }
       matched.push(qt);
       score += hit.weight * hit.length;
-      if (hit.length >= STRONG_TOKEN) strong = true;
     });
     var coverage = matched.length / queryTokens.length;
+    // Coverage is always required, no matter how strongly any single word matched:
+    // a synonym-expanded token (e.g. "hek" -> "hek293t") used to be enough on its own
+    // to accept a vial that shared no other word with the query ("hek caspex" hitting
+    // every HEK293T-origin vial regardless of "caspex"). See tools/cellstocks-selftest.mjs.
     return { score: score, matched: matched, missed: missed, coverage: coverage,
-             accept: matched.length > 0 && (strong || coverage >= COVERAGE) };
+             accept: matched.length > 0 && coverage >= COVERAGE };
   }
 
   // The bounds the sliders need. Passage is reported per kind, because the two kinds

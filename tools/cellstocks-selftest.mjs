@@ -770,6 +770,67 @@ check("a freeze-down of five creates five records, one per slot, in one row", ()
   return null;
 });
 
+// ======================================================= grouping strategies
+//
+// state.settings.groupingStrategy picks which placement algorithm suggestPlacement()
+// dispatches to. "category-row" is the default and everything above this section
+// already covers it exhaustively -- these checks are only about the dispatch itself and
+// the one other strategy that is actually implemented, "random".
+
+check("no groupingStrategy setting means category-row, unchanged", () => {
+  const s = fixture();
+  if (E.groupingStrategyFor(s) !== "category-row") return `defaulted to ${E.groupingStrategyFor(s)}`;
+  const plan = E.suggestPlacement(s, { name: "Huh7 gNT", count: 1 });
+  if (!plan.ok || plan.strategy === "random") return `expected the default category-row plan, got ${json(plan)}`;
+  return null;
+});
+
+check("an unimplemented strategy (box, keyword) falls back to random rather than pretending", () => {
+  const s = fixture();
+  s.settings.groupingStrategy = "box";
+  if (E.groupingStrategyFor(s) !== "box") return "groupingStrategyFor did not read the setting back";
+  const plan = E.suggestPlacement(s, { name: "Huh7 gNT", count: 1 });
+  if (!plan.ok || plan.strategy !== "random") return `expected a random-mode plan, got ${json(plan)}`;
+  return null;
+});
+
+check("random strategy ignores the one-cell-per-row rule entirely", () => {
+  const s = fixture();
+  s.settings.groupingStrategy = "random";
+  // Box A row A already holds three HEK293T vials (v-1..v-3); a Huh7 line under
+  // "random" is free to land right beside them, unlike every check above this one.
+  const plan = E.suggestPlacement(s, { name: "Huh7 gNT", count: 1 });
+  if (!plan.ok) return `plan failed: ${plan.reason}`;
+  if (plan.strategy !== "random") return `strategy was ${plan.strategy}`;
+  if (plan.origin !== undefined) return "a random plan should not derive an origin at all";
+  return null;
+});
+
+check("random strategy still respects allowSplit", () => {
+  const s = fixture();
+  s.settings.groupingStrategy = "random";
+  s.settings.placement = { allowSplit: false };
+  // Each box is 9x9 = 81 slots; no single box in this fixture has 82 free, so a
+  // request that size can only be satisfied by splitting across boxes -- which
+  // allowSplit:false must refuse, exactly like category-row does.
+  const plan = E.suggestPlacement(s, { name: "Anything", count: 82 });
+  if (plan.ok) return `expected splitting to be refused, got ${json(plan)}`;
+  if (!/split/i.test(plan.reason)) return `expected a split-related reason, got ${json(plan.reason)}`;
+  return null;
+});
+
+check("applying a random-mode plan actually stores the vials where it said", () => {
+  const s = fixture();
+  s.settings.groupingStrategy = "random";
+  const plan = E.suggestPlacement(s, { name: "Anything New", count: 2 });
+  if (!plan.ok) return `plan failed: ${plan.reason}`;
+  const out = E.applyPlacement(s, plan, { name: "Anything New" }, { ids: ["rnd-1", "rnd-2"] });
+  if (out.vials.length !== 2) return `made ${out.vials.length} records`;
+  const errs = E.errorsOnly(E.validate(out.state));
+  if (errs.length) return `applying it broke validation: ${errs[0].message}`;
+  return null;
+});
+
 // ================================================================ withdrawal
 
 check("taking a vial frees its slot for the very next placement", () => {

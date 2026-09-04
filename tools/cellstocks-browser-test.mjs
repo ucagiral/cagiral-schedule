@@ -216,6 +216,18 @@ try {
   check("logging out returns the app to read-only", afterLogout.status === "Read-only", `status was ${afterLogout.status}`);
   check("logout actually called the worker's /logout", workerCalls.some((c) => c.path === "/logout" && c.auth === "Bearer fake-session-token"), JSON.stringify(workerCalls));
 
+  // ---- grouping strategy picker (Phase 3c-ii) ----
+  // Placed after the login/logout flow above rather than earlier, so its markDirty()
+  // call (see below) doesn't overwrite the status text those checks assert on.
+  const groupButtons = await page.$$eval("#storageCard .seg button", (btns) => btns.map((b) => b.textContent.trim()));
+  check("the grouping picker offers the two implemented strategies", JSON.stringify(groupButtons) === JSON.stringify(["One row per cell", "No rule"]), JSON.stringify(groupButtons));
+  const categoryRowIsDefault = await page.$eval("#storageCard .seg button", (b) => b.classList.contains("on"));
+  check("one row per cell is selected by default", categoryRowIsDefault);
+
+  await page.click("#storageCard .seg button:nth-child(2)"); // No rule
+  const groupingAfterClick = await page.evaluate(() => document.querySelector("#storageCard .seg button.on").textContent.trim());
+  check("picking No rule updates the selected option", groupingAfterClick === "No rule", groupingAfterClick);
+
   // "Failed to load resource: 401" is Chromium's own network-layer log for the
   // deliberate wrong-password request above, not a script error -- the app handled that
   // 401 correctly (that's what the banner check just proved). Real script errors don't

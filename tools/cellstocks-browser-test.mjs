@@ -72,13 +72,33 @@ try {
   page.on("pageerror", (err) => consoleErrors.push(String(err)));
 
   const emptyState = { storage: { units: [] }, lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
+  const labmateBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+  const labmateState = {
+    storage: { units: [{ id: "u-1", name: "Labmate's Freezer", type: "freezer", childLabel: "Rack",
+                         racks: [{ id: "r-1", name: "Rack 1", boxes: [labmateBox] }] }] },
+    lines: [], withdrawals: [], rules: {}, settings: {},
+    vials: [{ id: "v-lm-1", name: "Special Guest Line", location: { unitId: "u-1", rackId: "r-1", boxId: "b-1", position: "A1" }, status: "stored" }]
+  };
   await page.route("https://raw.githubusercontent.com/**", (route) => {
     const url = route.request().url();
+    if (url.includes("cellstocks/data/labmate.json")) {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labmateState) });
+    }
     if (url.includes("cellstocks.json") || url.includes("cellstocks/data/umut.json")) {
       return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(emptyState) });
     }
     return route.fulfill({ status: 404, body: "" });
   });
+
+  // The directory listing search-in-lab uses to find out who else has a file, straight
+  // from GitHub's own Contents API -- never through the worker (see ensureLabCache() in
+  // the app). "admin" deliberately has no entry, the same way a real hidden admin
+  // account never gets a cellstocks/data/admin.json of its own.
+  await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+    route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify([{ name: "umut.json", type: "file" }, { name: "labmate.json", type: "file" }])
+    }));
 
   // A stubbed cellstocks-worker -- just enough of /login and /logout to prove the app's
   // own side of the handshake, not a re-test of cellstocks-worker-selftest.mjs.
@@ -205,6 +225,32 @@ try {
   const onSettingsNow = await page.evaluate(() => document.getElementById("s-settings").classList.contains("active"));
   check("clicking the onboarding action navigates to Settings", onSettingsNow);
 
+  // ---- search in lab (Phase 4a) ----
+  await page.click("nav button[data-screen=find]");
+  await page.waitForSelector("#q");
+  const labToggleVisible = await page.$("#filters .toggle");
+  check("the search-in-lab toggle appears once logged in", !!labToggleVisible);
+
+  await page.fill("#q", "special");
+  await page.waitForTimeout(250); // the app debounces #q input by 150ms
+  const ownOnly = await page.evaluate(() => document.getElementById("results").textContent);
+  check("before toggling search-in-lab on, a lab-mate's vial is not shown", !/Special Guest Line/.test(ownOnly), ownOnly);
+
+  await page.click("#filters .toggle input[type=checkbox]");
+  await page.waitForFunction(() => /Special Guest Line/.test(document.getElementById("results").textContent));
+  const labResultText = await page.evaluate(() => document.getElementById("results").textContent);
+  check("search-in-lab finds a lab-mate's vial by name", /Special Guest Line/.test(labResultText), labResultText);
+  check("the result is labeled with whose boxes it's in", /labmate/i.test(labResultText), labResultText);
+
+  const labCardButtons = await page.$$eval(".res:has-text('Special Guest Line') button", (btns) => btns.map((b) => b.textContent.trim()));
+  check("a lab result has no Took it / Edit / Show in box actions -- nothing to act on yet",
+    labCardButtons.length === 0, JSON.stringify(labCardButtons));
+
+  await page.click("#filters .toggle input[type=checkbox]");
+  await page.waitForFunction(() => !/Special Guest Line/.test(document.getElementById("results").textContent));
+  check("turning search-in-lab back off hides the lab-mate's vial again", true);
+
+  await page.click("nav button[data-screen=settings]");
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
   const afterLogout = await page.evaluate(() => ({

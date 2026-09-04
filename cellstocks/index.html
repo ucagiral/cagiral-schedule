@@ -733,8 +733,44 @@
     // What the handles were bounded by last time. Without this, freezing a vial dated
     // today leaves the ceiling where it was and the new vial is silently filtered out
     // of the very search you would run to check it landed.
-    bounds: null
+    bounds: null,
+    searchInLab: false
   };
+
+  // ---- search in lab: every other visible member's own inventory, read the same way
+  // this account's own is (GitHub Contents API listing + a raw fetch per file), never
+  // through the worker. Fetched once per session on first toggle-on and cached --
+  // re-fetching on every keystroke would burn through GitHub's unauthenticated rate
+  // limit for no reason, and a lab roster doesn't change mid-search.
+  var labCache = { members: null, data: {}, loading: false };
+
+  async function ensureLabCache(){
+    if (labCache.members || labCache.loading || !REPO) return;
+    labCache.loading = true;
+    try {
+      var self = getWorkerUser();
+      var selfName = self ? self.name.toLowerCase() : null;
+      var listing = await fetch("https://api.github.com/repos/" + REPO + "/contents/" + DATA_PREFIX.replace(/\/$/, ""))
+        .then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; });
+      var names = (Array.isArray(listing) ? listing : [])
+        .map(function(entry){ return entry.name || ""; })
+        .filter(function(n){ return /\.json$/.test(n); })
+        .map(function(n){ return n.replace(/\.json$/, ""); })
+        // Excludes this account's own file (already searched) and, structurally, any
+        // hidden admin account -- admin has no cellstocks/data/*.json of its own, so it
+        // was never going to appear in this listing in the first place.
+        .filter(function(n){ return n !== selfName; });
+      labCache.members = names;
+      await Promise.all(names.map(function(name){
+        return fetch(rawURL(DATA_PREFIX + name + ".json"))
+          .then(function(r){ return r.ok ? r.text() : null; })
+          .then(function(text){ if (text) labCache.data[name] = E.mergeDefaults(JSON.parse(text)); })
+          .catch(function(){});
+      }));
+    } finally {
+      labCache.loading = false;
+    }
+  }
 
   function followExtents(x){
     var b = filter.bounds;
@@ -804,6 +840,26 @@
     var x = E.searchExtents(state);
     followExtents(x);
     var units = state.storage.units || [];
+
+    // "Search in lab": own boxes always come first (see renderResults) -- this only
+    // adds a second pass over every other visible member's own inventory, each read
+    // straight from GitHub the same way this account's own data is (see
+    // ensureLabCache()), never through the worker. Only makes sense once logged in as
+    // an account with lab-mates to search, so it's not shown for the PAT flow.
+    if (getWorkerUser()){
+      var lab = el("label", "toggle");
+      var labCb = document.createElement("input");
+      labCb.type = "checkbox"; labCb.checked = filter.searchInLab;
+      labCb.onchange = function(){
+        filter.searchInLab = labCb.checked;
+        renderResults();
+        if (filter.searchInLab) ensureLabCache().then(renderResults);
+      };
+      lab.appendChild(labCb);
+      lab.appendChild(document.createTextNode("Search in lab" +
+        (labCache.members ? " (" + labCache.members.length + (labCache.members.length === 1 ? " other member" : " other members") + ")" : "")));
+      box.appendChild(lab);
+    }
 
     if (units.length > 1){
       var seg = el("div", "seg");
@@ -926,11 +982,20 @@
     return bits.join(" · ");
   }
 
-  function resultCard(r){
+  // `owner` is set only for a "search in lab" hit: { name, state } for the lab-mate
+  // whose inventory this came from. Their vial is real, but nothing about it is ours to
+  // act on yet -- no ownership-request flow exists to ask them for it (see the plan
+  // this shipped from), so a lab result is read-only: no Took it, no Edit, no Show in
+  // box (that screen reads the boxView against this account's own `state`, not theirs).
+  function resultCard(r, owner){
     var v = r.vial;
     var card = el("div", "res" + (v.status === "withdrawn" ? " gone" : ""));
     card.style.borderLeftColor = tintFor(v.lineId || v.name);
     card.appendChild(el("div", "nm", v.name));
+
+    if (owner){
+      card.appendChild(el("div", "chip", "in " + owner.name + "’s boxes"));
+    }
 
     var chips = el("div", "chips");
     chips.style.marginTop = "5px";
@@ -942,7 +1007,7 @@
       card.appendChild(el("div", "where", "Taken out"));
     } else {
       var w = el("div", "where");
-      var path = E.locationPath(state, v.location).split(" → ");
+      var path = E.locationPath(owner ? owner.state : state, v.location).split(" → ");
       var pos = path.pop();
       w.appendChild(document.createTextNode(path.join(" → ") + " → "));
       w.appendChild(el("span", "pos", pos));
@@ -956,7 +1021,7 @@
     }
 
     var row = el("div", "row tight");
-    if (v.status !== "withdrawn"){
+    if (v.status !== "withdrawn" && !owner){
       var take = el("button", "primary", "Took it");
       take.disabled = !canWrite();
       take.onclick = function(){ takeVial(v); };
@@ -983,12 +1048,29 @@
     };
     var hits = E.search(state, q);
 
+    // Own boxes always come first -- lab-mates' results are a second pass, appended
+    // after every one of this account's own, never interleaved with them.
+    var labHits = [];
+    if (filter.searchInLab && labCache.members && filter.query){
+      labCache.members.forEach(function(name){
+        var ownerState = labCache.data[name];
+        if (!ownerState) return;
+        E.search(ownerState, q).forEach(function(r){ labHits.push({ r: r, owner: { name: name, state: ownerState } }); });
+      });
+    }
+
     var head = el("p", "note");
-    head.textContent = hits.length + (hits.length === 1 ? " vial" : " vials") +
-      (filter.query ? " match “" + filter.query + "”" : " in range");
+    var headBits = [hits.length + (hits.length === 1 ? " vial" : " vials") +
+      (filter.query ? " match “" + filter.query + "”" : " in range")];
+    if (filter.searchInLab && labHits.length){
+      headBits.push(labHits.length + " more in the lab");
+    } else if (filter.searchInLab && labCache.loading){
+      headBits.push("checking the lab…");
+    }
+    head.textContent = headBits.join(" · ");
     box.appendChild(head);
 
-    if (!hits.length){
+    if (!hits.length && !labHits.length){
       box.appendChild(el("div", "empty", state.vials.length
         ? "Nothing here. Try fewer words, or widen a slider."
         : "Nothing imported yet — Settings → Import a spreadsheet."));
@@ -996,6 +1078,8 @@
     }
     hits.slice(0, 200).forEach(function(r){ box.appendChild(resultCard(r)); });
     if (hits.length > 200) box.appendChild(el("p", "note", "…and " + (hits.length - 200) + " more. Narrow it down."));
+    labHits.slice(0, 50).forEach(function(h){ box.appendChild(resultCard(h.r, h.owner)); });
+    if (labHits.length > 50) box.appendChild(el("p", "note", "…and " + (labHits.length - 50) + " more in the lab. Narrow it down."));
   }
 
   function takeVial(v){

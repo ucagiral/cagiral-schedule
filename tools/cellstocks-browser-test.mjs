@@ -71,15 +71,36 @@ try {
   page.on("console", (msg) => { if (msg.type() === "error") consoleErrors.push(msg.text()); });
   page.on("pageerror", (err) => consoleErrors.push(String(err)));
 
+  const emptyState = { storage: { units: [] }, lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
   await page.route("https://raw.githubusercontent.com/**", (route) => {
     const url = route.request().url();
-    if (url.includes("cellstocks.json")) {
-      return route.fulfill({
-        status: 200, contentType: "application/json",
-        body: JSON.stringify({ storage: { units: [] }, lines: [], vials: [], withdrawals: [], rules: {}, settings: {} })
-      });
+    if (url.includes("cellstocks.json") || url.includes("cellstocks/data/umut.json")) {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(emptyState) });
     }
     return route.fulfill({ status: 404, body: "" });
+  });
+
+  // A stubbed cellstocks-worker -- just enough of /login and /logout to prove the app's
+  // own side of the handshake, not a re-test of cellstocks-worker-selftest.mjs.
+  const workerCalls = [];
+  await page.route("https://fake-worker.example/**", (route) => {
+    const req = route.request();
+    const path = new URL(req.url()).pathname;
+    workerCalls.push({ path, method: req.method(), auth: req.headers()["authorization"] });
+    if (path === "/login" && req.method() === "POST") {
+      const posted = JSON.parse(req.postData());
+      if (posted.name === "Umut" && posted.password === "lab-password") {
+        return route.fulfill({
+          status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "fake-session-token", user: { name: "Umut", role: "member", hidden: false } })
+        });
+      }
+      return route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "wrong name or password" }) });
+    }
+    if (path === "/logout" && req.method() === "POST") {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+    }
+    return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
   });
 
   await page.goto(`http://localhost:8797/cellstocks/`);
@@ -130,7 +151,60 @@ try {
   });
   check("a .toggle checkbox renders pill-switch width, not a native 13px box", switchWidth === "38px", `got ${switchWidth}`);
 
-  check("no console errors were raised while exercising Settings", consoleErrors.length === 0, consoleErrors.join("\n    "));
+  // ---- worker login (Phase 3b-ii) ----
+  check("read-only banner shows before logging in (no PAT, no worker session)",
+    await page.evaluate(() => document.getElementById("status").textContent) === "Read-only");
+
+  const loginInputs = await page.$$("#connectCard input");
+  check("the login form has worker URL, name and password fields", loginInputs.length >= 3, `found ${loginInputs.length} inputs`);
+  await loginInputs[0].fill("https://fake-worker.example");
+  await loginInputs[1].fill("Umut");
+  await loginInputs[2].fill("wrong-password");
+  await page.click("#workerLoginBtn");
+  await page.waitForFunction(() => document.querySelector(".banner") &&
+    /wrong name or password/.test(document.querySelector(".banner").textContent));
+  const badLoginBanner = await page.evaluate(() => document.querySelector(".banner").textContent);
+  check("a wrong password shows the worker's error in the banner", /wrong name or password/.test(badLoginBanner), badLoginBanner);
+
+  await page.fill("#connectCard input[type=password]", "lab-password");
+  await page.click("#workerLoginBtn");
+  await page.waitForFunction(() => !!localStorage.getItem("cst_worker_token"));
+
+  const afterLogin = await page.evaluate(() => ({
+    token: localStorage.getItem("cst_worker_token"),
+    user: JSON.parse(localStorage.getItem("cst_worker_user") || "null"),
+    url: localStorage.getItem("cst_worker_url"),
+    status: document.getElementById("status").textContent
+  }));
+  check("logging in stores the session token, user and worker url", afterLogin.token === "fake-session-token" && afterLogin.url === "https://fake-worker.example", JSON.stringify(afterLogin));
+  check("logging in identifies the user by name", afterLogin.user && afterLogin.user.name === "Umut", JSON.stringify(afterLogin.user));
+  check("the app leaves read-only mode once logged in", afterLogin.status === "Ready", `status was ${afterLogin.status}`);
+
+  const loggedInNote = await page.evaluate(() => document.querySelector("#connectCard p.note").textContent);
+  check("Settings shows who is logged in and through which worker", /Logged in as Umut/.test(loggedInNote) && /fake-worker\.example/.test(loggedInNote), loggedInNote);
+
+  // One failed + one successful login attempt so far -- both /login. The point of this
+  // check is that nothing else (a read, a data fetch) ever went to the worker: only
+  // save() and the login/logout calls are meant to talk to it.
+  check("reads never go through the worker -- only /login calls happened", workerCalls.every((c) => c.path === "/login"), JSON.stringify(workerCalls));
+
+  await page.click("#workerLogoutBtn");
+  await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
+  const afterLogout = await page.evaluate(() => ({
+    token: localStorage.getItem("cst_worker_token"),
+    user: localStorage.getItem("cst_worker_user"),
+    status: document.getElementById("status").textContent
+  }));
+  check("logging out clears the session token and user", afterLogout.token === null && afterLogout.user === null, JSON.stringify(afterLogout));
+  check("logging out returns the app to read-only", afterLogout.status === "Read-only", `status was ${afterLogout.status}`);
+  check("logout actually called the worker's /logout", workerCalls.some((c) => c.path === "/logout" && c.auth === "Bearer fake-session-token"), JSON.stringify(workerCalls));
+
+  // "Failed to load resource: 401" is Chromium's own network-layer log for the
+  // deliberate wrong-password request above, not a script error -- the app handled that
+  // 401 correctly (that's what the banner check just proved). Real script errors don't
+  // look like this.
+  const realErrors = consoleErrors.filter((e) => !/Failed to load resource/.test(e));
+  check("no console errors were raised while exercising Settings", realErrors.length === 0, realErrors.join("\n    "));
 } finally {
   await browser.close();
   server.close();

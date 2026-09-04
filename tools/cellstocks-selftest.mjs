@@ -352,6 +352,34 @@ check("notes become searchable flags", () => {
   return null;
 });
 
+// ============================================================== item kind (lab-wide scaffolding)
+//
+// kindOf/rulesForKind are additive groundwork for the multi-user, multi-kind expansion --
+// nothing wires a second kind into classify/search/placement yet (see engine.js's comments
+// on why). What has to hold today is that this scaffolding is a true no-op for the only
+// kind that actually exists: a vial with no `kind` field, and a state with no
+// `rulesByKind`, must behave exactly as before.
+
+check("a vial with no kind field defaults to cell", () => {
+  if (E.kindOf({ name: "HEK293T" }) !== "cell") return "kindOf did not default to cell";
+  if (E.kindOf({ name: "x", kind: "plasmid" }) !== "plasmid") return "kindOf ignored an explicit kind";
+  if (E.kindOf(null) !== "cell") return "kindOf threw or misbehaved on null";
+  return null;
+});
+
+check("rulesForKind(state, 'cell') is state.rules, not a copy with different rules", () => {
+  const s = fixture();
+  if (E.rulesForKind(s, "cell") !== s.rules) return "rulesForKind did not return the same rules object for cell";
+  if (E.rulesForKind(s) !== s.rules) return "rulesForKind did not default the kind argument to cell";
+  return null;
+});
+
+check("rulesForKind returns null for a kind nothing has defined rules for yet", () => {
+  const s = fixture();
+  if (E.rulesForKind(s, "plasmid") !== null) return "expected null for an undefined kind, not an invented ruleset";
+  return null;
+});
+
 // ==================================================================== search
 
 check("a keyword finds the vial and names where it is", () => {
@@ -985,6 +1013,19 @@ check("saving the real inventory unchanged rewrites it byte for byte", () => {
     if (a[i] !== b[i]) return `first difference at line ${i + 1}: on disk ${json(a[i])}, app would write ${json(b[i])}`;
   }
   return "the files differ in length only";
+});
+
+check("Umut's migrated multi-user data file matches the original inventory exactly", () => {
+  // cellstocks/data/umut.json is Phase 2 of the lab-wide expansion: Umut's account under
+  // the layout the worker's ownership check (cellstocks-worker/worker.js) already expects
+  // -- one file per user under cellstocks/data/. Nothing reads it yet (that's Phase 3's
+  // app cutover), so today it must simply be an exact copy: no data lost, none invented.
+  const migratedPath = join(ROOT, "cellstocks", "data", "umut.json");
+  if (!existsSync(migratedPath)) return real ? "cellstocks/data/umut.json is missing" : null;
+  if (!real) return "cellstocks/data/umut.json exists but there is no cellstocks.json to compare it to";
+  const original = readFileSync(REAL_PATH, "utf8");
+  const migrated = readFileSync(migratedPath, "utf8");
+  return original === migrated ? null : "cellstocks/data/umut.json has drifted from cellstocks/cellstocks.json";
 });
 
 check("the real inventory validates with no errors", () => {

@@ -373,9 +373,11 @@
   // the host: its own token, its own device name, its own theme, its own offline
   // copy. That costs pasting a token once more on each device, and buys the app
   // being genuinely separate rather than separate-looking.
-  var LS = { token:"cst_token", device:"cst_device", theme:"cst_theme", cache:"cst_cache", cfg:"cst_cfg" };
-  var DATA_PATH = "cellstocks/cellstocks.json";
-  var XLSX_PATH = "cellstocks/cell-stocks.xlsx";
+  var LS = { token:"cst_token", device:"cst_device", theme:"cst_theme", cache:"cst_cache", cfg:"cst_cfg",
+             workerUrl:"cst_worker_url", workerToken:"cst_worker_token", workerUser:"cst_worker_user" };
+  var LEGACY_DATA_PATH = "cellstocks/cellstocks.json";
+  var LEGACY_XLSX_PATH = "cellstocks/cell-stocks.xlsx";
+  var DATA_PREFIX = "cellstocks/data/";
 
   function resolveConfig(){
     var stored = null;
@@ -393,7 +395,74 @@
 
   function getToken(){ try { return localStorage.getItem(LS.token) || null; } catch(e){ return null; } }
   function getDevice(){ try { return localStorage.getItem(LS.device) || "unknown device"; } catch(e){ return "unknown device"; } }
-  function canWrite(){ return !!(getToken() && API); }
+
+  // ---- worker auth (lab-wide login) -----------------------------------------------
+  // Additive, alongside the GitHub-token flow above: whichever is present makes
+  // canWrite() true. Reads never need the worker (the repo is public, so an
+  // unauthenticated raw fetch always works) -- only a write needs an opinion about who
+  // is allowed to make it, so only save() and the login/logout calls below ever talk
+  // to the worker. See cellstocks-worker/README.md for what it does and why.
+  function getWorkerUrl(){ try { return localStorage.getItem(LS.workerUrl) || null; } catch(e){ return null; } }
+  function getWorkerToken(){ try { return localStorage.getItem(LS.workerToken) || null; } catch(e){ return null; } }
+  function getWorkerUser(){ try { return JSON.parse(localStorage.getItem(LS.workerUser) || "null"); } catch(e){ return null; } }
+  function workerBase(url){ return String(url || "").replace(/\/+$/, ""); }
+
+  function dataPath(){
+    var u = getWorkerUser();
+    return u ? DATA_PREFIX + u.name.toLowerCase() + ".json" : LEGACY_DATA_PATH;
+  }
+  function xlsxPath(){
+    var u = getWorkerUser();
+    return u ? DATA_PREFIX + u.name.toLowerCase() + ".xlsx" : LEGACY_XLSX_PATH;
+  }
+
+  async function workerFetch(path, opts){
+    var url = workerBase(getWorkerUrl()) + path;
+    var headers = Object.assign({ "Content-Type":"application/json" }, (opts && opts.headers) || {});
+    var r = await fetch(url, Object.assign({}, opts || {}, { headers: headers }));
+    var body = {};
+    try { body = await r.json(); } catch(e){}
+    if (!r.ok){
+      var err = new Error(body.error || ("Worker said " + r.status));
+      err.status = r.status;
+      throw err;
+    }
+    return body;
+  }
+
+  async function workerLogin(url, name, password){
+    var base = workerBase(url);
+    var res = await fetch(base + "/login", {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ name:name, password:password })
+    });
+    var body = {};
+    try { body = await res.json(); } catch(e){}
+    if (!res.ok) throw new Error(body.error || ("Worker said " + res.status));
+    try {
+      localStorage.setItem(LS.workerUrl, base);
+      localStorage.setItem(LS.workerToken, body.token);
+      localStorage.setItem(LS.workerUser, JSON.stringify(body.user));
+    } catch(e){}
+  }
+
+  async function workerLogout(){
+    var token = getWorkerToken();
+    if (token){
+      try { await workerFetch("/logout", { method:"POST", headers:{ Authorization:"Bearer " + token } }); } catch(e){}
+    }
+    try { localStorage.removeItem(LS.workerToken); localStorage.removeItem(LS.workerUser); } catch(e){}
+  }
+
+  async function workerCommit(files, message){
+    return workerFetch("/commit", {
+      method:"POST",
+      headers:{ Authorization:"Bearer " + getWorkerToken() },
+      body: JSON.stringify({ files:files, message:message })
+    });
+  }
+
+  function canWrite(){ return !!(getWorkerToken() && getWorkerUrl()) || !!(getToken() && API); }
   function ghHeaders(){
     var h = { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
     var t = getToken();
@@ -479,22 +548,25 @@
     }
     try {
       var text = null;
+      // A worker login never needs the token-authenticated read below -- the repo is
+      // public, so an unauthenticated raw fetch of the account's own data path always
+      // works. Only save() ever talks to the worker.
       if (getToken()){
-        var r = await fetch(API + "/contents/" + DATA_PATH + "?ref=" + encodeURIComponent(CFG.branch||"main"),
+        var r = await fetch(API + "/contents/" + LEGACY_DATA_PATH + "?ref=" + encodeURIComponent(CFG.branch||"main"),
                             { headers: ghHeaders(), cache:"no-store" });
         if (r.status === 404) text = null;
         else if (!r.ok) throw new Error("GitHub said " + r.status);
         else { var j = await r.json(); text = base64ToUtf8(j.content || ""); }
       } else {
-        var resp = await fetch(rawURL(DATA_PATH), { cache:"no-store" });
+        var resp = await fetch(rawURL(dataPath()), { cache:"no-store" });
         text = resp.ok ? await resp.text() : null;
       }
       if (text !== null && text !== undefined) state = E.mergeDefaults(JSON.parse(text));
       cacheSave();
       setStatus(canWrite() ? "Ready" : "Read-only", "");
       if (!canWrite()){
-        showBanner("Read-only: no GitHub token on this device, so nothing can be frozen or taken out. " +
-                   "Add one under Settings → Connect.");
+        showBanner("Read-only: nothing can be frozen or taken out until this device is connected. " +
+                   "Log in, or add a GitHub token, under Settings → Connect.");
       }
     } catch(err){
       var at = cacheLoad();
@@ -580,17 +652,28 @@
     setStatus("Saving…", "saving");
     try {
       state._meta = { savedBy: getDevice(), savedAt: new Date().toISOString() };
-      await commitFiles([
-        { path: DATA_PATH, text: E.serialise(state) },
-        { path: XLSX_PATH, base64: bytesToBase64(await workbookBytes()) }
-      ], message + " from " + getDevice());
+      var xlsxB64 = bytesToBase64(await workbookBytes());
+      if (getWorkerUser()){
+        await workerCommit([
+          { path: dataPath(), content: E.serialise(state) },
+          { path: xlsxPath(), content: xlsxB64, base64: true }
+        ], message + " from " + getDevice());
+      } else {
+        await commitFiles([
+          { path: LEGACY_DATA_PATH, text: E.serialise(state) },
+          { path: LEGACY_XLSX_PATH, base64: xlsxB64 }
+        ], message + " from " + getDevice());
+      }
       dirty = false;
       cacheSave();
       setStatus("Saved", "saved");
       setTimeout(function(){ if ($("status").textContent === "Saved") setStatus("Ready", ""); }, 2500);
     } catch(err){
       setStatus("Not saved", "error");
-      if (err.status === 401 || err.status === 403){
+      if (getWorkerUser() && (err.status === 401 || err.status === 403)){
+        showBanner("The worker refused the write (" + err.status + "): " + esc(err.message) +
+                   ". Try logging in again under Settings → Connect.");
+      } else if (err.status === 401 || err.status === 403){
         showBanner("GitHub refused the write (" + err.status + "). The token may have expired, or it may not " +
                    "have <code>Contents: Read and write</code> for this repository.");
       } else if (err.status === 409 || err.status === 422){
@@ -1639,12 +1722,61 @@
     // ---- connect ----
     var c = clear($("connectCard"));
     c.appendChild(el("h3", null, "Connect"));
-    if (canWrite()){
+
+    // ---- log in (worker auth) ----
+    var wu = getWorkerUser();
+    if (wu){
+      c.appendChild(el("p", "note",
+        "Logged in as " + esc(wu.name) + (wu.role === "admin" ? " (admin)" : "") + ". Changes go through " +
+        esc(getWorkerUrl()) + "."));
+      var lo = el("button", "danger", "Log out");
+      lo.id = "workerLogoutBtn";
+      lo.onclick = async function(){
+        lo.disabled = true;
+        await workerLogout();
+        renderAll(); setStatus(canWrite() ? "Ready" : "Read-only", "");
+      };
+      c.appendChild(lo);
+    } else {
+      c.appendChild(el("p", "note",
+        "Log in with the name and password an admin set up for you. This is the lab-wide way in — " +
+        "your own boxes, kept separate from everyone else's."));
+      var wurl = document.createElement("input");
+      wurl.placeholder = "Worker address (https://…workers.dev)";
+      wurl.value = getWorkerUrl() || "";
+      var wname = document.createElement("input");
+      wname.placeholder = "Name"; wname.style.marginTop = "8px";
+      var wpass = document.createElement("input");
+      wpass.type = "password"; wpass.placeholder = "Password"; wpass.autocomplete = "current-password";
+      wpass.style.marginTop = "8px";
+      c.appendChild(wurl); c.appendChild(wname); c.appendChild(wpass);
+      var wgo = el("button", "primary", "Log in");
+      wgo.id = "workerLoginBtn";
+      wgo.style.marginTop = "8px";
+      wgo.onclick = async function(){
+        if (!wurl.value.trim() || !wname.value.trim() || !wpass.value) return;
+        wgo.disabled = true;
+        try {
+          await workerLogin(wurl.value.trim(), wname.value.trim(), wpass.value);
+          hideBanner();
+          await load();
+          renderSettings();
+        } catch(err){
+          showBanner("Couldn't log in: " + esc(err.message));
+        }
+        wgo.disabled = false;
+      };
+      c.appendChild(wgo);
+    }
+
+    // ---- GitHub token (the older, per-device way in) ----
+    c.appendChild(el("h3", null, "GitHub token"));
+    if (getToken()){
       c.appendChild(el("p", "note", "Connected as " + getDevice() + ". Changes are committed to " + REPO + "."));
       var out = el("button", "danger", "Forget the token on this device");
       out.onclick = function(){
         try { localStorage.removeItem(LS.token); } catch(e){}
-        renderAll(); setStatus("Read-only", "");
+        renderAll(); setStatus(canWrite() ? "Ready" : "Read-only", "");
       };
       c.appendChild(out);
     } else {
@@ -1665,7 +1797,7 @@
         if (!tok.value.trim()) return;
         go2.disabled = true;
         try {
-          var r = await fetch(API + "/contents/" + DATA_PATH + "?ref=" + encodeURIComponent(CFG.branch||"main"),
+          var r = await fetch(API + "/contents/" + LEGACY_DATA_PATH + "?ref=" + encodeURIComponent(CFG.branch||"main"),
             { headers: { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28",
                          "Authorization":"Bearer " + tok.value.trim() } });
           if (!r.ok && r.status !== 404) throw new Error("GitHub said " + r.status);

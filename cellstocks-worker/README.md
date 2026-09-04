@@ -60,6 +60,12 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | DELETE | `/admin/users/:name` | admin | Delete an account. Revokes its sessions immediately. |
 | POST | `/admin/users/:name/reset-password` | admin | `{password}`. |
 | POST | `/commit` | Bearer token | `{files: [{path, content, base64?}], message}` — one atomic commit under `cellstocks/data/`. See below. |
+| POST | `/requests` | Bearer token | Ask another member's owner for an item: `{toUser, itemName, vialId?, note?}`. Notifies `toUser`, not the requester. |
+| GET | `/requests` | Bearer token | Every request this account is on either side of (as requester or owner), newest first. |
+| POST | `/requests/:id/approve` | owner or admin | Marks the request approved and notifies the requester. See below for what "approved" does and doesn't do. |
+| POST | `/requests/:id/deny` | owner or admin | Marks the request denied and notifies the requester. |
+| GET | `/notifications` | Bearer token | This account's own notifications, newest first. |
+| POST | `/notifications/:id/read` | that notification's own recipient | Marks one notification read. 404s for anyone else, including admin — there is no cross-account notification access. |
 
 ## Ownership and atomicity on `/commit`
 
@@ -78,8 +84,17 @@ window where the committed workbook and the inventory it's supposed to describe 
 is exactly what `CLAUDE.md` says must never happen. `content` is the raw file text for JSON,
 base64 (`base64: true`) for the binary workbook.
 
-Ownership beyond "this is or isn't my file" — approving someone else's request to take or edit
-an item — is not in this endpoint yet; it lands with the request/approval flow.
+## Requests and notifications: what "approved" does and doesn't do
+
+The physical vial never moves through any of this. Umut's answer was explicit: approving a
+request just marks the item "reserved for" the requester on the *owner's own side*, because
+physically it's still sitting in the owner's own freezer until someone actually hands it over.
+That marking is an ordinary edit to the owner's own `cellstocks/data/<owner>.json`, made through
+`/commit` above like any other save — this Worker has no idea what a "vial" is and never touches
+one. What it owns is the bookkeeping neither side could otherwise see: the pending request itself
+(a requester cannot write into someone else's file to leave a note there) and the notification
+that tells the other side something happened. The app is responsible for turning an approval into
+an actual `reservedFor`-style field on the vial and saving it — that's app-side work, not here.
 
 ## Testing without Cloudflare
 
@@ -88,7 +103,8 @@ Web platform primitives (`fetch`, `Request`/`Response`, `crypto.subtle`) that bo
 runtime and Node 20 implement — no build step, same as the rest of this repository.
 `tools/cellstocks-worker-selftest.mjs` runs it directly in Node against an in-memory stand-in
 for KV and a stubbed GitHub API, so the whole request lifecycle (bootstrap → login → admin
-user CRUD → ownership-checked atomic commit) is provable without deploying anything:
+user CRUD → ownership-checked atomic commit → request/approve/notify) is provable without
+deploying anything:
 
 ```bash
 node tools/cellstocks-worker-selftest.mjs

@@ -357,13 +357,24 @@ check("notes become searchable flags", () => {
 check("a keyword finds the vial and names where it is", () => {
   const s = fixture();
   const hits = E.search(s, { query: "hek p12" });
-  // "hek" is distinctive enough to stand on its own, so the p20 HEK vial matches
-  // too -- but it matched one word of two, and the three p12 vials outrank it.
-  if (hits.length !== 4) return `expected all 4 HEK vials, got ${hits.length}`;
-  const top3 = hits.slice(0, 3).map((h) => h.vial.passage);
-  if (top3.some((p) => p !== "p12")) return `the top three were ${json(top3)}, not all p12`;
-  if (hits[3].vial.passage !== "p20") return "the p20 vial did not sort last";
+  // Coverage is always required: the p20 HEK vial matches "hek" but not "p12" --
+  // one word of two, below the 0.6 threshold -- so it is excluded, not merely
+  // outranked. Only the three p12 vials come back.
+  if (hits.length !== 3) return `expected the 3 p12 HEK vials, got ${hits.length}`;
+  const passages = hits.map((h) => h.vial.passage);
+  if (passages.some((p) => p !== "p12")) return `passages were ${json(passages)}, not all p12`;
   if (!/Box A/.test(hits[0].path)) return `path was ${json(hits[0].path)}`;
+  return null;
+});
+
+check("a strongly-matching single word does not bypass coverage", () => {
+  const s = fixture();
+  // Regression for a real bug: "hek" was expanded by SYNONYMS to "hek293t" (7
+  // chars), long enough to trip the old STRONG_TOKEN bypass and accept a vial on
+  // that one word alone -- so "hek caspex" matched every HEK vial regardless of
+  // whether it had anything to do with CASPEX. Coverage must always decide.
+  const hits = E.search(s, { query: "hek caspex" });
+  if (hits.length) return `expected no hits (no vial is both HEK and CASPEX), got ${json(hits.map((h) => h.vial.id))}`;
   return null;
 });
 
@@ -446,9 +457,11 @@ check("unknown passages are held back by a toggle, not lost", () => {
 check("withdrawn vials are out of the way but not hidden", () => {
   const s = fixture();
   const after = E.withdraw(s, "v-1", { date: "2026-08-25", by: "test", ids: ["w-1"] }).state;
-  if (E.search(after, { query: "hek p12" }).length !== 3) return "a withdrawn vial still shows by default";
+  // Of the 3 p12 HEK vials (v-1, v-2, v-3; v-4 is p20 and never matches "hek p12"
+  // now that coverage is always required), v-1 was just withdrawn.
+  if (E.search(after, { query: "hek p12" }).length !== 2) return "a withdrawn vial still shows by default";
   const shown = E.search(after, { query: "hek p12", includeWithdrawn: true });
-  if (shown.length !== 4) return "includeWithdrawn did not bring it back";
+  if (shown.length !== 3) return "includeWithdrawn did not bring it back";
   if (shown[shown.length - 1].vial.id !== "v-1") return "the withdrawn vial did not sort last";
   return null;
 });
@@ -457,12 +470,13 @@ check("results group to one card per line and box", () => {
   const s = fixture();
   const groups = E.searchGroups(E.search(s, { query: "hek p12" }));
   // Grouping is per LINE, not per cell: the ATP7B KO and the TOX4 OX share a row
-  // but are different lines, so they get a card each.
+  // but are different lines, so they get a card each. Only the p12 vials match
+  // (v-4 is p20 and coverage is always required), so ATP7B KO here is v-1/v-2.
   if (groups.length !== 2) return `expected 2 groups, got ${groups.length}`;
   const ko = groups.filter((g) => /ATP7B/.test(g.name))[0];
   if (!ko) return "the ATP7B group is missing";
-  if (ko.count !== 3) return `the ATP7B group counted ${ko.count}`;
-  if (json(ko.positions) !== json(["A1", "A2", "A4"])) return `positions were ${json(ko.positions)}`;
+  if (ko.count !== 2) return `the ATP7B group counted ${ko.count}`;
+  if (json(ko.positions) !== json(["A1", "A2"])) return `positions were ${json(ko.positions)}`;
   return null;
 });
 

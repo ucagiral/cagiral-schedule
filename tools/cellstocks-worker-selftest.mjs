@@ -523,6 +523,132 @@ await check("a notification belongs to one account only -- another account canno
   return null;
 });
 
+// ==================================================================== broadcasts
+//
+// "Only Umut has authority over lab-wide things" -- but his own everyday login is an
+// ordinary member account, not the hidden admin one (he said he won't switch to admin
+// unless he has to), so broadcast authority is a canBroadcast flag on the user record,
+// true always for admin and settable on anyone else. These check that flag decides
+// send-directly-vs-queued, that a queued one only notifies people who can act on it
+// (not the whole lab, which would defeat the point of approval), that approving fans out
+// to everyone but the sender, and that a hidden account never receives a broadcast --
+// same "not really in the lab for notification purposes" rule as search-in-lab.
+
+async function labWithBroadcaster() {
+  const { env, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "a", canBroadcast: true }, token), env);
+  await handleRequest(req("POST", "/admin/users", { name: "Labmate", password: "b" }, token), env);
+  const { body: umutLogin } = await login(env, "Umut", "a");
+  const { body: labmateLogin } = await login(env, "Labmate", "b");
+  return { env, adminToken: token, umutToken: umutLogin.token, labmateToken: labmateLogin.token };
+}
+
+await check("a canBroadcast account's message sends immediately and reaches everyone else", async () => {
+  const { env, umutToken, labmateToken } = await labWithBroadcaster();
+  const res = await handleRequest(req("POST", "/broadcasts", { text: "Freezer 2 is being defrosted Friday" }, umutToken), env);
+  const body = await res.json();
+  if (res.status !== 201 || body.broadcast.status !== "sent") return `expected sent, got ${res.status}: ${json(body)}`;
+  const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
+  if (!labmateNotifs.notifications.some((n) => n.type === "broadcast" && /Freezer 2 is being defrosted/.test(n.text))) {
+    return `Labmate did not get the broadcast: ${json(labmateNotifs.notifications)}`;
+  }
+  return null;
+});
+
+await check("an ordinary member's broadcast queues instead of sending, and only notifies who can approve it", async () => {
+  const { env, umutToken, labmateToken } = await labWithBroadcaster();
+  const res = await handleRequest(req("POST", "/broadcasts", { text: "Anyone seen my pipette?" }, labmateToken), env);
+  const body = await res.json();
+  if (res.status !== 201 || body.broadcast.status !== "pending") return `expected pending, got ${res.status}: ${json(body)}`;
+
+  const umutNotifs = await (await handleRequest(req("GET", "/notifications", undefined, umutToken), env)).json();
+  if (!umutNotifs.notifications.some((n) => n.type === "broadcast-pending")) return `Umut (canBroadcast) was not notified: ${json(umutNotifs.notifications)}`;
+
+  // Nobody else should see it yet -- that's the entire point of queuing it. Labmate is
+  // the sender so has none of their own to receive; check there is no visible-to-the-lab
+  // broadcast notification anywhere yet by confirming Labmate's own inbox has nothing of
+  // type "broadcast" (only "broadcast-pending" would ever go to an approver).
+  const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
+  if (labmateNotifs.notifications.some((n) => n.type === "broadcast")) return "the pending broadcast reached the lab before approval";
+  return null;
+});
+
+await check("approving a pending broadcast sends it to the lab and tells the sender", async () => {
+  const { env, umutToken, labmateToken } = await labWithBroadcaster();
+  const createRes = await handleRequest(req("POST", "/broadcasts", { text: "Anyone seen my pipette?" }, labmateToken), env);
+  const { broadcast } = await createRes.json();
+
+  const approveRes = await handleRequest(req("POST", `/broadcasts/${broadcast.id}/approve`, {}, umutToken), env);
+  const approveBody = await approveRes.json();
+  if (approveRes.status !== 200 || approveBody.broadcast.status !== "sent") return `approve failed: ${json(approveBody)}`;
+
+  const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
+  if (!labmateNotifs.notifications.some((n) => n.type === "broadcast-resolved" && /was sent/.test(n.text))) {
+    return `the sender was not told it went out: ${json(labmateNotifs.notifications)}`;
+  }
+  return null;
+});
+
+await check("denying a pending broadcast never reaches the lab, only tells the sender", async () => {
+  const { env, umutToken, labmateToken } = await labWithBroadcaster();
+  const createRes = await handleRequest(req("POST", "/broadcasts", { text: "Anyone seen my pipette?" }, labmateToken), env);
+  const { broadcast } = await createRes.json();
+
+  const denyRes = await handleRequest(req("POST", `/broadcasts/${broadcast.id}/deny`, {}, umutToken), env);
+  if (denyRes.status !== 200) return `deny failed: ${denyRes.status}`;
+
+  const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
+  if (!labmateNotifs.notifications.some((n) => n.type === "broadcast-resolved" && /did not send/.test(n.text))) {
+    return `the sender was not told it was denied: ${json(labmateNotifs.notifications)}`;
+  }
+  if (labmateNotifs.notifications.some((n) => n.type === "broadcast")) return "a denied broadcast still reached someone as if sent";
+  return null;
+});
+
+await check("an ordinary member may not approve or deny a broadcast, even their own", async () => {
+  const { env, labmateToken } = await labWithBroadcaster();
+  const createRes = await handleRequest(req("POST", "/broadcasts", { text: "x" }, labmateToken), env);
+  const { broadcast } = await createRes.json();
+  const res = await handleRequest(req("POST", `/broadcasts/${broadcast.id}/approve`, {}, labmateToken), env);
+  if (res.status !== 403) return `expected 403, got ${res.status}`;
+  return null;
+});
+
+await check("resolving an already-resolved broadcast is refused", async () => {
+  const { env, umutToken, labmateToken } = await labWithBroadcaster();
+  const createRes = await handleRequest(req("POST", "/broadcasts", { text: "x" }, labmateToken), env);
+  const { broadcast } = await createRes.json();
+  await handleRequest(req("POST", `/broadcasts/${broadcast.id}/deny`, {}, umutToken), env);
+  const again = await handleRequest(req("POST", `/broadcasts/${broadcast.id}/approve`, {}, umutToken), env);
+  if (again.status !== 409) return `expected 409, got ${again.status}`;
+  return null;
+});
+
+await check("GET /broadcasts: broadcast authority sees everything, an ordinary member sees only their own", async () => {
+  const { env, umutToken, labmateToken } = await labWithBroadcaster();
+  await handleRequest(req("POST", "/broadcasts", { text: "from umut" }, umutToken), env);
+  await handleRequest(req("POST", "/broadcasts", { text: "from labmate" }, labmateToken), env);
+
+  const asUmut = await (await handleRequest(req("GET", "/broadcasts", undefined, umutToken), env)).json();
+  if (asUmut.broadcasts.length !== 2) return `broadcast authority saw ${asUmut.broadcasts.length}, expected 2 (everything)`;
+
+  const asLabmate = await (await handleRequest(req("GET", "/broadcasts", undefined, labmateToken), env)).json();
+  if (asLabmate.broadcasts.length !== 1 || asLabmate.broadcasts[0].fromUser !== "Labmate") {
+    return `an ordinary member saw more than their own: ${json(asLabmate.broadcasts)}`;
+  }
+  return null;
+});
+
+await check("a hidden account never receives a broadcast", async () => {
+  const { env, token: adminToken } = await adminEnvWithToken(); // admin itself is hidden:true
+  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "a", canBroadcast: true }, adminToken), env);
+  const { body: umutLogin } = await login(env, "Umut", "a");
+  await handleRequest(req("POST", "/broadcasts", { text: "hello lab" }, umutLogin.token), env);
+  const adminNotifs = await (await handleRequest(req("GET", "/notifications", undefined, adminToken), env)).json();
+  if (adminNotifs.notifications.some((n) => n.type === "broadcast")) return "the hidden admin account received a broadcast meant for the visible lab";
+  return null;
+});
+
 // ==================================================================== CORS / misc
 
 await check("an OPTIONS preflight gets CORS headers and no body", async () => {

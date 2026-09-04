@@ -429,6 +429,7 @@ Screen**.
 | `cellstocks/cell-stocks.xlsx` | **Generated.** Rewritten from the JSON on every save and committed with it. Never edit by hand — the next save overwrites it. |
 | `protocols/cryopreservation.md` | How long a −80 vial is good for, and what has to be recorded about one, with sources. |
 | `.github/workflows/cellstocks.yml` | Runs the self-test on every change, and checks the workbook still matches the inventory. |
+| `cellstocks-worker/` | The lab-wide, multi-user backend — a small Cloudflare Worker that privately holds the one GitHub write token and is the only thing that can commit a write, so it is the only thing that can enforce who owns what. See `cellstocks-worker/README.md`. |
 
 ### Finding a vial
 

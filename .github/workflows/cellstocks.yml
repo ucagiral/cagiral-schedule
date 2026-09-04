@@ -21,12 +21,16 @@ on:
     branches: [main]
     paths:
       - cellstocks/**
+      - cellstocks-worker/**
       - tools/cellstocks-selftest.mjs
+      - tools/cellstocks-worker-selftest.mjs
       - .github/workflows/cellstocks.yml
   pull_request:
     paths:
       - cellstocks/**
+      - cellstocks-worker/**
       - tools/cellstocks-selftest.mjs
+      - tools/cellstocks-worker-selftest.mjs
       - .github/workflows/cellstocks.yml
   workflow_dispatch:
 
@@ -53,6 +57,11 @@ jobs:
 
       - name: Self-test
         run: node tools/cellstocks-selftest.mjs
+
+      # The worker is plain fetch/Request/Response/crypto.subtle, no build step, so it runs
+      # in node exactly like the browser-side engine above -- see cellstocks-worker/README.md.
+      - name: Worker self-test
+        run: node tools/cellstocks-worker-selftest.mjs
 
       # The inventory is the app's source of truth and the workbook is generated
       # from it. If the two ever disagree, the sheet somebody downloads is wrong,

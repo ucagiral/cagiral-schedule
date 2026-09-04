@@ -339,6 +339,7 @@
   <section class="screen" id="s-settings">
     <h2>Settings</h2>
     <div class="card" id="connectCard"></div>
+    <div class="card" id="notificationsCard"></div>
     <div class="card" id="storageCard"></div>
     <div class="card" id="rulesCard"></div>
     <div class="card" id="importCard"></div>
@@ -444,6 +445,7 @@
       localStorage.setItem(LS.workerToken, body.token);
       localStorage.setItem(LS.workerUser, JSON.stringify(body.user));
     } catch(e){}
+    notifications = null; // a fresh login re-fetches rather than showing a stale list
   }
 
   async function workerLogout(){
@@ -452,6 +454,7 @@
       try { await workerFetch("/logout", { method:"POST", headers:{ Authorization:"Bearer " + token } }); } catch(e){}
     }
     try { localStorage.removeItem(LS.workerToken); localStorage.removeItem(LS.workerUser); } catch(e){}
+    notifications = null;
   }
 
   async function workerCommit(files, message){
@@ -979,14 +982,14 @@
     if (vial.frozenOn) bits.push("frozen " + prettyDate(vial.frozenOn));
     else if (vial.frozenRaw) bits.push("date unconfirmed (" + vial.frozenRaw + ")");
     else bits.push("no date");
+    if (vial.reservedFor) bits.push("reserved for " + vial.reservedFor);
     return bits.join(" · ");
   }
 
   // `owner` is set only for a "search in lab" hit: { name, state } for the lab-mate
-  // whose inventory this came from. Their vial is real, but nothing about it is ours to
-  // act on yet -- no ownership-request flow exists to ask them for it (see the plan
-  // this shipped from), so a lab result is read-only: no Took it, no Edit, no Show in
-  // box (that screen reads the boxView against this account's own `state`, not theirs).
+  // whose inventory this came from. Their vial is real, but this account cannot edit it,
+  // take it out, or show it in a box screen that renders against this account's own
+  // boxView -- the one thing it CAN do is ask, via requestDialog() below.
   function resultCard(r, owner){
     var v = r.vial;
     var card = el("div", "res" + (v.status === "withdrawn" ? " gone" : ""));
@@ -1033,9 +1036,54 @@
       ed.disabled = !canWrite();
       ed.onclick = function(){ editVial(v); };
       row.appendChild(ed);
+    } else if (v.status !== "withdrawn" && owner){
+      if (requestedThisSession[v.id]){
+        card.appendChild(el("p", "note", "Request sent."));
+      } else {
+        var reqBtn = el("button", "primary", "Request this");
+        reqBtn.onclick = function(){ requestDialog(v, owner); };
+        row.appendChild(reqBtn);
+      }
     }
     if (row.childNodes.length) card.appendChild(row);
     return card;
+  }
+
+  // Vial ids this device has already sent a request for this session, so re-rendering
+  // results (every keystroke) doesn't invite sending the same request twice. Not
+  // persisted -- GET /requests (once the notification center reads it) is the real
+  // record of what's pending, this is only to stop an accidental double-click.
+  var requestedThisSession = {};
+
+  function requestDialog(vial, owner){
+    $("dlgTitle").textContent = "Ask " + owner.name + " about " + vial.name;
+    var body = clear($("dlgBody"));
+    body.appendChild(el("p", "note",
+      "The vial stays in " + owner.name + "'s freezer until they hand it over — this just lets them know you're after it."));
+    var note = document.createElement("textarea");
+    note.rows = 3;
+    note.placeholder = "Add a note (optional) — what it's for, when you need it…";
+    body.appendChild(note);
+    var foot = clear($("dlgFoot"));
+    var send = el("button", "primary", "Send request");
+    send.onclick = async function(){
+      send.disabled = true;
+      try {
+        await workerFetch("/requests", {
+          method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() },
+          body: JSON.stringify({ toUser: owner.name, itemName: vial.name, vialId: vial.id, note: note.value.trim() })
+        });
+        requestedThisSession[vial.id] = true;
+        $("dlg").close();
+        renderResults();
+        showBanner("Asked " + esc(owner.name) + " about <b>" + esc(vial.name) + "</b>.");
+      } catch(err){
+        showBanner("Couldn't send that request: " + esc(err.message));
+      }
+      send.disabled = false;
+    };
+    foot.appendChild(send);
+    $("dlg").showModal();
   }
 
   function renderResults(){
@@ -1818,7 +1866,87 @@
   // Settings
   // =====================================================================
 
+  // Fetched fresh every time Settings is opened (not cached like ensureLabCache() --
+  // approving or denying changes this list, so a stale copy would show a request as
+  // still-pending after acting on it). Renders synchronously with whatever it already
+  // has, then re-renders once the fetch resolves.
+  var notifications = null;
+  function renderNotifications(){
+    var wu = getWorkerUser();
+    var n = clear($("notificationsCard"));
+    if (!wu) return;
+    n.appendChild(el("h3", null, "Notifications"));
+    if (notifications === null){
+      n.appendChild(el("p", "note", "Checking…"));
+      workerFetch("/notifications", { headers:{ Authorization:"Bearer " + getWorkerToken() } })
+        .then(function(body){ notifications = body.notifications || []; renderNotifications(); })
+        .catch(function(){ notifications = []; renderNotifications(); });
+      return;
+    }
+    if (!notifications.length){
+      n.appendChild(el("p", "note", "Nothing yet."));
+      return;
+    }
+    notifications.forEach(function(note){
+      var item = el("div", "item");
+      var grow = el("div", "grow");
+      grow.appendChild(el("div", null, note.text));
+      grow.appendChild(el("div", "sub", prettyDate(note.createdAt.slice(0, 10))));
+      item.appendChild(grow);
+      if (note.type === "request" && !note.read){
+        var approve = el("button", "primary", "Approve");
+        approve.onclick = function(){ resolveRequestNotification(note, "approve"); };
+        item.appendChild(approve);
+        var deny = el("button", "danger", "Deny");
+        deny.onclick = function(){ resolveRequestNotification(note, "deny"); };
+        item.appendChild(deny);
+      } else if (!note.read){
+        var ok = el("button", null, "OK");
+        ok.onclick = function(){ markNotificationRead(note); };
+        item.appendChild(ok);
+      }
+      n.appendChild(item);
+    });
+  }
+
+  async function markNotificationRead(note){
+    try {
+      await workerFetch("/notifications/" + note.id + "/read", {
+        method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() }
+      });
+    } catch(err){ /* not fatal -- it'll just show again next time Settings opens */ }
+    notifications = (notifications || []).map(function(x){ return x.id === note.id ? Object.assign({}, x, { read:true }) : x; });
+    renderNotifications();
+  }
+
+  // Approving marks the app's OWN vial "reserved for" the requester and saves it
+  // normally (an ordinary edit through the usual markDirty()/save() path) -- the vial
+  // never moves, physically or in the data, per Umut's answer on this (see
+  // cellstocks-worker/README.md). The Worker only ever sees the request/notification
+  // bookkeeping, never the vial itself.
+  async function resolveRequestNotification(note, decision){
+    try {
+      await workerFetch("/requests/" + note.requestId + "/" + decision, {
+        method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() }
+      });
+    } catch(err){
+      showBanner("Couldn't " + decision + " that request: " + esc(err.message));
+      return;
+    }
+    if (decision === "approve" && note.vialId){
+      var vial = E.indexById(state.vials)[note.vialId];
+      if (vial){
+        vial.reservedFor = note.fromUser;
+        markDirty("Reserve " + vial.name + " for " + note.fromUser);
+      }
+    }
+    await markNotificationRead(note);
+    renderAll();
+  }
+
   function renderSettings(){
+    renderNotifications();
+
     // ---- connect ----
     var c = clear($("connectCard"));
     c.appendChild(el("h3", null, "Connect"));

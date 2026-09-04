@@ -188,6 +188,23 @@ try {
   // save() and the login/logout calls are meant to talk to it.
   check("reads never go through the worker -- only /login calls happened", workerCalls.every((c) => c.path === "/login"), JSON.stringify(workerCalls));
 
+  // ---- onboarding banner for a fresh account ----
+  // The stubbed cellstocks/data/umut.json is an empty inventory (no units, no vials),
+  // same as a brand new account looks once logged in -- the banner should offer to
+  // import right away rather than leaving an unexplained empty freezer on screen.
+  await page.waitForFunction(() => document.querySelector(".banner") &&
+    /nothing imported yet/i.test(document.querySelector(".banner").textContent));
+  const onboardBanner = await page.evaluate(() => document.querySelector(".banner").textContent);
+  check("a fresh account is welcomed by name", /Welcome, Umut/.test(onboardBanner), onboardBanner);
+
+  const [chooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    page.click(".banner button")
+  ]);
+  check("the banner's action opens a real file picker", !!chooser);
+  const onSettingsNow = await page.evaluate(() => document.getElementById("s-settings").classList.contains("active"));
+  check("clicking the onboarding action navigates to Settings", onSettingsNow);
+
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
   const afterLogout = await page.evaluate(() => ({

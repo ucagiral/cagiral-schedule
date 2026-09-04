@@ -1,0 +1,20 @@
+# Cloudflare Worker config for the Cell Stocks backend. See README.md in this directory for
+# the one-time setup (KV namespace, secrets, first deploy).
+#
+# Nothing in this file is secret. GITHUB_TOKEN and BOOTSTRAP_SECRET are set with
+# `wrangler secret put`, which stores them on Cloudflare, not here.
+
+name = "cellstocks-worker"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+# `wrangler kv namespace create CST_KV` prints the id to put here.
+kv_namespaces = [
+  { binding = "CST_KV", id = "REPLACE_WITH_KV_NAMESPACE_ID" }
+]
+
+[vars]
+GITHUB_OWNER = "ucagiral"
+GITHUB_REPO = "cagiral-schedule"
+GITHUB_BRANCH = "main"
+ALLOWED_ORIGIN = "https://ucagiral.github.io"

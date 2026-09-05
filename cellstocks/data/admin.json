@@ -8,6 +8,10 @@
   "rules": {
     "origin": [
       {
+        "match": "Du",
+        "value": "Du145"
+      },
+      {
         "match": "HEK",
         "value": "HEK293T"
       },
@@ -114,6 +118,6 @@
   },
   "_meta": {
     "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T01:59:48.074Z"
+    "savedAt": "2026-09-05T07:00:47.131Z"
   }
 }

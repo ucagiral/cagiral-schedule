@@ -1138,6 +1138,87 @@ check("applyPlacement writes a non-default kind and customFacets, but never the 
   return null;
 });
 
+// ---- import: a cell naming more than one physical vial ("A4 & A5") ----
+
+check("splitPositions splits on &, commas, and/ve, and same-row hyphen ranges", () => {
+  if (json(E.splitPositions("A4 & A5")) !== json(["A4", "A5"])) return `"A4 & A5" -> ${json(E.splitPositions("A4 & A5"))}`;
+  if (json(E.splitPositions("A8, B1")) !== json(["A8", "B1"])) return `"A8, B1" -> ${json(E.splitPositions("A8, B1"))}`;
+  if (json(E.splitPositions("A4 and A5")) !== json(["A4", "A5"])) return `"A4 and A5" -> ${json(E.splitPositions("A4 and A5"))}`;
+  if (json(E.splitPositions("A4 ve A5")) !== json(["A4", "A5"])) return `"A4 ve A5" -> ${json(E.splitPositions("A4 ve A5"))}`;
+  if (json(E.splitPositions("A4-A6")) !== json(["A4", "A5", "A6"])) return `"A4-A6" -> ${json(E.splitPositions("A4-A6"))}`;
+  if (json(E.splitPositions("A2")) !== json(["A2"])) return `a single position must come back unchanged: ${json(E.splitPositions("A2"))}`;
+  if (json(E.splitPositions("")) !== json([])) return "blank text must split to nothing";
+  return null;
+});
+
+check("a multi-position row becomes one vial per slot", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name")],
+    [cell("A4 & A5"), cell("HEK293T p12")],
+    [cell("A8, B1"), cell("Du145 WT")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  if (out.state.vials.length !== 4) return `expected 4 vials from 2 rows, got ${out.state.vials.length}`;
+  if (out.state.vials.some((v) => v.importAmbiguous)) return "a clean multi-position row must not be queued for review";
+  const positions = out.state.vials.map((v) => v.location && v.location.position).sort();
+  if (json(positions) !== json(["A4", "A5", "A8", "B1"])) return `unexpected positions: ${json(positions)}`;
+  const names = out.state.vials.map((v) => v.name).sort();
+  if (json(names) !== json(["Du145 WT", "Du145 WT", "HEK293T p12", "HEK293T p12"])) return `unexpected names: ${json(names)}`;
+  return null;
+});
+
+check("a multi-position row falls back to review if a piece collides or doesn't parse", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name")],
+    [cell("A1"), cell("Line one")],
+    [cell("A1 & A2"), cell("Line two")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  const collided = out.state.vials.find((v) => v.name === "Line two");
+  if (!collided) return "the colliding row must still surface, not vanish";
+  return null;
+});
+
+check("a Unit column fans rows out into separate storage units", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Place in lab"), cell("Place in the Box"), cell("box name"), cell("Cell Name")],
+    [cell("Liquid nitrogen"), cell("A2"), cell("PINK"), cell("HEK293T p12")],
+    [cell("-80 freezer"), cell("A1"), cell("BLUE"), cell("Du145 WT")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const g = E.guessColumns(rows, 0);
+  const byIndex = {};
+  g.forEach((x) => { byIndex[x.index] = x.role; });
+  if (byIndex[0] !== "unit") return `"Place in lab" guessed as ${json(byIndex[0])}`;
+  if (byIndex[1] !== "position") return `"Place in the Box" guessed as ${json(byIndex[1])}`;
+  if (byIndex[2] !== "box") return `"box name" guessed as ${json(byIndex[2])}`;
+
+  const out = E.importSheet(sheet, { columns: { unit: 0, position: 1, box: 2, name: 3 }, headerRow: 1 });
+  if (out.state.storage.units.length !== 2) return `expected 2 units, got ${out.state.storage.units.length}`;
+  const names = out.state.storage.units.map((u) => u.name).sort();
+  if (json(names) !== json(["-80 freezer", "Liquid nitrogen"])) return `unexpected unit names: ${json(names)}`;
+  return null;
+});
+
+check("an unrecognized column mapped to \"New\" becomes a real field, not notes text", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name"), cell("myco")],
+    [cell("A1"), cell("HEK293T p12"), cell("negative")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1, customColumns: { 2: "Myco status" } });
+  const v = out.state.vials[0];
+  if (!v.custom || v.custom["Myco status"] !== "negative") return `expected a custom field, got ${json(v.custom)}`;
+  if (v.notes) return `a custom column must not be folded into notes: ${json(v.notes)}`;
+  return null;
+});
+
 // ---- import: a row nobody could place goes to Review, never guessed or dropped ----
 
 check("a row with no name is queued for review instead of dropped or guessed", () => {
@@ -1210,6 +1291,49 @@ check("resolveImportRow refuses a slot that is already taken", () => {
   const boxId = imported.storage.units[0].racks[0].boxes[0].id;
   const res = E.resolveImportRow(imported, ambiguous.id, { name: "Another Line", boxId: boxId, position: "A1" });
   if (res.ok) return "expected the already-taken slot to be refused";
+  return null;
+});
+
+// ---- Review's "Unknown" date: passage's "p?" for a date ----
+
+check("markDateUnknown records a permanent answer, and reviewQueue stops asking", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Position"), cell("Cell Name")], [cell("A1"), cell("HEK293T p12")]];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
+  if (E.reviewQueue(imported).dates.length !== 1) return "expected the dateless vial to start in Review";
+  const res = E.markDateUnknown(imported, imported.vials[0].id);
+  if (!res.ok) return `markDateUnknown failed: ${res.reason}`;
+  if (!res.vial.dateUnknown) return "expected dateUnknown to be set";
+  if (res.vial.frozenOn) return "Unknown is not a date -- frozenOn must stay unset";
+  if (E.reviewQueue(res.state).dates.length !== 0) return "a vial marked Unknown must not keep reappearing in Review";
+  return null;
+});
+
+check("confirmDate clears a prior Unknown mark", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Position"), cell("Cell Name")], [cell("A1"), cell("HEK293T p12")]];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
+  const marked = E.markDateUnknown(imported, imported.vials[0].id).state;
+  const res = E.confirmDate(marked, imported.vials[0].id, "2026-01-05");
+  if (!res.ok) return `confirmDate failed: ${res.reason}`;
+  if (res.vial.dateUnknown) return "confirming a real date must clear the Unknown mark";
+  if (res.vial.frozenOn !== "2026-01-05") return `expected frozenOn 2026-01-05, got ${json(res.vial.frozenOn)}`;
+  return null;
+});
+
+check("a blank Add-screen date defaults to today, never to Review", () => {
+  const box = { id: "b1", name: "Box 1", rows: 9, cols: 9, scheme: "grid" };
+  const state = { storage: { units: [{ id: "u1", name: "Freezer", racks: [{ id: "r1", name: "Rack 1", boxes: [box] }] }] },
+                  lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
+  const plan = E.suggestPlacement(state, { name: "HEK293T p12", count: 1 });
+  if (!plan.ok) return "expected a plan into an empty box";
+  const out = E.applyPlacement(state, plan, { name: "HEK293T p12", passage: "p12", frozenOn: "" },
+    { ids: ["v1"], now: "2026-09-05T12:00:00.000Z", by: "test" });
+  const v = out.vials[0];
+  if (v.frozenOn !== "2026-09-05") return `expected today's date, got ${json(v.frozenOn)}`;
+  if (E.reviewQueue(out.state).dates.length !== 0) return "a live Add with a blank date must not be queued for review";
   return null;
 });
 

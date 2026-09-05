@@ -94,6 +94,25 @@
     return { index: r * cols + c, row: r, col: c, label: rowLabel(r) + String(c + 1) };
   }
 
+  // A single cell can name more than one slot -- "A4 & A5", "A8, B1", "A4-A6" -- when a
+  // freeze-down landed in several physical vials at once under one row. Splits on the
+  // usual separators plus a same-row hyphen range; returns [] for blank input and
+  // [text] unchanged when there is nothing to split (the common case).
+  function splitPositions(text) {
+    var s = String(text || "").trim();
+    if (!s) return [];
+    var rangeMatch = /^([A-Za-z]+)\s*(\d+)\s*-\s*([A-Za-z]+)\s*(\d+)$/.exec(s);
+    if (rangeMatch && rangeMatch[1].toUpperCase() === rangeMatch[3].toUpperCase()) {
+      var letter = rangeMatch[1], from = Number(rangeMatch[2]), to = Number(rangeMatch[4]);
+      if (to >= from && to - from < 100) {
+        var out = [];
+        for (var n = from; n <= to; n++) out.push(letter + n);
+        return out;
+      }
+    }
+    return s.split(/\s*(?:&|,|\band\b|\bve\b)\s*/i).map(function (p) { return p.trim(); }).filter(Boolean);
+  }
+
   function allPositions(box) {
     var out = [], n = capacity(box);
     for (var i = 0; i < n; i++) out.push(positionLabel(box, i));
@@ -1114,13 +1133,18 @@
         var id = ids[n] !== undefined ? ids[n] : ("v-" + seg.boxId + "-" + position);
         n++;
         var passage = parsePassage(template.passage);
-        var date = template.frozenOn ? parseDate(template.frozenOn) : parseDate("");
+        // A live Add, unlike an old imported row, has a date that is knowable right
+        // now -- so a field left blank here defaults to today (ctx.now, never
+        // generated inside this function -- see the comment above) rather than
+        // going to Review the way an ambiguous imported date does.
+        var frozenInput = template.frozenOn || (c.now ? String(c.now).slice(0, 10) : "");
+        var date = frozenInput ? parseDate(frozenInput) : parseDate("");
         var vial = {
           id: id,
           name: template.name || "",
           lineId: template.lineId || lineIdFor(template.name, rules),
           passage: passage.raw, passageNumber: passage.number, passageKind: passage.kind,
-          frozenRaw: template.frozenOn || "",
+          frozenRaw: frozenInput,
           frozenOn: date.iso,
           notes: template.notes || "",
           flags: flagsFrom(template.notes || "", customFlags),
@@ -1358,7 +1382,7 @@
   // ambiguous dates and changed facets come back as queues.
   // =====================================================================
 
-  var ROLES = ["box", "position", "name", "passage", "date", "notes",
+  var ROLES = ["box", "unit", "position", "name", "passage", "date", "notes",
                "origin", "koox", "resistance", "caspex", "guide", "ignore"];
 
   // Guess what each column is, from its header and its content. The mapping screen
@@ -1367,6 +1391,12 @@
     var header = rows[headerRowIndex || 0] || [];
     var guesses = [];
     var byHeader = [
+      // Checked before "name" below: a header like "box name" or "box" must win the
+      // box role even though it also contains the word "name". Anchored to the whole
+      // header (rather than a bare /box/i substring) so a phrase like "Place in the
+      // Box" -- Neslihan's real header for the POSITION column -- does not match here;
+      // that one is caught by the "position" pattern further down instead.
+      [/^\s*(box\s*(name|no\.?|number|id)?|kutu|rack)\s*$/i, "box"],
       [/cell\s*name|name|hucre|hücre/i, "name"],
       [/passage|pasaj/i, "passage"],
       [/date|tarih/i, "date"],
@@ -1376,8 +1406,11 @@
       [/caspex/i, "caspex"],
       [/guide|grna|sgrna/i, "guide"],
       [/note|not/i, "notes"],
-      [/position|pos|slot|yer/i, "position"],
-      [/box|kutu|rack/i, "box"]
+      // "Place in the Box" is a real header on Neslihan's sheet for the POSITION column
+      // (values like "A2", "A4 & A5") -- caught here rather than falling through to the
+      // anchored "box" pattern above, which it does not match.
+      [/position|pos|slot|yer|place\s*in\s*(the\s*)?box/i, "position"],
+      [/place\s*in\s*(the\s*)?lab|freezer|nitrogen|tank|unit|dolap/i, "unit"]
     ];
     var width = rows.reduce(function (m, r) { return Math.max(m, (r || []).length); }, 0);
     var mergedColumns = {};
@@ -1404,7 +1437,10 @@
           var t = cell && cell.text ? String(cell.text).trim() : "";
           if (!t) continue;
           seen++;
-          if (/^[A-Za-z]+\s*\d+$/.test(t)) looksPosition++;
+          // A cell naming more than one slot ("A4 & A5") still looks like a position
+          // column, as long as every piece does.
+          var parts = splitPositions(t);
+          if (parts.length && parts.every(function (p) { return /^[A-Za-z]+\s*\d+$/.test(p); })) looksPosition++;
         }
         if (seen && looksPosition / seen > 0.8) role = "position";
       }
@@ -1482,10 +1518,26 @@
     var blocks = boxCol === null ? [{ label: o.boxName || "Box 1", startRow: headerRow + 1, endRow: rows.length }]
                                  : blocksFrom(rows, sheet.merges, boxCol, headerRow + 1);
 
-    var unitId = o.unitId || "u-f80";
+    var defaultUnitId = o.unitId || "u-f80";
+    var defaultUnitName = o.unitName || "-80 °C Freezer";
     var rackId = o.rackId || "r-1";
-    var boxes = [], vials = [];
+    var vials = [];
     var seen = {};
+    // When the sheet has its own "Place in lab" / unit column, rows fan out into
+    // however many units it names instead of the single default unit -- one rack
+    // per unit, same as before. Keyed by unit name so repeated blocks of the same
+    // unit share one entry.
+    var unitsByName = {};
+    function unitFor(name) {
+      var key = name || defaultUnitName;
+      if (unitsByName[key]) return unitsByName[key];
+      var id = key === defaultUnitName ? defaultUnitId :
+        "u-" + String(key).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      if (!id || id === "u-") id = "u-" + (Object.keys(unitsByName).length + 1);
+      var entry = { id: id, name: key, boxes: [] };
+      unitsByName[key] = entry;
+      return entry;
+    }
 
     blocks.forEach(function (block, bi) {
       var label = block.label || (o.unnamedBoxName || ("Box " + (bi + 1)));
@@ -1495,14 +1547,24 @@
       while (seen[boxId]) { boxId = base + "-" + n; n++; }
       seen[boxId] = true;
 
+      var unitName = defaultUnitName;
+      if (map.unit !== undefined && map.unit !== null) {
+        for (var ur = block.startRow; ur <= block.endRow; ur++) {
+          var ucell = (rows[ur - 1] || [])[map.unit];
+          var ut = ucell && ucell.text ? String(ucell.text).trim() : "";
+          if (ut) { unitName = ut; break; }
+        }
+      }
+      var unit = unitFor(unitName);
+
       var positions = [];
       for (var r = block.startRow; r <= block.endRow; r++) {
         var cell = (rows[r - 1] || [])[map.position];
-        if (cell && cell.text) positions.push(cell.text);
+        if (cell && cell.text) positions.push.apply(positions, splitPositions(cell.text));
       }
       var grid = gridFromPositions(positions) || { rows: o.defaultRows || 9, cols: o.defaultCols || 9, scheme: "grid" };
       var box = { id: boxId, name: label, rows: grid.rows, cols: grid.cols, scheme: grid.scheme, note: "", archived: false };
-      boxes.push(box);
+      unit.boxes.push(box);
       report.boxes.push({ id: boxId, name: label, rows: grid.rows, cols: grid.cols, slots: block.endRow - block.startRow + 1 });
 
       var takenHere = {};
@@ -1537,23 +1599,43 @@
           continue;
         }
 
-        var p = parsePosition(box, positionText);
-        if (!p) {
-          report.skipped.push({ row: rr, name: name, why: "position \"" + positionText + "\" is not inside " + label });
-          vials.push({
-            id: o.idPrefix ? (o.idPrefix + "-" + rr) : ("v-" + rr),
-            name: name, status: "stored", location: null, importAmbiguous: true,
-            importRaw: { row: rr, name: name, position: positionText, box: label },
-            importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
+        // A row can name more than one slot ("A4 & A5") when a freeze-down landed in
+        // several physical vials at once -- that becomes one vial per slot, sharing
+        // everything else about the row. Fall back to today's single-position path
+        // (and its ambiguous/collision handling) unless every piece parses cleanly
+        // and none of them collide with each other or with an earlier row.
+        var pieces = splitPositions(positionText);
+        var parsed = null;
+        if (pieces.length > 1) {
+          var candidates = [], seenHere = {}, allOk = true;
+          pieces.forEach(function (piece) {
+            var pp = parsePosition(box, piece);
+            if (!pp || seenHere[pp.index] || takenHere[pp.index]) { allOk = false; return; }
+            seenHere[pp.index] = true;
+            candidates.push(pp);
           });
-          report.imported++;
-          continue;
+          if (allOk) parsed = candidates;
         }
-        if (takenHere[p.index]) {
-          report.collisions.push({ row: rr, name: name, position: p.label, box: label, alsoRow: takenHere[p.index] });
-          continue;
+        if (!parsed) {
+          var single = parsePosition(box, positionText);
+          if (!single) {
+            report.skipped.push({ row: rr, name: name, why: "position \"" + positionText + "\" is not inside " + label });
+            vials.push({
+              id: o.idPrefix ? (o.idPrefix + "-" + rr) : ("v-" + rr),
+              name: name, status: "stored", location: null, importAmbiguous: true,
+              importRaw: { row: rr, name: name, position: positionText, box: label },
+              importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
+            });
+            report.imported++;
+            continue;
+          }
+          if (takenHere[single.index]) {
+            report.collisions.push({ row: rr, name: name, position: single.label, box: label, alsoRow: takenHere[single.index] });
+            continue;
+          }
+          parsed = [single];
         }
-        takenHere[p.index] = rr;
+        parsed.forEach(function (p) { takenHere[p.index] = rr; });
 
         var passage = parsePassage(cellText("passage"));
         var dateRaw = cellText("date");
@@ -1569,26 +1651,45 @@
           if (t && t !== "#N/A" && t !== "-") fromSheet[facet] = t;
         });
 
-        var vial = {
-          id: o.idPrefix ? (o.idPrefix + "-" + rr) : ("v-" + rr),
-          name: name,
-          lineId: lineIdFor(name, rules),
-          passage: passage.raw, passageNumber: passage.number, passageKind: passage.kind,
-          frozenRaw: dateRaw,
-          frozenOn: date.iso,
-          notes: notes,
-          flags: flagsFrom(notes, customFlags),
-          location: { unitId: unitId, rackId: rackId, boxId: boxId, position: p.label },
-          status: "stored",
-          importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
-        };
-        // Nothing else is stored about an ambiguous date: frozenRaw is kept, frozenOn
-        // is left null, and everything else (the proposal, the as-written reading,
-        // why it is ambiguous) comes back from parseDate whenever it is needed.
-        // A field that can be recomputed is a field that can go stale.
-        if (Object.keys(fromSheet).length) vial.facetsFromSheet = fromSheet;
-        vials.push(vial);
-        report.imported++;
+        // A column the guesser (and the person mapping it) couldn't place under any
+        // known role still isn't lost -- it becomes a real, named field on the vial
+        // instead of being appended into notes, per colIndex -> fieldName in
+        // o.customColumns. "#N/A"/"-" are excluded the same as the facet columns above.
+        var custom = null;
+        if (o.customColumns) {
+          Object.keys(o.customColumns).forEach(function (colIndex) {
+            var c2 = row[colIndex];
+            var t = c2 && c2.text !== null && c2.text !== undefined ? String(c2.text).trim() : "";
+            if (t && t !== "#N/A" && t !== "-") {
+              if (!custom) custom = {};
+              custom[o.customColumns[colIndex]] = t;
+            }
+          });
+        }
+
+        parsed.forEach(function (p, pi) {
+          var vial = {
+            id: o.idPrefix ? (o.idPrefix + "-" + rr + (pi ? "-" + (pi + 1) : "")) : ("v-" + rr + (pi ? "-" + (pi + 1) : "")),
+            name: name,
+            lineId: lineIdFor(name, rules),
+            passage: passage.raw, passageNumber: passage.number, passageKind: passage.kind,
+            frozenRaw: dateRaw,
+            frozenOn: date.iso,
+            notes: notes,
+            flags: flagsFrom(notes, customFlags),
+            location: { unitId: unit.id, rackId: rackId, boxId: boxId, position: p.label },
+            status: "stored",
+            importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
+          };
+          // Nothing else is stored about an ambiguous date: frozenRaw is kept, frozenOn
+          // is left null, and everything else (the proposal, the as-written reading,
+          // why it is ambiguous) comes back from parseDate whenever it is needed.
+          // A field that can be recomputed is a field that can go stale.
+          if (Object.keys(fromSheet).length) vial.facetsFromSheet = fromSheet;
+          if (custom) vial.custom = clone(custom);
+          vials.push(vial);
+          report.imported++;
+        });
       }
     });
 
@@ -1612,13 +1713,17 @@
       });
     });
 
+    var units = Object.keys(unitsByName).map(function (key) {
+      var u = unitsByName[key];
+      return { id: u.id, name: u.name, type: o.unitType || "freezer", childLabel: o.childLabel || "Rack",
+               racks: [{ id: rackId, name: o.rackName || "Rack 1", boxes: u.boxes }] };
+    });
+
     var state = {
-      storage: { units: [{ id: unitId, name: o.unitName || "-80 °C Freezer", type: o.unitType || "freezer",
-                           childLabel: o.childLabel || "Rack",
-                           racks: [{ id: rackId, name: o.rackName || "Rack 1", boxes: boxes }] }] },
+      storage: { units: units },
       lines: lines, vials: vials, withdrawals: [],
       rules: clone(rules),
-      settings: { defaultUnitId: unitId, placement: { allowSplit: true }, aliases: {} },
+      settings: { defaultUnitId: units[0] ? units[0].id : defaultUnitId, placement: { allowSplit: true }, aliases: {} },
       _meta: { savedBy: null, savedAt: null }
     };
 
@@ -1651,7 +1756,8 @@
         box ? box.unit.name : "", box ? box.rack.name : "", box ? box.box.name : "",
         v.location ? v.location.position : "",
         v.name, v.passage || "", v.passageKind || "",
-        v.frozenOn || "", v.frozenRaw || "", v.frozenOn ? "" : "yes",
+        v.frozenOn || (v.dateUnknown ? "Unknown" : ""), v.frozenRaw || "",
+        v.frozenOn || v.dateUnknown ? "" : "yes",
         f.origin || "", f.koox || "", f.resistance || "", f.caspex || "", f.guide || "",
         (v.flags || []).join(", "), v.notes || "", v.status || "stored", v.id
       ]);
@@ -1786,8 +1892,10 @@
     });
     var dates = (state.vials || []).filter(function (v) {
       // Anything without a confirmed date: the ambiguous ones, the unparseable one,
-      // and the handful that were simply left blank.
-      return v.status !== "withdrawn" && !v.importAmbiguous && !v.frozenOn;
+      // and the handful that were simply left blank. A vial marked dateUnknown has
+      // already been asked about and answered "Unknown" -- a real, stable value (the
+      // date's own equivalent of passage's "p?"), not a thing still waiting.
+      return v.status !== "withdrawn" && !v.importAmbiguous && !v.frozenOn && !v.dateUnknown;
     }).map(function (v) {
       return { vial: v, date: parseDate(v.frozenRaw) };
     });
@@ -1815,6 +1923,19 @@
     var parsed = parseDate(iso);
     if (!parsed.iso) return { ok: false, reason: "\"" + iso + "\" is not a date I can read.", state: state };
     v.frozenOn = parsed.iso;
+    delete v.dateUnknown;
+    return { ok: true, state: next, vial: v };
+  }
+
+  // The date's answer to passage's "p?" -- a deliberate, permanent "nobody knows",
+  // recorded once so Review never asks about this vial's date again. frozenRaw is
+  // left as it was (still shown as the as-written text elsewhere); frozenOn stays
+  // unset, since "Unknown" is not a date.
+  function markDateUnknown(state, vialId) {
+    var next = clone(state);
+    var v = indexById(next.vials)[vialId];
+    if (!v) return { ok: false, reason: "No such vial.", state: state };
+    v.dateUnknown = true;
     return { ok: true, state: next, vial: v };
   }
 
@@ -1852,6 +1973,7 @@
     // geometry
     rowLabel: rowLabel, rowIndexFromLabel: rowIndexFromLabel, capacity: capacity,
     positionLabel: positionLabel, parsePosition: parsePosition, allPositions: allPositions,
+    splitPositions: splitPositions,
     eachBox: eachBox, findBox: findBox, findUnit: findUnit, locationPath: locationPath,
     occupancy: occupancy, freeRuns: freeRuns, unitSummary: unitSummary,
     // classification
@@ -1883,6 +2005,7 @@
     // state
     blankState: blankState, mergeDefaults: mergeDefaults, indexById: indexById,
     slim: slim, serialise: serialise,
-    reviewQueue: reviewQueue, confirmDate: confirmDate, resolveImportRow: resolveImportRow
+    reviewQueue: reviewQueue, confirmDate: confirmDate, markDateUnknown: markDateUnknown,
+    resolveImportRow: resolveImportRow
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -4972,7 +4972,8 @@
         "origin": "LnCap",
         "koox": "CASPEX",
         "caspex": "CASPEX"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-145",
@@ -8927,7 +8928,8 @@
       "facetsFromSheet": {
         "origin": "HEK293T",
         "koox": "WT"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-336",
@@ -8947,7 +8949,8 @@
       "facetsFromSheet": {
         "origin": "HEK293T",
         "koox": "WT"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-337",
@@ -9055,7 +9058,8 @@
       "facetsFromSheet": {
         "origin": "HEK293T",
         "koox": "WT"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-344",
@@ -9836,6 +9840,6 @@
   },
   "_meta": {
     "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T20:15:22.875Z"
+    "savedAt": "2026-09-05T20:16:03.031Z"
   }
 }

@@ -136,31 +136,38 @@ try {
   });
 
   await page.goto(`http://localhost:8797/cellstocks/`);
-  await page.waitForSelector("nav button[data-screen=settings]");
-  await page.click("nav button[data-screen=settings]");
-  await page.waitForSelector("#storageCard");
 
-  // ---- three-way appearance control ----
-  const segButtons = await page.$$eval("#connectCard .seg button", (btns) => btns.map((b) => b.textContent.trim()));
+  // ---- mandatory login gate ----
+  // Nothing about anyone's inventory renders before someone is identified: the gate
+  // covers the whole app shell (nav included) until a login succeeds. See
+  // afterAuthChange() in the app.
+  await page.waitForSelector("#gateBody input");
+  const gateVisible = await page.evaluate(() => getComputedStyle(document.getElementById("authGate")).display !== "none");
+  const navHiddenBeforeLogin = await page.evaluate(() => getComputedStyle(document.querySelector("nav")).display === "none");
+  check("the login gate is shown before anyone logs in", gateVisible);
+  check("the nav (and the rest of the app shell) is hidden behind the gate", navHiddenBeforeLogin);
+
+  // ---- three-way appearance control (lives in the gate before login, in Settings after) ----
+  const segButtons = await page.$$eval("#gateBody .seg button", (btns) => btns.map((b) => b.textContent.trim()));
   check("the appearance control offers System, Light and Dark", JSON.stringify(segButtons) === JSON.stringify(["System", "Light", "Dark"]),
     `got ${JSON.stringify(segButtons)}`);
 
-  const systemIsDefault = await page.$eval("#connectCard .seg button", (b) => b.classList.contains("on"));
+  const systemIsDefault = await page.$eval("#gateBody .seg button", (b) => b.classList.contains("on"));
   check("System is selected by default (no theme forced yet)", systemIsDefault);
 
-  await page.click("#connectCard .seg button:nth-child(2)"); // Light
+  await page.click("#gateBody .seg button:nth-child(2)"); // Light
   let attr = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
   let stored = await page.evaluate(() => localStorage.getItem("cst_theme"));
   check("clicking Light sets data-theme=light and persists it", attr === "light" && stored === "light", `attr=${attr} stored=${stored}`);
 
-  await page.click("#connectCard .seg button:nth-child(3)"); // Dark
+  await page.click("#gateBody .seg button:nth-child(3)"); // Dark
   attr = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
   stored = await page.evaluate(() => localStorage.getItem("cst_theme"));
   check("clicking Dark sets data-theme=dark and persists it", attr === "dark" && stored === "dark", `attr=${attr} stored=${stored}`);
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   check("the dark theme actually changes the rendered background", bg !== "rgb(246, 247, 249)", `background stayed ${bg}`);
 
-  await page.click("#connectCard .seg button:nth-child(1)"); // System
+  await page.click("#gateBody .seg button:nth-child(1)"); // System
   attr = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
   stored = await page.evaluate(() => localStorage.getItem("cst_theme"));
   check("clicking System clears data-theme and the stored override", attr === null && stored === null, `attr=${attr} stored=${stored}`);
@@ -187,7 +194,7 @@ try {
   check("read-only banner shows before logging in (no PAT, no worker session)",
     await page.evaluate(() => document.getElementById("status").textContent) === "Read-only");
 
-  const loginInputs = await page.$$("#connectCard input");
+  const loginInputs = await page.$$("#gateBody input");
   check("the login form has worker URL, name and password fields", loginInputs.length >= 3, `found ${loginInputs.length} inputs`);
   await loginInputs[0].fill("https://fake-worker.example");
   await loginInputs[1].fill("Umut");
@@ -197,8 +204,10 @@ try {
     /wrong name or password/.test(document.querySelector(".banner").textContent));
   const badLoginBanner = await page.evaluate(() => document.querySelector(".banner").textContent);
   check("a wrong password shows the worker's error in the banner", /wrong name or password/.test(badLoginBanner), badLoginBanner);
+  const stillGated = await page.evaluate(() => document.body.classList.contains("gated"));
+  check("a failed login leaves the gate up", stillGated);
 
-  await page.fill("#connectCard input[type=password]", "lab-password");
+  await page.fill("#gateBody input[type=password]", "lab-password");
   await page.click("#workerLoginBtn");
   await page.waitForFunction(() => !!localStorage.getItem("cst_worker_token"));
 
@@ -206,14 +215,14 @@ try {
     token: localStorage.getItem("cst_worker_token"),
     user: JSON.parse(localStorage.getItem("cst_worker_user") || "null"),
     url: localStorage.getItem("cst_worker_url"),
-    status: document.getElementById("status").textContent
+    status: document.getElementById("status").textContent,
+    gated: document.body.classList.contains("gated"),
+    navVisible: getComputedStyle(document.querySelector("nav")).display !== "none"
   }));
   check("logging in stores the session token, user and worker url", afterLogin.token === "fake-session-token" && afterLogin.url === "https://fake-worker.example", JSON.stringify(afterLogin));
   check("logging in identifies the user by name", afterLogin.user && afterLogin.user.name === "Umut", JSON.stringify(afterLogin.user));
   check("the app leaves read-only mode once logged in", afterLogin.status === "Ready", `status was ${afterLogin.status}`);
-
-  const loggedInNote = await page.evaluate(() => document.querySelector("#connectCard p.note").textContent);
-  check("Settings shows who is logged in and through which worker", /Logged in as Umut/.test(loggedInNote) && /fake-worker\.example/.test(loggedInNote), loggedInNote);
+  check("logging in drops the gate and reveals the app shell", !afterLogin.gated && afterLogin.navVisible, JSON.stringify(afterLogin));
 
   // One failed + one successful login attempt so far, plus renderSettings() fetching
   // notifications right after the successful one. The point of this check is that no
@@ -239,6 +248,10 @@ try {
   check("the banner's action opens a real file picker", !!chooser);
   const onSettingsNow = await page.evaluate(() => document.getElementById("s-settings").classList.contains("active"));
   check("clicking the onboarding action navigates to Settings", onSettingsNow);
+
+  await page.waitForSelector("#connectCard p.note");
+  const loggedInNote = await page.evaluate(() => document.querySelector("#connectCard p.note").textContent);
+  check("Settings shows who is logged in and through which worker", /Logged in as Umut/.test(loggedInNote) && /fake-worker\.example/.test(loggedInNote), loggedInNote);
 
   // ---- search in lab (Phase 4a) ----
   await page.click("nav button[data-screen=find]");
@@ -416,9 +429,10 @@ try {
   await page.route("https://fake-worker.example/notifications", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ notifications: [] }) }));
 
-  await page.click("nav button[data-screen=settings]");
-  await page.waitForSelector("#connectCard input");
-  let li = await page.$$("#connectCard input");
+  // The previous block ended logged out, so the mandatory-login gate is up again --
+  // log the next account in straight through the gate, not through Settings.
+  await page.waitForSelector("#gateBody input");
+  let li = await page.$$("#gateBody input");
   await li[0].fill("https://fake-worker.example");
   await li[1].fill("labmate");
   await li[2].fill("anything");
@@ -436,7 +450,10 @@ try {
   await page.click("nav button[data-screen=settings]");
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
-  li = await page.$$("#connectCard input");
+  const gatedAfterLogout = await page.evaluate(() => document.body.classList.contains("gated"));
+  check("logging out re-locks the app behind the gate -- nothing stays on screen unattended", gatedAfterLogout);
+  await page.waitForSelector("#gateBody input");
+  li = await page.$$("#gateBody input");
   await li[0].fill("https://fake-worker.example");
   await li[1].fill("newbie");
   await li[2].fill("anything");

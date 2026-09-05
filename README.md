@@ -413,10 +413,15 @@ rather than as intent. It needs playwright; without it, it says so and exits wit
 - **App:** `https://<account>.github.io/cagiral-schedule/cellstocks/`
 
 A third app, sharing this repository and nothing else — not the data, not the rules, not even the
-browser storage, so it asks for its own GitHub token once per device. It knows what is in the
-−80 °C freezer: type a few words and it says which box and which slot, and when you are freezing
-something new it says where to put it. Install it separately: Safari → Share → **Add to Home
-Screen**.
+browser storage. It knows what is in the −80 °C freezer: type a few words and it says which box and
+which slot, and when you are freezing something new it says where to put it. Install it separately:
+Safari → Share → **Add to Home Screen**.
+
+It is lab-wide and multi-user now (`cellstocks-worker/`): logging in is mandatory, with a gate
+that covers the whole app — nav included — until someone is identified, either with a name and
+password an admin set up (the lab-wide way in) or a personal GitHub token (the older, per-device
+way in). Nobody sees anyone's boxes by just opening the page. See `cellstocks-worker/README.md`
+for the backend and `cellstocks/admin/` for the admin panel.
 
 ### How it fits together
 

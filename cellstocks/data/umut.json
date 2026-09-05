@@ -9785,6 +9785,10 @@
     ],
     "caspex": [
       {
+        "match": "UCX",
+        "value": "CASPEX"
+      },
+      {
         "match": "NCX",
         "value": "CASPEX"
       },
@@ -9829,6 +9833,6 @@
   },
   "_meta": {
     "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T06:56:15.416Z"
+    "savedAt": "2026-09-05T06:56:25.887Z"
   }
 }

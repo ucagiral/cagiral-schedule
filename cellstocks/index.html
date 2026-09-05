@@ -459,6 +459,7 @@
       localStorage.setItem(LS.workerUser, JSON.stringify(body.user));
     } catch(e){}
     notifications = null; // a fresh login re-fetches rather than showing a stale list
+    messagesCache = null;
   }
 
   async function workerLogout(){
@@ -771,6 +772,19 @@
   // through the worker. Fetched once per session on first toggle-on and cached --
   // re-fetching on every keystroke would burn through GitHub's unauthenticated rate
   // limit for no reason, and a lab roster doesn't change mid-search.
+  // Message templates are copy an admin can edit (see cellstocks-worker/README.md), not
+  // secrets, so any logged-in user can read them -- this only ever backs UI text like the
+  // broadcast box's own placeholder, never anything that gates a decision.
+  var messagesCache = null;
+  async function ensureMessagesCache(){
+    if (messagesCache || !getWorkerUser()) return;
+    try { messagesCache = await workerFetch("/messages", { headers:{ Authorization:"Bearer " + getWorkerToken() } }); }
+    catch(e){ /* offline or not reachable yet -- callers fall back to their own literal default */ }
+  }
+  function message(key, fallback){
+    return (messagesCache && messagesCache.messages && messagesCache.messages[key]) || fallback;
+  }
+
   var labCache = { members: null, data: {}, loading: false };
 
   async function ensureLabCache(){
@@ -1902,14 +1916,15 @@
     var n = clear($("notificationsCard"));
     if (!wu) return;
     n.appendChild(el("h3", null, "Notifications"));
+    if (!messagesCache) ensureMessagesCache().then(renderNotifications);
 
     var bField = el("div", "field");
     bField.appendChild(el("label", null, "Send to the lab"));
     var bText = document.createElement("textarea");
     bText.rows = 2;
     bText.placeholder = wu.canBroadcast || wu.role === "admin"
-      ? "Goes straight to everyone…"
-      : "Goes to an admin for approval first…";
+      ? message("broadcast-placeholder-direct", "Goes straight to everyone…")
+      : message("broadcast-placeholder-queued", "Goes to an admin for approval first…");
     bField.appendChild(bText);
     var bSend = el("button", null, "Send");
     bSend.style.marginTop = "6px";

@@ -750,6 +750,32 @@ await check("fillTemplate leaves an unknown {placeholder} untouched rather than 
   return null;
 });
 
+// GET /messages is the non-admin-gated read every logged-in user's UI can call to display a
+// template's current text (a compose box placeholder, say) -- distinct from /admin/messages,
+// which only admin can reach and which separately reports which ones are overridden.
+
+await check("GET /messages is open to any logged-in user, not just admin", async () => {
+  const { env, umutToken } = await twoMembers();
+  const res = await handleRequest(req("GET", "/messages", undefined, umutToken), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (body.messages["broadcast-placeholder-queued"] !== "Goes to an admin for approval first…") {
+    return `unexpected default: ${json(body.messages["broadcast-placeholder-queued"])}`;
+  }
+  return null;
+});
+
+await check("GET /messages reflects an admin override, and 401s with no session", async () => {
+  const { env, adminToken, umutToken } = await twoMembers();
+  await handleRequest(req("PUT", "/admin/messages", { messages: { "broadcast-placeholder-queued": "Needs an admin's OK first…" } }, adminToken), env);
+  const res = await handleRequest(req("GET", "/messages", undefined, umutToken), env);
+  const body = await res.json();
+  if (body.messages["broadcast-placeholder-queued"] !== "Needs an admin's OK first…") return `override not reflected: ${json(body.messages)}`;
+  const anon = await handleRequest(req("GET", "/messages", undefined, undefined), env);
+  if (anon.status !== 401) return `expected 401 with no token, got ${anon.status}`;
+  return null;
+});
+
 // ==================================================================== history (time machine)
 //
 // "Even if someone deletes their stock, I should be able to retrieve the complete stock

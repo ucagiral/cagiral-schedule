@@ -70,6 +70,7 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | GET | `/broadcasts` | Bearer token | Broadcast authority sees every broadcast, pending or resolved; anyone else sees only their own. |
 | POST | `/broadcasts/:id/approve` | broadcast authority | Sends a pending broadcast to the lab and tells the original sender it went out. |
 | POST | `/broadcasts/:id/deny` | broadcast authority | Refuses a pending broadcast; it never reaches the lab. Tells the original sender. |
+| GET | `/messages` | Bearer token | `{messages}` — every template's *effective* text (a lab's override where it has one, the shipped default otherwise). For UI copy like the broadcast compose box's own placeholder, not just what a notification sends. |
 | GET | `/admin/messages` | admin | `{defaults, overrides}` — every message template this file can send, and which ones a lab has customized. |
 | PUT | `/admin/messages` | admin | `{messages: {key: text}}` — set or reset templates. See below. |
 | GET | `/admin/history/commits?user=<name>` | admin | Every commit that ever touched that user's data file, newest first. |
@@ -102,6 +103,13 @@ rather than silently stored, so a typo in the editor can't quietly create a temp
 reads. `{placeholder}` substitution (`fillTemplate()`) leaves an unrecognized placeholder in a
 custom template untouched rather than dropping it, so a typo'd `{itme}` shows up as literal text
 instead of vanishing — visible and fixable, not silently wrong.
+
+Two of the templates (`broadcast-placeholder-direct`, `broadcast-placeholder-queued`) are never
+sent anywhere — they're the broadcast compose box's own placeholder text in the app, editable for
+the same reason every other message is. `GET /messages` (any logged-in user) is how the app reads
+the *effective* text of any template to display it; `GET/PUT /admin/messages` (admin-only) is the
+separate, admin-only pair for the editor screen, which additionally needs to know which ones are
+overridden.
 
 ### Who has broadcast authority
 

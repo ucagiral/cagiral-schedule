@@ -309,7 +309,13 @@ const DEFAULT_MESSAGES = {
   broadcast: "{fromUser}: {text}",
   "broadcast-pending": '{fromUser} wants to send to the whole lab: "{text}"',
   "broadcast-resolved-sent": 'Your message to the lab was sent: "{text}"',
-  "broadcast-resolved-denied": '{actingUser} did not send your message to the lab: "{text}"'
+  "broadcast-resolved-denied": '{actingUser} did not send your message to the lab: "{text}"',
+  // Not sent anywhere -- these two are the broadcast compose box's own placeholder text in
+  // the app, editable here for the same reason every other message is: Umut asked to be
+  // able to edit "generic sentences" like this from the admin panel, not just the ones a
+  // notification actually sends.
+  "broadcast-placeholder-direct": "Goes straight to everyone…",
+  "broadcast-placeholder-queued": "Goes to an admin for approval first…"
 };
 
 function fillTemplate(template, vars) {
@@ -720,6 +726,19 @@ async function routeResolveBroadcast(request, env, id, decision) {
   }
 }
 
+// Any logged-in user, not just admin -- these are UI copy (a notification's wording, a
+// compose box's placeholder), not anything sensitive, and every screen that shows one of
+// them is shown to ordinary members, not just admin. Returns the text actually in effect
+// (an override where a lab has set one, the shipped default otherwise) since a caller here
+// only ever wants to display a message, never to know whether it's been customized -- that
+// distinction is what the admin-only /admin/messages below is for.
+async function routeGetMessages(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const overrides = (await kvGetJson(env.CST_KV, MESSAGES_CONFIG_KEY)) || {};
+  return json({ messages: Object.assign({}, DEFAULT_MESSAGES, overrides) });
+}
+
 // Admin-only: the editor screen needs to see both what ships and what's overridden, so
 // it can show a lab's customized text alongside a "reset to default" per message rather
 // than only ever showing one or the other.
@@ -821,7 +840,8 @@ async function handleRequest(request, env) {
       response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "approve");
     } else if (/^\/broadcasts\/[^/]+\/deny$/.test(path) && request.method === "POST") {
       response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "deny");
-    } else if (path === "/admin/messages" && request.method === "GET") response = await routeGetMessagesConfig(request, env);
+    } else if (path === "/messages" && request.method === "GET") response = await routeGetMessages(request, env);
+    else if (path === "/admin/messages" && request.method === "GET") response = await routeGetMessagesConfig(request, env);
     else if (path === "/admin/messages" && request.method === "PUT") response = await routeSetMessagesConfig(request, env);
     else if (path === "/admin/history/commits" && request.method === "GET") response = await routeHistoryCommits(request, env);
     else if (path === "/admin/history/at" && request.method === "GET") response = await routeHistoryAt(request, env);

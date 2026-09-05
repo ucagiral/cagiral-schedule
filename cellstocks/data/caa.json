@@ -116,7 +116,7 @@
       "id": "v-83",
       "name": "LNCAP",
       "lineId": "l-lncap",
-      "passageKind": "unknown",
+      "passageKind": "absolute",
       "frozenRaw": "28-07-25",
       "frozenOn": "2025-07-28",
       "location": {
@@ -126,7 +126,9 @@
         "position": "A1"
       },
       "status": "stored",
-      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 83"
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 83",
+      "passage": "p5",
+      "passageNumber": 5
     },
     {
       "id": "v-84",
@@ -265,6 +267,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T01:44:33.342Z"
+    "savedAt": "2026-09-05T01:44:44.393Z"
   }
 }

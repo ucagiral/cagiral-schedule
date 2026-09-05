@@ -530,6 +530,10 @@ try {
 
   await page.click("nav button[data-screen=settings]");
   await page.waitForSelector("#connectCard select");
+  // The member list populates from an async /admin/users fetch after the <select> itself
+  // already exists (with just its placeholder option) -- wait for it to actually resolve
+  // rather than racing it.
+  await page.waitForFunction(() => document.querySelectorAll("#connectCard select option").length > 1);
   const actAsOptions = await page.$$eval("#connectCard select option", (opts) => opts.map((o) => o.textContent));
   check("the Act as picker lists every non-hidden member", actAsOptions.includes("labmate") && actAsOptions.includes("newbie"), JSON.stringify(actAsOptions));
 

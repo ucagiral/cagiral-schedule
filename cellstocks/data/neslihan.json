@@ -17050,6 +17050,10 @@
     ],
     "resistance": [
       {
+        "match": "Doce",
+        "value": "DtxR"
+      },
+      {
         "match": "EnzaR",
         "value": "EnzaR"
       },
@@ -17104,6 +17108,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T15:24:30.892Z"
+    "savedAt": "2026-09-05T15:25:31.625Z"
   }
 }

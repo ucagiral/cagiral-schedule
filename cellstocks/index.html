@@ -2947,14 +2947,26 @@
     // A returning member's own confirmed layout (from the last time they imported)
     // takes priority over a fresh guess -- but it is still only ever a pre-selection
     // on the same screen that shows and lets them override it, never applied silently.
+    var customColumns = {};   // colIndex -> field name, for columns mapped to "New"
     var saved = state.settings && state.settings.columnMap;
+    var savedCustom = state.settings && state.settings.customColumns;
     var usedSaved = false;
     if (saved && Object.keys(saved).length){
       Object.keys(saved).forEach(function(role){
         if (typeof saved[role] === "number") { map[role] = saved[role]; usedSaved = true; }
       });
     }
+    // A saved "New" column is remembered by its header text, since a re-imported
+    // sheet's column order can shift -- unlike the known roles above, matching by
+    // index alone would silently point a name at the wrong column next time.
+    var savedCustomByHeader = {};
+    if (savedCustom) Object.keys(savedCustom).forEach(function(h){ savedCustomByHeader[h] = savedCustom[h]; });
     guesses.forEach(function(g){ if (g.role !== "ignore" && map[g.role] === undefined) map[g.role] = g.index; });
+    guesses.forEach(function(g){
+      if (g.role !== "ignore") return;
+      var h = g.header || "";
+      if (h && savedCustomByHeader[h]) { customColumns[g.index] = savedCustomByHeader[h]; usedSaved = true; }
+    });
 
     body.appendChild(el("p", "note",
       (usedSaved ? "Pre-filled from how you mapped your last import, plus a fresh guess for anything new. " : "Guessed from the headers and the first rows. ") +
@@ -2982,21 +2994,49 @@
       }
       row.appendChild(grow);
 
+      var isCustom = customColumns[g.index] !== undefined;
       var sel = document.createElement("select");
       sel.style.width = "auto";
       E.ROLES.forEach(function(role){
         var o = document.createElement("option");
         o.value = role; o.textContent = role;
-        o.selected = map[role] === g.index || (role === "ignore" && Object.keys(map).every(function(k){ return map[k] !== g.index; }));
+        o.selected = !isCustom && (map[role] === g.index || (role === "ignore" && Object.keys(map).every(function(k){ return map[k] !== g.index; })));
         sel.appendChild(o);
       });
+      // Anything the guesser and the known roles above can't place still gets a real
+      // home: "New" turns it into its own named field on the vial, rather than being
+      // dropped or stuffed into notes.
+      var newOpt = document.createElement("option");
+      newOpt.value = "__new__"; newOpt.textContent = "New…";
+      newOpt.selected = isCustom;
+      sel.appendChild(newOpt);
+      var customLabel = el("div", "sub");
+      customLabel.style.display = isCustom ? "" : "none";
+      customLabel.textContent = isCustom ? ("→ " + customColumns[g.index]) : "";
       sel.onchange = function(){
         Object.keys(map).forEach(function(k){ if (map[k] === g.index) delete map[k]; });
-        if (sel.value !== "ignore") map[sel.value] = g.index;
+        delete customColumns[g.index];
+        customLabel.style.display = "none";
+        if (sel.value === "__new__"){
+          var name = prompt("Name this field:", g.header || "");
+          if (name && name.trim()){
+            customColumns[g.index] = name.trim();
+            customLabel.textContent = "→ " + name.trim();
+            customLabel.style.display = "";
+          } else {
+            sel.value = "ignore";
+          }
+        } else if (sel.value !== "ignore") {
+          map[sel.value] = g.index;
+        }
       };
       row.appendChild(sel);
+      row.appendChild(customLabel);
       body.appendChild(row);
     });
+
+    var headerByIndex = {};
+    guesses.forEach(function(g){ headerByIndex[g.index] = g.header || ""; });
 
     var foot = clear($("dlgFoot"));
     var next = el("button", "primary", "Look at what it found");
@@ -3005,18 +3045,19 @@
         showBanner("At least a name column and a position column are needed.");
         return;
       }
-      previewImport(fileName, sheet, map);
+      previewImport(fileName, sheet, map, customColumns, headerByIndex);
     };
     foot.appendChild(next);
     $("dlg").showModal();
   }
 
-  function previewImport(fileName, sheet, map){
+  function previewImport(fileName, sheet, map, customColumns, headerByIndex){
     var out = E.importSheet(sheet, {
       headerRow: 1, columns: map, rules: state.rules, customFlags: state.settings.customFlags,
       unitId: "u-f80", rackId: "r-1", unitName: "-80 °C Freezer", unitType: "freezer",
       childLabel: "Rack", rackName: "Rack 1",
-      sourceName: fileName, idPrefix: "v", unnamedBoxName: "Unnamed box"
+      sourceName: fileName, idPrefix: "v", unnamedBoxName: "Unnamed box",
+      customColumns: customColumns
     });
     var rep = out.report;
 
@@ -3073,6 +3114,14 @@
       state = E.mergeDefaults(out.state);
       state.rules = keptRules;
       state.settings.columnMap = map;
+      if (customColumns && Object.keys(customColumns).length){
+        var byHeader = {};
+        Object.keys(customColumns).forEach(function(idx){
+          var h = headerByIndex && headerByIndex[idx];
+          if (h) byHeader[h] = customColumns[idx];
+        });
+        state.settings.customColumns = byHeader;
+      }
       $("dlg").close();
       markDirty("Import " + rep.imported + " vials from " + fileName);
       renderAll();

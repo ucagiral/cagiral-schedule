@@ -99,3 +99,38 @@ jobs:
               console.log("workbook content matches the inventory (" + onDisk.sheets.length + " sheets)");
             }).catch((err) => { console.error(err); process.exit(1); });
           '
+
+  # Merging worker.js used to only run the self-test above -- the live Cloudflare Worker
+  # stayed on whatever someone last deployed by hand with `wrangler deploy`. That's why the
+  # cascade-delete fix (deleteUserFiles(), merged earlier) sat live-but-inert: the code was
+  # right, it just was never pushed to Cloudflare. This job closes that gap for every future
+  # worker change. Requires a CLOUDFLARE_API_TOKEN repository secret (Cloudflare dashboard ->
+  # create a token scoped to Workers -> GitHub repo Settings -> Secrets and variables ->
+  # Actions) -- skipped entirely if that secret isn't set, so this workflow still passes on a
+  # fork or before that one-time setup happens.
+  deploy-worker:
+    needs: selftest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for CLOUDFLARE_API_TOKEN
+        id: check
+        run: echo "has-token=${{ secrets.CLOUDFLARE_API_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Cloudflare Workers
+        if: steps.check.outputs.has-token == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: cellstocks-worker
+
+      - name: No deploy token configured
+        if: steps.check.outputs.has-token != 'true'
+        run: |
+          echo "::warning::CLOUDFLARE_API_TOKEN is not set, so cellstocks-worker/worker.js was NOT deployed."
+          echo "::warning::Add it under Settings -> Secrets and variables -> Actions, or run 'wrangler deploy' by hand from cellstocks-worker/."

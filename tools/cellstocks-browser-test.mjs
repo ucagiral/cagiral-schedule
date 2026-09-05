@@ -396,6 +396,69 @@ try {
   check("logging out returns the app to read-only", afterLogout.status === "Read-only", `status was ${afterLogout.status}`);
   check("logout actually called the worker's /logout", workerCalls.some((c) => c.path === "/logout" && c.auth === "Bearer fake-session-token"), JSON.stringify(workerCalls));
 
+  // ---- switching accounts on one device must never show the previous account's boxes ----
+  // Regression for the bug Umut hit on his own first live test: logging into a second,
+  // brand-new account (no data file yet) kept showing the first account's inventory,
+  // because load() left the in-memory `state` untouched on a 404 and the offline cache
+  // key was shared across every worker account on the device.
+  await page.route("https://fake-worker.example/login", (route) => {
+    const posted = JSON.parse(route.request().postData());
+    if (posted.name === "labmate") {
+      return route.fulfill({ status: 200, contentType: "application/json",
+        body: JSON.stringify({ token: "labmate-token", user: { name: "labmate", role: "member", hidden: false } }) });
+    }
+    if (posted.name === "newbie") {
+      return route.fulfill({ status: 200, contentType: "application/json",
+        body: JSON.stringify({ token: "newbie-token", user: { name: "newbie", role: "member", hidden: false } }) });
+    }
+    return route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "wrong name or password" }) });
+  });
+  await page.route("https://fake-worker.example/notifications", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ notifications: [] }) }));
+
+  await page.click("nav button[data-screen=settings]");
+  await page.waitForSelector("#connectCard input");
+  let li = await page.$$("#connectCard input");
+  await li[0].fill("https://fake-worker.example");
+  await li[1].fill("labmate");
+  await li[2].fill("anything");
+  await page.click("#workerLoginBtn");
+  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "labmate-token");
+
+  await page.click("nav button[data-screen=find]");
+  await page.waitForSelector("#q");
+  await page.fill("#q", "special");
+  await page.waitForTimeout(250);
+  const labmateOwnResults = await page.evaluate(() => document.getElementById("results").textContent);
+  check("logging in as labmate shows labmate's own vial (not through search-in-lab)",
+    /Special Guest Line/.test(labmateOwnResults), labmateOwnResults);
+
+  await page.click("nav button[data-screen=settings]");
+  await page.click("#workerLogoutBtn");
+  await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
+  li = await page.$$("#connectCard input");
+  await li[0].fill("https://fake-worker.example");
+  await li[1].fill("newbie");
+  await li[2].fill("anything");
+  await page.click("#workerLoginBtn");
+  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "newbie-token");
+
+  await page.click("nav button[data-screen=find]");
+  await page.waitForSelector("#q");
+  await page.fill("#q", "special");
+  await page.waitForTimeout(250);
+  const newbieResults = await page.evaluate(() => document.getElementById("results").textContent);
+  check("a brand-new second account never inherits the previous account's vials",
+    !/Special Guest Line/.test(newbieResults), newbieResults);
+
+  const newbieCache = await page.evaluate(() => localStorage.getItem("cst_cache:newbie"));
+  const labmateCache = await page.evaluate(() => localStorage.getItem("cst_cache:labmate"));
+  check("the offline cache is scoped per account, not shared",
+    newbieCache !== labmateCache, `newbie=${newbieCache} labmate=${labmateCache}`);
+
+  await page.click("nav button[data-screen=settings]");
+  await page.waitForSelector("#storageCard");
+
   // ---- grouping strategy picker (Phase 3c-ii) ----
   // Placed after the login/logout flow above rather than earlier, so its markDirty()
   // call (see below) doesn't overwrite the status text those checks assert on.

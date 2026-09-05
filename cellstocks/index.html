@@ -91,6 +91,12 @@
   main{flex:1; padding:12px; padding-bottom:calc(74px + var(--safe-b)); max-width:760px; width:100%; margin:0 auto}
   .screen{display:none} .screen.active{display:block}
 
+  /* Logging in is mandatory: nothing about anyone's inventory renders until someone is
+     identified. See afterAuthChange() -- this class is the only thing that toggles it. */
+  .gate{display:none}
+  body.gated main, body.gated nav{display:none}
+  body.gated .gate{display:block; padding:12px; max-width:520px; width:100%; margin:0 auto}
+
   nav{
     position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--panel);
     border-top:1px solid var(--border); padding-bottom:var(--safe-b); z-index:20;
@@ -270,6 +276,13 @@
   <span id="status">Loading…</span>
 </header>
 <div class="banner" id="banner"></div>
+
+<div class="gate" id="authGate">
+  <h2>Log in</h2>
+  <p class="note">Cell Stocks is lab-wide now — nothing shows until you're identified, so no
+    one sees anyone's boxes by just opening the page.</p>
+  <div class="card" id="gateBody"></div>
+</div>
 
 <main>
   <section class="screen active" id="s-find">
@@ -2008,11 +2021,12 @@
     await markNotificationRead(note);
   }
 
-  function renderSettings(){
-    renderNotifications();
-
-    // ---- connect ----
-    var c = clear($("connectCard"));
+  // Builds the login/connect UI into whichever container asks for it -- the mandatory
+  // login gate (#gateBody, shown before anyone is identified) and Settings' own
+  // Connect card (#connectCard, for managing the connection once already in) render the
+  // exact same thing, so there is exactly one place that knows how to log in or out.
+  function renderConnect(container){
+    var c = clear(container);
     c.appendChild(el("h3", null, "Connect"));
 
     // ---- log in (worker auth) ----
@@ -2026,7 +2040,7 @@
       lo.onclick = async function(){
         lo.disabled = true;
         await workerLogout();
-        renderAll(); setStatus(canWrite() ? "Ready" : "Read-only", "");
+        afterAuthChange();
       };
       c.appendChild(lo);
     } else {
@@ -2056,7 +2070,7 @@
           state = E.blankState();
           hideBanner();
           await load();
-          renderSettings();
+          afterAuthChange();
         } catch(err){
           showBanner("Couldn't log in: " + esc(err.message));
         }
@@ -2072,7 +2086,7 @@
       var out = el("button", "danger", "Forget the token on this device");
       out.onclick = function(){
         try { localStorage.removeItem(LS.token); } catch(e){}
-        renderAll(); setStatus(canWrite() ? "Ready" : "Read-only", "");
+        afterAuthChange();
       };
       c.appendChild(out);
     } else {
@@ -2101,6 +2115,7 @@
           localStorage.setItem(LS.device, dev.value.trim() || "a device");
           hideBanner();
           await load();
+          afterAuthChange();
         } catch(err){
           showBanner("That token didn't work: " + esc(err.message));
         }
@@ -2122,12 +2137,32 @@
           document.documentElement.setAttribute("data-theme", opt.id);
           try { localStorage.setItem(LS.theme, opt.id); } catch(e){}
         }
-        renderSettings();
+        renderConnect(container);
       };
       themeSeg.appendChild(b);
     });
     themeField.appendChild(themeSeg);
     c.appendChild(themeField);
+  }
+
+  // Nothing about anyone's inventory ever renders before someone is identified -- either
+  // a worker login or a legacy GitHub token, both of which canWrite() already recognizes.
+  // Called after every login, logout, or token change, and once at boot.
+  function afterAuthChange(){
+    var authed = canWrite();
+    document.body.classList.toggle("gated", !authed);
+    if (!authed){
+      renderConnect($("gateBody"));
+      setStatus("Read-only", "");
+      return;
+    }
+    setStatus("Ready", "");
+    go(screen);
+  }
+
+  function renderSettings(){
+    renderNotifications();
+    renderConnect($("connectCard"));
 
     // ---- storage ----
     var s = clear($("storageCard"));
@@ -2719,14 +2754,15 @@
   } catch(e){}
 
   // A freezer is shared, so take another look whenever the app comes back to the
-  // front rather than trusting a copy that may be an hour old.
+  // front rather than trusting a copy that may be an hour old -- but only once someone
+  // is actually logged in; nothing fetches anyone's inventory before that.
   document.addEventListener("visibilitychange", function(){
-    if (document.visibilityState === "visible" && !dirty) load();
+    if (document.visibilityState === "visible" && !dirty && canWrite()) load();
   });
 
   cacheLoad();
-  renderAll();
-  load();
+  afterAuthChange();
+  if (canWrite()) load();
 
   if ("serviceWorker" in navigator){
     window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });

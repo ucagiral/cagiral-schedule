@@ -104,6 +104,7 @@
         <button data-tab="messages">Messages</button>
         <button data-tab="history">History &amp; export</button>
         <button data-tab="override">Override data</button>
+        <button data-tab="handoff">Handoff</button>
       </div>
 
       <div id="tab-users">
@@ -178,6 +179,25 @@
           <th>Name</th><th></th>
         </tr></thead><tbody></tbody></table></div>
       </div>
+
+      <div id="tab-handoff" hidden>
+        <h2>Departing member</h2>
+        <p class="note">Pick who's leaving. Their boxes get handed off one at a time to whoever
+          should take over each -- a box you leave on "Keep with them" is untouched; anything
+          picked up by another member actually moves into that member's own inventory, vials and
+          all, the moment you apply.</p>
+        <div class="card">
+          <div class="row">
+            <div class="field"><label>Who's leaving</label><select id="hoUser"></select></div>
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px">
+              <input type="checkbox" id="hoLeaving"> This person has left the lab
+            </label>
+          </div>
+          <div id="hoBoxes"></div>
+          <button class="primary" id="hoApplyBtn" hidden style="margin-top:12px">Apply handoff</button>
+          <div id="hoMsg"></div>
+        </div>
+      </div>
     </div>
   </main>
 </div>
@@ -238,14 +258,14 @@
     return btoa(out);
   }
 
-  async function adminCommit(user, jsonState){
+  async function adminCommit(user, jsonState, message){
     var xlsxBytes = await X.writeWorkbookAsync(E.vialsToSheets(jsonState));
     return workerFetch("/commit", { method:"POST", body: JSON.stringify({
       files: [
         { path: dataPathFor(user), content: E.serialise(jsonState) },
         { path: xlsxPathFor(user), content: bytesToBase64(xlsxBytes), base64: true }
       ],
-      message: "Admin override for " + user
+      message: message || ("Admin override for " + user)
     })});
   }
 
@@ -322,13 +342,14 @@
     renderRequests();
     renderMessages();
     renderOverride();
+    renderHandoffUsers();
   }
 
   // ------------------------------------------------------------- tabs
   Array.prototype.forEach.call(document.querySelectorAll("#tabs button"), function(b){
     b.onclick = function(){
       Array.prototype.forEach.call(document.querySelectorAll("#tabs button"), function(x){ x.classList.toggle("on", x === b); });
-      ["users","requests","messages","history","override"].forEach(function(t){
+      ["users","requests","messages","history","override","handoff"].forEach(function(t){
         $("tab-" + t).hidden = t !== b.getAttribute("data-tab");
       });
     };
@@ -374,6 +395,7 @@
       flash("Created " + name + ".", "ok");
       renderUsers();
       renderOverride();
+      renderHandoffUsers();
     } catch(err){ flash(err.message, "error"); }
   };
 
@@ -389,6 +411,7 @@
       flash("Renamed " + name + " to " + next + ". Their own session (if logged in) is now signed out.", "ok");
       renderUsers();
       renderOverride();
+      renderHandoffUsers();
     } catch(err){ flash(err.message, "error"); }
   }
 
@@ -408,6 +431,7 @@
       flash("Deleted " + name + ".", "ok");
       renderUsers();
       renderOverride();
+      renderHandoffUsers();
     } catch(err){ flash(err.message, "error"); }
   }
 
@@ -646,6 +670,190 @@
       tbody.appendChild(tr);
     });
   }
+
+  // ------------------------------------------------------------- handoff
+  // "This person has left the lab" only ever unlocks the reassignment UI below -- it
+  // never deletes the account or touches anything by itself. A box left on "Keep with
+  // them" is never modified; a box picked up by someone else is copied (fresh unit/rack
+  // and a freshly generated box id, so it can never collide with anything already in the
+  // target's own file) into their inventory, vials and all, and only then removed from
+  // the departing member's file -- never the other way around, so a failure partway
+  // through can at worst leave a box still sitting with its original owner, never gone
+  // from everywhere at once.
+  var hoState = null;       // the departing member's live data, fetched fresh each time the checkbox is ticked
+  var hoAssignments = {};   // boxId -> target member name, "" (or absent) means "keep"
+  var hoAllNames = [];
+
+  async function renderHandoffUsers(){
+    var sel = $("hoUser");
+    var body;
+    try { body = await workerFetch("/admin/users"); } catch(err){ flash(err.message, "error"); return; }
+    hoAllNames = body.users.filter(function(u){ return !u.hidden; }).map(function(u){ return u.name; });
+    var current = sel.value;
+    clear(sel);
+    hoAllNames.forEach(function(n){ var o = document.createElement("option"); o.value = n; o.textContent = n; sel.appendChild(o); });
+    if (hoAllNames.indexOf(current) !== -1) sel.value = current;
+  }
+
+  function resetHandoffForm(){
+    $("hoLeaving").checked = false;
+    clear($("hoBoxes"));
+    $("hoApplyBtn").hidden = true;
+    hoState = null;
+    hoAssignments = {};
+  }
+
+  $("hoUser").onchange = resetHandoffForm;
+
+  $("hoLeaving").onchange = async function(){
+    var user = $("hoUser").value;
+    var checked = $("hoLeaving").checked;
+    clear($("hoBoxes"));
+    $("hoApplyBtn").hidden = true;
+    hoState = null; hoAssignments = {};
+    if (!checked || !user) return;
+    try {
+      var resp = await fetch(rawURL(dataPathFor(user)), { cache:"no-store" });
+      var text = resp.ok ? await resp.text() : "{}";
+      hoState = E.mergeDefaults(JSON.parse(text));
+    } catch(err){
+      flash(err.message, "error");
+      $("hoLeaving").checked = false;
+      return;
+    }
+    renderHandoffBoxes(user);
+  };
+
+  function renderHandoffBoxes(user){
+    var wrap = clear($("hoBoxes"));
+    var boxes = [];
+    E.eachBox(hoState, function(box, rack, unit){
+      var count = (hoState.vials || []).filter(function(v){ return v.location && v.location.boxId === box.id; }).length;
+      boxes.push({ unit:unit, rack:rack, box:box, count:count });
+    });
+    if (!boxes.length){
+      wrap.appendChild(el("p", "note", user + " has no boxes to hand off."));
+      return;
+    }
+    var table = document.createElement("table");
+    var thead = document.createElement("thead");
+    thead.innerHTML = "<tr><th>Box</th><th>Vials</th><th>Assign to</th></tr>";
+    table.appendChild(thead);
+    var tbody = document.createElement("tbody");
+    boxes.forEach(function(entry){
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", null, entry.unit.name + " → " + entry.rack.name + " → " + entry.box.name));
+      tr.appendChild(el("td", null, String(entry.count)));
+      var td = document.createElement("td");
+      var sel = document.createElement("select");
+      var keepOpt = document.createElement("option");
+      keepOpt.value = ""; keepOpt.textContent = "Keep with " + user + " (read only)";
+      sel.appendChild(keepOpt);
+      hoAllNames.filter(function(n){ return n !== user; }).forEach(function(n){
+        var o = document.createElement("option"); o.value = n; o.textContent = n; sel.appendChild(o);
+      });
+      sel.onchange = function(){ hoAssignments[entry.box.id] = sel.value; };
+      td.appendChild(sel);
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    $("hoApplyBtn").hidden = false;
+  }
+
+  function newHandoffId(prefix){
+    return prefix + "-" + Math.random().toString(36).slice(2, 10);
+  }
+
+  $("hoApplyBtn").onclick = async function(){
+    var user = $("hoUser").value;
+    if (!hoState || !user) return;
+    var msg = clear($("hoMsg"));
+    var byTarget = {};
+    Object.keys(hoAssignments).forEach(function(boxId){
+      var target = hoAssignments[boxId];
+      if (target) (byTarget[target] = byTarget[target] || []).push(boxId);
+    });
+    var targetNames = Object.keys(byTarget);
+    if (!targetNames.length){
+      msg.appendChild(el("div", "msg error", "Nothing assigned yet -- pick at least one box to hand off."));
+      return;
+    }
+
+    $("hoApplyBtn").disabled = true;
+    try {
+      // Every moved box and vial is a deep copy -- the source's own copy is only ever
+      // dropped at the very end, once every target has committed successfully.
+      var sourceState = E.mergeDefaults(JSON.parse(JSON.stringify(hoState)));
+      var allMovedBoxIds = {};
+      var preparedTargets = [];
+
+      for (var t = 0; t < targetNames.length; t++){
+        var target = targetNames[t];
+        var resp = await fetch(rawURL(dataPathFor(target)), { cache:"no-store" });
+        var text = resp.ok ? await resp.text() : "{}";
+        var targetState = E.mergeDefaults(JSON.parse(text));
+        var newUnitId = newHandoffId("u");
+        var newRack = { id: newHandoffId("r"), name: "From " + user, boxes: [] };
+        targetState.storage.units.push({ id:newUnitId, name:"From " + user, type:"freezer", childLabel:"Rack", racks:[newRack] });
+
+        byTarget[target].forEach(function(boxId){
+          var found = E.findBox(sourceState, boxId);
+          if (!found) return;
+          allMovedBoxIds[boxId] = true;
+          var newBoxId = newHandoffId("b");
+          newRack.boxes.push(JSON.parse(JSON.stringify(Object.assign({}, found.box, { id:newBoxId }))));
+          sourceState.vials.forEach(function(v){
+            if (v.location && v.location.boxId === boxId){
+              var moved = JSON.parse(JSON.stringify(v));
+              moved.location = { unitId:newUnitId, rackId:newRack.id, boxId:newBoxId, position:v.location.position };
+              targetState.vials.push(moved);
+            }
+          });
+        });
+
+        var errors = E.errorsOnly(E.validate(targetState));
+        if (errors.length){
+          throw new Error(target + "'s inventory would be invalid after this handoff: " + errors[0].message);
+        }
+        preparedTargets.push({ name:target, state:targetState });
+      }
+
+      // Only commit once every target's resulting inventory is confirmed valid -- an
+      // invalid one anywhere means nothing is written at all, source included.
+      for (var i = 0; i < preparedTargets.length; i++){
+        await adminCommit(preparedTargets[i].name, preparedTargets[i].state,
+          "Handoff: received boxes from " + user);
+      }
+
+      // Filtering each rack's own array (rather than splicing mid-eachBox) avoids
+      // mutating the very array eachBox is iterating over.
+      (sourceState.storage.units || []).forEach(function(u){
+        (u.racks || []).forEach(function(r){
+          r.boxes = (r.boxes || []).filter(function(b){ return !allMovedBoxIds[b.id]; });
+        });
+      });
+      (sourceState.storage.units || []).forEach(function(u){ u.racks = (u.racks || []).filter(function(r){ return r.boxes.length; }); });
+      sourceState.storage.units = (sourceState.storage.units || []).filter(function(u){ return u.racks.length; });
+      sourceState.vials = sourceState.vials.filter(function(v){ return !(v.location && allMovedBoxIds[v.location.boxId]); });
+
+      var sourceErrors = E.errorsOnly(E.validate(sourceState));
+      if (sourceErrors.length){
+        throw new Error("Every target was updated, but " + user + "'s own remaining inventory would be " +
+          "invalid: " + sourceErrors[0].message + ". Fix this by hand under Override data.");
+      }
+      await adminCommit(user, sourceState, "Handoff: gave away boxes to " + targetNames.join(", "));
+
+      var summary = "Handed off " + Object.keys(allMovedBoxIds).length + " box(es) from " + user + " to " + targetNames.join(", ") + ".";
+      resetHandoffForm();
+      clear($("hoMsg")).appendChild(el("div", "msg ok", summary));
+      renderOverride();
+    } catch(err){
+      clear($("hoMsg")).appendChild(el("div", "msg error", err.message));
+    }
+    $("hoApplyBtn").disabled = false;
+  };
 
   // ------------------------------------------------------------- boot
   checkWidth();

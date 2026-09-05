@@ -78,14 +78,20 @@ try {
     { id: "req-1", fromUser: "Labmate", toUser: "Umut", vialId: "v-1", itemName: "HEK293T p12", note: "for a rescue", status: "pending" }
   ];
   let umutState = {
-    storage: { units: [] }, lines: [], vials: [{ id: "v-1", name: "HEK293T p12", status: "stored" }], rules: {}, settings: {},
+    storage: { units: [{ id: "u-umut", name: "Umut Freezer", type: "freezer", childLabel: "Rack",
+                         racks: [{ id: "r-umut", name: "Rack 1", boxes: [{ id: "b-umut", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false }] }] }] },
+    lines: [], rules: {}, settings: {},
+    vials: [{ id: "v-1", name: "HEK293T p12", status: "stored", location: { unitId: "u-umut", rackId: "r-umut", boxId: "b-umut", position: "A1" } }],
     withdrawals: [{ id: "w-2", vialId: "v-1", name: "HEK293T p12", from: null, date: "2026-05-22", by: "umut-PC", purpose: "thaw", notes: "" }]
   };
   // Renamed to "ayse.json" partway through the test (the rename check below), and also
   // served under "labmate.json" for the export-all test -- one withdrawal each, so the
   // combined Log sheet has more than one owner's row to actually combine.
   const labmateState = {
-    storage: { units: [] }, lines: [], vials: [], rules: {}, settings: {},
+    storage: { units: [{ id: "u-lm", name: "Labmate Freezer", type: "freezer", childLabel: "Rack",
+                         racks: [{ id: "r-lm", name: "Rack 1", boxes: [{ id: "b-lm", name: "Box A", rows: 9, cols: 9, scheme: "grid", note: "", archived: false }] }] }] },
+    lines: [], rules: {}, settings: {},
+    vials: [{ id: "v-lm-1", name: "Special Guest Line", status: "stored", location: { unitId: "u-lm", rackId: "r-lm", boxId: "b-lm", position: "A1" } }],
     withdrawals: [{ id: "w-1", vialId: "v-2", name: "Special Guest Line", from: null, date: "2026-05-20", by: "Labmate's laptop", purpose: "thaw", notes: "" }]
   };
 
@@ -275,6 +281,42 @@ try {
   const openedUrl = await page.evaluate(() => window.__opened[0]);
   check("the launcher opens the main app acting as the right user",
     !!openedUrl && /\/cellstocks\/\?actAs=Ayse$/.test(openedUrl), openedUrl);
+
+  // ---- handoff tab ----
+  await page.click('#tabs button[data-tab="handoff"]');
+  await page.waitForFunction(() => document.getElementById("hoUser").options.length === 2);
+  await page.selectOption("#hoUser", "Labmate");
+  await page.click("#hoLeaving");
+  await page.waitForSelector("#hoBoxes table");
+  const handoffBoxRows = await page.$$eval("#hoBoxes tbody tr", (rows) => rows.map((r) => r.children[0].textContent));
+  check("the handoff tab lists the departing member's real boxes",
+    handoffBoxRows.some((r) => /Box A/.test(r)), JSON.stringify(handoffBoxRows));
+
+  await page.selectOption("#hoBoxes select", "Ayse");
+  await page.click("#hoApplyBtn");
+  await page.waitForFunction(() => /Handed off/.test(document.getElementById("hoMsg").textContent));
+  check("applying a handoff reports what moved and to whom",
+    /Handed off 1 box\(es\) from Labmate to Ayse/.test(await page.evaluate(() => document.getElementById("hoMsg").textContent)),
+    await page.evaluate(() => document.getElementById("hoMsg").textContent));
+
+  const handoffCommits = workerCalls.filter((c) => c.path === "/commit" && c.method === "POST");
+  const ayseCommit = handoffCommits.find((c) => /Handoff: received boxes from Labmate/.test(c.body));
+  const labmateCommit = handoffCommits.find((c) => /Handoff: gave away boxes to Ayse/.test(c.body));
+  const ayseCommitted = ayseCommit && JSON.parse(JSON.parse(ayseCommit.body).files[0].content);
+  const labmateCommitted = labmateCommit && JSON.parse(JSON.parse(labmateCommit.body).files[0].content);
+  check("the target's file is committed with the moved box and vial",
+    !!ayseCommitted && ayseCommitted.vials.some((v) => v.name === "Special Guest Line") &&
+    ayseCommitted.storage.units.some((u) => u.name === "From Labmate"),
+    JSON.stringify(ayseCommitted && ayseCommitted.vials));
+  // The withdrawal log entry still says "Special Guest Line" -- correctly, since a past
+  // withdrawal is unrelated to which box is currently assigned where. What must be gone
+  // is the box itself and the (still-stored) vial that lived in it.
+  check("the source's file is committed with the handed-off box and its stored vial removed",
+    !!labmateCommitted && labmateCommitted.vials.length === 0 &&
+    !labmateCommitted.storage.units.some((u) => (u.racks || []).some((r) => (r.boxes || []).some((b) => b.name === "Box A"))),
+    JSON.stringify(labmateCommitted));
+  check("the form resets after a successful handoff, ready for the next one",
+    await page.evaluate(() => document.getElementById("hoApplyBtn").hidden));
 
   check("no console errors were raised while exercising the admin panel", consoleErrors.length === 0, consoleErrors.join("\n    "));
 } finally {

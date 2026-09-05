@@ -94,12 +94,7 @@
         "position": "A1"
       },
       "status": "stored",
-      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 2",
-      "facetsFromSheet": {
-        "origin": "#NAME?",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 2"
     },
     {
       "id": "v-3",
@@ -115,11 +110,7 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 3",
-      "facetsFromSheet": {
-        "origin": "#NAME?",
-        "koox": "KO"
-      }
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 3"
     },
     {
       "id": "v-83",
@@ -135,11 +126,7 @@
         "position": "A1"
       },
       "status": "stored",
-      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 83",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 83"
     },
     {
       "id": "v-84",
@@ -155,12 +142,7 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 84",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 84"
     }
   ],
   "withdrawals": [],
@@ -282,7 +264,7 @@
     }
   },
   "_meta": {
-    "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T01:35:20.897Z"
+    "savedBy": "Umut iphone cell stocks",
+    "savedAt": "2026-09-05T01:44:09.304Z"
   }
 }

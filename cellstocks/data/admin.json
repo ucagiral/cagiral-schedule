@@ -1,0 +1,119 @@
+{
+  "storage": {
+    "units": []
+  },
+  "lines": [],
+  "vials": [],
+  "withdrawals": [],
+  "rules": {
+    "origin": [
+      {
+        "match": "HEK",
+        "value": "HEK293T"
+      },
+      {
+        "match": "LCC",
+        "value": "LnCap"
+      },
+      {
+        "match": "LNC",
+        "value": "LnCap"
+      },
+      {
+        "match": "LNCX",
+        "value": "LnCap"
+      },
+      {
+        "match": "LUCX",
+        "value": "LuCap35CR"
+      },
+      {
+        "match": "LuCap",
+        "value": "LuCap35CR"
+      },
+      {
+        "match": "LnCap",
+        "value": "LnCap"
+      },
+      {
+        "match": "Huh",
+        "value": "Huh7"
+      },
+      {
+        "match": "HepG",
+        "value": "HepG2"
+      },
+      {
+        "match": "MDA",
+        "value": "MDA-MB-231"
+      },
+      {
+        "match": "Du",
+        "value": "Du145"
+      }
+    ],
+    "koox": [
+      {
+        "extract": "(?<![A-Za-z])(?:KO|OX|3xFLAG)"
+      },
+      {
+        "match": "CASP",
+        "value": "CASPEX"
+      },
+      {
+        "value": "WT"
+      }
+    ],
+    "resistance": [
+      {
+        "match": "EnzaR",
+        "value": "EnzaR"
+      },
+      {
+        "match": "ER",
+        "value": "EnzaR",
+        "wordBoundary": true,
+        "caseSensitive": true
+      },
+      {
+        "extract": "DtxR|50CR|CR",
+        "notInOrigin": true
+      },
+      {
+        "value": "-"
+      }
+    ],
+    "caspex": [
+      {
+        "match": "CASP",
+        "value": "CASPEX"
+      },
+      {
+        "value": "-"
+      }
+    ],
+    "guide": [
+      {
+        "extract": "(DS)?g\\d+(\\.\\d+)?|gNT|g[PC]\\d+",
+        "longest": true
+      },
+      {
+        "value": "-"
+      }
+    ]
+  },
+  "settings": {
+    "defaultUnitId": null,
+    "defaultOperator": "",
+    "placement": {
+      "allowSplit": true
+    },
+    "aliases": {},
+    "columnMap": {},
+    "groupingStrategy": "random"
+  },
+  "_meta": {
+    "savedBy": "umut-PC",
+    "savedAt": "2026-09-05T01:59:48.074Z"
+  }
+}

@@ -15946,10 +15946,11 @@
       "box": 4,
       "notes": 7,
       "position": 6
-    }
+    },
+    "groupingStrategy": "random"
   },
   "_meta": {
     "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T07:16:17.127Z"
+    "savedAt": "2026-09-05T07:17:11.192Z"
   }
 }

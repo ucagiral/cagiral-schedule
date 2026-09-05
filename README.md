@@ -435,7 +435,7 @@ for the backend and `cellstocks/admin/` for the admin panel.
 | `protocols/cryopreservation.md` | How long a −80 vial is good for, and what has to be recorded about one, with sources. |
 | `.github/workflows/cellstocks.yml` | Runs the self-test on every change, and checks the workbook still matches the inventory. |
 | `cellstocks-worker/` | The lab-wide, multi-user backend — a small Cloudflare Worker that privately holds the one GitHub write token and is the only thing that can commit a write, so it is the only thing that can enforce who owns what. See `cellstocks-worker/README.md`. |
-| `cellstocks/admin/` | The admin-only panel — user accounts (create/rename/reset/delete), all pending requests lab-wide, notification wording, a one-button full export plus point-in-time history, and a launcher into the real app "acting as" any member for full-parity overrides. Desktop-only (its own URL, plus a screen-width gate), and only usable logged in as the hidden admin account. |
+| `cellstocks/admin/` | The admin-only panel — user accounts (create/rename/reset/delete), all pending requests lab-wide, notification wording, a one-button full export plus point-in-time history, a launcher into the real app "acting as" any member for full-parity overrides, and handing off a departing member's boxes to whoever takes them over. Desktop-only (its own URL, plus a screen-width gate), and only usable logged in as the hidden admin account. |
 
 ### Finding a vial
 

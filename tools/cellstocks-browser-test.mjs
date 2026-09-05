@@ -583,6 +583,48 @@ try {
   const logText = await page.evaluate(() => document.getElementById("logBody").textContent);
   check("admin's merged Log renders lab-wide", /Nothing has been taken out, lab-wide/.test(logText), logText);
 
+  // ---- deleting a member must immediately drop them from the merged view ----
+  // Regression: ensureLabCache() fetches every member's data once per page load and
+  // keeps it in memory for the rest of the session -- deleting "labmate" here (and, in
+  // the real bug report, someone recreating a new account under the same name right
+  // after) kept showing the stale in-memory copy on Find/Boxes/Review/Log until the
+  // page was reloaded by hand, because nothing told labCache to forget what it had
+  // already cached.
+  let deleteCalled = false;
+  await page.route("https://fake-worker.example/admin/users/labmate", (route) => {
+    if (route.request().method() !== "DELETE") return route.fulfill({ status: 404, contentType: "application/json", body: "{}" });
+    deleteCalled = true;
+    return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+  });
+  // The directory listing and labmate's own raw file now look like the real repo would
+  // after the worker actually deleted them.
+  await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+  await page.route("https://raw.githubusercontent.com/**", (route) => {
+    const url = route.request().url();
+    if (url.includes("cellstocks/data/labmate.json")) return route.fulfill({ status: 404, body: "" });
+    if (url.includes("cellstocks.json") || url.includes("cellstocks/data/umut.json")) {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(emptyState) });
+    }
+    return route.fulfill({ status: 404, body: "" });
+  });
+
+  page.once("dialog", (d) => d.accept());
+  await page.click("nav button[data-screen=admin]");
+  await page.click("#adminTabs button[data-admintab=users]");
+  await page.waitForSelector("#admin-users .danger");
+  await page.click("#admin-users .danger"); // labmate is listed first
+  await page.waitForTimeout(300);
+  check("delete actually called the worker's DELETE endpoint", deleteCalled);
+
+  await page.click("nav button[data-screen=find]");
+  await page.waitForSelector("#q");
+  await page.fill("#q", "special");
+  await page.waitForTimeout(400);
+  const afterDeleteText = await page.evaluate(() => document.getElementById("results").textContent);
+  check("deleting a member immediately drops their vial from the merged view, with no page reload needed",
+    !/Special Guest Line/.test(afterDeleteText), afterDeleteText);
+
   // "Failed to load resource: 401" is Chromium's own network-layer log for the
   // deliberate wrong-password request above, not a script error -- the app handled that
   // 401 correctly (that's what the banner check just proved). Real script errors don't
@@ -665,6 +707,106 @@ try {
   } finally {
     await browser2.close();
     server2.close();
+  }
+}
+
+// ---- a handoff must never carry the source account's vial ids into the target ----
+//
+// Regression: two accounts generate their own vial ids independently (often small,
+// sequential ones from an import -- "v-2" in one account has no relation to "v-2" in
+// another), so a handoff that moved a vial into a target account keeping its original
+// id could collide with an id the target already had. validate() correctly refused the
+// commit rather than corrupting either file ("Two vials share the id v-2"), but that
+// meant the handoff itself was simply broken for this (common) case. This drives it:
+// caa hands off a box containing vial id "v-2" to umut, who already has a vial with
+// that exact id.
+{
+  const server3 = await serve(8800);
+  const browser3 = await chromium.launch();
+  try {
+    const context = await browser3.newContext();
+    await context.addInitScript(() => {
+      localStorage.setItem("cst_cfg", JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" }));
+    });
+    const page = await context.newPage();
+
+    const caaBox = { id: "b-caa-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+    const caaState = {
+      storage: { units: [{ id: "u-caa-1", name: "CAA Freezer", type: "freezer", childLabel: "Rack",
+                           racks: [{ id: "r-caa-1", name: "Rack 1", boxes: [caaBox] }] }] },
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-2", name: "CAA Line", location: { unitId: "u-caa-1", rackId: "r-caa-1", boxId: "b-caa-1", position: "A1" }, status: "stored" }]
+    };
+    const umutBox = { id: "b-umut-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+    const umutState = {
+      storage: { units: [{ id: "u-umut-1", name: "Umut Freezer", type: "freezer", childLabel: "Rack",
+                           racks: [{ id: "r-umut-1", name: "Rack 1", boxes: [umutBox] }] }] },
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-2", name: "Umut's Own Line", location: { unitId: "u-umut-1", rackId: "r-umut-1", boxId: "b-umut-1", position: "A1" }, status: "stored" }]
+    };
+    let committedUmutState = null;
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/data/caa.json")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(caaState) });
+      if (url.includes("cellstocks/data/umut.json")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) });
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) }));
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
+      }
+      if (path === "/messages") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ messages: {} }) });
+      if (path === "/admin/users" && req.method() === "GET") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ users: [{ name: "caa", role: "member", hidden: false }, { name: "umut", role: "member", hidden: false }] }) });
+      }
+      if (path === "/commit" && req.method() === "POST") {
+        const body = JSON.parse(req.postData());
+        const jsonFile = body.files.find((f) => f.path.endsWith(".json"));
+        if (jsonFile.path.includes("umut")) committedUmutState = JSON.parse(jsonFile.content);
+        return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto(`http://localhost:8800/cellstocks/`);
+    await page.waitForSelector("#gateBody input");
+    const li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("admin");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+
+    await page.click("nav button[data-screen=admin]");
+    await page.click("#adminTabs button[data-admintab=handoff]");
+    await page.waitForSelector("#admin-handoff select");
+    await page.selectOption("#admin-handoff select", "caa");
+    await page.click("#admin-handoff input[type=checkbox]");
+    await page.waitForTimeout(200);
+    const boxSelects = await page.$$("#admin-handoff select");
+    // boxSelects[0] is "Who's leaving"; the per-box assignment select is next.
+    await boxSelects[1].selectOption("umut");
+    await page.click("#admin-handoff button.primary");
+    await page.waitForTimeout(300);
+
+    const handoffMsg = await page.evaluate(() => document.querySelector("#admin-handoff div:last-child").textContent);
+    check("a handoff into an account with a colliding vial id succeeds instead of refusing the commit",
+      !/share the id|invalid after this handoff/.test(handoffMsg), handoffMsg);
+    check("umut's committed state ends up with two vials under two different ids",
+      committedUmutState && committedUmutState.vials.length === 2 &&
+      new Set(committedUmutState.vials.map((v) => v.id)).size === 2,
+      JSON.stringify(committedUmutState && committedUmutState.vials));
+  } catch (err) {
+    check("a handoff into an account with a colliding vial id succeeds instead of refusing the commit", false, String(err));
+  } finally {
+    await browser3.close();
+    server3.close();
   }
 }
 

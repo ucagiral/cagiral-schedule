@@ -3612,6 +3612,12 @@
           name: name.value.trim(), password: pass.value, role: role.value, hidden: hidden.value === "true"
         })});
         adminUsersCache = null;
+        // Find/Boxes/Review/Log's merged view is fetched once per page load and kept
+        // in memory for the rest of the session (see ensureLabCache()) -- without this,
+        // a brand-new account reusing a just-deleted name would still show whatever
+        // that name's old inventory looked like when this session first loaded it,
+        // until the page was reloaded by hand.
+        labCache.members = null; labCache.data = {};
         showBanner("Created " + esc(name.value.trim()) + ".");
         renderAdminUsers();
       } catch(err){ showBanner(err.message); }
@@ -3644,6 +3650,9 @@
         try {
           await workerFetch("/admin/users/" + encodeURIComponent(u.name), { method:"DELETE", headers: adminAuth() });
           adminUsersCache = null;
+          // See the matching comment on Create above -- the deleted account's data
+          // must not keep showing in the merged view from this session's in-memory cache.
+          labCache.members = null; labCache.data = {};
           renderAdminUsers();
         } catch(err){ showBanner(err.message); }
       };
@@ -3949,6 +3958,13 @@
             sourceState.vials.forEach(function(v){
               if (v.location && v.location.boxId === boxId){
                 var moved = JSON.parse(JSON.stringify(v));
+                // Every account generates its own vial ids independently (often small,
+                // sequential ones from an import -- "v-2" in one account is no relation
+                // to "v-2" in another), so keeping the source's id risks colliding with
+                // one the target already has. A fresh id here is exactly as safe as the
+                // fresh box/unit/rack ids already minted a few lines up for the same
+                // reason.
+                moved.id = adminNewId("v");
                 moved.location = { unitId:newUnitId, rackId:newRack.id, boxId:newBoxId, position:v.location.position };
                 targetState.vials.push(moved);
               }

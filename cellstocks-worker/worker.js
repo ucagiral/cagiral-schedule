@@ -642,8 +642,13 @@ async function routeListRequests(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
   const all = await listByPrefix(env.CST_KV, "request:");
+  // Admin sees every request lab-wide -- "see and intervene in all pending requests" is
+  // one of the admin panel's own listed jobs. Everyone else sees only the ones they're
+  // actually a party to, same as before.
   const name = session.user.name.toLowerCase();
-  const mine = all.filter((r) => r.fromUser.toLowerCase() === name || r.toUser.toLowerCase() === name);
+  const mine = session.user.role === "admin"
+    ? all
+    : all.filter((r) => r.fromUser.toLowerCase() === name || r.toUser.toLowerCase() === name);
   mine.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   return json({ requests: mine });
 }

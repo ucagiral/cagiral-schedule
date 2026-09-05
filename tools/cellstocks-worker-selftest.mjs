@@ -512,7 +512,7 @@ await check("approving notifies the requester and resolving twice is refused", a
   return null;
 });
 
-await check("GET /requests shows both sides of a request, to both people, and no one else's", async () => {
+await check("GET /requests shows both sides of a request, to both people, and admin sees everything", async () => {
   const { env, umutToken, labmateToken, adminToken } = await twoMembers();
   await handleRequest(req("POST", "/requests", { toUser: "Labmate", itemName: "x" }, umutToken), env);
 
@@ -522,8 +522,11 @@ await check("GET /requests shows both sides of a request, to both people, and no
   const asOwner = await (await handleRequest(req("GET", "/requests", undefined, labmateToken), env)).json();
   if (asOwner.requests.length !== 1) return `owner saw ${asOwner.requests.length} requests, expected 1`;
 
+  // Admin is not a party to this request but sees it anyway -- "see and intervene in all
+  // pending requests lab-wide" is one of the admin panel's own listed jobs, unlike an
+  // ordinary uninvolved member who would see nothing.
   const asAdmin = await (await handleRequest(req("GET", "/requests", undefined, adminToken), env)).json();
-  if (asAdmin.requests.length !== 0) return "an uninvolved account (even admin) saw a request that wasn't theirs";
+  if (asAdmin.requests.length !== 1) return `admin saw ${asAdmin.requests.length} requests, expected to see it too (lab-wide visibility)`;
   return null;
 });
 

@@ -514,10 +514,14 @@ try {
   const groupingAfterClick = await page.evaluate(() => document.querySelector("#storageCard .seg button.on").textContent.trim());
   check("picking No rule updates the selected option", groupingAfterClick === "No rule", groupingAfterClick);
 
-  // ---- admin "act as" (Phase D of the admin-panel follow-up requests) ----
-  // The admin panel's own launcher opens the app with ?actAs=<name>; this drives the
-  // manual way in instead (Settings' own "Act as" picker) since it's the same mechanism
-  // and doesn't need a second browser context to exercise.
+  // ---- admin sees the whole lab merged, read-only, with its own nav tab (Phase 4) ----
+  // Replaces the old "act as" launcher entirely -- admin never impersonates a member to
+  // see or write their boxes any more. Find/Boxes/Review/Log show every member merged
+  // and tagged by owner, with no write affordance anywhere on those four screens; an
+  // actual change only ever happens through the new Admin tab's own sub-tabs (Users,
+  // Requests, Messages, History, Handoff, Manage a box), which write straight to the
+  // real member's file -- worth confirming those by hand against the real worker, the
+  // same as this admin surface always has been.
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
   await page.waitForSelector("#gateBody input");
@@ -528,47 +532,49 @@ try {
   await page.click("#workerLoginBtn");
   await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
 
-  await page.click("nav button[data-screen=settings]");
-  await page.waitForSelector("#connectCard select");
-  const actAsOptions = await page.$$eval("#connectCard select option", (opts) => opts.map((o) => o.textContent));
-  check("the Act as picker lists every non-hidden member", actAsOptions.includes("labmate") && actAsOptions.includes("newbie"), JSON.stringify(actAsOptions));
-
-  await page.selectOption("#connectCard select", "labmate");
-  await page.click("#connectCard button:has-text('Start')");
-  await page.waitForFunction(() => document.getElementById("actAsBar").classList.contains("show"));
-  check("starting act-as shows the persistent strip naming who's being acted as",
-    /Acting as labmate/.test(await page.evaluate(() => document.getElementById("actAsText").textContent)));
+  const navState = await page.evaluate(() => ({
+    freezeHidden: document.getElementById("navFreeze").hidden,
+    adminHidden: document.getElementById("navAdmin").hidden
+  }));
+  check("admin has no Freeze tab -- Freeze is never how admin changes anything", navState.freezeHidden, JSON.stringify(navState));
+  check("admin gets its own Admin tab", !navState.adminHidden, JSON.stringify(navState));
 
   await page.click("nav button[data-screen=find]");
   await page.waitForSelector("#q");
   await page.fill("#q", "special");
-  await page.waitForTimeout(250);
-  const actAsResults = await page.evaluate(() => document.getElementById("results").textContent);
-  check("acting as labmate shows labmate's own vial as OWN data, not through search-in-lab",
-    /Special Guest Line/.test(actAsResults), actAsResults);
+  await page.waitForTimeout(400);
+  const adminFindText = await page.evaluate(() => document.getElementById("results").textContent);
+  check("admin's merged Find shows a member's vial tagged by owner",
+    /labmate/i.test(adminFindText) && /Special Guest Line/.test(adminFindText), adminFindText);
+  const adminFindButtons = await page.$$eval("#results .res button", (btns) => btns.map((b) => b.textContent.trim()));
+  check("admin's merged Find offers no write action at all", adminFindButtons.length === 0, JSON.stringify(adminFindButtons));
 
-  // Turning search-in-lab on while acting as labmate must exclude labmate's OWN file from
-  // the "other members" listing -- a bug here would relabel this same vial as a foreign
-  // lab result (an owner chip, only a "Request this" button) instead of leaving it as
-  // labmate's own (Took it / Show in box / Edit).
-  await page.click("#filters .toggle input[type=checkbox]");
-  await page.waitForTimeout(300);
-  const ownResultButtons = await page.$$eval(".res:has-text('Special Guest Line') button", (btns) => btns.map((b) => b.textContent.trim()));
-  check("acting as labmate excludes labmate's own file from search-in-lab results",
-    JSON.stringify(ownResultButtons) === JSON.stringify(["Took it", "Show in box", "Edit"]), JSON.stringify(ownResultButtons));
+  await page.click("nav button[data-screen=boxes]");
+  await page.waitForSelector("#bxOwner");
+  const bxOwnerOptions = await page.$$eval("#bxOwner option", (opts) => opts.map((o) => o.value));
+  check("admin's Boxes screen offers a member picker listing every member",
+    bxOwnerOptions.includes("labmate"), JSON.stringify(bxOwnerOptions));
+  await page.selectOption("#bxOwner", "labmate");
+  await page.waitForTimeout(200);
+  const bxSlotClickable = await page.evaluate(() => {
+    const cell = document.querySelector("#bxGrid .slot");
+    return cell ? cell.onclick !== null : null;
+  });
+  check("admin's box grid is read-only -- no slot opens the edit/take dialog",
+    bxSlotClickable === false, String(bxSlotClickable));
 
-  await page.click("nav button[data-screen=settings]");
-  await page.waitForSelector("#connectCard button:has-text('Stop acting as')");
-  await page.click("#connectCard button:has-text('Stop acting as')");
-  await page.waitForFunction(() => !document.getElementById("actAsBar").classList.contains("show"));
-  check("stopping act-as hides the strip again", true);
-  await page.click("nav button[data-screen=find]");
-  await page.waitForSelector("#q");
-  await page.fill("#q", "special");
-  await page.waitForTimeout(250);
-  const afterStopResults = await page.evaluate(() => document.getElementById("results").textContent);
-  check("stopping act-as never leaves the acted-as user's vial showing as admin's own",
-    !/Special Guest Line/.test(afterStopResults), afterStopResults);
+  await page.click("nav button[data-screen=review]");
+  await page.waitForTimeout(200);
+  const reviewText = await page.evaluate(() => document.getElementById("reviewBody").textContent);
+  check("admin's merged Review is grouped by owner", reviewText.startsWith("labmate"), reviewText);
+  const reviewButtonStates = await page.$$eval("#reviewBody button", (btns) => btns.map((b) => b.disabled));
+  check("every button in admin's merged Review is disabled -- nothing here can write",
+    reviewButtonStates.length > 0 && reviewButtonStates.every((d) => d === true), JSON.stringify(reviewButtonStates));
+
+  await page.click("nav button[data-screen=log]");
+  await page.waitForTimeout(200);
+  const logText = await page.evaluate(() => document.getElementById("logBody").textContent);
+  check("admin's merged Log renders lab-wide", /Nothing has been taken out, lab-wide/.test(logText), logText);
 
   // "Failed to load resource: 401" is Chromium's own network-layer log for the
   // deliberate wrong-password request above, not a script error -- the app handled that

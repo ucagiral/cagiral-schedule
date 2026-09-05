@@ -420,8 +420,9 @@ Safari → Share → **Add to Home Screen**.
 It is lab-wide and multi-user now (`cellstocks-worker/`): logging in is mandatory, with a gate
 that covers the whole app — nav included — until someone is identified, either with a name and
 password an admin set up (the lab-wide way in) or a personal GitHub token (the older, per-device
-way in). Nobody sees anyone's boxes by just opening the page. See `cellstocks-worker/README.md`
-for the backend and `cellstocks/admin/` for the admin panel.
+way in). Nobody sees anyone's boxes by just opening the page. One app, one login: logging in as the
+hidden admin account adds an Admin tab to the same nav everyone else has, rather than sending admin
+to a separate URL. See `cellstocks-worker/README.md` for the backend.
 
 ### How it fits together
 
@@ -435,7 +436,7 @@ for the backend and `cellstocks/admin/` for the admin panel.
 | `protocols/cryopreservation.md` | How long a −80 vial is good for, and what has to be recorded about one, with sources. |
 | `.github/workflows/cellstocks.yml` | Runs the self-test on every change, and checks the workbook still matches the inventory. |
 | `cellstocks-worker/` | The lab-wide, multi-user backend — a small Cloudflare Worker that privately holds the one GitHub write token and is the only thing that can commit a write, so it is the only thing that can enforce who owns what. See `cellstocks-worker/README.md`. |
-| `cellstocks/admin/` | The admin-only panel — user accounts (create/rename/reset/delete), all pending requests lab-wide, notification wording, a one-button full export plus point-in-time history, a launcher into the real app "acting as" any member for full-parity overrides, and handing off a departing member's boxes to whoever takes them over. Desktop-only (its own URL, plus a screen-width gate), and only usable logged in as the hidden admin account. |
+| Admin tab (in `cellstocks/index.html`, admin-only) | Logging in as the hidden admin account adds this tab to the same nav: user accounts (create/rename/reset/delete), all pending requests lab-wide, notification wording, a one-button full export plus point-in-time history, handing off a departing member's boxes to whoever takes them over, and "Manage a box" — pick a member, pick or add one of their boxes, freeze/edit/withdraw a vial straight into their real file. Find, Boxes, Review and Log show every member's inventory merged and tagged by owner for admin, but read-only — every actual change happens through this tab. `cellstocks/admin/` is now just a redirect stub, kept for old bookmarks and the request-notification email. |
 
 ### Finding a vial
 

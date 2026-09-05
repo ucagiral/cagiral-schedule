@@ -878,25 +878,44 @@
     }
   }
 
+  // The date slider is never remembered across a render -- every fresh look at Find
+  // starts fully open, "All time" to the newest date there is, exactly the way Umut
+  // asked: a lab-mate's vial (found via search-in-lab) must never be invisible just
+  // because the slider was computed before anyone knew that date existed. Only the
+  // passage slider still "follows" the data the way it always did -- that part was
+  // never the complaint.
   function followExtents(x){
     var b = filter.bounds;
     if (b){
-      if (filter.frozenFrom === b.frozenMin) filter.frozenFrom = x.frozen.min;
-      if (filter.frozenTo === b.frozenMax) filter.frozenTo = x.frozen.max;
       ["absolute", "relative"].forEach(function(kind){
         if (filter.passageKind !== kind) return;
         if (filter.passageMin === b["min_" + kind]) filter.passageMin = x.passage[kind].min;
         if (filter.passageMax === b["max_" + kind]) filter.passageMax = x.passage[kind].max;
       });
     }
-    // And clamp, in case the data shrank rather than grew.
-    if (x.frozen.min && filter.frozenFrom && filter.frozenFrom < x.frozen.min) filter.frozenFrom = x.frozen.min;
-    if (x.frozen.max && filter.frozenTo && filter.frozenTo > x.frozen.max) filter.frozenTo = x.frozen.max;
     filter.bounds = {
-      frozenMin: x.frozen.min, frozenMax: x.frozen.max,
       min_absolute: x.passage.absolute.min, max_absolute: x.passage.absolute.max,
       min_relative: x.passage.relative.min, max_relative: x.passage.relative.max
     };
+  }
+
+  // Own data's extents, merged with every lab-mate's when "search in lab" is on --
+  // otherwise the slider is computed from a range that never knew a lab-mate's older
+  // or newer vial existed, and silently clips it out of the very search meant to find
+  // it. Pure recombination of E.searchExtents() per state; no engine.js change needed.
+  function combinedSearchExtents(){
+    var x = E.searchExtents(state);
+    if (!filter.searchInLab || !labCache.members) return x;
+    labCache.members.forEach(function(name){
+      var other = labCache.data[name];
+      if (!other) return;
+      var ox = E.searchExtents(other);
+      if (ox.frozen.min && (!x.frozen.min || ox.frozen.min < x.frozen.min)) x.frozen.min = ox.frozen.min;
+      if (ox.frozen.max && (!x.frozen.max || ox.frozen.max > x.frozen.max)) x.frozen.max = ox.frozen.max;
+      x.frozen.dated += ox.frozen.dated;
+      x.frozen.unconfirmed += ox.frozen.unconfirmed;
+    });
+    return x;
   }
 
   function isoToDay(iso){ return Math.round(Date.parse(iso + "T00:00:00Z") / 86400000); }
@@ -943,8 +962,11 @@
 
   function renderFilters(){
     var box = clear($("filters"));
-    var x = E.searchExtents(state);
+    var x = combinedSearchExtents();
     followExtents(x);
+    // Always fully open -- see the comment on followExtents() above.
+    filter.frozenFrom = x.frozen.min;
+    filter.frozenTo = x.frozen.max;
     var units = state.storage.units || [];
 
     // "Search in lab": own boxes always come first (see renderResults) -- this only
@@ -958,8 +980,11 @@
       labCb.type = "checkbox"; labCb.checked = filter.searchInLab;
       labCb.onchange = function(){
         filter.searchInLab = labCb.checked;
-        renderResults();
-        if (filter.searchInLab) ensureLabCache().then(renderResults);
+        // The slider has to widen to cover whatever lab-mates' dates already loaded --
+        // renderFilters() re-fully-opens it via combinedSearchExtents() -- and again
+        // once ensureLabCache()'s fetch actually resolves, for the first toggle-on.
+        renderFilters(); renderResults();
+        if (filter.searchInLab) ensureLabCache().then(function(){ renderFilters(); renderResults(); });
       };
       lab.appendChild(labCb);
       lab.appendChild(document.createTextNode("Search in lab" +
@@ -997,6 +1022,26 @@
         filter.frozenFrom = dayToIso(a); filter.frozenTo = dayToIso(b);
         label(); renderResults();
       }});
+
+      // Fine-tuning on top of the slider, typed rather than dragged -- the slider
+      // alone can't land exactly on a specific day once the range spans years.
+      var dateInputs = el("div", "two");
+      var fromInput = document.createElement("input");
+      fromInput.type = "date"; fromInput.min = x.frozen.min; fromInput.max = x.frozen.max; fromInput.value = filter.frozenFrom;
+      var toInput = document.createElement("input");
+      toInput.type = "date"; toInput.min = x.frozen.min; toInput.max = x.frozen.max; toInput.value = filter.frozenTo;
+      function applyManualRange(){
+        var a = fromInput.value || x.frozen.min, b = toInput.value || x.frozen.max;
+        if (a > b){ var t = a; a = b; b = t; }
+        filter.frozenFrom = a; filter.frozenTo = b;
+        renderFilters(); renderResults();
+      }
+      fromInput.onchange = applyManualRange;
+      toInput.onchange = applyManualRange;
+      var fFrom = el("div", "field"); fFrom.appendChild(el("label", null, "From")); fFrom.appendChild(fromInput);
+      var fTo = el("div", "field"); fTo.appendChild(el("label", null, "To")); fTo.appendChild(toInput);
+      dateInputs.appendChild(fFrom); dateInputs.appendChild(fTo);
+      f.appendChild(dateInputs);
 
       if (x.frozen.unconfirmed){
         var t = el("label", "toggle");

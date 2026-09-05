@@ -638,6 +638,7 @@
     var passage = { absolute: { min: null, max: null, count: 0 },
                     relative: { min: null, max: null, count: 0 }, unknown: 0 };
     storedVials(state).forEach(function (v) {
+      if (v.importAmbiguous) return; // not in search results yet either -- see search()
       if (v.frozenOn) {
         frozen.dated++;
         if (!frozen.min || v.frozenOn < frozen.min) frozen.min = v.frozenOn;

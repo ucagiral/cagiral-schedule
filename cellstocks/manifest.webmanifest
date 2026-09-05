@@ -1,13 +1,13 @@
 {
-  "name": "Cell Stocks",
-  "short_name": "Cell Stocks",
+  "name": "CAApp",
+  "short_name": "CAApp",
   "description": "Finds a frozen vial, and says where to put a new one.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f6f7f9",
-  "theme_color": "#0891b2",
+  "theme_color": "#111111",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

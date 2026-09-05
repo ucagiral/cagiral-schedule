@@ -235,6 +235,52 @@ function canWrite(user, path) {
   return path === dataPathFor(user.name) || path === xlsxPathFor(user.name);
 }
 
+// ============================================================================ history (time machine)
+//
+// "Even if someone deletes their stock, I should be able to retrieve the complete stock
+// situation on 23 May 2026 14:56" -- Umut, on the admin panel. Every save is already a
+// git commit to cellstocks/data/<user>.json (see commitFilesAtomic() above), so this
+// needs no separate storage at all: GitHub's own commit history for that one path *is*
+// the time machine, including past whatever account or file deletion, since git history
+// does not forget. This is read-only and admin-only -- it uses the REST Commits/Contents
+// endpoints (not the git-data ones commitFilesAtomic uses), so it is kept separate from
+// githubApi's git-data callers even though it shares the same helper.
+
+function base64ToUtf8(b64) {
+  const bin = atob(String(b64).replace(/\s/g, ""));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder("utf-8").decode(bytes);
+}
+
+// Every commit that ever touched this one file, newest first -- exactly what a "pick a
+// point in time" UI needs to browse, and exactly what proves the file existed (or
+// didn't) at all before a given moment.
+async function historyCommits(env, path) {
+  const branch = env.GITHUB_BRANCH || "main";
+  return githubApi(env, "GET", `/commits?path=${encodeURIComponent(path)}&sha=${encodeURIComponent(branch)}&per_page=100`);
+}
+
+// The content of `path` exactly as it stood at or before `atIso` -- the commit GitHub's
+// own `until` filter finds is, by definition, the most recent one that is not later than
+// that moment, which is what "the stock situation on 23 May 2026 14:56" means: not the
+// nearest commit in either direction, the last one that had already happened by then.
+async function historyAt(env, path, atIso) {
+  const branch = env.GITHUB_BRANCH || "main";
+  const commits = await githubApi(
+    env, "GET",
+    `/commits?path=${encodeURIComponent(path)}&sha=${encodeURIComponent(branch)}&until=${encodeURIComponent(atIso)}&per_page=1`
+  );
+  if (!commits.length) {
+    const err = new Error("no commit to this file exists at or before that time");
+    err.status = 404;
+    throw err;
+  }
+  const sha = commits[0].sha;
+  const file = await githubApi(env, "GET", `/contents/${path}?ref=${sha}`);
+  return { sha, commitDate: commits[0].commit.author.date, content: base64ToUtf8(file.content) };
+}
+
 // ============================================================================ requests & notifications
 //
 // The physical vial never moves through any of this -- Umut's answer was explicit: an
@@ -702,6 +748,36 @@ async function routeSetMessagesConfig(request, env) {
   return json({ defaults: DEFAULT_MESSAGES, overrides: next });
 }
 
+async function routeHistoryCommits(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const user = new URL(request.url).searchParams.get("user");
+  if (!user) return json({ error: "?user= is required" }, 400);
+  try {
+    const commits = await historyCommits(env, dataPathFor(user));
+    return json({ commits: commits.map((c) => ({ sha: c.sha, date: c.commit.author.date, message: c.commit.message })) });
+  } catch (err) {
+    return json({ error: err.message }, requestErrorStatus(err));
+  }
+}
+
+async function routeHistoryAt(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const url = new URL(request.url);
+  const user = url.searchParams.get("user");
+  const at = url.searchParams.get("at");
+  if (!user || !at) return json({ error: "?user= and ?at= are required" }, 400);
+  try {
+    const result = await historyAt(env, dataPathFor(user), at);
+    return json(result);
+  } catch (err) {
+    return json({ error: err.message }, requestErrorStatus(err));
+  }
+}
+
 // ============================================================================ entry point
 
 async function handleRequest(request, env) {
@@ -742,6 +818,8 @@ async function handleRequest(request, env) {
       response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "deny");
     } else if (path === "/admin/messages" && request.method === "GET") response = await routeGetMessagesConfig(request, env);
     else if (path === "/admin/messages" && request.method === "PUT") response = await routeSetMessagesConfig(request, env);
+    else if (path === "/admin/history/commits" && request.method === "GET") response = await routeHistoryCommits(request, env);
+    else if (path === "/admin/history/at" && request.method === "GET") response = await routeHistoryAt(request, env);
     else response = json({ error: "not found" }, 404);
   } catch (err) {
     response = json({ error: err && err.message ? err.message : "internal error" }, 500);
@@ -771,5 +849,6 @@ export {
   hasBroadcastAuthority,
   DEFAULT_MESSAGES,
   MESSAGES_CONFIG_KEY,
-  fillTemplate
+  fillTemplate,
+  base64ToUtf8
 };

@@ -77,12 +77,25 @@ try {
   const requestsDb = [
     { id: "req-1", fromUser: "Labmate", toUser: "Umut", vialId: "v-1", itemName: "HEK293T p12", note: "for a rescue", status: "pending" }
   ];
-  let umutState = { storage: { units: [] }, lines: [], vials: [{ id: "v-1", name: "HEK293T p12", status: "stored" }], withdrawals: [], rules: {}, settings: {} };
+  let umutState = {
+    storage: { units: [] }, lines: [], vials: [{ id: "v-1", name: "HEK293T p12", status: "stored" }], rules: {}, settings: {},
+    withdrawals: [{ id: "w-2", vialId: "v-1", name: "HEK293T p12", from: null, date: "2026-05-22", by: "umut-PC", purpose: "thaw", notes: "" }]
+  };
+  // Renamed to "ayse.json" partway through the test (the rename check below), and also
+  // served under "labmate.json" for the export-all test -- one withdrawal each, so the
+  // combined Log sheet has more than one owner's row to actually combine.
+  const labmateState = {
+    storage: { units: [] }, lines: [], vials: [], rules: {}, settings: {},
+    withdrawals: [{ id: "w-1", vialId: "v-2", name: "Special Guest Line", from: null, date: "2026-05-20", by: "Labmate's laptop", purpose: "thaw", notes: "" }]
+  };
 
   await page.route("https://raw.githubusercontent.com/**", (route) => {
     const url = route.request().url();
-    if (url.includes("cellstocks/data/umut.json")) {
+    if (url.includes("cellstocks/data/umut.json") || url.includes("cellstocks/data/ayse.json")) {
       return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) });
+    }
+    if (url.includes("cellstocks/data/labmate.json")) {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labmateState) });
     }
     return route.fulfill({ status: 404, body: "" });
   });
@@ -222,8 +235,19 @@ try {
     messagesSaveCall && JSON.parse(messagesSaveCall.body).messages.request === "[custom] {fromUser} wants {itemName}",
     JSON.stringify(messagesSaveCall));
 
-  // ---- history tab ----
+  // ---- history tab: export everything ----
   await page.click('#tabs button[data-tab="history"]');
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.click("#exportAllBtn")
+  ]);
+  check("exporting all stocks triggers a real download",
+    /^cellstocks-export-\d{4}-\d{2}-\d{2}\.xlsx$/.test(download.suggestedFilename()), download.suggestedFilename());
+  await page.waitForFunction(() => /Exported \d+ of \d+ account/.test(document.getElementById("exportAllMsg").textContent));
+  check("the export summary counts every non-hidden account it found data for",
+    /Exported 2 of 2 account/.test(await page.evaluate(() => document.getElementById("exportAllMsg").textContent)),
+    await page.evaluate(() => document.getElementById("exportAllMsg").textContent));
+
   await page.fill("#histUser", "umut");
   await page.fill("#histAt", "2026-05-23T14:56");
   await page.click("#histLoadBtn");

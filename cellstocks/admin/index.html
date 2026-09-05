@@ -146,7 +146,17 @@
       </div>
 
       <div id="tab-history" hidden>
+        <h2>Export everything</h2>
+        <div class="card">
+          <p class="note">One workbook, right now: every current member's vials, one sheet each,
+            plus a first sheet listing every withdrawal lab-wide -- who took what out, and when.</p>
+          <button class="primary" id="exportAllBtn">Export all current stocks</button>
+          <div id="exportAllMsg"></div>
+        </div>
+
         <h2>Point-in-time history</h2>
+        <p class="note">One user's file, as it stood at a moment in the past -- even past a
+          deleted account or a deleted file, since this reads git's own history for that path.</p>
         <div class="card">
           <div class="row">
             <div class="field"><label>User</label><input id="histUser" placeholder="umut"></div>
@@ -491,6 +501,64 @@
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
   }
+
+  // One click, one workbook: every current member's vials plus a combined "who took
+  // what out, when" log -- Umut's own words for what the old, unexplained History tab
+  // should have just done. No engine.js changes: this only recombines what
+  // vialsToSheets() and findBox() (both already used elsewhere in this app) produce per
+  // user into one cross-lab file.
+  $("exportAllBtn").onclick = async function(){
+    var btn = $("exportAllBtn");
+    var msg = clear($("exportAllMsg"));
+    btn.disabled = true;
+    msg.appendChild(el("p", "note", "Fetching every account…"));
+    try {
+      var usersBody = await workerFetch("/admin/users");
+      var names = usersBody.users.filter(function(u){ return !u.hidden; }).map(function(u){ return u.name; });
+      var states = {};
+      await Promise.all(names.map(function(name){
+        return fetch(rawURL(dataPathFor(name)), { cache:"no-store" })
+          .then(function(r){ return r.ok ? r.text() : null; })
+          .then(function(text){ if (text) states[name] = E.mergeDefaults(JSON.parse(text)); })
+          .catch(function(){});
+      }));
+
+      var logRows = [["date", "owner", "name", "unit", "rack", "box", "position", "by", "purpose", "notes", "vial_id"]];
+      var entries = [];
+      names.forEach(function(name){
+        var state = states[name];
+        if (!state) return;
+        (state.withdrawals || []).forEach(function(w){ entries.push({ owner:name, state:state, w:w }); });
+      });
+      entries.sort(function(a, b){ return String(b.w.date || "") < String(a.w.date || "") ? -1 : 1; });
+      entries.forEach(function(e){
+        var w = e.w;
+        var box = w.from ? E.findBox(e.state, w.from.boxId) : null;
+        logRows.push([w.date || "", e.owner, w.name || "",
+          box ? box.unit.name : "", box ? box.rack.name : "", box ? box.box.name : "",
+          w.from ? w.from.position : "", w.by || "", w.purpose || "", w.notes || "", w.vialId]);
+      });
+
+      var sheets = [{ name:"Log", rows:logRows }];
+      names.forEach(function(name){
+        var state = states[name];
+        if (!state) return;
+        var vialsSheet = E.vialsToSheets(state).filter(function(s){ return s.name === "vials"; })[0];
+        // Sheet names are limited to 31 characters and can't repeat -- truncate rather
+        // than fail the whole export over one long account name.
+        sheets.push({ name: name.slice(0, 31), rows: vialsSheet.rows });
+      });
+
+      var bytes = await X.writeWorkbookAsync(sheets);
+      downloadBlob(bytes, "cellstocks-export-" + new Date().toISOString().slice(0, 10) + ".xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      clear($("exportAllMsg")).appendChild(el("div", "msg ok",
+        "Exported " + names.filter(function(n){ return states[n]; }).length + " of " + names.length + " account(s)."));
+    } catch(err){
+      clear($("exportAllMsg")).appendChild(el("div", "msg error", err.message));
+    }
+    btn.disabled = false;
+  };
 
   function renderHistoryResult(user, result){
     var box = clear($("histResult"));

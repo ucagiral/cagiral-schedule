@@ -5,10 +5,11 @@
 //
 // Run:  node tools/make-cellstocks-icons.mjs
 //
-// Full-bleed cyan square (iOS rounds it itself, and Android's maskable crop stays
-// safe because the vial sits inside the middle 80%). Shapes are sampled 4x4 per
-// pixel and blended, because a rounded cap drawn with hard pixels looks ragged at
-// 192 px.
+// Full-bleed black square (iOS rounds it itself, and Android's maskable crop stays
+// safe because the vial sits inside the middle 80%) -- same shape as before, just
+// colourless now (Umut asked for black-and-white branding). Shapes are sampled 4x4
+// per pixel and blended, because a rounded cap drawn with hard pixels looks ragged
+// at 192 px.
 
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -17,7 +18,7 @@ import { png } from "./png.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "cellstocks");
 
-const BG = [8, 145, 178];         // #0891b2 — matches --accent and the manifest
+const BG = [0, 0, 0];             // black -- same vial shape, no colour (CAApp branding)
 const GLASS = [255, 255, 255];
 
 // Everything in 0..1 coordinates so one description serves every size.

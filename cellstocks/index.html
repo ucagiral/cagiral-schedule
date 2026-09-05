@@ -88,6 +88,16 @@
   .banner button{margin-left:8px; padding:3px 9px; font-size:12px}
   .banner code{background:rgba(0,0,0,.08); padding:1px 4px; border-radius:4px}
 
+  /* Deliberately more insistent than .banner and never auto-hiding (see afterActAsChange())
+     -- whose inventory is on screen must never be ambiguous while an admin is acting as
+     someone else. */
+  .actas{
+    padding:9px 12px; font-size:13px; background:var(--bad); color:#fff;
+    display:none; align-items:center; gap:8px; line-height:1.4;
+  }
+  .actas.show{display:flex}
+  .actas button{margin-left:auto; padding:3px 9px; font-size:12px}
+
   main{flex:1; padding:12px; padding-bottom:calc(74px + var(--safe-b)); max-width:760px; width:100%; margin:0 auto}
   .screen{display:none} .screen.active{display:block}
 
@@ -276,6 +286,10 @@
   <span id="status">Loading…</span>
 </header>
 <div class="banner" id="banner"></div>
+<div class="actas" id="actAsBar">
+  <span id="actAsText"></span>
+  <button id="actAsStopBtn">Stop</button>
+</div>
 
 <div class="gate" id="authGate">
   <h2>Log in</h2>
@@ -393,6 +407,24 @@
   var LEGACY_XLSX_PATH = "cellstocks/cell-stocks.xlsx";
   var DATA_PREFIX = "cellstocks/data/";
 
+  // A ?actAs=<name> link (the admin panel's own "Open as this user" launcher opens the
+  // app this way) is stashed the instant the page loads and stripped from the address
+  // bar right away, either way -- applyPendingActAs() below only ever acts on it once a
+  // login actually resolves to an admin, which may not have happened yet if this tab
+  // needed a fresh login first.
+  var PENDING_ACT_AS_KEY = "cst_actas_pending";
+  (function(){
+    try {
+      var params = new URLSearchParams(location.search);
+      var wanted = params.get("actAs");
+      if (!wanted) return;
+      sessionStorage.setItem(PENDING_ACT_AS_KEY, wanted);
+      params.delete("actAs");
+      var qs = params.toString();
+      history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+    } catch(e){}
+  })();
+
   function resolveConfig(){
     var stored = null;
     try { stored = JSON.parse(localStorage.getItem(LS.cfg) || "null"); } catch(e){}
@@ -421,13 +453,43 @@
   function getWorkerUser(){ try { return JSON.parse(localStorage.getItem(LS.workerUser) || "null"); } catch(e){ return null; } }
   function workerBase(url){ return String(url || "").replace(/\/+$/, ""); }
 
-  function dataPath(){
+  // ---- admin "act as" -------------------------------------------------------------
+  // Umut asked for admin overrides to have full parity with the real app -- freeze,
+  // box/rack management, rules, everything -- rather than a second, parallel editor UI
+  // duplicating this whole file. The worker's canWrite() already lets an admin session
+  // write ANY user's data path, so the only thing missing was a way to point THIS app's
+  // existing screens at someone else's file: every screen already reads and writes
+  // through dataPath()/xlsxPath() below, so redirecting those two functions is the
+  // entire feature -- find/freeze/boxes/review/log/rules all follow for free.
+  //
+  // sessionStorage, not localStorage: tab-scoped and gone the moment the tab closes, so
+  // an admin can never leave a stale impersonation active on a shared or reused tab.
+  // Scoped to who is authenticated for everything else too -- acting as someone only
+  // ever redirects which FILE is read/written, never who a request/broadcast/
+  // notification is attributed to.
+  var SS_ACT_AS = "cst_act_as";
+  function isAdminUser(){ var wu = getWorkerUser(); return !!wu && wu.role === "admin"; }
+  function getActAs(){
+    if (!isAdminUser()) return null;
+    try { return sessionStorage.getItem(SS_ACT_AS) || null; } catch(e){ return null; }
+  }
+  function setActAs(name){
+    try { if (name) sessionStorage.setItem(SS_ACT_AS, name); else sessionStorage.removeItem(SS_ACT_AS); } catch(e){}
+  }
+  function effectiveIdentity(){
+    var actAs = getActAs();
+    if (actAs) return actAs;
     var u = getWorkerUser();
-    return u ? DATA_PREFIX + u.name.toLowerCase() + ".json" : LEGACY_DATA_PATH;
+    return u ? u.name : null;
+  }
+
+  function dataPath(){
+    var name = effectiveIdentity();
+    return name ? DATA_PREFIX + name.toLowerCase() + ".json" : LEGACY_DATA_PATH;
   }
   function xlsxPath(){
-    var u = getWorkerUser();
-    return u ? DATA_PREFIX + u.name.toLowerCase() + ".xlsx" : LEGACY_XLSX_PATH;
+    var name = effectiveIdentity();
+    return name ? DATA_PREFIX + name.toLowerCase() + ".xlsx" : LEGACY_XLSX_PATH;
   }
 
   async function workerFetch(path, opts){
@@ -488,7 +550,7 @@
   // the classic GitHub-token flow already has its own long-standing empty-state message
   // (Settings -> Stock: "Nothing imported yet"), so this isn't shown twice.
   function isFreshAccount(){
-    return !!getWorkerUser() && !(state.storage.units || []).length && !(state.vials || []).length;
+    return !!effectiveIdentity() && !(state.storage.units || []).length && !(state.vials || []).length;
   }
   function ghHeaders(){
     var h = { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
@@ -559,8 +621,8 @@
   // teammate's login, a shared lab laptop). The offline cache has to be keyed per account, or a
   // network hiccup after switching accounts would silently hand back whoever logged in earlier.
   function cacheKey(){
-    var u = getWorkerUser();
-    return LS.cachePrefix + (u ? u.name.toLowerCase() : "legacy");
+    var name = effectiveIdentity();
+    return LS.cachePrefix + (name ? name.toLowerCase() : "legacy");
   }
   function cacheSave(){
     try { localStorage.setItem(cacheKey(), JSON.stringify({ at: Date.now(), state: state })); } catch(e){}
@@ -610,8 +672,8 @@
         // just mean "nothing here to import into yet". importSheet() builds its own
         // boxes straight from the spreadsheet's own box column (see engine.js), so
         // there is nothing to set up by hand first unless someone wants to.
-        var wu = getWorkerUser();
-        showBanner("Welcome" + (wu ? ", " + esc(wu.name) : "") + " — nothing imported yet.",
+        var idName = effectiveIdentity();
+        showBanner("Welcome" + (idName ? ", " + esc(idName) : "") + " — nothing imported yet.",
           [{ label:"Import a spreadsheet", onClick: function(){ hideBanner(); go("settings"); openImport(); } }]);
       }
     } catch(err){
@@ -791,17 +853,18 @@
     if (labCache.members || labCache.loading || !REPO) return;
     labCache.loading = true;
     try {
-      var self = getWorkerUser();
-      var selfName = self ? self.name.toLowerCase() : null;
+      var idName = effectiveIdentity();
+      var selfName = idName ? idName.toLowerCase() : null;
       var listing = await fetch("https://api.github.com/repos/" + REPO + "/contents/" + DATA_PREFIX.replace(/\/$/, ""))
         .then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; });
       var names = (Array.isArray(listing) ? listing : [])
         .map(function(entry){ return entry.name || ""; })
         .filter(function(n){ return /\.json$/.test(n); })
         .map(function(n){ return n.replace(/\.json$/, ""); })
-        // Excludes this account's own file (already searched) and, structurally, any
-        // hidden admin account -- admin has no cellstocks/data/*.json of its own, so it
-        // was never going to appear in this listing in the first place.
+        // Excludes whoever's file is already the "own" view -- the real logged-in
+        // account normally, or the acted-as user when an admin is impersonating one --
+        // and, structurally, any hidden admin account, which has no
+        // cellstocks/data/*.json of its own to begin with.
         .filter(function(n){ return n !== selfName; });
       labCache.members = names;
       await Promise.all(names.map(function(name){
@@ -2158,19 +2221,90 @@
     });
     themeField.appendChild(themeSeg);
     c.appendChild(themeField);
+
+    // ---- act as (admin only) ----
+    // The manual way in, independent of the admin panel's own "Open as this user"
+    // launcher -- same effect either way, see effectiveIdentity() above.
+    if (isAdminUser()){
+      c.appendChild(el("h3", null, "Act as"));
+      var curActAs = getActAs();
+      if (curActAs){
+        c.appendChild(el("p", "note", "Acting as " + esc(curActAs) + ". Every screen shows their inventory, not yours."));
+        var stopBtn = el("button", "danger", "Stop acting as " + curActAs);
+        stopBtn.onclick = function(){ changeActAs(null); };
+        c.appendChild(stopBtn);
+      } else {
+        c.appendChild(el("p", "note",
+          "Browse and edit another member's boxes with full use of this app, exactly as they " +
+          "would -- freeze, review, rules, everything. Only which file is read/written changes; " +
+          "requests, broadcasts and notifications still come from you."));
+        var actSel = document.createElement("select");
+        actSel.appendChild(el("option", null, "Choose a member…"));
+        (async function(){
+          try {
+            var body = await workerFetch("/admin/users");
+            body.users.filter(function(u){ return !u.hidden; }).forEach(function(u){
+              var o = document.createElement("option");
+              o.value = u.name; o.textContent = u.name;
+              actSel.appendChild(o);
+            });
+          } catch(e){}
+        })();
+        c.appendChild(actSel);
+        var startBtn = el("button", "primary", "Start");
+        startBtn.style.marginLeft = "8px";
+        startBtn.onclick = function(){ if (actSel.value) changeActAs(actSel.value); };
+        c.appendChild(startBtn);
+      }
+    }
   }
+
+  // Switching who this device is acting as means whatever was on screen belongs to
+  // nobody now on screen -- drop it immediately, the same reasoning as switching
+  // logged-in accounts (see the worker-login handler above).
+  function changeActAs(name){
+    setActAs(name);
+    state = E.blankState();
+    labCache = { members: null, data: {}, loading: false };
+    renderActAsBar();
+    hideBanner();
+    load();
+    renderSettings();
+  }
+
+  function renderActAsBar(){
+    var name = getActAs();
+    $("actAsBar").classList.toggle("show", !!name);
+    if (name) $("actAsText").textContent = "Acting as " + name + " (admin override) — every screen shows their inventory.";
+  }
+  $("actAsStopBtn").onclick = function(){ changeActAs(null); };
 
   // Nothing about anyone's inventory ever renders before someone is identified -- either
   // a worker login or a legacy GitHub token, both of which canWrite() already recognizes.
   // Called after every login, logout, or token change, and once at boot.
+  // A ?actAs= link that arrived before anyone was logged in (or logged in as the wrong
+  // account) waits here until a login actually resolves to admin -- read once and
+  // dropped either way, so it can never apply to a later, unrelated login in the same tab.
+  function applyPendingActAs(){
+    var pending = null;
+    try { pending = sessionStorage.getItem(PENDING_ACT_AS_KEY); } catch(e){}
+    if (!pending) return;
+    try { sessionStorage.removeItem(PENDING_ACT_AS_KEY); } catch(e){}
+    if (isAdminUser()) changeActAs(pending);
+  }
+
   function afterAuthChange(){
     var authed = canWrite();
     document.body.classList.toggle("gated", !authed);
     if (!authed){
+      setActAs(null);
+      renderActAsBar();
       renderConnect($("gateBody"));
       setStatus("Read-only", "");
       return;
     }
+    applyPendingActAs();
+    renderActAsBar();
     setStatus("Ready", "");
     go(screen);
   }

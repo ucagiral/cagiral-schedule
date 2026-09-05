@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Cell Stocks</title>
+<title>CAApp</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Cell Stocks">
+<meta name="apple-mobile-web-app-title" content="CAApp">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
@@ -25,10 +25,13 @@
     --safe-b:env(safe-area-inset-bottom,0px);
     --safe-t:env(safe-area-inset-top,0px);
   }
+  /* Dark mode drops the cyan accent entirely -- gray/black/white only, per Umut's
+     request ("akşamları da beyaz siyah ama mavi tamamen denklemden çıksın"). Light
+     mode is untouched. */
   @media (prefers-color-scheme: dark){
     html:not([data-theme="light"]){
       --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
-      --accent:#22d3ee; --accent-soft:#0b3a44;
+      --accent:#6b7280; --accent-soft:#2c3038;
       --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
       --ok:#4ade80; --bad:#f87171; --guess:#fbbf24; --guess-bg:#3a2f0b;
       --card:#1c1f26; --slot:#232830;
@@ -36,7 +39,7 @@
   }
   html[data-theme="dark"]{
     --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
-    --accent:#22d3ee; --accent-soft:#0b3a44;
+    --accent:#6b7280; --accent-soft:#2c3038;
     --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
     --ok:#4ade80; --bad:#f87171; --guess:#fbbf24; --guess-bg:#3a2f0b;
     --card:#1c1f26; --slot:#232830;
@@ -77,6 +80,11 @@
     }
   }
   header h1{font-size:15px; margin:0; font-weight:650; letter-spacing:-.01em}
+  .brand-mark{width:22px; height:22px; border-radius:6px; flex:0 0 auto}
+  footer{
+    padding:14px 12px calc(14px + var(--safe-b)); text-align:center; font-size:11.5px;
+    color:var(--muted); border-top:1px solid var(--border);
+  }
   #status{font-size:12px; color:var(--muted); margin-left:auto; text-align:right}
   #status.saving{color:var(--accent)} #status.saved{color:var(--ok)} #status.error{color:var(--bad)}
 
@@ -282,7 +290,8 @@
 <body>
 
 <header>
-  <h1>Cell Stocks</h1>
+  <img src="icon-192.png" alt="" class="brand-mark">
+  <h1>CAApp</h1>
   <span id="status">Loading…</span>
 </header>
 <div class="banner" id="banner"></div>
@@ -293,7 +302,7 @@
 
 <div class="gate" id="authGate">
   <h2>Log in</h2>
-  <p class="note">Cell Stocks is lab-wide now — nothing shows until you're identified, so no
+  <p class="note">CAApp is lab-wide now — nothing shows until you're identified, so no
     one sees anyone's boxes by just opening the page.</p>
   <div class="card" id="gateBody"></div>
 </div>
@@ -372,6 +381,8 @@
     <div class="card" id="importCard"></div>
     <div class="card" id="checkCard"></div>
   </section>
+
+  <footer id="appFooter"></footer>
 </main>
 
 <nav>
@@ -3070,6 +3081,8 @@
   document.addEventListener("visibilitychange", function(){
     if (document.visibilityState === "visible" && !dirty && canWrite()) load();
   });
+
+  $("appFooter").textContent = "© " + new Date().getFullYear() + " CAApp · Umut Cagiral · Built with Claude";
 
   cacheLoad();
   afterAuthChange();

@@ -246,6 +246,35 @@ function canWrite(user, path) {
 // *does* own is the bookkeeping neither side could otherwise see: the pending request
 // itself (a requester cannot write into someone else's file to leave a note there) and
 // the notification that tells the other side something happened.
+//
+// Every message this file ever sends is a named template, not an inline string --
+// Umut asked to be able to edit these ("X requests ABC vial from your box" and "many
+// more") from the admin panel. DEFAULT_MESSAGES is what ships; a lab can override any
+// subset of them via PUT /config/messages, stored once under a single KV key rather
+// than one key per template (there are only a handful, and they only ever change
+// together, from one editor screen).
+
+const MESSAGES_CONFIG_KEY = "config:messages";
+
+const DEFAULT_MESSAGES = {
+  request: "{fromUser} is asking about {itemName}{noteSuffix}",
+  "request-approved": "{toUser} approved your request for {itemName}.",
+  "request-denied": "{toUser} said no to your request for {itemName}.",
+  broadcast: "{fromUser}: {text}",
+  "broadcast-pending": '{fromUser} wants to send to the whole lab: "{text}"',
+  "broadcast-resolved-sent": 'Your message to the lab was sent: "{text}"',
+  "broadcast-resolved-denied": '{actingUser} did not send your message to the lab: "{text}"'
+};
+
+function fillTemplate(template, vars) {
+  return template.replace(/\{(\w+)\}/g, (m, key) => (Object.prototype.hasOwnProperty.call(vars, key) ? String(vars[key]) : m));
+}
+
+async function renderMessage(env, key, vars) {
+  const overrides = (await kvGetJson(env.CST_KV, MESSAGES_CONFIG_KEY)) || {};
+  const template = (typeof overrides[key] === "string" && overrides[key]) || DEFAULT_MESSAGES[key];
+  return fillTemplate(template, vars);
+}
 
 async function createRequest(env, fromUser, body) {
   if (!body || !body.toUser || !body.itemName) {
@@ -275,7 +304,9 @@ async function createRequest(env, fromUser, body) {
   // request record just to find out which vial it was about.
   await notify(env, toUser.name, {
     type: "request", requestId: reqRecord.id, fromUser, vialId: reqRecord.vialId, itemName: reqRecord.itemName,
-    text: `${fromUser} is asking about ${body.itemName}${body.note ? `: "${body.note}"` : ""}`,
+    text: await renderMessage(env, "request", {
+      fromUser, itemName: body.itemName, noteSuffix: body.note ? `: "${body.note}"` : ""
+    }),
     read: false, createdAt: reqRecord.createdAt
   });
   return reqRecord;
@@ -303,9 +334,9 @@ async function resolveRequest(env, actingUser, id, decision) {
   await kvPutJson(env.CST_KV, requestKey(id), reqRecord);
   await notify(env, reqRecord.fromUser, {
     type: "request-resolved", requestId: id, fromUser: reqRecord.toUser,
-    text: decision === "approved"
-      ? `${reqRecord.toUser} approved your request for ${reqRecord.itemName}.`
-      : `${reqRecord.toUser} said no to your request for ${reqRecord.itemName}.`,
+    text: await renderMessage(env, decision === "approved" ? "request-approved" : "request-denied", {
+      toUser: reqRecord.toUser, itemName: reqRecord.itemName
+    }),
     read: false, createdAt: reqRecord.resolvedAt
   });
   return reqRecord;
@@ -344,19 +375,21 @@ async function createBroadcast(env, fromUser, body) {
     // Fanned out to every other visible member -- never to a hidden account (admin),
     // which is not "in the lab" for notification purposes any more than it is for
     // search-in-lab (see cellstocks/index.html's ensureLabCache()).
+    const rendered = await renderMessage(env, "broadcast", { fromUser: fromUser.name, text });
     await Promise.all(allUsers
       .filter((u) => u.name.toLowerCase() !== fromUser.name.toLowerCase() && !u.hidden)
       .map((u) => notify(env, u.name, {
         type: "broadcast", broadcastId: record.id, fromUser: fromUser.name,
-        text: `${fromUser.name}: ${text}`, read: false, createdAt: record.createdAt
+        text: rendered, read: false, createdAt: record.createdAt
       })));
   } else {
     // Only people who can actually approve it need to hear about it yet.
+    const rendered = await renderMessage(env, "broadcast-pending", { fromUser: fromUser.name, text });
     await Promise.all(allUsers
       .filter(hasBroadcastAuthority)
       .map((u) => notify(env, u.name, {
         type: "broadcast-pending", broadcastId: record.id, fromUser: fromUser.name,
-        text: `${fromUser.name} wants to send to the whole lab: "${text}"`, read: false, createdAt: record.createdAt
+        text: rendered, read: false, createdAt: record.createdAt
       })));
   }
   return record;
@@ -384,18 +417,19 @@ async function resolveBroadcast(env, actingUser, id, decision) {
   await kvPutJson(env.CST_KV, broadcastKey(id), record);
   if (record.status === "sent") {
     const allUsers = await listUsers(env.CST_KV);
+    const rendered = await renderMessage(env, "broadcast", { fromUser: record.fromUser, text: record.text });
     await Promise.all(allUsers
       .filter((u) => u.name.toLowerCase() !== record.fromUser.toLowerCase() && !u.hidden)
       .map((u) => notify(env, u.name, {
         type: "broadcast", broadcastId: id, fromUser: record.fromUser,
-        text: `${record.fromUser}: ${record.text}`, read: false, createdAt: record.resolvedAt
+        text: rendered, read: false, createdAt: record.resolvedAt
       })));
   }
   await notify(env, record.fromUser, {
     type: "broadcast-resolved", broadcastId: id, fromUser: actingUser.name,
-    text: record.status === "sent"
-      ? `Your message to the lab was sent: "${record.text}"`
-      : `${actingUser.name} did not send your message to the lab: "${record.text}"`,
+    text: await renderMessage(env, record.status === "sent" ? "broadcast-resolved-sent" : "broadcast-resolved-denied", {
+      text: record.text, actingUser: actingUser.name
+    }),
     read: false, createdAt: record.resolvedAt
   });
   return record;
@@ -635,6 +669,39 @@ async function routeResolveBroadcast(request, env, id, decision) {
   }
 }
 
+// Admin-only: the editor screen needs to see both what ships and what's overridden, so
+// it can show a lab's customized text alongside a "reset to default" per message rather
+// than only ever showing one or the other.
+async function routeGetMessagesConfig(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const overrides = (await kvGetJson(env.CST_KV, MESSAGES_CONFIG_KEY)) || {};
+  return json({ defaults: DEFAULT_MESSAGES, overrides });
+}
+
+async function routeSetMessagesConfig(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body.messages !== "object" || body.messages === null) {
+    return json({ error: "messages (an object) is required" }, 400);
+  }
+  const unknown = Object.keys(body.messages).filter((k) => !(k in DEFAULT_MESSAGES));
+  if (unknown.length) return json({ error: `unknown message key(s): ${unknown.join(", ")}` }, 400);
+  const existing = (await kvGetJson(env.CST_KV, MESSAGES_CONFIG_KEY)) || {};
+  const next = Object.assign({}, existing);
+  // A key set to an empty/non-string value resets that one message back to its
+  // default, rather than storing an override that just happens to look empty.
+  Object.keys(body.messages).forEach((k) => {
+    if (typeof body.messages[k] === "string" && body.messages[k].trim()) next[k] = body.messages[k];
+    else delete next[k];
+  });
+  await kvPutJson(env.CST_KV, MESSAGES_CONFIG_KEY, next);
+  return json({ defaults: DEFAULT_MESSAGES, overrides: next });
+}
+
 // ============================================================================ entry point
 
 async function handleRequest(request, env) {
@@ -673,7 +740,9 @@ async function handleRequest(request, env) {
       response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "approve");
     } else if (/^\/broadcasts\/[^/]+\/deny$/.test(path) && request.method === "POST") {
       response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "deny");
-    } else response = json({ error: "not found" }, 404);
+    } else if (path === "/admin/messages" && request.method === "GET") response = await routeGetMessagesConfig(request, env);
+    else if (path === "/admin/messages" && request.method === "PUT") response = await routeSetMessagesConfig(request, env);
+    else response = json({ error: "not found" }, 404);
   } catch (err) {
     response = json({ error: err && err.message ? err.message : "internal error" }, 500);
   }
@@ -699,5 +768,8 @@ export {
   requestKey,
   notificationKey,
   broadcastKey,
-  hasBroadcastAuthority
+  hasBroadcastAuthority,
+  DEFAULT_MESSAGES,
+  MESSAGES_CONFIG_KEY,
+  fillTemplate
 };

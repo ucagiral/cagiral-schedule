@@ -887,6 +887,101 @@ await check("GET /messages reflects an admin override, and 401s with no session"
   return null;
 });
 
+// ==================================================================== item types
+//
+// The type list ("Add" can freeze a Plasmid, an RNA prep, a Protein... not only a
+// cell) and its per-type facet rules are lab-wide, shared across every account --
+// unlike cellstocks' own state.rules, which only ever covers cells. One KV key,
+// modeled directly on MESSAGES_CONFIG_KEY above.
+
+await check("GET /types ships the default type list to any logged-in user", async () => {
+  const { env, umutToken } = await twoMembers();
+  const res = await handleRequest(req("GET", "/types", undefined, umutToken), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  const names = body.types.map((t) => t.name);
+  ["Cell", "Plasmid", "RNA", "cDNA", "Protein", "Bacterial Glycerol"].forEach((n) => {
+    if (names.indexOf(n) === -1) return `missing default type ${n}: ${json(names)}`;
+  });
+  const anon = await handleRequest(req("GET", "/types", undefined, undefined), env);
+  if (anon.status !== 401) return `expected 401 with no token, got ${anon.status}`;
+  return null;
+});
+
+await check("POST /types adds a new type instantly, for any logged-in user", async () => {
+  const { env, umutToken } = await twoMembers();
+  const res = await handleRequest(req("POST", "/types", { name: "Antibody" }, umutToken), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (body.types.map((t) => t.name).indexOf("Antibody") === -1) return `type not added: ${json(body.types)}`;
+  const again = await handleRequest(req("GET", "/types", undefined, umutToken), env);
+  const bodyAgain = await again.json();
+  if (bodyAgain.types.filter((t) => t.name === "Antibody").length !== 1) return "adding the same type twice must not duplicate it";
+  return null;
+});
+
+await check("POST /types adds a facet rule to an existing type, and dedupes a repeat", async () => {
+  const { env, umutToken } = await twoMembers();
+  const rule = { type: "Plasmid", facet: "dox-inducible", match: "dox", value: "Yes" };
+  const res = await handleRequest(req("POST", "/types", { facetRule: rule }, umutToken), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  const plasmid = body.types.find((t) => t.name === "Plasmid");
+  if (!plasmid || plasmid.facets.indexOf("dox-inducible") === -1) return `facet not recorded on the type: ${json(plasmid)}`;
+  if (json(body.rules.Plasmid["dox-inducible"]) !== json([{ match: "dox", value: "Yes" }])) {
+    return `unexpected rule: ${json(body.rules.Plasmid)}`;
+  }
+  const again = await handleRequest(req("POST", "/types", { facetRule: rule }, umutToken), env);
+  const bodyAgain = await again.json();
+  if (bodyAgain.rules.Plasmid["dox-inducible"].length !== 1) return "the same rule posted twice must not duplicate";
+  return null;
+});
+
+await check("POST /types rejects an incomplete facetRule and a blank name", async () => {
+  const { env, umutToken } = await twoMembers();
+  const badRule = await handleRequest(req("POST", "/types", { facetRule: { type: "Plasmid", facet: "x" } }, umutToken), env);
+  if (badRule.status !== 400) return `expected 400 for an incomplete facetRule, got ${badRule.status}`;
+  const blank = await handleRequest(req("POST", "/types", { name: "   " }, umutToken), env);
+  if (blank.status !== 400) return `expected 400 for a blank name, got ${blank.status}`;
+  const nothing = await handleRequest(req("POST", "/types", {}, umutToken), env);
+  if (nothing.status !== 400) return `expected 400 for an empty body, got ${nothing.status}`;
+  return null;
+});
+
+await check("only admin can merge or delete a type", async () => {
+  const { env, umutToken } = await twoMembers();
+  const merge = await handleRequest(req("POST", "/admin/types/merge", { from: "RNA", into: "cDNA" }, umutToken), env);
+  if (merge.status !== 403) return `merge: expected 403, got ${merge.status}`;
+  const del = await handleRequest(req("DELETE", "/admin/types/RNA", undefined, umutToken), env);
+  if (del.status !== 403) return `delete: expected 403, got ${del.status}`;
+  return null;
+});
+
+await check("admin can merge one type's facets/rules into another and remove it", async () => {
+  const { env, adminToken, umutToken } = await twoMembers();
+  await handleRequest(req("POST", "/types", { facetRule: { type: "RNA", facet: "prep-kit", match: "kit", value: "Yes" } }, umutToken), env);
+  const res = await handleRequest(req("POST", "/admin/types/merge", { from: "RNA", into: "cDNA" }, adminToken), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (body.types.map((t) => t.name).indexOf("RNA") !== -1) return "the merged-from type must be removed";
+  const cdna = body.types.find((t) => t.name === "cDNA");
+  if (!cdna || cdna.facets.indexOf("prep-kit") === -1) return `merged facet missing from cDNA: ${json(cdna)}`;
+  if (json(body.rules.cDNA["prep-kit"]) !== json([{ match: "kit", value: "Yes" }])) return `merged rule missing: ${json(body.rules.cDNA)}`;
+  if (body.rules.RNA) return "the merged-from type's rules must be dropped, not left orphaned";
+  return null;
+});
+
+await check("admin deleting a type removes it from the list without touching anyone's vials", async () => {
+  const { env, adminToken } = await twoMembers();
+  const res = await handleRequest(req("DELETE", "/admin/types/Bacterial%20Glycerol", undefined, adminToken), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (body.types.map((t) => t.name).indexOf("Bacterial Glycerol") !== -1) return "the type was not removed";
+  const missing = await handleRequest(req("DELETE", "/admin/types/NoSuchType", undefined, adminToken), env);
+  if (missing.status !== 404) return `deleting a type that doesn't exist: expected 404, got ${missing.status}`;
+  return null;
+});
+
 // ==================================================================== history (time machine)
 //
 // "Even if someone deletes their stock, I should be able to retrieve the complete stock

@@ -909,6 +909,144 @@ async function routeSetMessagesConfig(request, env) {
   return json({ defaults: DEFAULT_MESSAGES, overrides: next });
 }
 
+// ============================================================================ item types
+//
+// "Freeze" became "Add" because a box can hold a Plasmid, an RNA prep or a Protein just
+// as easily as a cell line -- same storage/grid model, different classification. The
+// type list and its per-type facet rules (a Plasmid's own "dox-inducible"/"tet"/"FLAG",
+// the way today's five cell facets already work) are lab-wide, shared across every
+// account, the same way DEFAULT_MESSAGES above is -- not per-account like cellstocks'
+// own state.rules, which only ever covers cells. One KV key, like MESSAGES_CONFIG_KEY:
+// there are only a handful of types, and a lab-wide list either changes as one unit
+// (admin's merge/delete) or grows by one entry at a time (an ordinary user typing a
+// new type or a new rule), which is what routeAddType below is for.
+//
+// Umut was explicit that existing vials get no retroactive type: nothing here ever
+// assigns a type to an item that doesn't already carry one, and vial.kind is left
+// alone by every route in this section -- this is lab-wide *type definitions*, not
+// per-vial data, which stays entirely inside each account's own cellstocks/data/*.json.
+
+const TYPES_CONFIG_KEY = "config:types";
+
+const DEFAULT_TYPE_NAMES = ["Cell", "Plasmid", "RNA", "cDNA", "Protein", "Bacterial Glycerol"];
+
+function defaultTypesConfig() {
+  return { types: DEFAULT_TYPE_NAMES.map((name) => ({ name, facets: [] })), rules: {} };
+}
+
+async function loadTypesConfig(env) {
+  const stored = await kvGetJson(env.CST_KV, TYPES_CONFIG_KEY);
+  if (!stored) return defaultTypesConfig();
+  // A lab that already has a stored config still gets any default type name it is
+  // missing -- e.g. one shipped after that lab's config was first saved -- without
+  // ever touching what the lab itself added or renamed.
+  const names = new Set(stored.types.map((t) => t.name));
+  const merged = stored.types.slice();
+  DEFAULT_TYPE_NAMES.forEach((name) => { if (!names.has(name)) merged.push({ name, facets: [] }); });
+  return { types: merged, rules: stored.rules || {} };
+}
+
+// Any logged-in user -- the type list and its facets are UI, not anything sensitive,
+// and every screen that offers a type (the Add screen's selector, a vial's own facets)
+// is shown to ordinary members, not just admin.
+async function routeGetTypes(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const config = await loadTypesConfig(env);
+  return json(config);
+}
+
+// Any logged-in user, additive only: adds a new type (if it doesn't already exist,
+// case-insensitively) and/or a new facet rule to an existing type, without ever
+// removing or overwriting anything a concurrent save already added. Two people typing
+// near-duplicate types ("RNA" / "mRNA") is expected, not rejected here -- only admin
+// (routeMergeTypes) gets to decide which name wins.
+async function routeAddType(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== "object") return json({ error: "a body is required" }, 400);
+  if (!body.name && !body.facetRule) return json({ error: "name and/or facetRule is required" }, 400);
+
+  const config = await loadTypesConfig(env);
+  const byName = (name) => config.types.find((t) => t.name.toLowerCase() === String(name || "").toLowerCase());
+
+  if (body.name) {
+    const name = String(body.name).trim();
+    if (!name) return json({ error: "name must not be blank" }, 400);
+    if (!byName(name)) config.types.push({ name, facets: [] });
+  }
+
+  if (body.facetRule) {
+    const fr = body.facetRule;
+    if (!fr.type || !fr.facet || !fr.match || fr.value === undefined) {
+      return json({ error: "facetRule needs type, facet, match and value" }, 400);
+    }
+    const t = byName(fr.type);
+    if (!t) return json({ error: `no such type: ${fr.type}` }, 404);
+    if (t.facets.indexOf(fr.facet) === -1) t.facets.push(fr.facet);
+    if (!config.rules[t.name]) config.rules[t.name] = {};
+    if (!config.rules[t.name][fr.facet]) config.rules[t.name][fr.facet] = [];
+    // Dedupe by (match, value): re-adding the same rule twice from two racing saves
+    // must not double it up.
+    const already = config.rules[t.name][fr.facet].some((r) => r.match === fr.match && r.value === fr.value);
+    if (!already) config.rules[t.name][fr.facet].push({ match: fr.match, value: fr.value });
+  }
+
+  await kvPutJson(env.CST_KV, TYPES_CONFIG_KEY, config);
+  return json(config);
+}
+
+// Admin only: folds `from`'s facets/rules into `into` and removes `from`. Umut asked
+// for this explicitly, since two people can add near-duplicate types and only admin
+// should get to clean that up.
+async function routeMergeTypes(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const body = await request.json().catch(() => null);
+  if (!body || !body.from || !body.into) return json({ error: "from and into are required" }, 400);
+
+  const config = await loadTypesConfig(env);
+  const from = config.types.find((t) => t.name.toLowerCase() === String(body.from).toLowerCase());
+  const into = config.types.find((t) => t.name.toLowerCase() === String(body.into).toLowerCase());
+  if (!from || !into) return json({ error: "no such type" }, 404);
+  if (from.name === into.name) return json({ error: "from and into must name different types" }, 400);
+
+  from.facets.forEach((f) => { if (into.facets.indexOf(f) === -1) into.facets.push(f); });
+  const fromRules = config.rules[from.name] || {};
+  if (!config.rules[into.name]) config.rules[into.name] = {};
+  Object.keys(fromRules).forEach((facet) => {
+    if (!config.rules[into.name][facet]) config.rules[into.name][facet] = [];
+    fromRules[facet].forEach((rule) => {
+      const already = config.rules[into.name][facet].some((r) => r.match === rule.match && r.value === rule.value);
+      if (!already) config.rules[into.name][facet].push(rule);
+    });
+  });
+  delete config.rules[from.name];
+  config.types = config.types.filter((t) => t.name !== from.name);
+
+  await kvPutJson(env.CST_KV, TYPES_CONFIG_KEY, config);
+  return json(config);
+}
+
+// Admin only. A vial that already used this type keeps its own vial.kind text as
+// history -- deleting the type here only stops it being offered for new ones. This
+// Worker has no idea what a "vial" is (see the comment at the top of the file) and
+// never touches one.
+async function routeDeleteType(request, env, name) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const config = await loadTypesConfig(env);
+  const before = config.types.length;
+  config.types = config.types.filter((t) => t.name.toLowerCase() !== name.toLowerCase());
+  if (config.types.length === before) return json({ error: "no such type" }, 404);
+  delete config.rules[name];
+  await kvPutJson(env.CST_KV, TYPES_CONFIG_KEY, config);
+  return json(config);
+}
+
 async function routeHistoryCommits(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -982,6 +1120,12 @@ async function handleRequest(request, env) {
     } else if (path === "/messages" && request.method === "GET") response = await routeGetMessages(request, env);
     else if (path === "/admin/messages" && request.method === "GET") response = await routeGetMessagesConfig(request, env);
     else if (path === "/admin/messages" && request.method === "PUT") response = await routeSetMessagesConfig(request, env);
+    else if (path === "/types" && request.method === "GET") response = await routeGetTypes(request, env);
+    else if (path === "/types" && request.method === "POST") response = await routeAddType(request, env);
+    else if (path === "/admin/types/merge" && request.method === "POST") response = await routeMergeTypes(request, env);
+    else if (/^\/admin\/types\/[^/]+$/.test(path) && request.method === "DELETE") {
+      response = await routeDeleteType(request, env, decodeURIComponent(path.split("/")[3]));
+    }
     else if (path === "/admin/history/commits" && request.method === "GET") response = await routeHistoryCommits(request, env);
     else if (path === "/admin/history/at" && request.method === "GET") response = await routeHistoryAt(request, env);
     else response = json({ error: "not found" }, 404);
@@ -1014,5 +1158,7 @@ export {
   DEFAULT_MESSAGES,
   MESSAGES_CONFIG_KEY,
   fillTemplate,
-  base64ToUtf8
+  base64ToUtf8,
+  TYPES_CONFIG_KEY,
+  DEFAULT_TYPE_NAMES
 };

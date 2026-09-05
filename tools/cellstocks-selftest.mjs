@@ -1103,6 +1103,41 @@ check("box geometry is read from the data, never assumed", () => {
   return null;
 });
 
+// ---- item types: classifyGeneric() and applyPlacement()'s kind/customFacets ----
+
+check("classifyGeneric derives an arbitrary type's own facets, not the five cell ones", () => {
+  const rules = { "dox-inducible": [{ match: "dox", value: "Yes" }, { value: "No" }],
+                   "tag": [{ match: "FLAG", value: "FLAG" }] };
+  const a = E.classifyGeneric("pLVX-dox-GFP", rules);
+  if (a["dox-inducible"] !== "Yes") return `expected Yes, got ${json(a)}`;
+  if (a.tag !== null) return `expected no FLAG match, got ${json(a.tag)}`;
+  if (json(a.unmatched) !== json(["tag"])) return `unmatched should list the unmatched facet: ${json(a.unmatched)}`;
+  const b = E.classifyGeneric("pLVX-FLAG-GFP", rules);
+  if (b["dox-inducible"] !== "No") return `expected the fallback No, got ${json(b)}`;
+  if (b.tag !== "FLAG") return `expected FLAG, got ${json(b.tag)}`;
+  return null;
+});
+
+check("applyPlacement writes a non-default kind and customFacets, but never the default kind", () => {
+  const box = { id: "b1", name: "Box 1", rows: 9, cols: 9, scheme: "grid" };
+  const state = { storage: { units: [{ id: "u1", name: "Freezer", racks: [{ id: "r1", name: "Rack 1", boxes: [box] }] }] },
+                  lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
+
+  const cellPlan = E.suggestPlacement(state, { name: "HEK293T p12", count: 1 });
+  const cellOut = E.applyPlacement(state, cellPlan, { name: "HEK293T p12", passage: "p12" },
+    { ids: ["v1"], now: null, by: "test" });
+  if (cellOut.vials[0].kind !== undefined) return `a default-kind vial must not get a kind field: ${json(cellOut.vials[0].kind)}`;
+
+  const plasmidPlan = E.suggestPlacement(cellOut.state, { name: "pLVX-dox-GFP", count: 1 });
+  const plasmidOut = E.applyPlacement(cellOut.state, plasmidPlan,
+    { name: "pLVX-dox-GFP", kind: "Plasmid", customFacets: { "dox-inducible": "Yes" } },
+    { ids: ["v2"], now: null, by: "test" });
+  const v = plasmidOut.vials[0];
+  if (v.kind !== "Plasmid") return `expected kind Plasmid, got ${json(v.kind)}`;
+  if (!v.customFacets || v.customFacets["dox-inducible"] !== "Yes") return `expected customFacets, got ${json(v.customFacets)}`;
+  return null;
+});
+
 // ---- import: a row nobody could place goes to Review, never guessed or dropped ----
 
 check("a row with no name is queued for review instead of dropped or guessed", () => {

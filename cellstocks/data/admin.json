@@ -114,10 +114,11 @@
     },
     "aliases": {},
     "columnMap": {},
-    "groupingStrategy": "random"
+    "groupingStrategy": "category-row",
+    "customFlags": []
   },
   "_meta": {
     "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T07:00:47.131Z"
+    "savedAt": "2026-09-05T20:10:56.634Z"
   }
 }

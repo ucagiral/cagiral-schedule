@@ -342,6 +342,28 @@
     return out;
   }
 
+  // classify()'s match->value logic, generalized to an arbitrary facet list instead of
+  // the five cell facets above -- what a lab-wide item type (Plasmid's "dox-inducible",
+  // "tet", "FLAG"...) needs its own facets derived the same way, from a rules object
+  // shaped { [facet]: [{match/extract, value}, ...] } that lives outside this module (the
+  // Types config, lab-wide across accounts, not part of state -- see cellstocks-worker's
+  // config:types). Facet names come from the rules object itself, since a type's own
+  // facet list is exactly Object.keys(rulesByFacet).
+  function classifyGeneric(name, rulesByFacet) {
+    var r = rulesByFacet || {};
+    var out = { unmatched: [] };
+    var ctx = {};
+    var text = String(name || "");
+    Object.keys(r).forEach(function (facet) {
+      var list = r[facet] || [];
+      var hit = null;
+      for (var i = 0; i < list.length && !hit; i++) hit = applyRule(list[i], text, ctx);
+      if (hit) out[facet] = hit.value;
+      else { out[facet] = null; out.unmatched.push(facet); }
+    });
+    return out;
+  }
+
   // A facet set by hand is never recomputed. A rule may fill a blank; it may not
   // overwrite an answer somebody has already given.
   function facetsFor(vial, rules) {
@@ -1132,6 +1154,17 @@
           addedBy: c.by || null
         };
         if (template.facetsSetByHand) vial.facetsSetByHand = clone(template.facetsSetByHand);
+        // A type other than the default ("cell") is written explicitly; the default
+        // itself never is -- per Umut, no vial gets a type it wasn't given, and
+        // "cell" needs no marker since kindOf() already reads it as the fallback.
+        // customFacets is a type's own facets (a Plasmid's dox-inducible/tet/FLAG...),
+        // always as typed/accepted on the Add screen -- there is no per-account rule
+        // reconciliation for these the way facetsSetByHand has for cell facets, since
+        // the rules they came from are lab-wide config this module never reads.
+        if (template.kind && template.kind !== DEFAULT_KIND) vial.kind = template.kind;
+        if (template.customFacets && Object.keys(template.customFacets).length) {
+          vial.customFacets = clone(template.customFacets);
+        }
         next.vials.push(vial);
         made.push(vial);
       });
@@ -1945,6 +1978,7 @@
     occupancy: occupancy, freeRuns: freeRuns, unitSummary: unitSummary,
     // classification
     FACETS: FACETS, DEFAULT_RULES: DEFAULT_RULES, classify: classify, facetsFor: facetsFor,
+    classifyGeneric: classifyGeneric,
     classifyAll: classifyAll, parsePassage: parsePassage, passageLabel: passageLabel,
     // item kind (lab-wide expansion scaffolding -- see mergeDefaults/rulesForKind comments)
     DEFAULT_KIND: DEFAULT_KIND, kindOf: kindOf, rulesForKind: rulesForKind,

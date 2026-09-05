@@ -1518,6 +1518,7 @@
 
     var name = document.createElement("input");
     name.value = vial.name || "";
+    name.autocomplete = "off";
     field("Name", name, "Everything below that isn't pinned is worked out from this.");
 
     var facetBox = el("div");
@@ -1539,6 +1540,7 @@
         var inp = facetInputs[f] || document.createElement("input");
         facetInputs[f] = inp;
         inp.style.width = "9em";
+        inp.autocomplete = "off";
         if (inp.value === undefined || inp.dataset.init !== "1"){
           inp.value = pinned ? vial.facetsSetByHand[f] : "";
           inp.dataset.init = "1";
@@ -1554,6 +1556,7 @@
     var passage = document.createElement("input");
     passage.value = vial.passage || "";
     passage.placeholder = "p12, p+3 or p?";
+    passage.autocomplete = "off";
     field("Passage", passage, "p12 counts from the line's origin; p+3 counts from the last thaw. p? means unknown.");
 
     var date = document.createElement("input");
@@ -1566,6 +1569,7 @@
     var notes = document.createElement("input");
     notes.value = vial.notes || "";
     notes.placeholder = "myco -";
+    notes.autocomplete = "off";
     field("Notes", notes, "myco -, chip- and to-do become searchable tags.");
 
     body.appendChild(el("p", "note", "In " + E.locationPath(state, vial.location) +
@@ -1631,6 +1635,7 @@
 
     var name = document.createElement("input");
     name.value = raw.name || (/^Unreadable row/.test(vial.name) ? "" : vial.name) || "";
+    name.autocomplete = "off";
     var nameField = el("div", "field");
     nameField.appendChild(el("label", null, "Name"));
     nameField.appendChild(name);
@@ -1651,6 +1656,7 @@
 
     var posInput = document.createElement("input");
     posInput.placeholder = "A1";
+    posInput.autocomplete = "off";
     posInput.value = raw.position && /^[A-Za-z]+\s*\d+$/.test(raw.position) ? raw.position : "";
     var posField = el("div", "field");
     posField.appendChild(el("label", null, "Position"));
@@ -2256,16 +2262,23 @@
       c.appendChild(el("p", "note",
         "Log in with the name and password an admin set up for you. This is the lab-wide way in — " +
         "your own boxes, kept separate from everyone else's."));
+      // A real <form> boundary -- without one, Safari's passkey/password heuristic treats
+      // unrelated fields elsewhere on the page (like the plain search box) as part of this
+      // "login form" too, since it has nothing else to scope to.
+      var wform = document.createElement("form");
+      wform.autocomplete = "off";
       var wurl = document.createElement("input");
       wurl.placeholder = "Worker address (https://…workers.dev)";
       wurl.value = getWorkerUrl() || "";
+      wurl.autocomplete = "off";
       var wname = document.createElement("input");
-      wname.placeholder = "Name"; wname.style.marginTop = "8px";
+      wname.placeholder = "Name"; wname.style.marginTop = "8px"; wname.autocomplete = "off";
       var wpass = document.createElement("input");
       wpass.type = "password"; wpass.placeholder = "Password"; wpass.autocomplete = "current-password";
       wpass.style.marginTop = "8px";
-      c.appendChild(wurl); c.appendChild(wname); c.appendChild(wpass);
+      wform.appendChild(wurl); wform.appendChild(wname); wform.appendChild(wpass);
       var wgo = el("button", "primary", "Log in");
+      wgo.type = "button";
       wgo.id = "workerLoginBtn";
       wgo.style.marginTop = "8px";
       wgo.onclick = async function(){
@@ -2285,7 +2298,8 @@
         }
         wgo.disabled = false;
       };
-      c.appendChild(wgo);
+      wform.appendChild(wgo);
+      c.appendChild(wform);
     }
 
     // ---- GitHub token (the older, per-device way in) ----
@@ -2303,14 +2317,18 @@
         "Paste a GitHub personal access token with Contents: Read and write for " +
         (REPO || "this repository") + ". It stays on this device, and it is this app's own — " +
         "nothing else on this host reads or writes it."));
+      var tform = document.createElement("form");
+      tform.autocomplete = "off";
       var tok = document.createElement("input");
       tok.type = "password"; tok.placeholder = "github_pat_…"; tok.autocomplete = "off";
       var dev = document.createElement("input");
       dev.placeholder = "What is this device called?";
       dev.value = getDevice() === "unknown device" ? "" : getDevice();
-      dev.style.marginTop = "8px";
-      c.appendChild(tok); c.appendChild(dev);
+      dev.style.marginTop = "8px"; dev.autocomplete = "off";
+      tform.appendChild(tok); tform.appendChild(dev);
+      c.appendChild(tform);
       var go2 = el("button", "primary", "Connect");
+      go2.type = "button";
       go2.style.marginTop = "8px";
       go2.onclick = async function(){
         if (!tok.value.trim()) return;
@@ -2584,6 +2602,7 @@
     var body = clear($("dlgBody"));
     var inp = document.createElement("input");
     inp.value = box.name;
+    inp.autocomplete = "off";
     body.appendChild(inp);
     var foot = clear($("dlgFoot"));
     var ok = el("button", "primary", "Save");
@@ -2632,7 +2651,7 @@
         unit.appendChild(o);
       });
     });
-    var name = document.createElement("input"); name.placeholder = "Box 7";
+    var name = document.createElement("input"); name.placeholder = "Box 7"; name.autocomplete = "off";
     var rows = document.createElement("input"); rows.type = "number"; rows.min = 1; rows.value = 9;
     var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = 9;
     [["Where", unit], ["Name", name], ["Rows", rows], ["Columns", cols]].forEach(function(p){
@@ -2661,7 +2680,7 @@
   function addUnitDialog(){
     $("dlgTitle").textContent = "Add a freezer or tank";
     var body = clear($("dlgBody"));
-    var name = document.createElement("input"); name.placeholder = "LN2 Tank";
+    var name = document.createElement("input"); name.placeholder = "LN2 Tank"; name.autocomplete = "off";
     var kind = document.createElement("select");
     [["freezer","Freezer — its children are Racks"], ["ln2","Nitrogen tank — its children are Towers"]]
       .forEach(function(k){
@@ -2700,8 +2719,8 @@
     body.appendChild(el("p", "note",
       "If a name contains the text on the left, this facet becomes the value on the right. " +
       "Rules are tried in order and the new one goes first."));
-    var match = document.createElement("input"); match.placeholder = "LCC";
-    var value = document.createElement("input"); value.placeholder = "LCC";
+    var match = document.createElement("input"); match.placeholder = "LCC"; match.autocomplete = "off";
+    var value = document.createElement("input"); value.placeholder = "LCC"; value.autocomplete = "off";
     [["If the name contains", match], ["then " + facet + " is", value]].forEach(function(p){
       var f = el("div", "field");
       f.appendChild(el("label", null, p[0]));

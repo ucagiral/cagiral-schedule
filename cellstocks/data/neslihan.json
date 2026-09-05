@@ -16976,6 +16976,10 @@
   "rules": {
     "origin": [
       {
+        "match": "Panc",
+        "value": "Panc1"
+      },
+      {
         "match": "HEK",
         "value": "HEK293T"
       },
@@ -17088,6 +17092,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T15:21:34.932Z"
+    "savedAt": "2026-09-05T15:22:00.262Z"
   }
 }

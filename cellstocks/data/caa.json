@@ -138,7 +138,7 @@
       "id": "v-84",
       "name": "lncap caspex",
       "lineId": "l-lncap-caspex",
-      "passageKind": "unknown",
+      "passageKind": "absolute",
       "frozenRaw": "28-07-25",
       "frozenOn": "2025-07-28",
       "location": {
@@ -148,7 +148,9 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 84"
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 84",
+      "passage": "P6",
+      "passageNumber": 6
     }
   ],
   "withdrawals": [],
@@ -271,6 +273,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T01:44:56.644Z"
+    "savedAt": "2026-09-05T01:45:01.223Z"
   }
 }

@@ -295,6 +295,38 @@ await check("deleting a user immediately revokes their session", async () => {
   return null;
 });
 
+// Umut was surprised in practice that a deleted account's data file stayed behind --
+// recreating the same name silently brought all the old data back. Deleting an account
+// now deletes cellstocks/data/<name>.{json,xlsx} too, in the same one-commit tree-delete
+// shape renameUserFiles() already uses for its copy+delete.
+await check("deleting a user also deletes their data and workbook from git", async () => {
+  const { env, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "lab-password" }, token), env);
+  env.fetch = makeGithubFetch({
+    contents: { "cellstocks/data/umut.json": "umut-json-sha", "cellstocks/data/umut.xlsx": "umut-xlsx-sha" }
+  });
+  const res = await handleRequest(req("DELETE", "/admin/users/Umut", undefined, token), env);
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(await res.json())}`;
+
+  const treeCall = env.fetch.calls.find((c) => c.url.includes("/git/trees"));
+  if (!treeCall) return `no tree call: ${json(env.fetch.calls.map((c) => c.url))}`;
+  const paths = treeCall.body.tree.map((t) => `${t.path}:${t.sha === null ? "null" : t.sha}`);
+  const wantDelete = paths.includes("cellstocks/data/umut.json:null") && paths.includes("cellstocks/data/umut.xlsx:null");
+  if (!wantDelete) return `unexpected tree entries: ${json(paths)}`;
+  return null;
+});
+
+await check("deleting a user who never saved anything skips the git commit cleanly", async () => {
+  const { env, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "lab-password" }, token), env);
+  env.fetch = makeGithubFetch(); // both pairs 404 -- nothing to delete
+  const res = await handleRequest(req("DELETE", "/admin/users/Umut", undefined, token), env);
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(await res.json())}`;
+  const treeCall = env.fetch.calls.find((c) => c.url.includes("/git/trees"));
+  if (treeCall) return `expected no tree call when there was nothing to delete: ${json(treeCall)}`;
+  return null;
+});
+
 await check("resetting a password locks out the old one and lets the new one in", async () => {
   const { env, token } = await adminEnvWithToken();
   await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "old-password" }, token), env);

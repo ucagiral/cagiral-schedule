@@ -57,7 +57,7 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | GET | `/session` | Bearer token | `{user}` — confirms who a token belongs to. |
 | GET | `/admin/users` | admin | List every account (no password data). |
 | POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?, canBroadcast?}`. |
-| DELETE | `/admin/users/:name` | admin | Delete an account. Revokes its sessions immediately. |
+| DELETE | `/admin/users/:name` | admin | Delete an account, its `cellstocks/data/<name>.{json,xlsx}` pair, and revokes its sessions immediately. |
 | POST | `/admin/users/:name/reset-password` | admin | `{password}`. |
 | POST | `/admin/users/:name/rename` | admin | `{newName}`. Moves the git files, the KV account record, and every request/broadcast/notification that named them. Invalidates their current session — see below. |
 | POST | `/commit` | Bearer token | `{files: [{path, content, base64?}], message}` — one atomic commit under `cellstocks/data/`. See below. |

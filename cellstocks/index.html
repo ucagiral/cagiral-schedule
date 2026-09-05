@@ -113,6 +113,11 @@
     flex:1; border:0; border-radius:0; background:none; padding:9px 2px 10px; position:relative;
     font-size:10.5px; color:var(--muted); display:flex; flex-direction:column; align-items:center; gap:3px;
   }
+  /* Without this, `nav button{display:flex}` above always wins over the browser's own
+     [hidden]{display:none} default (an author rule beats a UA one regardless of
+     specificity) -- so a hidden nav button, like #navAdmin for anyone who isn't admin,
+     silently stayed visible. */
+  nav button[hidden]{display:none}
   nav button .ic{font-size:17px; line-height:1}
   nav button.on{color:var(--accent); font-weight:650}
   nav button .dot{
@@ -383,6 +388,7 @@
     <div class="card" id="notificationsCard"></div>
     <div class="card" id="storageCard"></div>
     <div class="card" id="rulesCard"></div>
+    <div class="card" id="keywordsCard"></div>
     <div class="card" id="importCard"></div>
     <div class="card" id="checkCard"></div>
   </section>
@@ -1664,7 +1670,7 @@
       }
 
       v.notes = notes.value.trim();
-      v.flags = E.flagsFrom(v.notes);
+      v.flags = E.flagsFrom(v.notes, state.settings.customFlags);
 
       var errors = E.errorsOnly(E.validate(state));
       if (errors.length){
@@ -2593,8 +2599,19 @@
       });
     });
     var addBox = el("button", null, "Add a box");
-    addBox.disabled = !canWrite() || !(state.storage.units || []).length;
-    addBox.onclick = function(){ addBoxDialog(); };
+    addBox.disabled = !canWrite();
+    addBox.onclick = function(){
+      // A box always lives inside a unit's rack -- with none yet (a brand-new account),
+      // addBoxDialog() would have nothing to offer. Rather than leave the button
+      // permanently disabled with no explanation, send a first-timer straight to adding
+      // a freezer or tank instead, so the click always leads somewhere.
+      if (!(state.storage.units || []).length){
+        showBanner("Add a freezer or tank first — a box always lives inside one.");
+        addUnitDialog();
+        return;
+      }
+      addBoxDialog();
+    };
     var addUnit = el("button", null, "Add a freezer or tank");
     addUnit.disabled = !canWrite();
     addUnit.onclick = function(){ addUnitDialog(); };
@@ -2626,6 +2643,33 @@
       row.appendChild(add);
       r2.appendChild(row);
     });
+
+    // ---- keywords ----
+    var k = clear($("keywordsCard"));
+    k.appendChild(el("h3", null, "Keywords"));
+    k.appendChild(el("p", "note",
+      "A word or phrase in Notes becomes a searchable tag — built in for things like " +
+      "\"myco -\" or \"to-do\". Add your own below; nothing here replaces the built-in ones."));
+    E.FLAG_RULES.forEach(function(rule){
+      var row = el("div", "item");
+      var grow = el("div", "grow");
+      grow.appendChild(el("div", null, rule.flag));
+      grow.appendChild(el("div", "sub", "built in"));
+      row.appendChild(grow);
+      k.appendChild(row);
+    });
+    (state.settings.customFlags || []).forEach(function(c){
+      var row = el("div", "item");
+      var grow = el("div", "grow");
+      grow.appendChild(el("div", null, c.flag));
+      grow.appendChild(el("div", "sub mono", "\"" + c.match + "\""));
+      row.appendChild(grow);
+      k.appendChild(row);
+    });
+    var addKeyword = el("button", null, "Add a keyword");
+    addKeyword.disabled = !canWrite();
+    addKeyword.onclick = function(){ addKeywordDialog(); };
+    k.appendChild(addKeyword);
 
     // ---- import ----
     var i = clear($("importCard"));
@@ -2753,33 +2797,33 @@
   function addUnitDialog(){
     $("dlgTitle").textContent = "Add a freezer or tank";
     var body = clear($("dlgBody"));
-    var name = document.createElement("input"); name.placeholder = "LN2 Tank"; name.autocomplete = "off";
-    var kind = document.createElement("select");
-    [["freezer","Freezer — its children are Racks"], ["ln2","Nitrogen tank — its children are Towers"]]
-      .forEach(function(k){
-        var o = document.createElement("option"); o.value = k[0]; o.textContent = k[1]; kind.appendChild(o);
-      });
+    var name = document.createElement("input"); name.placeholder = "-20 Freezer"; name.autocomplete = "off";
+    var type = document.createElement("input"); type.placeholder = "-20, LN2 tank, cold room…"; type.autocomplete = "off";
+    var childLabel = document.createElement("input");
+    childLabel.placeholder = "Rack, Tower, Drawer…"; childLabel.value = "Rack"; childLabel.autocomplete = "off";
     var count = document.createElement("input"); count.type = "number"; count.min = 1; count.value = 1;
-    [["Name", name], ["Kind", kind], ["How many racks or towers?", count]].forEach(function(p){
+    [["Name", name], ["Type (just a label, for your own reference)", type],
+     ["What do you call its subdivisions?", childLabel],
+     ["How many to start with?", count]].forEach(function(p){
       var f = el("div", "field");
       f.appendChild(el("label", null, p[0]));
       f.appendChild(p[1]);
       body.appendChild(f);
     });
-    body.appendChild(el("p", "note", "Boxes go in afterwards. A tank is usually ten identical towers, " +
-      "so they're made empty and named for you."));
+    body.appendChild(el("p", "note", "Boxes go in afterwards. Every account can set this up its own " +
+      "way — nothing about 9×9, racks or towers is built in."));
     var foot = clear($("dlgFoot"));
     var ok = el("button", "primary", "Add");
     ok.onclick = function(){
       if (!name.value.trim()) return;
-      var childLabel = kind.value === "ln2" ? "Tower" : "Rack";
+      var label = childLabel.value.trim() || "Rack";
       var id = "u-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       if (E.findUnit(state, id)) id += "-" + Date.now().toString(36).slice(-4);
       var racks = [];
       for (var i = 1; i <= Math.max(1, Number(count.value)); i++){
-        racks.push({ id: id + "-r" + i, name: childLabel + " " + i, boxes: [] });
+        racks.push({ id: id + "-r" + i, name: label + " " + i, boxes: [] });
       }
-      state.storage.units.push({ id:id, name:name.value.trim(), type:kind.value, childLabel:childLabel, racks:racks });
+      state.storage.units.push({ id:id, name:name.value.trim(), type:type.value.trim(), childLabel:label, racks:racks });
       $("dlg").close(); markDirty("Add a unit"); renderAll();
     };
     foot.appendChild(ok);
@@ -2822,6 +2866,31 @@
       if (!match.value.trim() || !value.value.trim()) return;
       state.rules[facet].unshift({ match: match.value.trim(), value: value.value.trim() });
       $("dlg").close(); markDirty("Add a " + facet + " rule"); renderAll();
+    };
+    foot.appendChild(ok);
+    $("dlg").showModal();
+  }
+
+  function addKeywordDialog(){
+    $("dlgTitle").textContent = "A keyword";
+    var body = clear($("dlgBody"));
+    body.appendChild(el("p", "note",
+      "If a vial's notes contain the text on the left, it gets tagged with the word on the " +
+      "right — same idea as \"myco -\" or \"to-do\", just your own."));
+    var match = document.createElement("input"); match.placeholder = "aliquot"; match.autocomplete = "off";
+    var flag = document.createElement("input"); flag.placeholder = "aliquot"; flag.autocomplete = "off";
+    [["If the notes contain", match], ["flag it as", flag]].forEach(function(p){
+      var f = el("div", "field");
+      f.appendChild(el("label", null, p[0]));
+      f.appendChild(p[1]);
+      body.appendChild(f);
+    });
+    var foot = clear($("dlgFoot"));
+    var ok = el("button", "primary", "Add the keyword");
+    ok.onclick = function(){
+      if (!match.value.trim() || !flag.value.trim()) return;
+      state.settings.customFlags.push({ match: match.value.trim(), flag: flag.value.trim() });
+      $("dlg").close(); markDirty("Add a keyword"); renderAll();
     };
     foot.appendChild(ok);
     $("dlg").showModal();
@@ -2944,7 +3013,7 @@
 
   function previewImport(fileName, sheet, map){
     var out = E.importSheet(sheet, {
-      headerRow: 1, columns: map, rules: state.rules,
+      headerRow: 1, columns: map, rules: state.rules, customFlags: state.settings.customFlags,
       unitId: "u-f80", rackId: "r-1", unitName: "-80 °C Freezer", unitType: "freezer",
       childLabel: "Rack", rackName: "Rack 1",
       sourceName: fileName, idPrefix: "v", unnamedBoxName: "Unnamed box"
@@ -3312,7 +3381,7 @@
       var del = el("button", "danger", "Delete");
       del.style.marginLeft = "6px";
       del.onclick = async function(){
-        if (!window.confirm("Delete " + u.name + "? This does not delete their data file.")) return;
+        if (!window.confirm("Delete " + u.name + "? This also deletes their data and workbook — it cannot be undone.")) return;
         try {
           await workerFetch("/admin/users/" + encodeURIComponent(u.name), { method:"DELETE", headers: adminAuth() });
           adminUsersCache = null;

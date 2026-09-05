@@ -473,6 +473,13 @@ try {
   check("logging in as labmate shows labmate's own vial (not through search-in-lab)",
     /Special Guest Line/.test(labmateOwnResults), labmateOwnResults);
 
+  // Regression: `hidden` on #navAdmin was being set correctly all along, but
+  // `nav button{display:flex}` (an author rule) overrode the browser's own
+  // [hidden]{display:none} default, so a non-admin still saw the tab rendered. Checking
+  // the computed style (not just the DOM property) is the only way this bug shows up.
+  const navAdminDisplay = await page.evaluate(() => getComputedStyle(document.getElementById("navAdmin")).display);
+  check("a non-admin never actually sees the Admin tab rendered", navAdminDisplay === "none", navAdminDisplay);
+
   await page.click("nav button[data-screen=settings]");
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));

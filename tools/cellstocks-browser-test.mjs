@@ -123,6 +123,16 @@ try {
     return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
   });
 
+  // GET /messages: registered up front (rather than only where it's used, like /notifications
+  // below) so the very first renderNotifications() call -- triggered by the onboarding banner's
+  // navigation to Settings, before any of the later broadcast checks run -- already has a
+  // distinguishable, non-default value to prove the placeholder actually came from the worker.
+  await page.route("https://fake-worker.example/messages", (route) =>
+    route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify({ messages: { "broadcast-placeholder-queued": "[lab] needs an admin's OK first" } })
+    }));
+
   // POST /requests: the catch-all above would 404 it (only /login and /logout are
   // handled there), so this is registered separately -- a later page.route()
   // registration takes priority over an earlier, broader one for the same URL.
@@ -351,6 +361,10 @@ try {
     workerCalls.push({ path: "/broadcasts", method: req.method(), auth: req.headers()["authorization"], body: req.postData() });
     return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ broadcast: { id: "bc-1", status: "pending" } }) });
   });
+  await page.waitForFunction(() =>
+    document.querySelector("#notificationsCard textarea")?.placeholder === "[lab] needs an admin's OK first");
+  check("the compose box's placeholder is fetched from the worker's /messages, not hardcoded", true);
+
   await page.fill("#notificationsCard textarea", "Anyone seen my pipette?");
   await page.click("#notificationsCard button:has-text('Send')");
   await page.waitForFunction(() => /Sent to an admin for approval/.test(document.querySelector(".banner")?.textContent || ""));

@@ -16976,6 +16976,10 @@
   "rules": {
     "origin": [
       {
+        "match": "Mcf",
+        "value": "MCF7"
+      },
+      {
         "match": "Panc",
         "value": "Panc1"
       },
@@ -17092,6 +17096,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T15:22:00.262Z"
+    "savedAt": "2026-09-05T15:22:18.274Z"
   }
 }

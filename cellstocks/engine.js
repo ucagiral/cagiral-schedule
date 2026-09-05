@@ -454,9 +454,21 @@
     { flag: "move-me", test: /yerini de(g|ğ)i(s|ş)tir/i }
   ];
 
-  function flagsFrom(notes) {
+  // `custom` (optional) is an account's own additional keywords -- each { match, flag },
+  // tested as a plain case-insensitive substring rather than a hand-authored regex. This
+  // app exists to catch exactly that kind of formula bug, so a typed-by-hand pattern
+  // isn't something to ask an account to author. Built-ins always run too; custom entries
+  // only ever add to them, never replace them.
+  function flagsFrom(notes, custom) {
     var s = String(notes || "");
-    return FLAG_RULES.filter(function (r) { return r.test.test(s); }).map(function (r) { return r.flag; });
+    var flags = FLAG_RULES.filter(function (r) { return r.test.test(s); }).map(function (r) { return r.flag; });
+    var lower = s.toLowerCase();
+    (custom || []).forEach(function (c) {
+      if (c && c.match && lower.indexOf(String(c.match).toLowerCase()) !== -1 && flags.indexOf(c.flag) === -1) {
+        flags.push(c.flag);
+      }
+    });
+    return flags;
   }
 
   // =====================================================================
@@ -1070,6 +1082,7 @@
     var c = ctx || {};
     var ids = (c.ids || []).slice();
     var rules = state.rules || DEFAULT_RULES;
+    var customFlags = (state.settings && state.settings.customFlags) || [];
     var next = clone(state);
     var made = [];
     var n = 0;
@@ -1088,7 +1101,7 @@
           frozenRaw: template.frozenOn || "",
           frozenOn: date.iso,
           notes: template.notes || "",
-          flags: flagsFrom(template.notes || ""),
+          flags: flagsFrom(template.notes || "", customFlags),
           location: { unitId: seg.unitId, rackId: seg.rackId, boxId: seg.boxId, position: position },
           status: "stored",
           addedAt: c.now || null,
@@ -1425,6 +1438,7 @@
   function importSheet(sheet, options) {
     var o = options || {};
     var rules = o.rules || DEFAULT_RULES;
+    var customFlags = o.customFlags || [];
     var headerRow = o.headerRow || 1;
     var map = o.columns || {};             // role -> column index
     var rows = sheet.rows || [];
@@ -1530,7 +1544,7 @@
           frozenRaw: dateRaw,
           frozenOn: date.iso,
           notes: notes,
-          flags: flagsFrom(notes),
+          flags: flagsFrom(notes, customFlags),
           location: { unitId: unitId, rackId: rackId, boxId: boxId, position: p.label },
           status: "stored",
           importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
@@ -1704,7 +1718,7 @@
       storage: { units: [] },
       lines: [], vials: [], withdrawals: [],
       rules: clone(DEFAULT_RULES),
-      settings: { defaultUnitId: null, defaultOperator: "", placement: { allowSplit: true }, aliases: {}, columnMap: {} },
+      settings: { defaultUnitId: null, defaultOperator: "", placement: { allowSplit: true }, aliases: {}, columnMap: {}, customFlags: [] },
       _meta: { savedBy: null, savedAt: null }
     };
   }
@@ -1723,6 +1737,7 @@
     if (!s.settings.placement) s.settings.placement = { allowSplit: true };
     if (!s.settings.aliases) s.settings.aliases = {};
     if (!s.settings.columnMap) s.settings.columnMap = {};
+    if (!Array.isArray(s.settings.customFlags)) s.settings.customFlags = [];
     if (!s._meta) s._meta = base._meta;
     if (!s.settings.defaultUnitId && s.storage.units.length) s.settings.defaultUnitId = s.storage.units[0].id;
     return s;

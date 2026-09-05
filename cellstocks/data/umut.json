@@ -9829,7 +9829,8 @@
       "guide": 9,
       "notes": 10
     },
-    "defaultOperator": "Umut"
+    "defaultOperator": "Umut",
+    "customFlags": []
   },
   "_meta": {
     "savedBy": "umut-PC",

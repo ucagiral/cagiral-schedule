@@ -253,6 +253,37 @@ async function renameUserFiles(env, oldName, newName) {
   return commit.sha;
 }
 
+// Deleting an account used to leave its data/workbook pair behind on purpose -- Umut was
+// surprised by that in practice (recreating an account under the same name silently
+// brought all the old data back), so an admin delete now removes the files too. Same
+// six-call git-data shape as renameUserFiles() above, but every tree entry only ever
+// deletes (sha: null); a path that 404s (never saved anything) is skipped, not failed.
+async function deleteUserFiles(env, name) {
+  const branch = env.GITHUB_BRANCH || "main";
+  const ref = await githubApi(env, "GET", `/git/ref/heads/${branch}`);
+  const baseSha = ref.object.sha;
+  const baseCommit = await githubApi(env, "GET", `/git/commits/${baseSha}`);
+  const tree = [];
+  for (const path of [dataPathFor(name), xlsxPathFor(name)]) {
+    try {
+      await githubApi(env, "GET", `/contents/${path}?ref=${encodeURIComponent(branch)}`);
+    } catch (err) {
+      if (err.status === 404) continue;
+      throw err;
+    }
+    tree.push({ path, mode: "100644", type: "blob", sha: null });
+  }
+  if (!tree.length) return null;
+  const newTree = await githubApi(env, "POST", "/git/trees", { base_tree: baseCommit.tree.sha, tree });
+  const commit = await githubApi(env, "POST", "/git/commits", {
+    message: `Delete ${DATA_PREFIX}${name.toLowerCase()}.* (admin delete)`,
+    tree: newTree.sha,
+    parents: [baseSha]
+  });
+  await githubApi(env, "PATCH", `/git/refs/heads/${branch}`, { sha: commit.sha });
+  return commit.sha;
+}
+
 // Every user's data lives under this prefix, one JSON file and one generated .xlsx per
 // user, named after their account -- this is the ownership boundary the commit endpoint
 // enforces.
@@ -626,6 +657,7 @@ async function routeDeleteUser(request, env, name) {
   if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
   const existing = await kvGetJson(env.CST_KV, userKey(name));
   if (!existing) return json({ error: "no such user" }, 404);
+  await deleteUserFiles(env, name);
   await env.CST_KV.delete(userKey(name));
   return json({ ok: true });
 }

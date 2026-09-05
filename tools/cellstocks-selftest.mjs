@@ -352,6 +352,42 @@ check("notes become searchable flags", () => {
   return null;
 });
 
+check("an account's own custom keyword becomes a flag too, without dropping the built-ins", () => {
+  const custom = [{ match: "aliquot", flag: "aliquot" }];
+  const got = E.flagsFrom("myco - aliquot ready", custom);
+  if (got.indexOf("myco-negative") === -1) return "a built-in flag was dropped: " + json(got);
+  if (got.indexOf("aliquot") === -1) return "the custom keyword did not become a flag: " + json(got);
+  if (E.flagsFrom("nothing relevant here", custom).indexOf("aliquot") !== -1) return "matched when it shouldn't have";
+  if (E.flagsFrom("ALIQUOT ready", custom).indexOf("aliquot") === -1) return "the match should be case-insensitive";
+  return null;
+});
+
+check("importSheet() and applyPlacement() honor an account's own custom keywords", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name"), cell("Notes")],
+    [cell("A1"), cell("HEK293T p12"), cell("aliquot ready")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const imported = E.importSheet(sheet, {
+    columns: { position: 0, name: 1, notes: 2 }, headerRow: 1,
+    customFlags: [{ match: "aliquot", flag: "aliquot" }]
+  }).state;
+  if ((imported.vials[0].flags || []).indexOf("aliquot") === -1) {
+    return "importSheet() did not apply the custom keyword: " + json(imported.vials[0].flags);
+  }
+
+  const s = fixture();
+  s.settings.customFlags = [{ match: "aliquot", flag: "aliquot" }];
+  const plan = E.suggestPlacement(s, { name: "HEK293T brand new line", count: 1 });
+  if (!plan.ok) return `plan failed: ${plan.reason}`;
+  const out = E.applyPlacement(s, plan, { name: "HEK293T brand new line", passage: "p1", notes: "aliquot ready" }, {});
+  if ((out.vials[0].flags || []).indexOf("aliquot") === -1) {
+    return "applyPlacement() did not apply the custom keyword: " + json(out.vials[0].flags);
+  }
+  return null;
+});
+
 // ============================================================== item kind (lab-wide scaffolding)
 //
 // kindOf/rulesForKind are additive groundwork for the multi-user, multi-kind expansion --

@@ -594,6 +594,80 @@ try {
   server.close();
 }
 
+// ---- a hung, never-resolving directory listing must not freeze the admin screen ----
+//
+// Regression for a real incident: the unauthenticated GitHub Contents API call
+// ensureLabCache() makes to build admin's merged view has no timeout of its own, so a
+// stalled connection (a flaky network, a proxy that swallows the request rather than
+// refusing it) left the promise pending forever -- and everything waiting on it, with
+// no error and no way out, only "Loading the lab..." shown forever. fetchWithTimeout()
+// bounds it. This drives that exact scenario: a route that never calls fulfill/abort,
+// simulating a connection that never completes either way.
+{
+  const server2 = await serve(8799);
+  const browser2 = await chromium.launch();
+  try {
+    const context = await browser2.newContext();
+    await context.addInitScript(() => {
+      localStorage.setItem("cst_cfg", JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" }));
+    });
+    const page = await context.newPage();
+    const emptyState = { storage: { units: [] }, lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
+    await page.route("https://raw.githubusercontent.com/**", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(emptyState) }));
+    // Never fulfilled, never aborted -- a request that just sits there, the same as a
+    // real stalled connection looks like from the page's own point of view.
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", () => {});
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
+      }
+      if (path === "/messages") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ messages: {} }) });
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto(`http://localhost:8799/cellstocks/`);
+    await page.waitForSelector("#gateBody input");
+    const li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("admin");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+
+    await page.click("nav button[data-screen=find]");
+    await page.waitForSelector("#results");
+    const stillLoading = await page.evaluate(() => document.getElementById("results").textContent);
+    check("right after login, the hung request is still showing its own loading state (not yet timed out)",
+      /Loading the lab/.test(stillLoading), stillLoading);
+
+    // The rest of the page must stay responsive the whole time -- clicking another
+    // screen must not itself be blocked by the pending fetch.
+    await page.click("nav button[data-screen=settings]");
+    await page.waitForSelector("#storageCard");
+    check("the nav stays clickable while the request is still pending", true);
+    await page.click("nav button[data-screen=find]");
+
+    // fetchWithTimeout()'s bound is 10s; give it real margin above that rather than
+    // racing it, the same way a flaky-network timeout test should.
+    await page.waitForFunction(
+      () => !/Loading the lab/.test(document.getElementById("results").textContent),
+      { timeout: 15000 }
+    );
+    const afterTimeout = await page.evaluate(() => document.getElementById("results").textContent);
+    check("a hung directory listing eventually gives up instead of loading forever",
+      /0 vials in range, lab-wide/.test(afterTimeout), afterTimeout);
+  } catch (err) {
+    check("a hung directory listing eventually gives up instead of loading forever", false, String(err));
+  } finally {
+    await browser2.close();
+    server2.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

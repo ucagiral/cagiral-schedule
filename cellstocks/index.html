@@ -911,35 +911,63 @@
     return out;
   }
 
-  var labCache = { members: null, data: {}, loading: false };
+  var labCache = { members: null, data: {}, promise: null };
 
-  async function ensureLabCache(){
-    if (labCache.members || labCache.loading || !REPO) return;
-    labCache.loading = true;
-    try {
-      var idName = effectiveIdentity();
-      var selfName = idName ? idName.toLowerCase() : null;
-      var listing = await fetch("https://api.github.com/repos/" + REPO + "/contents/" + DATA_PREFIX.replace(/\/$/, ""))
-        .then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; });
-      var names = (Array.isArray(listing) ? listing : [])
-        .map(function(entry){ return entry.name || ""; })
-        .filter(function(n){ return /\.json$/.test(n); })
-        .map(function(n){ return n.replace(/\.json$/, ""); })
-        // Excludes whoever's file is already the "own" view -- the real logged-in
-        // account -- and, structurally, any hidden admin account, which has no
-        // cellstocks/data/*.json of its own to begin with (so for admin, nothing is
-        // excluded here at all: every real member comes back).
-        .filter(function(n){ return n !== selfName; });
-      labCache.members = names;
-      await Promise.all(names.map(function(name){
-        return fetch(rawURL(DATA_PREFIX + name + ".json"))
-          .then(function(r){ return r.ok ? r.text() : null; })
-          .then(function(text){ if (text) labCache.data[name] = E.mergeDefaults(JSON.parse(text)); })
-          .catch(function(){});
-      }));
-    } finally {
-      labCache.loading = false;
-    }
+  // A plain fetch() has no built-in timeout -- a stalled connection (a flaky network,
+  // a proxy or firewall that swallows the request rather than refusing it) leaves the
+  // promise pending forever, and everything awaiting it along with it. ensureLabCache()
+  // below is exactly that: the one place this app makes an unauthenticated request
+  // straight to api.github.com/raw.githubusercontent.com with no server of its own to
+  // blame if it hangs, so it is the one place a hang has no other guard against it.
+  function fetchWithTimeout(url, ms){
+    var ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+    var timer = setTimeout(function(){ if (ctrl) ctrl.abort(); }, ms);
+    return fetch(url, ctrl ? { signal: ctrl.signal } : undefined).finally(function(){ clearTimeout(timer); });
+  }
+
+  // renderFilters(), renderBoxesBody() and renderMergedByOwner() all call this and then
+  // re-render once it resolves -- and any of them can run again (another click, another
+  // renderAll()) while the first call is still in flight. A caller-counted "loading"
+  // flag used to guard only the real fetch, not the function itself: a second call made
+  // while one was already running fell through to a bare `return`, which -- being an
+  // async function -- still resolves its own promise on the next microtask. Every
+  // caller's `.then(rerender)` fired from that, rerendering, which called this again,
+  // which resolved trivially again -- a self-sustaining microtask loop pegging the CPU
+  // at 100% with no network involved at all once it starts. Real regression: reproduced
+  // locally by clicking two different screens while a slow admin login was still
+  // resolving. The fix is for every caller to share the exact same in-flight promise
+  // (cached in labCache.promise) instead of each one starting its own trivial retry.
+  function ensureLabCache(){
+    if (labCache.members) return Promise.resolve();
+    if (labCache.promise) return labCache.promise;
+    if (!REPO) return Promise.resolve();
+    labCache.promise = (async function(){
+      try {
+        var idName = effectiveIdentity();
+        var selfName = idName ? idName.toLowerCase() : null;
+        var listing = await fetchWithTimeout("https://api.github.com/repos/" + REPO + "/contents/" + DATA_PREFIX.replace(/\/$/, ""), 10000)
+          .then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; });
+        var names = (Array.isArray(listing) ? listing : [])
+          .map(function(entry){ return entry.name || ""; })
+          .filter(function(n){ return /\.json$/.test(n); })
+          .map(function(n){ return n.replace(/\.json$/, ""); })
+          // Excludes whoever's file is already the "own" view -- the real logged-in
+          // account -- and, structurally, any hidden admin account, which has no
+          // cellstocks/data/*.json of its own to begin with (so for admin, nothing is
+          // excluded here at all: every real member comes back).
+          .filter(function(n){ return n !== selfName; });
+        labCache.members = names;
+        await Promise.all(names.map(function(name){
+          return fetchWithTimeout(rawURL(DATA_PREFIX + name + ".json"), 10000)
+            .then(function(r){ return r.ok ? r.text() : null; })
+            .then(function(text){ if (text) labCache.data[name] = E.mergeDefaults(JSON.parse(text)); })
+            .catch(function(){});
+        }));
+      } finally {
+        labCache.promise = null;
+      }
+    })();
+    return labCache.promise;
   }
 
   // The date slider is never remembered across a render -- every fresh look at Find
@@ -1355,7 +1383,7 @@
       (filter.query ? " match “" + filter.query + "”" : " in range")];
     if (filter.searchInLab && labHits.length){
       headBits.push(labHits.length + " more in the lab");
-    } else if (filter.searchInLab && labCache.loading){
+    } else if (filter.searchInLab && labCache.promise){
       headBits.push("checking the lab…");
     }
     head.textContent = headBits.join(" · ");

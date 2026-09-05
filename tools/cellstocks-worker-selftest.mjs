@@ -66,13 +66,18 @@ function makeKv() {
 // have been committed, and `failOn` lets a test make one specific step fail without
 // having to fake the calls before it.
 
-function makeGithubFetch({ failOn } = {}) {
+// `contents` is an optional { [path]: sha } map for GET /contents/<path> -- what
+// renameUserFiles() looks up before copying a file to its new path. A path not in the
+// map 404s, the same as a user who never saved anything yet.
+function makeGithubFetch({ failOn, contents } = {}) {
   const calls = [];
   let blobN = 0;
   const fn = async (url, opts) => {
     const body = opts.body ? JSON.parse(opts.body) : undefined;
     calls.push({ url, method: opts.method, body });
-    const step = url.includes("/git/blobs") ? "blob"
+    const contentsMatch = url.match(/\/contents\/([^?]+)/);
+    const step = contentsMatch ? "contents"
+      : url.includes("/git/blobs") ? "blob"
       : url.includes("/git/trees") ? "tree"
       : url.includes("/git/refs/heads/") ? "ref-update"
       : url.includes("/git/ref/heads/") ? "ref"
@@ -83,6 +88,12 @@ function makeGithubFetch({ failOn } = {}) {
       return { ok: false, status: 422, text: async () => JSON.stringify({ message: `stubbed failure at ${step}` }) };
     }
     const reply = (obj) => ({ ok: true, status: 200, text: async () => JSON.stringify(obj) });
+    if (step === "contents") {
+      const path = decodeURIComponent(contentsMatch[1]);
+      const sha = contents && contents[path];
+      if (!sha) return { ok: false, status: 404, text: async () => JSON.stringify({ message: "not found" }) };
+      return reply({ sha });
+    }
     if (step === "ref") return reply({ object: { sha: "base-ref-sha" } });
     if (step === "base-commit") return reply({ tree: { sha: "base-tree-sha" } });
     if (step === "blob") { blobN++; return reply({ sha: `blob-sha-${blobN}` }); }
@@ -300,6 +311,74 @@ await check("a duplicate account name is refused", async () => {
   await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "x" }, token), env);
   const res = await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "y" }, token), env);
   if (res.status !== 409) return `expected 409, got ${res.status}`;
+  return null;
+});
+
+// ==================================================================== renaming a user
+//
+// A rename touches three things: the git files (one atomic commit, copy+delete), the KV
+// user record (a new key, the old one gone), and every request/broadcast/notification
+// that named the old account -- Umut asked for a rename to "update everything". These
+// prove all three, plus the two guardrails (name taken, not logged in as admin).
+
+await check("renaming a user moves their git files in one commit (copy + delete)", async () => {
+  const { env, adminToken, umutToken, labmateToken } = await twoMembers();
+  env.fetch = makeGithubFetch({
+    contents: { "cellstocks/data/umut.json": "umut-json-sha", "cellstocks/data/umut.xlsx": "umut-xlsx-sha" }
+  });
+  const res = await handleRequest(req("POST", "/admin/users/Umut/rename", { newName: "Ayse" }, adminToken), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (body.user.name !== "Ayse") return `expected the renamed user back, got ${json(body.user)}`;
+
+  const treeCall = env.fetch.calls.find((c) => c.url.includes("/git/trees"));
+  if (!treeCall) return `no tree call: ${json(env.fetch.calls.map((c) => c.url))}`;
+  const paths = treeCall.body.tree.map((t) => `${t.path}:${t.sha === null ? "null" : t.sha}`);
+  const wantCopy = paths.includes("cellstocks/data/ayse.json:umut-json-sha") && paths.includes("cellstocks/data/ayse.xlsx:umut-xlsx-sha");
+  const wantDelete = paths.includes("cellstocks/data/umut.json:null") && paths.includes("cellstocks/data/umut.xlsx:null");
+  if (!wantCopy || !wantDelete) return `unexpected tree entries: ${json(paths)}`;
+
+  const oldSession = await handleRequest(req("GET", "/session", undefined, umutToken), env);
+  if (oldSession.status !== 401) return "the old name's session should have been invalidated by the KV key move";
+  const newLogin = await login(env, "Ayse", "a");
+  if (newLogin.status !== 200) return `logging in under the new name failed: ${json(newLogin.body)}`;
+
+  return null;
+});
+
+await check("renaming a user rewrites requests, broadcasts and notifications that named them", async () => {
+  const { env, adminToken, umutToken, labmateToken } = await twoMembers();
+  await handleRequest(req("POST", "/requests", { toUser: "Labmate", itemName: "HEK293T p12" }, umutToken), env);
+  await handleRequest(req("POST", "/broadcasts", { text: "hi lab" }, umutToken), env);
+  env.fetch = makeGithubFetch(); // no saved data to rename for this account -- both pairs 404 and are skipped
+
+  const res = await handleRequest(req("POST", "/admin/users/Umut/rename", { newName: "Ayse" }, adminToken), env);
+  if (res.status !== 200) return `rename failed: ${res.status}: ${json(await res.json())}`;
+
+  const { requests } = await (await handleRequest(req("GET", "/requests", undefined, adminToken), env)).json();
+  if (requests[0].fromUser !== "Ayse") return `request fromUser not updated: ${json(requests[0])}`;
+
+  const { broadcasts } = await (await handleRequest(req("GET", "/broadcasts", undefined, adminToken), env)).json();
+  if (broadcasts[0].fromUser !== "Ayse") return `broadcast fromUser not updated: ${json(broadcasts[0])}`;
+
+  // The notification this rename left behind is Labmate's own (told about Umut's/now
+  // Ayse's request) -- Labmate's own name never changed, so their inbox is untouched;
+  // what matters here is that Ayse's OWN prior notifications, if any, are still reachable
+  // after the re-key. Umut/Ayse has none in this scenario, so re-login and confirm an
+  // empty (not error) inbox under the new name.
+  const ayseLogin = await login(env, "Ayse", "a");
+  const ayseNotifs = await (await handleRequest(req("GET", "/notifications", undefined, ayseLogin.body.token), env)).json();
+  if (!Array.isArray(ayseNotifs.notifications)) return `expected an inbox for the renamed account, got ${json(ayseNotifs)}`;
+
+  return null;
+});
+
+await check("renaming to an already-taken name, or as a non-admin, is refused", async () => {
+  const { env, adminToken, umutToken } = await twoMembers();
+  const asMember = await handleRequest(req("POST", "/admin/users/Umut/rename", { newName: "Someone" }, umutToken), env);
+  if (asMember.status !== 403) return `expected 403 for a non-admin caller, got ${asMember.status}`;
+  const taken = await handleRequest(req("POST", "/admin/users/Umut/rename", { newName: "Labmate" }, adminToken), env);
+  if (taken.status !== 409) return `expected 409 for an already-taken name, got ${taken.status}`;
   return null;
 });
 

@@ -59,6 +59,7 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?, canBroadcast?}`. |
 | DELETE | `/admin/users/:name` | admin | Delete an account. Revokes its sessions immediately. |
 | POST | `/admin/users/:name/reset-password` | admin | `{password}`. |
+| POST | `/admin/users/:name/rename` | admin | `{newName}`. Moves the git files, the KV account record, and every request/broadcast/notification that named them. Invalidates their current session — see below. |
 | POST | `/commit` | Bearer token | `{files: [{path, content, base64?}], message}` — one atomic commit under `cellstocks/data/`. See below. |
 | POST | `/requests` | Bearer token | Ask another member's owner for an item: `{toUser, itemName, vialId?, note?}`. Notifies `toUser`, not the requester. |
 | GET | `/requests` | Bearer token | Every request this account is on either side of (as requester or owner), newest first. |
@@ -121,6 +122,27 @@ A message from an account without it queues as `"pending"` and notifies only the
 *can* approve it, not the whole lab — that would defeat the point of asking first. A hidden account
 (`hidden: true`, i.e. the admin login) never receives a broadcast itself — same "not really in the
 lab for notification purposes" rule search-in-lab already follows.
+
+## Renaming a user
+
+`POST /admin/users/:name/rename` is a real identity change, not a display-name edit — Umut asked
+for a rename to "update everything", so it touches three things:
+
+1. **The git files.** `renameUserFiles()` reads the current blob sha for
+   `cellstocks/data/<old>.{json,xlsx}` via the Contents API (the same call `/admin/history/at`
+   already makes) and writes one tree that both points the new path at that same blob *and*
+   deletes the old path (a tree entry with `sha: null` deletes it) — one commit, so the file is
+   never briefly duplicated or briefly missing. A pair that 404s (never saved) is skipped.
+2. **The KV account record** — a new `user:<newname>` key, the old one deleted.
+3. **Every historical reference** — `fromUser`/`toUser` on `request:*` records, `fromUser` on
+   `broadcast:*` records, and every `notification:<oldname>:*` entry re-keyed under the new name
+   (notifications are keyed by recipient, so this is a re-key, not a field edit). The wording of a
+   notification already sent is left exactly as it was — "Umut is asking about X" is what was
+   actually said at the time; rewriting it would be inventing history, not correcting it.
+
+Deleting the old KV key means any of that account's existing sessions stop resolving immediately
+(`requireSession` re-reads the user record on every call) — a rename forces a fresh login under
+the new name, the same trade-off deleting an account already makes.
 
 ## Ownership and atomicity on `/commit`
 

@@ -342,7 +342,11 @@
         tr.appendChild(el("td", null, v));
       });
       var actions = document.createElement("td");
+      var rename = el("button", null, "Rename");
+      rename.onclick = function(){ renameUser(u.name); };
+      actions.appendChild(rename);
       var reset = el("button", null, "Reset password");
+      reset.style.marginLeft = "6px";
       reset.onclick = function(){ resetPassword(u.name); };
       actions.appendChild(reset);
       var del = el("button", "danger", "Delete");
@@ -367,6 +371,20 @@
       renderUsers();
     } catch(err){ flash(err.message, "error"); }
   };
+
+  // Renames the account AND everywhere it was ever recorded (see worker.js's
+  // migrateUserReferences) -- this also moves cellstocks/data/<name>.{json,xlsx} in git and
+  // invalidates any of the old name's active sessions, so it's a real identity change, not
+  // a display-name edit.
+  async function renameUser(name){
+    var next = window.prompt("New name for " + name + ":", name);
+    if (!next || next === name) return;
+    try {
+      await workerFetch("/admin/users/" + encodeURIComponent(name) + "/rename", { method:"POST", body: JSON.stringify({ newName:next }) });
+      flash("Renamed " + name + " to " + next + ". Their own session (if logged in) is now signed out.", "ok");
+      renderUsers();
+    } catch(err){ flash(err.message, "error"); }
+  }
 
   async function resetPassword(name){
     var pass = window.prompt("New password for " + name + ":");

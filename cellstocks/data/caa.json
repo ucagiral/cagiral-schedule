@@ -12,8 +12,16 @@
             "name": "Rack 1",
             "boxes": [
               {
-                "id": "b-box-1",
-                "name": "Box 1",
+                "id": "b-claude-box-1",
+                "name": "CLAUDE BOX 1",
+                "rows": 9,
+                "cols": 9,
+                "scheme": "grid",
+                "archived": false
+              },
+              {
+                "id": "b-fff",
+                "name": "fff",
                 "rows": 9,
                 "cols": 9,
                 "scheme": "grid",
@@ -47,6 +55,28 @@
         "caspex": "-",
         "guide": "g8"
       }
+    },
+    {
+      "id": "l-lncap",
+      "name": "LNCAP",
+      "facets": {
+        "origin": "LnCap",
+        "koox": "WT",
+        "resistance": "-",
+        "caspex": "-",
+        "guide": "-"
+      }
+    },
+    {
+      "id": "l-lncap-caspex",
+      "name": "lncap caspex",
+      "facets": {
+        "origin": "LnCap",
+        "koox": "CASPEX",
+        "resistance": "-",
+        "caspex": "CASPEX",
+        "guide": "-"
+      }
     }
   ],
   "vials": [
@@ -60,7 +90,7 @@
       "location": {
         "unitId": "u-f80",
         "rackId": "r-1",
-        "boxId": "b-box-1",
+        "boxId": "b-claude-box-1",
         "position": "A1"
       },
       "status": "stored",
@@ -81,7 +111,7 @@
       "location": {
         "unitId": "u-f80",
         "rackId": "r-1",
-        "boxId": "b-box-1",
+        "boxId": "b-claude-box-1",
         "position": "A2"
       },
       "status": "stored",
@@ -89,6 +119,47 @@
       "facetsFromSheet": {
         "origin": "#NAME?",
         "koox": "KO"
+      }
+    },
+    {
+      "id": "v-83",
+      "name": "LNCAP",
+      "lineId": "l-lncap",
+      "passageKind": "unknown",
+      "frozenRaw": "28-07-25",
+      "frozenOn": "2025-07-28",
+      "location": {
+        "unitId": "u-f80",
+        "rackId": "r-1",
+        "boxId": "b-fff",
+        "position": "A1"
+      },
+      "status": "stored",
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 83",
+      "facetsFromSheet": {
+        "origin": "LnCap",
+        "koox": "WT"
+      }
+    },
+    {
+      "id": "v-84",
+      "name": "lncap caspex",
+      "lineId": "l-lncap-caspex",
+      "passageKind": "unknown",
+      "frozenRaw": "28-07-25",
+      "frozenOn": "2025-07-28",
+      "location": {
+        "unitId": "u-f80",
+        "rackId": "r-1",
+        "boxId": "b-fff",
+        "position": "A2"
+      },
+      "status": "stored",
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 84",
+      "facetsFromSheet": {
+        "origin": "LnCap",
+        "koox": "CASPEX",
+        "caspex": "CASPEX"
       }
     }
   ],
@@ -206,11 +277,12 @@
       "resistance": 7,
       "caspex": 8,
       "guide": 9,
-      "notes": 10
+      "notes": 10,
+      "box": 0
     }
   },
   "_meta": {
     "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T01:32:41.003Z"
+    "savedAt": "2026-09-05T01:35:20.897Z"
   }
 }

@@ -349,7 +349,7 @@ await check("a duplicate account name is refused", async () => {
 // ==================================================================== renaming a user
 //
 // A rename touches three things: the git files (one atomic commit, copy+delete), the KV
-// user record (a new key, the old one gone), and every request/broadcast/notification
+// user record (a new key, the old one gone), and every request/notification
 // that named the old account -- Umut asked for a rename to "update everything". These
 // prove all three, plus the two guardrails (name taken, not logged in as admin).
 
@@ -378,10 +378,9 @@ await check("renaming a user moves their git files in one commit (copy + delete)
   return null;
 });
 
-await check("renaming a user rewrites requests, broadcasts and notifications that named them", async () => {
+await check("renaming a user rewrites requests and notifications that named them", async () => {
   const { env, adminToken, umutToken, labmateToken } = await twoMembers();
   await handleRequest(req("POST", "/requests", { toUser: "Labmate", itemName: "HEK293T p12" }, umutToken), env);
-  await handleRequest(req("POST", "/broadcasts", { text: "hi lab" }, umutToken), env);
   env.fetch = makeGithubFetch(); // no saved data to rename for this account -- both pairs 404 and are skipped
 
   const res = await handleRequest(req("POST", "/admin/users/Umut/rename", { newName: "Ayse" }, adminToken), env);
@@ -389,9 +388,6 @@ await check("renaming a user rewrites requests, broadcasts and notifications tha
 
   const { requests } = await (await handleRequest(req("GET", "/requests", undefined, adminToken), env)).json();
   if (requests[0].fromUser !== "Ayse") return `request fromUser not updated: ${json(requests[0])}`;
-
-  const { broadcasts } = await (await handleRequest(req("GET", "/broadcasts", undefined, adminToken), env)).json();
-  if (broadcasts[0].fromUser !== "Ayse") return `broadcast fromUser not updated: ${json(broadcasts[0])}`;
 
   // The notification this rename left behind is Labmate's own (told about Umut's/now
   // Ayse's request) -- Labmate's own name never changed, so their inbox is untouched;
@@ -665,132 +661,6 @@ await check("a notification belongs to one account only -- another account canno
   return null;
 });
 
-// ==================================================================== broadcasts
-//
-// "Only Umut has authority over lab-wide things" -- but his own everyday login is an
-// ordinary member account, not the hidden admin one (he said he won't switch to admin
-// unless he has to), so broadcast authority is a canBroadcast flag on the user record,
-// true always for admin and settable on anyone else. These check that flag decides
-// send-directly-vs-queued, that a queued one only notifies people who can act on it
-// (not the whole lab, which would defeat the point of approval), that approving fans out
-// to everyone but the sender, and that a hidden account never receives a broadcast --
-// same "not really in the lab for notification purposes" rule as search-in-lab.
-
-async function labWithBroadcaster() {
-  const { env, token } = await adminEnvWithToken();
-  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "a", canBroadcast: true }, token), env);
-  await handleRequest(req("POST", "/admin/users", { name: "Labmate", password: "b" }, token), env);
-  const { body: umutLogin } = await login(env, "Umut", "a");
-  const { body: labmateLogin } = await login(env, "Labmate", "b");
-  return { env, adminToken: token, umutToken: umutLogin.token, labmateToken: labmateLogin.token };
-}
-
-await check("a canBroadcast account's message sends immediately and reaches everyone else", async () => {
-  const { env, umutToken, labmateToken } = await labWithBroadcaster();
-  const res = await handleRequest(req("POST", "/broadcasts", { text: "Freezer 2 is being defrosted Friday" }, umutToken), env);
-  const body = await res.json();
-  if (res.status !== 201 || body.broadcast.status !== "sent") return `expected sent, got ${res.status}: ${json(body)}`;
-  const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
-  if (!labmateNotifs.notifications.some((n) => n.type === "broadcast" && /Freezer 2 is being defrosted/.test(n.text))) {
-    return `Labmate did not get the broadcast: ${json(labmateNotifs.notifications)}`;
-  }
-  return null;
-});
-
-await check("an ordinary member's broadcast queues instead of sending, and only notifies who can approve it", async () => {
-  const { env, umutToken, labmateToken } = await labWithBroadcaster();
-  const res = await handleRequest(req("POST", "/broadcasts", { text: "Anyone seen my pipette?" }, labmateToken), env);
-  const body = await res.json();
-  if (res.status !== 201 || body.broadcast.status !== "pending") return `expected pending, got ${res.status}: ${json(body)}`;
-
-  const umutNotifs = await (await handleRequest(req("GET", "/notifications", undefined, umutToken), env)).json();
-  if (!umutNotifs.notifications.some((n) => n.type === "broadcast-pending")) return `Umut (canBroadcast) was not notified: ${json(umutNotifs.notifications)}`;
-
-  // Nobody else should see it yet -- that's the entire point of queuing it. Labmate is
-  // the sender so has none of their own to receive; check there is no visible-to-the-lab
-  // broadcast notification anywhere yet by confirming Labmate's own inbox has nothing of
-  // type "broadcast" (only "broadcast-pending" would ever go to an approver).
-  const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
-  if (labmateNotifs.notifications.some((n) => n.type === "broadcast")) return "the pending broadcast reached the lab before approval";
-  return null;
-});
-
-await check("approving a pending broadcast sends it to the lab and tells the sender", async () => {
-  const { env, umutToken, labmateToken } = await labWithBroadcaster();
-  const createRes = await handleRequest(req("POST", "/broadcasts", { text: "Anyone seen my pipette?" }, labmateToken), env);
-  const { broadcast } = await createRes.json();
-
-  const approveRes = await handleRequest(req("POST", `/broadcasts/${broadcast.id}/approve`, {}, umutToken), env);
-  const approveBody = await approveRes.json();
-  if (approveRes.status !== 200 || approveBody.broadcast.status !== "sent") return `approve failed: ${json(approveBody)}`;
-
-  const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
-  if (!labmateNotifs.notifications.some((n) => n.type === "broadcast-resolved" && /was sent/.test(n.text))) {
-    return `the sender was not told it went out: ${json(labmateNotifs.notifications)}`;
-  }
-  return null;
-});
-
-await check("denying a pending broadcast never reaches the lab, only tells the sender", async () => {
-  const { env, umutToken, labmateToken } = await labWithBroadcaster();
-  const createRes = await handleRequest(req("POST", "/broadcasts", { text: "Anyone seen my pipette?" }, labmateToken), env);
-  const { broadcast } = await createRes.json();
-
-  const denyRes = await handleRequest(req("POST", `/broadcasts/${broadcast.id}/deny`, {}, umutToken), env);
-  if (denyRes.status !== 200) return `deny failed: ${denyRes.status}`;
-
-  const labmateNotifs = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
-  if (!labmateNotifs.notifications.some((n) => n.type === "broadcast-resolved" && /did not send/.test(n.text))) {
-    return `the sender was not told it was denied: ${json(labmateNotifs.notifications)}`;
-  }
-  if (labmateNotifs.notifications.some((n) => n.type === "broadcast")) return "a denied broadcast still reached someone as if sent";
-  return null;
-});
-
-await check("an ordinary member may not approve or deny a broadcast, even their own", async () => {
-  const { env, labmateToken } = await labWithBroadcaster();
-  const createRes = await handleRequest(req("POST", "/broadcasts", { text: "x" }, labmateToken), env);
-  const { broadcast } = await createRes.json();
-  const res = await handleRequest(req("POST", `/broadcasts/${broadcast.id}/approve`, {}, labmateToken), env);
-  if (res.status !== 403) return `expected 403, got ${res.status}`;
-  return null;
-});
-
-await check("resolving an already-resolved broadcast is refused", async () => {
-  const { env, umutToken, labmateToken } = await labWithBroadcaster();
-  const createRes = await handleRequest(req("POST", "/broadcasts", { text: "x" }, labmateToken), env);
-  const { broadcast } = await createRes.json();
-  await handleRequest(req("POST", `/broadcasts/${broadcast.id}/deny`, {}, umutToken), env);
-  const again = await handleRequest(req("POST", `/broadcasts/${broadcast.id}/approve`, {}, umutToken), env);
-  if (again.status !== 409) return `expected 409, got ${again.status}`;
-  return null;
-});
-
-await check("GET /broadcasts: broadcast authority sees everything, an ordinary member sees only their own", async () => {
-  const { env, umutToken, labmateToken } = await labWithBroadcaster();
-  await handleRequest(req("POST", "/broadcasts", { text: "from umut" }, umutToken), env);
-  await handleRequest(req("POST", "/broadcasts", { text: "from labmate" }, labmateToken), env);
-
-  const asUmut = await (await handleRequest(req("GET", "/broadcasts", undefined, umutToken), env)).json();
-  if (asUmut.broadcasts.length !== 2) return `broadcast authority saw ${asUmut.broadcasts.length}, expected 2 (everything)`;
-
-  const asLabmate = await (await handleRequest(req("GET", "/broadcasts", undefined, labmateToken), env)).json();
-  if (asLabmate.broadcasts.length !== 1 || asLabmate.broadcasts[0].fromUser !== "Labmate") {
-    return `an ordinary member saw more than their own: ${json(asLabmate.broadcasts)}`;
-  }
-  return null;
-});
-
-await check("a hidden account never receives a broadcast", async () => {
-  const { env, token: adminToken } = await adminEnvWithToken(); // admin itself is hidden:true
-  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "a", canBroadcast: true }, adminToken), env);
-  const { body: umutLogin } = await login(env, "Umut", "a");
-  await handleRequest(req("POST", "/broadcasts", { text: "hello lab" }, umutLogin.token), env);
-  const adminNotifs = await (await handleRequest(req("GET", "/notifications", undefined, adminToken), env)).json();
-  if (adminNotifs.notifications.some((n) => n.type === "broadcast")) return "the hidden admin account received a broadcast meant for the visible lab";
-  return null;
-});
-
 // ==================================================================== message templates
 //
 // Every notification text in worker.js goes through a named template now, not an inline
@@ -862,26 +732,26 @@ await check("fillTemplate leaves an unknown {placeholder} untouched rather than 
 });
 
 // GET /messages is the non-admin-gated read every logged-in user's UI can call to display a
-// template's current text (a compose box placeholder, say) -- distinct from /admin/messages,
-// which only admin can reach and which separately reports which ones are overridden.
+// template's current text -- distinct from /admin/messages, which only admin can reach and
+// which separately reports which ones are overridden.
 
 await check("GET /messages is open to any logged-in user, not just admin", async () => {
   const { env, umutToken } = await twoMembers();
   const res = await handleRequest(req("GET", "/messages", undefined, umutToken), env);
   const body = await res.json();
   if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
-  if (body.messages["broadcast-placeholder-queued"] !== "Goes to an admin for approval first…") {
-    return `unexpected default: ${json(body.messages["broadcast-placeholder-queued"])}`;
+  if (body.messages["request-approved"] !== "{toUser} approved your request for {itemName}.") {
+    return `unexpected default: ${json(body.messages["request-approved"])}`;
   }
   return null;
 });
 
 await check("GET /messages reflects an admin override, and 401s with no session", async () => {
   const { env, adminToken, umutToken } = await twoMembers();
-  await handleRequest(req("PUT", "/admin/messages", { messages: { "broadcast-placeholder-queued": "Needs an admin's OK first…" } }, adminToken), env);
+  await handleRequest(req("PUT", "/admin/messages", { messages: { "request-approved": "Approved!" } }, adminToken), env);
   const res = await handleRequest(req("GET", "/messages", undefined, umutToken), env);
   const body = await res.json();
-  if (body.messages["broadcast-placeholder-queued"] !== "Needs an admin's OK first…") return `override not reflected: ${json(body.messages)}`;
+  if (body.messages["request-approved"] !== "Approved!") return `override not reflected: ${json(body.messages)}`;
   const anon = await handleRequest(req("GET", "/messages", undefined, undefined), env);
   if (anon.status !== 401) return `expected 401 with no token, got ${anon.status}`;
   return null;
@@ -890,9 +760,10 @@ await check("GET /messages reflects an admin override, and 401s with no session"
 // ==================================================================== item types
 //
 // The type list ("Add" can freeze a Plasmid, an RNA prep, a Protein... not only a
-// cell) and its per-type facet rules are lab-wide, shared across every account --
-// unlike cellstocks' own state.rules, which only ever covers cells. One KV key,
-// modeled directly on MESSAGES_CONFIG_KEY above.
+// cell) and each type's own list of known attribute NAMES (autocomplete suggestions,
+// never values) are lab-wide, shared across every account -- unlike cellstocks' own
+// state.rules, which only ever covers cells. One KV key, modeled directly on
+// MESSAGES_CONFIG_KEY above.
 
 await check("GET /types ships the default type list to any logged-in user", async () => {
   const { env, umutToken } = await twoMembers();
@@ -920,27 +791,40 @@ await check("POST /types adds a new type instantly, for any logged-in user", asy
   return null;
 });
 
-await check("POST /types adds a facet rule to an existing type, and dedupes a repeat", async () => {
+await check("POST /types adds an attribute name to an existing type's suggestion list, and dedupes a repeat", async () => {
   const { env, umutToken } = await twoMembers();
-  const rule = { type: "Plasmid", facet: "dox-inducible", match: "dox", value: "Yes" };
-  const res = await handleRequest(req("POST", "/types", { facetRule: rule }, umutToken), env);
+  const attribute = { type: "Plasmid", name: "concentration" };
+  const res = await handleRequest(req("POST", "/types", { attribute }, umutToken), env);
   const body = await res.json();
   if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
   const plasmid = body.types.find((t) => t.name === "Plasmid");
-  if (!plasmid || plasmid.facets.indexOf("dox-inducible") === -1) return `facet not recorded on the type: ${json(plasmid)}`;
-  if (json(body.rules.Plasmid["dox-inducible"]) !== json([{ match: "dox", value: "Yes" }])) {
-    return `unexpected rule: ${json(body.rules.Plasmid)}`;
-  }
-  const again = await handleRequest(req("POST", "/types", { facetRule: rule }, umutToken), env);
+  if (!plasmid || plasmid.attributes.indexOf("concentration") === -1) return `attribute not recorded on the type: ${json(plasmid)}`;
+  const again = await handleRequest(req("POST", "/types", { attribute }, umutToken), env);
   const bodyAgain = await again.json();
-  if (bodyAgain.rules.Plasmid["dox-inducible"].length !== 1) return "the same rule posted twice must not duplicate";
+  const plasmidAgain = bodyAgain.types.find((t) => t.name === "Plasmid");
+  if (plasmidAgain.attributes.filter((a) => a === "concentration").length !== 1) return "the same attribute posted twice must not duplicate";
   return null;
 });
 
-await check("POST /types rejects an incomplete facetRule and a blank name", async () => {
+await check("POST /types keeps a same-named attribute independent across two different types", async () => {
   const { env, umutToken } = await twoMembers();
-  const badRule = await handleRequest(req("POST", "/types", { facetRule: { type: "Plasmid", facet: "x" } }, umutToken), env);
-  if (badRule.status !== 400) return `expected 400 for an incomplete facetRule, got ${badRule.status}`;
+  await handleRequest(req("POST", "/types", { attribute: { type: "Protein", name: "concentration" } }, umutToken), env);
+  const res = await handleRequest(req("POST", "/types", { attribute: { type: "Bacterial Glycerol", name: "concentration" } }, umutToken), env);
+  const body = await res.json();
+  const protein = body.types.find((t) => t.name === "Protein");
+  const glycerol = body.types.find((t) => t.name === "Bacterial Glycerol");
+  if (!protein.attributes.includes("concentration") || !glycerol.attributes.includes("concentration")) {
+    return `both types should independently have it: ${json({ protein, glycerol })}`;
+  }
+  return null;
+});
+
+await check("POST /types rejects an incomplete attribute and a blank name", async () => {
+  const { env, umutToken } = await twoMembers();
+  const badAttr = await handleRequest(req("POST", "/types", { attribute: { type: "Plasmid", name: "  " } }, umutToken), env);
+  if (badAttr.status !== 400) return `expected 400 for a blank attribute name, got ${badAttr.status}`;
+  const noSuchType = await handleRequest(req("POST", "/types", { attribute: { type: "NoSuchType", name: "x" } }, umutToken), env);
+  if (noSuchType.status !== 404) return `expected 404 for an unknown type, got ${noSuchType.status}`;
   const blank = await handleRequest(req("POST", "/types", { name: "   " }, umutToken), env);
   if (blank.status !== 400) return `expected 400 for a blank name, got ${blank.status}`;
   const nothing = await handleRequest(req("POST", "/types", {}, umutToken), env);
@@ -957,17 +841,15 @@ await check("only admin can merge or delete a type", async () => {
   return null;
 });
 
-await check("admin can merge one type's facets/rules into another and remove it", async () => {
+await check("admin can merge one type's known attributes into another and remove it", async () => {
   const { env, adminToken, umutToken } = await twoMembers();
-  await handleRequest(req("POST", "/types", { facetRule: { type: "RNA", facet: "prep-kit", match: "kit", value: "Yes" } }, umutToken), env);
+  await handleRequest(req("POST", "/types", { attribute: { type: "RNA", name: "prep-kit" } }, umutToken), env);
   const res = await handleRequest(req("POST", "/admin/types/merge", { from: "RNA", into: "cDNA" }, adminToken), env);
   const body = await res.json();
   if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
   if (body.types.map((t) => t.name).indexOf("RNA") !== -1) return "the merged-from type must be removed";
   const cdna = body.types.find((t) => t.name === "cDNA");
-  if (!cdna || cdna.facets.indexOf("prep-kit") === -1) return `merged facet missing from cDNA: ${json(cdna)}`;
-  if (json(body.rules.cDNA["prep-kit"]) !== json([{ match: "kit", value: "Yes" }])) return `merged rule missing: ${json(body.rules.cDNA)}`;
-  if (body.rules.RNA) return "the merged-from type's rules must be dropped, not left orphaned";
+  if (!cdna || cdna.attributes.indexOf("prep-kit") === -1) return `merged attribute missing from cDNA: ${json(cdna)}`;
   return null;
 });
 

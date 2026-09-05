@@ -81,7 +81,6 @@ const userKey = (name) => `user:${name.toLowerCase()}`;
 const sessionKey = (token) => `session:${token}`;
 const requestKey = (id) => `request:${id}`;
 const notificationKey = (user, id) => `notification:${user.toLowerCase()}:${id}`;
-const broadcastKey = (id) => `broadcast:${id}`;
 
 function newId() {
   return bytesToHex(crypto.getRandomValues(new Uint8Array(12)));
@@ -155,7 +154,7 @@ async function requireSession(request, env) {
 }
 
 function publicUser(u) {
-  return { name: u.name, role: u.role, hidden: !!u.hidden, canBroadcast: !!u.canBroadcast, createdAt: u.createdAt };
+  return { name: u.name, role: u.role, hidden: !!u.hidden, createdAt: u.createdAt };
 }
 
 // ============================================================================ GitHub writes
@@ -377,17 +376,7 @@ const MESSAGES_CONFIG_KEY = "config:messages";
 const DEFAULT_MESSAGES = {
   request: "{fromUser} is asking about {itemName}{noteSuffix}",
   "request-approved": "{toUser} approved your request for {itemName}.",
-  "request-denied": "{toUser} said no to your request for {itemName}.",
-  broadcast: "{fromUser}: {text}",
-  "broadcast-pending": '{fromUser} wants to send to the whole lab: "{text}"',
-  "broadcast-resolved-sent": 'Your message to the lab was sent: "{text}"',
-  "broadcast-resolved-denied": '{actingUser} did not send your message to the lab: "{text}"',
-  // Not sent anywhere -- these two are the broadcast compose box's own placeholder text in
-  // the app, editable here for the same reason every other message is: Umut asked to be
-  // able to edit "generic sentences" like this from the admin panel, not just the ones a
-  // notification actually sends.
-  "broadcast-placeholder-direct": "Goes straight to everyone…",
-  "broadcast-placeholder-queued": "Goes to an admin for approval first…"
+  "request-denied": "{toUser} said no to your request for {itemName}."
 };
 
 function fillTemplate(template, vars) {
@@ -464,99 +453,6 @@ async function resolveRequest(env, actingUser, id, decision) {
     read: false, createdAt: reqRecord.resolvedAt
   });
   return reqRecord;
-}
-
-// ============================================================================ broadcasts
-//
-// "Only Umut has authority over lab-wide things" (CLAUDE.md's admin-panel scoping) --
-// but Umut's own everyday login is an ordinary "member" account (see the two-account
-// design in cellstocks-worker/README.md and the plan this shipped from); he said
-// explicitly he will not switch to the hidden admin account unless he has to. So
-// broadcast authority is not just "role === admin": it is a per-user canBroadcast flag,
-// true always for admin and settable on any other account by an admin (i.e. on Umut's
-// own "Umut" login) at creation. hasBroadcastAuthority() is the one place that decision
-// is made, so nothing else has to reason about the two ways to get it.
-
-function hasBroadcastAuthority(user) {
-  return user.role === "admin" || !!user.canBroadcast;
-}
-
-async function createBroadcast(env, fromUser, body) {
-  if (!body || !body.text || !body.text.trim()) {
-    const err = new Error("text is required");
-    err.status = 400;
-    throw err;
-  }
-  const text = body.text.trim();
-  const sent = hasBroadcastAuthority(fromUser);
-  const record = {
-    id: newId(), fromUser: fromUser.name, text, status: sent ? "sent" : "pending",
-    createdAt: new Date().toISOString(), resolvedAt: sent ? new Date().toISOString() : null
-  };
-  await kvPutJson(env.CST_KV, broadcastKey(record.id), record);
-  const allUsers = await listUsers(env.CST_KV);
-  if (sent) {
-    // Fanned out to every other visible member -- never to a hidden account (admin),
-    // which is not "in the lab" for notification purposes any more than it is for
-    // search-in-lab (see cellstocks/index.html's ensureLabCache()).
-    const rendered = await renderMessage(env, "broadcast", { fromUser: fromUser.name, text });
-    await Promise.all(allUsers
-      .filter((u) => u.name.toLowerCase() !== fromUser.name.toLowerCase() && !u.hidden)
-      .map((u) => notify(env, u.name, {
-        type: "broadcast", broadcastId: record.id, fromUser: fromUser.name,
-        text: rendered, read: false, createdAt: record.createdAt
-      })));
-  } else {
-    // Only people who can actually approve it need to hear about it yet.
-    const rendered = await renderMessage(env, "broadcast-pending", { fromUser: fromUser.name, text });
-    await Promise.all(allUsers
-      .filter(hasBroadcastAuthority)
-      .map((u) => notify(env, u.name, {
-        type: "broadcast-pending", broadcastId: record.id, fromUser: fromUser.name,
-        text: rendered, read: false, createdAt: record.createdAt
-      })));
-  }
-  return record;
-}
-
-async function resolveBroadcast(env, actingUser, id, decision) {
-  if (!hasBroadcastAuthority(actingUser)) {
-    const err = new Error("only someone with broadcast authority may approve or deny this");
-    err.status = 403;
-    throw err;
-  }
-  const record = await kvGetJson(env.CST_KV, broadcastKey(id));
-  if (!record) {
-    const err = new Error("no such broadcast");
-    err.status = 404;
-    throw err;
-  }
-  if (record.status !== "pending") {
-    const err = new Error(`this broadcast was already ${record.status}`);
-    err.status = 409;
-    throw err;
-  }
-  record.status = decision === "approve" ? "sent" : "denied";
-  record.resolvedAt = new Date().toISOString();
-  await kvPutJson(env.CST_KV, broadcastKey(id), record);
-  if (record.status === "sent") {
-    const allUsers = await listUsers(env.CST_KV);
-    const rendered = await renderMessage(env, "broadcast", { fromUser: record.fromUser, text: record.text });
-    await Promise.all(allUsers
-      .filter((u) => u.name.toLowerCase() !== record.fromUser.toLowerCase() && !u.hidden)
-      .map((u) => notify(env, u.name, {
-        type: "broadcast", broadcastId: id, fromUser: record.fromUser,
-        text: rendered, read: false, createdAt: record.resolvedAt
-      })));
-  }
-  await notify(env, record.fromUser, {
-    type: "broadcast-resolved", broadcastId: id, fromUser: actingUser.name,
-    text: await renderMessage(env, record.status === "sent" ? "broadcast-resolved-sent" : "broadcast-resolved-denied", {
-      text: record.text, actingUser: actingUser.name
-    }),
-    read: false, createdAt: record.resolvedAt
-  });
-  return record;
 }
 
 // ============================================================================ HTTP plumbing
@@ -644,7 +540,6 @@ async function routeCreateUser(request, env) {
     salt,
     role: body.role === "admin" ? "admin" : "member",
     hidden: !!body.hidden,
-    canBroadcast: !!body.canBroadcast,
     createdAt: new Date().toISOString()
   };
   await kvPutJson(env.CST_KV, userKey(user.name), user);
@@ -678,8 +573,8 @@ async function routeResetPassword(request, env, name) {
 }
 
 // Renaming touches everywhere the old name was ever recorded, not just the account
-// itself -- Umut asked that a rename "update everything", so requests/broadcasts get
-// their fromUser/toUser fields rewritten and notifications (keyed by recipient name, so
+// itself -- Umut asked that a rename "update everything", so requests get their
+// fromUser/toUser fields rewritten and notifications (keyed by recipient name, so
 // this is a re-key, not a field edit) move under the new prefix. What is deliberately
 // NOT touched: the wording of a notification already sent -- "Umut is asking about X" is
 // what was actually said at the time, and rewriting it later would be inventing a history
@@ -695,11 +590,6 @@ async function migrateUserReferences(env, oldName, newName) {
       if (r.toUser.toLowerCase() === oldLower) r.toUser = newName;
       return kvPutJson(env.CST_KV, requestKey(r.id), r);
     }));
-
-  const broadcasts = await listByPrefix(env.CST_KV, "broadcast:");
-  await Promise.all(broadcasts
-    .filter((b) => b.fromUser.toLowerCase() === oldLower)
-    .map((b) => { b.fromUser = newName; return kvPutJson(env.CST_KV, broadcastKey(b.id), b); }));
 
   const notifications = await listByPrefix(env.CST_KV, `notification:${oldLower}:`);
   await Promise.all(notifications.map((n) => {
@@ -826,43 +716,6 @@ async function routeMarkNotificationRead(request, env, id) {
   return json({ notification: n });
 }
 
-async function routeCreateBroadcast(request, env) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  const body = await request.json().catch(() => null);
-  try {
-    const record = await createBroadcast(env, session.user, body);
-    return json({ broadcast: record }, 201);
-  } catch (err) {
-    return json({ error: err.message }, requestErrorStatus(err));
-  }
-}
-
-async function routeListBroadcasts(request, env) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  const all = await listByPrefix(env.CST_KV, "broadcast:");
-  // Broadcast authority sees everything (there is a pending queue to work through);
-  // everyone else sees only their own -- a pending broadcast's text is not public
-  // until it is actually sent.
-  const mine = hasBroadcastAuthority(session.user)
-    ? all
-    : all.filter((b) => b.fromUser.toLowerCase() === session.user.name.toLowerCase());
-  mine.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-  return json({ broadcasts: mine });
-}
-
-async function routeResolveBroadcast(request, env, id, decision) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  try {
-    const record = await resolveBroadcast(env, session.user, id, decision);
-    return json({ broadcast: record });
-  } catch (err) {
-    return json({ error: err.message }, requestErrorStatus(err));
-  }
-}
-
 // Any logged-in user, not just admin -- these are UI copy (a notification's wording, a
 // compose box's placeholder), not anything sensitive, and every screen that shows one of
 // them is shown to ordinary members, not just admin. Returns the text actually in effect
@@ -913,16 +766,23 @@ async function routeSetMessagesConfig(request, env) {
 //
 // "Freeze" became "Add" because a box can hold a Plasmid, an RNA prep or a Protein just
 // as easily as a cell line -- same storage/grid model, different classification. The
-// type list and its per-type facet rules (a Plasmid's own "dox-inducible"/"tet"/"FLAG",
-// the way today's five cell facets already work) are lab-wide, shared across every
-// account, the same way DEFAULT_MESSAGES above is -- not per-account like cellstocks'
-// own state.rules, which only ever covers cells. One KV key, like MESSAGES_CONFIG_KEY:
-// there are only a handful of types, and a lab-wide list either changes as one unit
-// (admin's merge/delete) or grows by one entry at a time (an ordinary user typing a
-// new type or a new rule), which is what routeAddType below is for.
+// type list, and the set of attribute NAMES each type has been given so far (a
+// Protein's "concentration"/"buffer", say), are lab-wide, shared across every account,
+// the same way DEFAULT_MESSAGES above is -- not per-account like cellstocks' own
+// state.rules, which only ever covers cells. One KV key, like MESSAGES_CONFIG_KEY.
 //
-// Umut was explicit that existing vials get no retroactive type: nothing here ever
-// assigns a type to an item that doesn't already carry one, and vial.kind is left
+// There is deliberately no automatic classification here (no regex matching a name to
+// a value, the way the five cell facets work): Umut was explicit that a non-Cell
+// type's attributes are typed in by hand, one name+value pair at a time, growing the
+// table as needed (see the Add screen's dynamic attribute table). What this config
+// tracks is only which attribute NAMES have been typed for a given type before, purely
+// as autocomplete suggestions for next time -- never a value, and never shared between
+// two different types even if they happen to use the same attribute name later (e.g.
+// both Protein and Bacterial Glycerol independently growing a "concentration"
+// attribute is fine and is not deduplicated away).
+//
+// Umut was also explicit that existing vials get no retroactive type: nothing here
+// ever assigns a type to an item that doesn't already carry one, and vial.kind is left
 // alone by every route in this section -- this is lab-wide *type definitions*, not
 // per-vial data, which stays entirely inside each account's own cellstocks/data/*.json.
 
@@ -931,7 +791,7 @@ const TYPES_CONFIG_KEY = "config:types";
 const DEFAULT_TYPE_NAMES = ["Cell", "Plasmid", "RNA", "cDNA", "Protein", "Bacterial Glycerol"];
 
 function defaultTypesConfig() {
-  return { types: DEFAULT_TYPE_NAMES.map((name) => ({ name, facets: [] })), rules: {} };
+  return { types: DEFAULT_TYPE_NAMES.map((name) => ({ name, attributes: [] })) };
 }
 
 async function loadTypesConfig(env) {
@@ -939,16 +799,18 @@ async function loadTypesConfig(env) {
   if (!stored) return defaultTypesConfig();
   // A lab that already has a stored config still gets any default type name it is
   // missing -- e.g. one shipped after that lab's config was first saved -- without
-  // ever touching what the lab itself added or renamed.
+  // ever touching what the lab itself added or renamed. Tolerates a config saved
+  // under the old rules-based shape (facets/rules) by just dropping those fields --
+  // no lab had real data in them yet when this shape changed.
   const names = new Set(stored.types.map((t) => t.name));
-  const merged = stored.types.slice();
-  DEFAULT_TYPE_NAMES.forEach((name) => { if (!names.has(name)) merged.push({ name, facets: [] }); });
-  return { types: merged, rules: stored.rules || {} };
+  const merged = stored.types.map((t) => ({ name: t.name, attributes: t.attributes || [] }));
+  DEFAULT_TYPE_NAMES.forEach((name) => { if (!names.has(name)) merged.push({ name, attributes: [] }); });
+  return { types: merged };
 }
 
-// Any logged-in user -- the type list and its facets are UI, not anything sensitive,
-// and every screen that offers a type (the Add screen's selector, a vial's own facets)
-// is shown to ordinary members, not just admin.
+// Any logged-in user -- the type list and its attribute names are UI, not anything
+// sensitive, and every screen that offers a type (the Add screen's selector, a vial's
+// own attribute table) is shown to ordinary members, not just admin.
 async function routeGetTypes(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -957,16 +819,16 @@ async function routeGetTypes(request, env) {
 }
 
 // Any logged-in user, additive only: adds a new type (if it doesn't already exist,
-// case-insensitively) and/or a new facet rule to an existing type, without ever
-// removing or overwriting anything a concurrent save already added. Two people typing
-// near-duplicate types ("RNA" / "mRNA") is expected, not rejected here -- only admin
-// (routeMergeTypes) gets to decide which name wins.
+// case-insensitively) and/or a new attribute name to an existing type's suggestion
+// list, without ever removing or overwriting anything a concurrent save already
+// added. Two people typing near-duplicate types ("RNA" / "mRNA") is expected, not
+// rejected here -- only admin (routeMergeTypes) gets to decide which name wins.
 async function routeAddType(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") return json({ error: "a body is required" }, 400);
-  if (!body.name && !body.facetRule) return json({ error: "name and/or facetRule is required" }, 400);
+  if (!body.name && !body.attribute) return json({ error: "name and/or attribute is required" }, 400);
 
   const config = await loadTypesConfig(env);
   const byName = (name) => config.types.find((t) => t.name.toLowerCase() === String(name || "").toLowerCase());
@@ -974,32 +836,27 @@ async function routeAddType(request, env) {
   if (body.name) {
     const name = String(body.name).trim();
     if (!name) return json({ error: "name must not be blank" }, 400);
-    if (!byName(name)) config.types.push({ name, facets: [] });
+    if (!byName(name)) config.types.push({ name, attributes: [] });
   }
 
-  if (body.facetRule) {
-    const fr = body.facetRule;
-    if (!fr.type || !fr.facet || !fr.match || fr.value === undefined) {
-      return json({ error: "facetRule needs type, facet, match and value" }, 400);
-    }
-    const t = byName(fr.type);
-    if (!t) return json({ error: `no such type: ${fr.type}` }, 404);
-    if (t.facets.indexOf(fr.facet) === -1) t.facets.push(fr.facet);
-    if (!config.rules[t.name]) config.rules[t.name] = {};
-    if (!config.rules[t.name][fr.facet]) config.rules[t.name][fr.facet] = [];
-    // Dedupe by (match, value): re-adding the same rule twice from two racing saves
-    // must not double it up.
-    const already = config.rules[t.name][fr.facet].some((r) => r.match === fr.match && r.value === fr.value);
-    if (!already) config.rules[t.name][fr.facet].push({ match: fr.match, value: fr.value });
+  if (body.attribute) {
+    const type = byName(body.attribute.type);
+    const attrName = String(body.attribute.name || "").trim();
+    if (!type) return json({ error: `no such type: ${body.attribute.type}` }, 404);
+    if (!attrName) return json({ error: "attribute.name must not be blank" }, 400);
+    // Case-sensitive dedupe: an attribute name is exactly what the person typed, shown
+    // back to them verbatim as a suggestion -- silently folding case would make their
+    // own typed labels look like they'd been rewritten.
+    if (type.attributes.indexOf(attrName) === -1) type.attributes.push(attrName);
   }
 
   await kvPutJson(env.CST_KV, TYPES_CONFIG_KEY, config);
   return json(config);
 }
 
-// Admin only: folds `from`'s facets/rules into `into` and removes `from`. Umut asked
-// for this explicitly, since two people can add near-duplicate types and only admin
-// should get to clean that up.
+// Admin only: folds `from`'s known attribute names into `into` and removes `from`.
+// Umut asked for this explicitly, since two people can add near-duplicate types and
+// only admin should get to clean that up.
 async function routeMergeTypes(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -1013,17 +870,7 @@ async function routeMergeTypes(request, env) {
   if (!from || !into) return json({ error: "no such type" }, 404);
   if (from.name === into.name) return json({ error: "from and into must name different types" }, 400);
 
-  from.facets.forEach((f) => { if (into.facets.indexOf(f) === -1) into.facets.push(f); });
-  const fromRules = config.rules[from.name] || {};
-  if (!config.rules[into.name]) config.rules[into.name] = {};
-  Object.keys(fromRules).forEach((facet) => {
-    if (!config.rules[into.name][facet]) config.rules[into.name][facet] = [];
-    fromRules[facet].forEach((rule) => {
-      const already = config.rules[into.name][facet].some((r) => r.match === rule.match && r.value === rule.value);
-      if (!already) config.rules[into.name][facet].push(rule);
-    });
-  });
-  delete config.rules[from.name];
+  from.attributes.forEach((a) => { if (into.attributes.indexOf(a) === -1) into.attributes.push(a); });
   config.types = config.types.filter((t) => t.name !== from.name);
 
   await kvPutJson(env.CST_KV, TYPES_CONFIG_KEY, config);
@@ -1042,7 +889,6 @@ async function routeDeleteType(request, env, name) {
   const before = config.types.length;
   config.types = config.types.filter((t) => t.name.toLowerCase() !== name.toLowerCase());
   if (config.types.length === before) return json({ error: "no such type" }, 404);
-  delete config.rules[name];
   await kvPutJson(env.CST_KV, TYPES_CONFIG_KEY, config);
   return json(config);
 }
@@ -1111,12 +957,6 @@ async function handleRequest(request, env) {
     } else if (path === "/notifications" && request.method === "GET") response = await routeListNotifications(request, env);
     else if (/^\/notifications\/[^/]+\/read$/.test(path) && request.method === "POST") {
       response = await routeMarkNotificationRead(request, env, decodeURIComponent(path.split("/")[2]));
-    } else if (path === "/broadcasts" && request.method === "POST") response = await routeCreateBroadcast(request, env);
-    else if (path === "/broadcasts" && request.method === "GET") response = await routeListBroadcasts(request, env);
-    else if (/^\/broadcasts\/[^/]+\/approve$/.test(path) && request.method === "POST") {
-      response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "approve");
-    } else if (/^\/broadcasts\/[^/]+\/deny$/.test(path) && request.method === "POST") {
-      response = await routeResolveBroadcast(request, env, decodeURIComponent(path.split("/")[2]), "deny");
     } else if (path === "/messages" && request.method === "GET") response = await routeGetMessages(request, env);
     else if (path === "/admin/messages" && request.method === "GET") response = await routeGetMessagesConfig(request, env);
     else if (path === "/admin/messages" && request.method === "PUT") response = await routeSetMessagesConfig(request, env);
@@ -1153,8 +993,6 @@ export {
   sessionKey,
   requestKey,
   notificationKey,
-  broadcastKey,
-  hasBroadcastAuthority,
   DEFAULT_MESSAGES,
   MESSAGES_CONFIG_KEY,
   fillTemplate,

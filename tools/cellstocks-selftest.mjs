@@ -1103,20 +1103,11 @@ check("box geometry is read from the data, never assumed", () => {
   return null;
 });
 
-// ---- item types: classifyGeneric() and applyPlacement()'s kind/customFacets ----
-
-check("classifyGeneric derives an arbitrary type's own facets, not the five cell ones", () => {
-  const rules = { "dox-inducible": [{ match: "dox", value: "Yes" }, { value: "No" }],
-                   "tag": [{ match: "FLAG", value: "FLAG" }] };
-  const a = E.classifyGeneric("pLVX-dox-GFP", rules);
-  if (a["dox-inducible"] !== "Yes") return `expected Yes, got ${json(a)}`;
-  if (a.tag !== null) return `expected no FLAG match, got ${json(a.tag)}`;
-  if (json(a.unmatched) !== json(["tag"])) return `unmatched should list the unmatched facet: ${json(a.unmatched)}`;
-  const b = E.classifyGeneric("pLVX-FLAG-GFP", rules);
-  if (b["dox-inducible"] !== "No") return `expected the fallback No, got ${json(b)}`;
-  if (b.tag !== "FLAG") return `expected FLAG, got ${json(b.tag)}`;
-  return null;
-});
+// ---- item types: applyPlacement()'s kind/customFacets ----
+//
+// Non-Cell facets are typed in by hand (a dynamic attribute/value table on the Add
+// screen), never derived automatically from the name -- there is no engine-side
+// classification step for them, only this plain pass-through storage.
 
 check("applyPlacement writes a non-default kind and customFacets, but never the default kind", () => {
   const box = { id: "b1", name: "Box 1", rows: 9, cols: 9, scheme: "grid" };

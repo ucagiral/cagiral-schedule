@@ -1608,7 +1608,8 @@
       "importedFrom": "Neslihan cell stocks.xlsx!Neslihan Cell stocks!row 3",
       "facetsFromSheet": {
         "koox": "Liquid nitrogen"
-      }
+      },
+      "frozenOn": "2023-01-12"
     },
     {
       "id": "v-4",
@@ -17108,6 +17109,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T15:25:31.625Z"
+    "savedAt": "2026-09-05T16:15:40.862Z"
   }
 }

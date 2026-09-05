@@ -1575,6 +1575,65 @@
     $("dlg").showModal();
   }
 
+  // A row importSheet() couldn't place at all (see reviewQueue()'s ambiguousImport) has
+  // no location to show, so it needs its own dialog rather than editVial()'s (which
+  // assumes a vial is already somewhere). Resolving it is E.resolveImportRow()'s job --
+  // this is just the box/position picker for it.
+  function resolveAmbiguousImport(vial){
+    $("dlgTitle").textContent = "Where does this belong?";
+    var body = clear($("dlgBody"));
+    var raw = vial.importRaw || {};
+
+    var name = document.createElement("input");
+    name.value = raw.name || (/^Unreadable row/.test(vial.name) ? "" : vial.name) || "";
+    var nameField = el("div", "field");
+    nameField.appendChild(el("label", null, "Name"));
+    nameField.appendChild(name);
+    body.appendChild(nameField);
+
+    var boxSel = document.createElement("select");
+    var boxes = [];
+    E.eachBox(state, function(b, rack, unit){ boxes.push({ id: b.id, label: unit.name + " → " + rack.name + " → " + b.name, box: b }); });
+    boxes.forEach(function(b){
+      var o = document.createElement("option");
+      o.value = b.id; o.textContent = b.label;
+      boxSel.appendChild(o);
+    });
+    var boxField = el("div", "field");
+    boxField.appendChild(el("label", null, "Box"));
+    boxField.appendChild(boxSel);
+    body.appendChild(boxField);
+
+    var posInput = document.createElement("input");
+    posInput.placeholder = "A1";
+    posInput.value = raw.position && /^[A-Za-z]+\s*\d+$/.test(raw.position) ? raw.position : "";
+    var posField = el("div", "field");
+    posField.appendChild(el("label", null, "Position"));
+    posField.appendChild(posInput);
+    body.appendChild(posField);
+
+    body.appendChild(el("p", "note", "From the sheet: name " + (raw.name ? "\"" + raw.name + "\"" : "(blank)") +
+      ", position " + (raw.position ? "\"" + raw.position + "\"" : "(blank)") + (raw.box ? " in " + raw.box : "") + "."));
+
+    var msg = el("p", "note");
+    body.appendChild(msg);
+
+    var foot = clear($("dlgFoot"));
+    var save = el("button", "primary", "Save");
+    save.disabled = !canWrite() || !boxes.length;
+    if (!boxes.length) msg.textContent = "There is nowhere to put it yet -- add a box first.";
+    save.onclick = function(){
+      var res = E.resolveImportRow(state, vial.id, { name: name.value, boxId: boxSel.value, position: posInput.value.trim() });
+      if (!res.ok){ msg.textContent = res.reason; msg.style.color = "var(--bad)"; return; }
+      state = res.state;
+      $("dlg").close();
+      markDirty("Fill in an import row");
+      renderAll();
+    };
+    foot.appendChild(save);
+    $("dlg").showModal();
+  }
+
   function slotDialog(boxId, slot){
     var occ = E.occupancy(state, boxId);
     $("dlgTitle").textContent = occ.box.name + " · " + slot.position;
@@ -1706,6 +1765,33 @@
     if (!q.total){
       box.appendChild(el("div", "empty", "Nothing to review. Everything the import wasn't sure about has been answered."));
       return;
+    }
+
+    // ---- rows an import couldn't place at all ----
+    if (q.ambiguousImport.length){
+      var ic = el("div", "card");
+      ic.appendChild(el("h3", null, "Rows we weren't sure about (" + q.ambiguousImport.length + ")"));
+      ic.appendChild(el("p", "note",
+        "No name, or no position that fits inside its box — rather than guess, these came in with " +
+        "no location. They won't show up in Find until fixed here."));
+      q.ambiguousImport.slice(0, 60).forEach(function(v){
+        var row = el("div", "item");
+        var grow = el("div", "grow");
+        grow.appendChild(el("div", null, v.name));
+        var raw = v.importRaw || {};
+        grow.appendChild(el("div", "sub",
+          "sheet row " + (raw.row || "?") + ": name " + (raw.name ? "\"" + raw.name + "\"" : "(blank)") +
+          ", position " + (raw.position ? "\"" + raw.position + "\"" : "(blank)") +
+          (raw.box ? " in " + raw.box : "")));
+        row.appendChild(grow);
+        var fix = el("button", null, "Fix");
+        fix.disabled = !canWrite();
+        fix.onclick = function(){ resolveAmbiguousImport(v); };
+        row.appendChild(fix);
+        ic.appendChild(row);
+      });
+      if (q.ambiguousImport.length > 60) ic.appendChild(el("p", "note", "…and " + (q.ambiguousImport.length - 60) + " more."));
+      box.appendChild(ic);
     }
 
     // ---- dates ----
@@ -2652,10 +2738,21 @@
     var body = clear($("dlgBody"));
     var guesses = E.guessColumns(sheet.rows, 0, sheet.merges);
     var map = {};
-    guesses.forEach(function(g){ if (g.role !== "ignore") map[g.role] = g.index; });
+    // A returning member's own confirmed layout (from the last time they imported)
+    // takes priority over a fresh guess -- but it is still only ever a pre-selection
+    // on the same screen that shows and lets them override it, never applied silently.
+    var saved = state.settings && state.settings.columnMap;
+    var usedSaved = false;
+    if (saved && Object.keys(saved).length){
+      Object.keys(saved).forEach(function(role){
+        if (typeof saved[role] === "number") { map[role] = saved[role]; usedSaved = true; }
+      });
+    }
+    guesses.forEach(function(g){ if (g.role !== "ignore" && map[g.role] === undefined) map[g.role] = g.index; });
 
     body.appendChild(el("p", "note",
-      "Guessed from the headers and the first rows. A column filled by a formula shows the " +
+      (usedSaved ? "Pre-filled from how you mapped your last import, plus a fresh guess for anything new. " : "Guessed from the headers and the first rows. ") +
+      "A column filled by a formula shows the " +
       "formula, so a value that was calculated from another column can be mapped to its source " +
       "instead of imported as if it had been typed."));
 
@@ -2733,8 +2830,9 @@
       "those come in empty. Reopen and save the file in Excel or Sheets first.", true);
     if (rep.collisions.length) line(rep.collisions.length + " rows want a slot another row already took; " +
       "they will be dropped.", true);
-    if (rep.skipped.length) line(rep.skipped.length + " rows have a position outside their box and will be dropped.", true);
-    rep.skipped.slice(0, 5).forEach(function(s){ line("　row " + s.row + ": " + s.name + " — " + s.why, true); });
+    if (rep.skipped.length) line(rep.skipped.length + " rows couldn't be placed (no name, or a position " +
+      "outside their box) — they'll come in with no location, waiting in Review instead of being guessed.", true);
+    rep.skipped.slice(0, 5).forEach(function(s){ line("　row " + s.row + ": " + (s.name || "(no name)") + " — " + s.why, true); });
     var errs = E.errorsOnly(rep.problems);
     if (errs.length) line(errs.length + " problems that would make the inventory wrong.", true);
 
@@ -2748,18 +2846,18 @@
     var go3 = el("button", "primary", "Replace the inventory");
     go3.disabled = !canWrite() || !!errs.length;
 
-    // Dropping rows is exactly the kind of quiet data loss this app exists to stop,
-    // so a run with collisions or skips has to be agreed to out loud. Usually it
-    // means a column was mapped wrongly -- most often the box column, which has a
-    // blank header and only one filled cell per block.
-    var lost = rep.collisions.length + rep.skipped.length;
+    // Dropping a row outright is exactly the kind of quiet data loss this app exists
+    // to stop, so a real collision still has to be agreed to out loud. A row that
+    // couldn't be placed is no longer dropped -- it comes in and waits in Review --
+    // so it doesn't need the same "are you sure" gate, just the note above.
+    var lost = rep.collisions.length;
     if (lost){
       var agree = el("label", "toggle");
       var cb = document.createElement("input");
       cb.type = "checkbox";
       cb.onchange = function(){ go3.disabled = !canWrite() || !!errs.length || !cb.checked; };
       agree.appendChild(cb);
-      agree.appendChild(el("span", null, "I know " + lost + " rows will be thrown away — check the " +
+      agree.appendChild(el("span", null, "I know " + lost + " row(s) will be thrown away — check the " +
         "column mapping first, especially which column holds the box name."));
       body.appendChild(agree);
       go3.disabled = true;

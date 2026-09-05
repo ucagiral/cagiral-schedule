@@ -10,7 +10,8 @@ compatibility_date = "2024-09-01"
 
 # `wrangler kv namespace create CST_KV` prints the id to put here.
 kv_namespaces = [
-  { binding = "CST_KV", id = "REPLACE_WITH_KV_NAMESPACE_ID" }
+  { "binding": "CST_KV",
+      "id": "790f6073ce2748ac950649def52dcb88" }
 ]
 
 [vars]

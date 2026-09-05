@@ -662,6 +662,10 @@
     var rules = state.rules || DEFAULT_RULES;
     var tokens = tokenise(q.query || "", state.settings && state.settings.aliases);
     var pool = (state.vials || []).filter(function (v) {
+      // An import row nobody could place yet (see reviewQueue()'s ambiguousImport) has
+      // no real location -- it belongs in Review, not in ordinary search results, until
+      // someone fills in what it actually is.
+      if (v.importAmbiguous) return false;
       return q.includeWithdrawn ? true : v.status !== "withdrawn";
     });
 
@@ -1221,7 +1225,13 @@
         if (v.location) err("withdrawn-with-location", v.name + " is marked taken out but still holds a slot.", v.id);
         return;
       }
-      if (!v.location || !v.location.boxId) { err("no-location", v.name + " has no location.", v.id); return; }
+      if (!v.location || !v.location.boxId) {
+        // A row Review is still waiting on (see reviewQueue()'s ambiguousImport) is
+        // expected to have no location yet -- flagging it as a warning lets the rest
+        // of a save through instead of refusing everything until this one row is fixed.
+        if (v.importAmbiguous) { warn("import-ambiguous", v.name + " still needs Review before it has a real location.", v.id); return; }
+        err("no-location", v.name + " has no location.", v.id); return;
+      }
 
       var entry = boxIds[v.location.boxId];
       if (!entry) { err("unknown-box", v.name + " points at a box that does not exist (" + v.location.boxId + ").", v.id); return; }
@@ -1353,6 +1363,28 @@
       }
       guesses.push({ index: c, letter: root.XlsxLite ? root.XlsxLite.colName(c) : String(c + 1), header: head, role: role });
     }
+
+    // A headerless NAME column has no fixed content shape the way position does, so it
+    // can only be found by elimination: once a position column exists, exactly one
+    // remaining unheaded column, mostly distinct non-position-shaped text, is a name
+    // column left unheaded rather than another "ignore" column.
+    var hasPosition = guesses.some(function (g) { return g.role === "position"; });
+    var hasName = guesses.some(function (g) { return g.role === "name"; });
+    if (hasPosition && !hasName) {
+      var candidates = guesses.filter(function (g) { return g.role === "ignore" && !g.header; });
+      if (candidates.length === 1) {
+        var col = candidates[0].index;
+        var values = [];
+        for (var r3 = (headerRowIndex || 0) + 1; r3 < Math.min(rows.length, (headerRowIndex || 0) + 40); r3++) {
+          var cell2 = (rows[r3] || [])[col];
+          var t2 = cell2 && cell2.text ? String(cell2.text).trim() : "";
+          if (t2 && !/^[A-Za-z]+\s*\d+$/.test(t2)) values.push(t2);
+        }
+        var distinct = {};
+        values.forEach(function (v) { distinct[v] = true; });
+        if (values.length >= 3 && Object.keys(distinct).length / values.length > 0.5) candidates[0].role = "name";
+      }
+    }
     return guesses;
   }
 
@@ -1438,12 +1470,35 @@
         }
         report.rows++;
         var name = cellText("name");
-        if (!name) continue;
-
         var positionText = cellText("position");
+        // A row where neither the name nor the position could be read is not lost --
+        // dropping it silently is exactly the "guessed wrong" failure Umut asked this
+        // to never do. It comes in as a real vial with no location, flagged for
+        // Review, the same way an unparseable date keeps its raw text rather than
+        // vanishing (see the frozenRaw comment below).
+        if (!name) {
+          report.skipped.push({ row: rr, name: "", why: "no name found in this row" });
+          vials.push({
+            id: o.idPrefix ? (o.idPrefix + "-" + rr) : ("v-" + rr),
+            name: positionText ? ("Unreadable row (" + positionText + ")") : "Unreadable row",
+            status: "stored", location: null, importAmbiguous: true,
+            importRaw: { row: rr, name: name, position: positionText, box: label },
+            importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
+          });
+          report.imported++;
+          continue;
+        }
+
         var p = parsePosition(box, positionText);
         if (!p) {
           report.skipped.push({ row: rr, name: name, why: "position \"" + positionText + "\" is not inside " + label });
+          vials.push({
+            id: o.idPrefix ? (o.idPrefix + "-" + rr) : ("v-" + rr),
+            name: name, status: "stored", location: null, importAmbiguous: true,
+            importRaw: { row: rr, name: name, position: positionText, box: label },
+            importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
+          });
+          report.imported++;
           continue;
         }
         if (takenHere[p.index]) {
@@ -1492,6 +1547,7 @@
     var lines = [];
     var lineSeen = {};
     vials.forEach(function (v) {
+      if (!v.lineId) return; // an ambiguous row (importAmbiguous) never got a lineId to begin with
       if (lineSeen[v.lineId]) { lineSeen[v.lineId].aliases.push(v.name); return; }
       var f = classify(v.name, rules);
       var line = { id: v.lineId, name: v.name, aliases: [],
@@ -1665,6 +1721,7 @@
     if (!s.settings || typeof s.settings !== "object") s.settings = base.settings;
     if (!s.settings.placement) s.settings.placement = { allowSplit: true };
     if (!s.settings.aliases) s.settings.aliases = {};
+    if (!s.settings.columnMap) s.settings.columnMap = {};
     if (!s._meta) s._meta = base._meta;
     if (!s.settings.defaultUnitId && s.storage.units.length) s.settings.defaultUnitId = s.storage.units[0].id;
     return s;
@@ -1672,10 +1729,16 @@
 
   // Everything the review queue still owes an answer on.
   function reviewQueue(state) {
+    // A row import couldn't place at all (see importSheet()) is its own category below
+    // -- it has neither a date nor a passage to speak of yet, so it is excluded from
+    // every other category here rather than cluttering them with the same row twice.
+    var ambiguousImport = (state.vials || []).filter(function (v) {
+      return v.status !== "withdrawn" && v.importAmbiguous;
+    });
     var dates = (state.vials || []).filter(function (v) {
       // Anything without a confirmed date: the ambiguous ones, the unparseable one,
       // and the handful that were simply left blank.
-      return v.status !== "withdrawn" && !v.frozenOn;
+      return v.status !== "withdrawn" && !v.importAmbiguous && !v.frozenOn;
     }).map(function (v) {
       return { vial: v, date: parseDate(v.frozenRaw) };
     });
@@ -1688,12 +1751,12 @@
     // it is missing information and the app should say so rather than let 68 vials
     // sit behind a "p?" nobody ever gets around to.
     var unknownPassage = (state.vials || []).filter(function (v) {
-      return v.status !== "withdrawn" && (v.passageKind || "unknown") === "unknown";
+      return v.status !== "withdrawn" && !v.importAmbiguous && (v.passageKind || "unknown") === "unknown";
     });
     return { dates: dates, facets: ca.diffs, gaps: ca.gaps, passages: passages, rows: rows,
-             unknownPassage: unknownPassage,
+             unknownPassage: unknownPassage, ambiguousImport: ambiguousImport,
              total: dates.length + ca.diffs.length + ca.gaps.length + passages.length +
-                    rows.length + unknownPassage.length };
+                    rows.length + unknownPassage.length + ambiguousImport.length };
   }
 
   function confirmDate(state, vialId, iso) {
@@ -1703,6 +1766,36 @@
     var parsed = parseDate(iso);
     if (!parsed.iso) return { ok: false, reason: "\"" + iso + "\" is not a date I can read.", state: state };
     v.frozenOn = parsed.iso;
+    return { ok: true, state: next, vial: v };
+  }
+
+  // Resolves one row importSheet() couldn't place (reviewQueue()'s ambiguousImport) --
+  // the same "clone, mutate one thing, validate the slot, return" shape confirmDate()
+  // already uses for an ambiguous date.
+  function resolveImportRow(state, vialId, fields) {
+    var next = clone(state);
+    var v = indexById(next.vials)[vialId];
+    if (!v) return { ok: false, reason: "No such vial.", state: state };
+    var name = ((fields && fields.name) || "").trim();
+    if (!name) return { ok: false, reason: "A name is required.", state: state };
+    if (!fields || !fields.boxId || !fields.position) return { ok: false, reason: "A box and position are required.", state: state };
+    var found = findBox(next, fields.boxId);
+    if (!found) return { ok: false, reason: "That box does not exist.", state: state };
+    var p = parsePosition(found.box, fields.position);
+    if (!p) return { ok: false, reason: fields.position + " is not a position in " + found.box.name + ".", state: state };
+    var occ = occupancy(next, fields.boxId);
+    if (occ.slots[p.index].vial) {
+      return { ok: false, reason: found.box.name + " " + p.label + " already holds " + occ.slots[p.index].vial.name + ".", state: state };
+    }
+
+    var rules = next.rules || DEFAULT_RULES;
+    var lineId = lineIdFor(name, rules);
+    next.lines = ensureLine(next, name, lineId, rules);
+    v.name = name;
+    v.lineId = lineId;
+    v.location = { unitId: found.unit.id, rackId: found.rack.id, boxId: fields.boxId, position: p.label };
+    delete v.importAmbiguous;
+    delete v.importRaw;
     return { ok: true, state: next, vial: v };
   }
 
@@ -1740,6 +1833,6 @@
     // state
     blankState: blankState, mergeDefaults: mergeDefaults, indexById: indexById,
     slim: slim, serialise: serialise,
-    reviewQueue: reviewQueue, confirmDate: confirmDate
+    reviewQueue: reviewQueue, confirmDate: confirmDate, resolveImportRow: resolveImportRow
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

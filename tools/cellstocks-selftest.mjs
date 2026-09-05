@@ -1014,6 +1014,35 @@ check("guessColumns finds a position column that has no header", () => {
   return null;
 });
 
+check("a headerless name column is found by elimination once a position column exists", () => {
+  // Neither column has a header at all -- this is the "some people write position
+  // then name, others name then position, with no header either way" case Umut
+  // described. guessColumns() never cared about column order (header/content
+  // matching is per-column), so this proves the elimination fallback for the one
+  // shape it genuinely couldn't recognize before: a headerless name column.
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell(""), cell("")]];
+  const names = ["HEK293T p12", "Du145 CASPEX g5.1", "LnCap KO g2", "HEK293T ATF3 OX", "Du145 WT"];
+  for (let i = 0; i < names.length; i++) rows.push([cell("A" + (i + 1)), cell(names[i])]);
+  const g = E.guessColumns(rows, 0);
+  const byIndex = {};
+  g.forEach((x) => { byIndex[x.index] = x.role; });
+  if (byIndex[0] !== "position") return `column A guessed as ${json(byIndex[0])}`;
+  if (byIndex[1] !== "name") return `column B guessed as ${json(byIndex[1])}`;
+  return null;
+});
+
+check("a single headerless column is never guessed as name without a position column to anchor it", () => {
+  // Elimination only fires once a position column has actually been found -- one
+  // lone unheaded text column by itself must stay "ignore" rather than being guessed.
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("")]];
+  ["HEK293T p12", "Du145 CASPEX g5.1", "LnCap KO g2"].forEach((n) => rows.push([cell(n)]));
+  const g = E.guessColumns(rows, 0);
+  if (g[0].role === "name") return "guessed a name column with no position column present";
+  return null;
+});
+
 check("the box column is found by its merges, since nothing else gives it away", () => {
   // One merged label per block, a blank header, and 80 of 81 cells empty. Content
   // heuristics cannot see this column; the merge list can.
@@ -1035,6 +1064,81 @@ check("box geometry is read from the data, never assumed", () => {
   if (json(E.gridFromPositions(["A1", "I9", "C4"])) !== json({ rows: 9, cols: 9, scheme: "grid" })) return "a 9x9 block was misread";
   if (json(E.gridFromPositions(["A1", "E10"])) !== json({ rows: 5, cols: 10, scheme: "grid" })) return "a 5x10 block was misread";
   if (E.gridFromPositions(["7", "12"]) !== null) return "linear positions were read as a grid";
+  return null;
+});
+
+// ---- import: a row nobody could place goes to Review, never guessed or dropped ----
+
+check("a row with no name is queued for review instead of dropped or guessed", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name")],
+    [cell("A1"), cell("HEK293T p12")],
+    [cell("A2"), cell("")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  if (out.state.vials.length !== 2) return `expected 2 vials (one real, one ambiguous), got ${out.state.vials.length}`;
+  const ambiguous = out.state.vials.filter((v) => v.importAmbiguous);
+  if (ambiguous.length !== 1) return `expected exactly 1 ambiguous vial, got ${ambiguous.length}`;
+  if (ambiguous[0].location) return "an ambiguous row must not get a fabricated location";
+  const q = E.reviewQueue(out.state);
+  if (q.ambiguousImport.length !== 1) return `reviewQueue did not surface it: ${json(q)}`;
+  const hits = E.search(out.state, { query: "" });
+  if (hits.some((h) => h.vial.importAmbiguous)) return "an ambiguous row showed up in ordinary search results";
+  return null;
+});
+
+check("a row whose position doesn't parse is queued for review too, not silently dropped", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Position"), cell("Cell Name")], [cell("42"), cell("Mystery Line")]];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  if (out.state.vials.length !== 1) return `expected the row to still become a vial, got ${out.state.vials.length}`;
+  if (!out.state.vials[0].importAmbiguous) return "a bad position should still be flagged for review";
+  if (out.report.skipped.length !== 1) return `report.skipped should still record why: ${json(out.report.skipped)}`;
+  return null;
+});
+
+check("validate() warns about an ambiguous import row rather than blocking the whole save", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Position"), cell("Cell Name")], [cell(""), cell("")]];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  const problems = E.validate(out.state);
+  if (E.errorsOnly(problems).length) return `an ambiguous import row must not be a save-blocking error: ${json(problems)}`;
+  if (!problems.some((p) => p.level === "warning" && p.code === "import-ambiguous")) return `expected an import-ambiguous warning: ${json(problems)}`;
+  return null;
+});
+
+check("resolveImportRow fills in a name and position, and clears the review flag", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Position"), cell("Cell Name")], [cell(""), cell("")]];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
+  const vialId = imported.vials[0].id;
+  const boxId = imported.storage.units[0].racks[0].boxes[0].id;
+  const res = E.resolveImportRow(imported, vialId, { name: "HEK293T p12", boxId: boxId, position: "A1" });
+  if (!res.ok) return `resolveImportRow failed: ${res.reason}`;
+  if (res.vial.importAmbiguous) return "importAmbiguous should be cleared";
+  if (!res.vial.location || res.vial.location.position !== "A1") return `expected a location at A1, got ${json(res.vial.location)}`;
+  if (E.errorsOnly(E.validate(res.state)).length) return "the resolved state should validate cleanly";
+  return null;
+});
+
+check("resolveImportRow refuses a slot that is already taken", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name")],
+    [cell("A1"), cell("HEK293T p12")],
+    [cell(""), cell("")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
+  const ambiguous = imported.vials.find((v) => v.importAmbiguous);
+  const boxId = imported.storage.units[0].racks[0].boxes[0].id;
+  const res = E.resolveImportRow(imported, ambiguous.id, { name: "Another Line", boxId: boxId, position: "A1" });
+  if (res.ok) return "expected the already-taken slot to be refused";
   return null;
 });
 

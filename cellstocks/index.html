@@ -2412,7 +2412,11 @@
       var wname = document.createElement("input");
       wname.placeholder = "Name"; wname.style.marginTop = "8px"; wname.autocomplete = "off";
       var wpass = document.createElement("input");
-      wpass.type = "password"; wpass.placeholder = "Password"; wpass.autocomplete = "current-password";
+      // Deliberately "off", not "current-password" -- everyone in the lab logs in
+      // through this one shared form/origin, so iCloud Keychain / Safari's password
+      // manager was offering whichever account it had saved (not necessarily the one
+      // being typed), which is actively wrong here rather than a convenience.
+      wpass.type = "password"; wpass.placeholder = "Password"; wpass.autocomplete = "off";
       wpass.style.marginTop = "8px";
       wform.appendChild(wurl); wform.appendChild(wname); wform.appendChild(wpass);
       var wgo = el("button", "primary", "Log in");
@@ -3336,15 +3340,20 @@
   async function renderAdminUsers(){
     var c = clear($("admin-users"));
     c.appendChild(el("h3", null, "Add a user"));
+    // A real <form> boundary, same reasoning as the worker-login form -- without one,
+    // Safari has nothing to scope its password heuristic to on this screen either.
+    var uform = document.createElement("form");
+    uform.autocomplete = "off";
     var name = document.createElement("input"); name.placeholder = "name"; name.autocomplete = "off";
-    var pass = document.createElement("input"); pass.type = "password"; pass.placeholder = "password";
+    var pass = document.createElement("input"); pass.type = "password"; pass.placeholder = "password"; pass.autocomplete = "off";
     var role = document.createElement("select");
     [["member","member"],["admin","admin"]].forEach(function(o){ var opt = document.createElement("option"); opt.value = o[0]; opt.textContent = o[1]; role.appendChild(opt); });
     var hidden = document.createElement("select");
     [["false","visible"],["true","hidden"]].forEach(function(o){ var opt = document.createElement("option"); opt.value = o[0]; opt.textContent = o[1]; hidden.appendChild(opt); });
     [["Name", name], ["Password", pass], ["Role", role], ["Visibility", hidden]].forEach(function(p){
-      var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); c.appendChild(f);
+      var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); uform.appendChild(f);
     });
+    c.appendChild(uform);
     var create = el("button", "primary", "Create");
     create.onclick = async function(){
       if (!name.value.trim() || !pass.value) return;

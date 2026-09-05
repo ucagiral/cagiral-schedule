@@ -351,6 +351,7 @@
       <div class="bar"><i id="bxBar"></i></div>
     </div>
     <div class="card" id="bxLines"></div>
+    <div class="card" id="bxQuickAdd" hidden></div>
   </section>
 
   <section class="screen" id="s-review">
@@ -1822,10 +1823,40 @@
     try { renderBoxesBody(true); } finally { state = real; ADMIN_MERGED = false; }
   }
 
+  // The everyday version of "set up storage" -- just a name, a box defaulting to
+  // 9×9 (Rename/Resize on Settings → Storage already handle changing that after).
+  // Available to any user, same permission level as everything else on this screen;
+  // hidden entirely for admin's read-only merged view, which has no inventory of its
+  // own to add to.
+  function renderBoxesQuickAdd(readOnly){
+    var c = $("bxQuickAdd");
+    c.hidden = !!readOnly;
+    if (readOnly) return;
+    clear(c);
+    var addBox = el("button", null, "Add a box");
+    addBox.disabled = !canWrite();
+    addBox.onclick = function(){
+      if (!(state.storage.units || []).length){
+        showBanner("Add a freezer or tank first — a box always lives inside one.");
+        addUnitDialog();
+        return;
+      }
+      addBoxDialog();
+    };
+    var addUnit = el("button", null, "Add a freezer or tank");
+    addUnit.disabled = !canWrite();
+    addUnit.onclick = function(){ addUnitDialog(); };
+    var row = el("div", "row tight");
+    row.appendChild(addBox); row.appendChild(addUnit);
+    c.appendChild(row);
+  }
+
   function renderBoxesBody(readOnly){
+    renderBoxesQuickAdd(readOnly);
     var units = state.storage.units || [];
     if (!units.length){
-      clear($("bxGrid")).appendChild(el("div", "empty", "No freezer set up yet — Settings → Storage."));
+      clear($("bxGrid")).appendChild(el("div", "empty",
+        readOnly ? "No freezer set up yet." : "No freezer set up yet — add one below."));
       clear($("bxLines"));
       return;
     }
@@ -2602,26 +2633,8 @@
         });
       });
     });
-    var addBox = el("button", null, "Add a box");
-    addBox.disabled = !canWrite();
-    addBox.onclick = function(){
-      // A box always lives inside a unit's rack -- with none yet (a brand-new account),
-      // addBoxDialog() would have nothing to offer. Rather than leave the button
-      // permanently disabled with no explanation, send a first-timer straight to adding
-      // a freezer or tank instead, so the click always leads somewhere.
-      if (!(state.storage.units || []).length){
-        showBanner("Add a freezer or tank first — a box always lives inside one.");
-        addUnitDialog();
-        return;
-      }
-      addBoxDialog();
-    };
-    var addUnit = el("button", null, "Add a freezer or tank");
-    addUnit.disabled = !canWrite();
-    addUnit.onclick = function(){ addUnitDialog(); };
-    var row2 = el("div", "row tight");
-    row2.appendChild(addBox); row2.appendChild(addUnit);
-    s.appendChild(row2);
+    s.appendChild(el("p", "note", "Adding a box or a freezer/tank moved to the Boxes tab — it's an everyday " +
+      "action, not a settings change. Renaming and resizing stay here."));
 
     // ---- rules ----
     var r2 = clear($("rulesCard"));
@@ -2760,6 +2773,9 @@
     $("dlg").showModal();
   }
 
+  // Name-only, on purpose -- this is the everyday action (Boxes tab), not a settings
+  // change. A box defaults to 9×9; Settings → Storage's own Rename/Resize buttons
+  // already handle changing that afterwards, so there is nothing to ask up front.
   function addBoxDialog(){
     $("dlgTitle").textContent = "Add a box";
     var body = clear($("dlgBody"));
@@ -2773,14 +2789,17 @@
       });
     });
     var name = document.createElement("input"); name.placeholder = "Box 7"; name.autocomplete = "off";
-    var rows = document.createElement("input"); rows.type = "number"; rows.min = 1; rows.value = 9;
-    var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = 9;
-    [["Where", unit], ["Name", name], ["Rows", rows], ["Columns", cols]].forEach(function(p){
+    var fields = [["Name", name]];
+    // Only worth asking "where" when there's an actual choice -- one rack in one unit
+    // (the common case just after adding a first freezer) needs no picker at all.
+    if (unit.options.length > 1) fields.unshift(["Where", unit]);
+    fields.forEach(function(p){
       var f = el("div", "field");
       f.appendChild(el("label", null, p[0]));
       f.appendChild(p[1]);
       body.appendChild(f);
     });
+    body.appendChild(el("p", "note", "Starts at 9×9 — resize it afterwards from Settings → Storage."));
     var foot = clear($("dlgFoot"));
     var ok = el("button", "primary", "Add");
     ok.onclick = function(){
@@ -2790,8 +2809,7 @@
       var rk = (u.racks || []).filter(function(x){ return x.id === parts[1]; })[0];
       var id = "b-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       if (E.findBox(state, id)) id += "-" + Date.now().toString(36).slice(-4);
-      rk.boxes.push({ id:id, name:name.value.trim(), rows:Number(rows.value), cols:Number(cols.value),
-                      scheme:"grid", note:"", archived:false });
+      rk.boxes.push({ id:id, name:name.value.trim(), rows:9, cols:9, scheme:"grid", note:"", archived:false });
       $("dlg").close(); markDirty("Add a box"); renderAll();
     };
     foot.appendChild(ok);
@@ -2802,32 +2820,20 @@
     $("dlgTitle").textContent = "Add a freezer or tank";
     var body = clear($("dlgBody"));
     var name = document.createElement("input"); name.placeholder = "-20 Freezer"; name.autocomplete = "off";
-    var type = document.createElement("input"); type.placeholder = "-20, LN2 tank, cold room…"; type.autocomplete = "off";
-    var childLabel = document.createElement("input");
-    childLabel.placeholder = "Rack, Tower, Drawer…"; childLabel.value = "Rack"; childLabel.autocomplete = "off";
-    var count = document.createElement("input"); count.type = "number"; count.min = 1; count.value = 1;
-    [["Name", name], ["Type (just a label, for your own reference)", type],
-     ["What do you call its subdivisions?", childLabel],
-     ["How many to start with?", count]].forEach(function(p){
-      var f = el("div", "field");
-      f.appendChild(el("label", null, p[0]));
-      f.appendChild(p[1]);
-      body.appendChild(f);
-    });
-    body.appendChild(el("p", "note", "Boxes go in afterwards. Every account can set this up its own " +
-      "way — nothing about 9×9, racks or towers is built in."));
+    var f = el("div", "field");
+    f.appendChild(el("label", null, "Name"));
+    f.appendChild(name);
+    body.appendChild(f);
+    body.appendChild(el("p", "note", "Starts with one rack; boxes go in afterwards. Give the type or " +
+      "how it's subdivided its own name later, from Settings → Storage, if the default doesn't fit."));
     var foot = clear($("dlgFoot"));
     var ok = el("button", "primary", "Add");
     ok.onclick = function(){
       if (!name.value.trim()) return;
-      var label = childLabel.value.trim() || "Rack";
       var id = "u-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       if (E.findUnit(state, id)) id += "-" + Date.now().toString(36).slice(-4);
-      var racks = [];
-      for (var i = 1; i <= Math.max(1, Number(count.value)); i++){
-        racks.push({ id: id + "-r" + i, name: label + " " + i, boxes: [] });
-      }
-      state.storage.units.push({ id:id, name:name.value.trim(), type:type.value.trim(), childLabel:label, racks:racks });
+      var racks = [{ id: id + "-r1", name: "Rack 1", boxes: [] }];
+      state.storage.units.push({ id:id, name:name.value.trim(), type:"", childLabel:"Rack", racks:racks });
       $("dlg").close(); markDirty("Add a unit"); renderAll();
     };
     foot.appendChild(ok);

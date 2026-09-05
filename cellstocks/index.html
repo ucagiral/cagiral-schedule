@@ -374,7 +374,7 @@
   // the host: its own token, its own device name, its own theme, its own offline
   // copy. That costs pasting a token once more on each device, and buys the app
   // being genuinely separate rather than separate-looking.
-  var LS = { token:"cst_token", device:"cst_device", theme:"cst_theme", cache:"cst_cache", cfg:"cst_cfg",
+  var LS = { token:"cst_token", device:"cst_device", theme:"cst_theme", cachePrefix:"cst_cache:", cfg:"cst_cfg",
              workerUrl:"cst_worker_url", workerToken:"cst_worker_token", workerUser:"cst_worker_user" };
   var LEGACY_DATA_PATH = "cellstocks/cellstocks.json";
   var LEGACY_XLSX_PATH = "cellstocks/cell-stocks.xlsx";
@@ -455,6 +455,9 @@
     }
     try { localStorage.removeItem(LS.workerToken); localStorage.removeItem(LS.workerUser); } catch(e){}
     notifications = null;
+    // Nothing about the account that was just logged out should linger on screen while this
+    // device sits read-only waiting for the next login.
+    state = E.blankState();
   }
 
   async function workerCommit(files, message){
@@ -538,12 +541,19 @@
   var dirty = false;
   var lastWithdrawal = null;     // for the 10-second undo in the status line
 
+  // One device can log into more than one worker account over time (an admin trying out a
+  // teammate's login, a shared lab laptop). The offline cache has to be keyed per account, or a
+  // network hiccup after switching accounts would silently hand back whoever logged in earlier.
+  function cacheKey(){
+    var u = getWorkerUser();
+    return LS.cachePrefix + (u ? u.name.toLowerCase() : "legacy");
+  }
   function cacheSave(){
-    try { localStorage.setItem(LS.cache, JSON.stringify({ at: Date.now(), state: state })); } catch(e){}
+    try { localStorage.setItem(cacheKey(), JSON.stringify({ at: Date.now(), state: state })); } catch(e){}
   }
   function cacheLoad(){
     try {
-      var c = JSON.parse(localStorage.getItem(LS.cache) || "null");
+      var c = JSON.parse(localStorage.getItem(cacheKey()) || "null");
       if (c && c.state){ state = E.mergeDefaults(c.state); return c.at; }
     } catch(e){}
     return null;
@@ -571,7 +581,10 @@
         var resp = await fetch(rawURL(dataPath()), { cache:"no-store" });
         text = resp.ok ? await resp.text() : null;
       }
-      if (text !== null && text !== undefined) state = E.mergeDefaults(JSON.parse(text));
+      // A miss (404, or no token/legacy file yet) means this account has nothing saved yet --
+      // that must render as a blank inventory, never as whatever the previously-active account
+      // (or a stale in-memory state left over from before a worker login/logout) happened to be.
+      state = (text !== null && text !== undefined) ? E.mergeDefaults(JSON.parse(text)) : E.blankState();
       cacheSave();
       setStatus(canWrite() ? "Ready" : "Read-only", "");
       if (!canWrite()){
@@ -2037,6 +2050,10 @@
         wgo.disabled = true;
         try {
           await workerLogin(wurl.value.trim(), wname.value.trim(), wpass.value);
+          // The instant the active account changes, drop whatever was on screen for the
+          // previous one -- load() will fill this back in from this account's own data (or
+          // leave it blank, for a fresh account) once the fetch resolves.
+          state = E.blankState();
           hideBanner();
           await load();
           renderSettings();

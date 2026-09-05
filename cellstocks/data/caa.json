@@ -1,0 +1,216 @@
+{
+  "storage": {
+    "units": [
+      {
+        "id": "u-f80",
+        "name": "-80 °C Freezer",
+        "type": "freezer",
+        "childLabel": "Rack",
+        "racks": [
+          {
+            "id": "r-1",
+            "name": "Rack 1",
+            "boxes": [
+              {
+                "id": "b-box-1",
+                "name": "Box 1",
+                "rows": 9,
+                "cols": 9,
+                "scheme": "grid",
+                "archived": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "lines": [
+    {
+      "id": "l-hek-caspex-g8",
+      "name": "hek caspex g8",
+      "facets": {
+        "origin": "HEK293T",
+        "koox": "CASPEX",
+        "resistance": "-",
+        "caspex": "CASPEX",
+        "guide": "g8"
+      }
+    },
+    {
+      "id": "l-hek-tox4-ko-g8",
+      "name": "hek tox4 KO g8",
+      "facets": {
+        "origin": "HEK293T",
+        "koox": "KO",
+        "resistance": "-",
+        "caspex": "-",
+        "guide": "g8"
+      }
+    }
+  ],
+  "vials": [
+    {
+      "id": "v-2",
+      "name": "hek caspex g8",
+      "lineId": "l-hek-caspex-g8",
+      "passageKind": "unknown",
+      "frozenRaw": "28-07-25",
+      "frozenOn": "2025-07-28",
+      "location": {
+        "unitId": "u-f80",
+        "rackId": "r-1",
+        "boxId": "b-box-1",
+        "position": "A1"
+      },
+      "status": "stored",
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 2",
+      "facetsFromSheet": {
+        "origin": "#NAME?",
+        "koox": "CASPEX",
+        "caspex": "CASPEX"
+      }
+    },
+    {
+      "id": "v-3",
+      "name": "hek tox4 KO g8",
+      "lineId": "l-hek-tox4-ko-g8",
+      "passageKind": "unknown",
+      "frozenRaw": "28-07-25",
+      "frozenOn": "2025-07-28",
+      "location": {
+        "unitId": "u-f80",
+        "rackId": "r-1",
+        "boxId": "b-box-1",
+        "position": "A2"
+      },
+      "status": "stored",
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 3",
+      "facetsFromSheet": {
+        "origin": "#NAME?",
+        "koox": "KO"
+      }
+    }
+  ],
+  "withdrawals": [],
+  "rules": {
+    "origin": [
+      {
+        "match": "HEK",
+        "value": "HEK293T"
+      },
+      {
+        "match": "LCC",
+        "value": "LnCap"
+      },
+      {
+        "match": "LNC",
+        "value": "LnCap"
+      },
+      {
+        "match": "LNCX",
+        "value": "LnCap"
+      },
+      {
+        "match": "LUCX",
+        "value": "LuCap35CR"
+      },
+      {
+        "match": "LuCap",
+        "value": "LuCap35CR"
+      },
+      {
+        "match": "LnCap",
+        "value": "LnCap"
+      },
+      {
+        "match": "Huh",
+        "value": "Huh7"
+      },
+      {
+        "match": "HepG",
+        "value": "HepG2"
+      },
+      {
+        "match": "MDA",
+        "value": "MDA-MB-231"
+      },
+      {
+        "match": "Du",
+        "value": "Du145"
+      }
+    ],
+    "koox": [
+      {
+        "extract": "(?<![A-Za-z])(?:KO|OX|3xFLAG)"
+      },
+      {
+        "match": "CASP",
+        "value": "CASPEX"
+      },
+      {
+        "value": "WT"
+      }
+    ],
+    "resistance": [
+      {
+        "match": "EnzaR",
+        "value": "EnzaR"
+      },
+      {
+        "match": "ER",
+        "value": "EnzaR",
+        "wordBoundary": true,
+        "caseSensitive": true
+      },
+      {
+        "extract": "DtxR|50CR|CR",
+        "notInOrigin": true
+      },
+      {
+        "value": "-"
+      }
+    ],
+    "caspex": [
+      {
+        "match": "CASP",
+        "value": "CASPEX"
+      },
+      {
+        "value": "-"
+      }
+    ],
+    "guide": [
+      {
+        "extract": "(DS)?g\\d+(\\.\\d+)?|gNT|g[PC]\\d+",
+        "longest": true
+      },
+      {
+        "value": "-"
+      }
+    ]
+  },
+  "settings": {
+    "defaultUnitId": "u-f80",
+    "placement": {
+      "allowSplit": true
+    },
+    "aliases": {},
+    "columnMap": {
+      "position": 1,
+      "name": 2,
+      "passage": 3,
+      "date": 4,
+      "origin": 5,
+      "koox": 6,
+      "resistance": 7,
+      "caspex": 8,
+      "guide": 9,
+      "notes": 10
+    }
+  },
+  "_meta": {
+    "savedBy": "umut-PC",
+    "savedAt": "2026-09-05T01:32:41.003Z"
+  }
+}

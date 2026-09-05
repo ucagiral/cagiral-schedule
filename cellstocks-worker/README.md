@@ -56,10 +56,10 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | POST | `/logout` | Bearer token | Invalidate the session. |
 | GET | `/session` | Bearer token | `{user}` — confirms who a token belongs to. |
 | GET | `/admin/users` | admin | List every account (no password data). |
-| POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?, canBroadcast?}`. |
+| POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?}`. |
 | DELETE | `/admin/users/:name` | admin | Delete an account, its `cellstocks/data/<name>.{json,xlsx}` pair, and revokes its sessions immediately. |
 | POST | `/admin/users/:name/reset-password` | admin | `{password}`. |
-| POST | `/admin/users/:name/rename` | admin | `{newName}`. Moves the git files, the KV account record, and every request/broadcast/notification that named them. Invalidates their current session — see below. |
+| POST | `/admin/users/:name/rename` | admin | `{newName}`. Moves the git files, the KV account record, and every request/notification that named them. Invalidates their current session — see below. |
 | POST | `/commit` | Bearer token | `{files: [{path, content, base64?}], message}` — one atomic commit under `cellstocks/data/`. See below. |
 | POST | `/requests` | Bearer token | Ask another member's owner for an item: `{toUser, itemName, vialId?, note?}`. Notifies `toUser`, not the requester. |
 | GET | `/requests` | Bearer token | Every request this account is on either side of (as requester or owner), newest first. |
@@ -67,11 +67,7 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | POST | `/requests/:id/deny` | owner or admin | Marks the request denied and notifies the requester. |
 | GET | `/notifications` | Bearer token | This account's own notifications, newest first. |
 | POST | `/notifications/:id/read` | that notification's own recipient | Marks one notification read. 404s for anyone else, including admin — there is no cross-account notification access. |
-| POST | `/broadcasts` | Bearer token | `{text}` — a lab-wide message. Sends immediately if this account has broadcast authority (see below); otherwise queues for approval. |
-| GET | `/broadcasts` | Bearer token | Broadcast authority sees every broadcast, pending or resolved; anyone else sees only their own. |
-| POST | `/broadcasts/:id/approve` | broadcast authority | Sends a pending broadcast to the lab and tells the original sender it went out. |
-| POST | `/broadcasts/:id/deny` | broadcast authority | Refuses a pending broadcast; it never reaches the lab. Tells the original sender. |
-| GET | `/messages` | Bearer token | `{messages}` — every template's *effective* text (a lab's override where it has one, the shipped default otherwise). For UI copy like the broadcast compose box's own placeholder, not just what a notification sends. |
+| GET | `/messages` | Bearer token | `{messages}` — every template's *effective* text (a lab's override where it has one, the shipped default otherwise). |
 | GET | `/admin/messages` | admin | `{defaults, overrides}` — every message template this file can send, and which ones a lab has customized. |
 | PUT | `/admin/messages` | admin | `{messages: {key: text}}` — set or reset templates. See below. |
 | GET | `/admin/history/commits?user=<name>` | admin | Every commit that ever touched that user's data file, newest first. |
@@ -94,7 +90,7 @@ regenerate a workbook server-side.
 
 ### Editable message templates
 
-Every notification this file ever sends — "X is asking about Y", a broadcast line, an
+Every notification this file ever sends — "X is asking about Y", an
 approval/denial — is a named template (`DEFAULT_MESSAGES`), not an inline string, because Umut
 asked to be able to edit these from the admin panel. `PUT /admin/messages` merges into a single
 stored override object (there are only a handful of templates and they only ever change together,
@@ -105,23 +101,9 @@ reads. `{placeholder}` substitution (`fillTemplate()`) leaves an unrecognized pl
 custom template untouched rather than dropping it, so a typo'd `{itme}` shows up as literal text
 instead of vanishing — visible and fixable, not silently wrong.
 
-Two of the templates (`broadcast-placeholder-direct`, `broadcast-placeholder-queued`) are never
-sent anywhere — they're the broadcast compose box's own placeholder text in the app, editable for
-the same reason every other message is. `GET /messages` (any logged-in user) is how the app reads
-the *effective* text of any template to display it; `GET/PUT /admin/messages` (admin-only) is the
-separate, admin-only pair for the editor screen, which additionally needs to know which ones are
-overridden.
-
-### Who has broadcast authority
-
-Not just `role === "admin"`. Umut's own everyday login is an ordinary member account — the plan this
-shipped from is explicit that he won't switch to the hidden admin account unless he has to — so
-broadcast authority is a `canBroadcast` flag on the user record: always true for `role: "admin"`,
-and settable on any other account (in practice, Umut's own "Umut" login) via `POST /admin/users`.
-A message from an account without it queues as `"pending"` and notifies only the accounts that
-*can* approve it, not the whole lab — that would defeat the point of asking first. A hidden account
-(`hidden: true`, i.e. the admin login) never receives a broadcast itself — same "not really in the
-lab for notification purposes" rule search-in-lab already follows.
+`GET /messages` (any logged-in user) is how the app reads the *effective* text of any template to
+display it; `GET/PUT /admin/messages` (admin-only) is the separate, admin-only pair for the editor
+screen, which additionally needs to know which ones are overridden.
 
 ## Renaming a user
 
@@ -134,8 +116,8 @@ for a rename to "update everything", so it touches three things:
    deletes the old path (a tree entry with `sha: null` deletes it) — one commit, so the file is
    never briefly duplicated or briefly missing. A pair that 404s (never saved) is skipped.
 2. **The KV account record** — a new `user:<newname>` key, the old one deleted.
-3. **Every historical reference** — `fromUser`/`toUser` on `request:*` records, `fromUser` on
-   `broadcast:*` records, and every `notification:<oldname>:*` entry re-keyed under the new name
+3. **Every historical reference** — `fromUser`/`toUser` on `request:*` records, and every
+   `notification:<oldname>:*` entry re-keyed under the new name
    (notifications are keyed by recipient, so this is a re-key, not a field edit). The wording of a
    notification already sent is left exactly as it was — "Umut is asking about X" is what was
    actually said at the time; rewriting it would be inventing history, not correcting it.

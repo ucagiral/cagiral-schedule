@@ -345,6 +345,7 @@
 
   <section class="screen" id="s-boxes">
     <h2>Boxes</h2>
+    <div class="card" id="bxQuickAdd" hidden></div>
     <div class="card">
       <div class="field" id="bxOwnerField" hidden><label for="bxOwner">Whose</label><select id="bxOwner"></select></div>
       <div class="two">
@@ -356,7 +357,6 @@
       <div class="bar"><i id="bxBar"></i></div>
     </div>
     <div class="card" id="bxLines"></div>
-    <div class="card" id="bxQuickAdd" hidden></div>
   </section>
 
   <section class="screen" id="s-review">
@@ -518,7 +518,6 @@
       localStorage.setItem(LS.workerUser, JSON.stringify(body.user));
     } catch(e){}
     notifications = null; // a fresh login re-fetches rather than showing a stale list
-    messagesCache = null;
   }
 
   async function workerLogout(){
@@ -875,23 +874,10 @@
   // through the worker. Fetched once per session on first toggle-on and cached --
   // re-fetching on every keystroke would burn through GitHub's unauthenticated rate
   // limit for no reason, and a lab roster doesn't change mid-search.
-  // Message templates are copy an admin can edit (see cellstocks-worker/README.md), not
-  // secrets, so any logged-in user can read them -- this only ever backs UI text like the
-  // broadcast box's own placeholder, never anything that gates a decision.
-  var messagesCache = null;
-  async function ensureMessagesCache(){
-    if (messagesCache || !getWorkerUser()) return;
-    try { messagesCache = await workerFetch("/messages", { headers:{ Authorization:"Bearer " + getWorkerToken() } }); }
-    catch(e){ /* offline or not reachable yet -- callers fall back to their own literal default */ }
-  }
-  function message(key, fallback){
-    return (messagesCache && messagesCache.messages && messagesCache.messages[key]) || fallback;
-  }
 
-  // The item type list (Cell, Plasmid, RNA...) and each type's own facet rules --
-  // lab-wide, shared across every account, the same as messagesCache above. Refreshed
-  // (not just fetched once) after adding a type or a facet rule, since those changes
-  // should show up on this same device without a re-login.
+  // The item type list (Cell, Plasmid, RNA...) is lab-wide, shared across every
+  // account. Refreshed (not just fetched once) after adding a type or an attribute
+  // name, since those changes should show up on this same device without a re-login.
   var typesCache = null;
   async function ensureTypesCache(){
     if (typesCache || !getWorkerUser()) return;
@@ -901,14 +887,72 @@
   function typeNames(){
     return (typesCache && typesCache.types && typesCache.types.map(function(t){ return t.name; })) || ["Cell"];
   }
-  function rulesForType(typeName){
+  // Attribute names a type has been given before, lab-wide -- autocomplete suggestions
+  // only, never a value and never shared with a different type (see cellstocks-worker's
+  // config:types comment: two types independently ending up with the same attribute
+  // name is fine and is not deduplicated across them).
+  function attributesForType(typeName){
     var t = typesCache && typesCache.types && typesCache.types.filter(function(x){ return x.name === typeName; })[0];
-    if (!t) return {};
-    var out = {};
-    (t.facets || []).forEach(function(f){
-      out[f] = (typesCache.rules && typesCache.rules[typeName] && typesCache.rules[typeName][f]) || [];
+    return (t && t.attributes) || [];
+  }
+
+  // Builds a dynamically-growing 2-column attribute/value table into `container`, for
+  // one item type, seeded from `initial` ({ name: value }, e.g. a vial's existing
+  // customFacets). Always ends with exactly one trailing blank row; typing into that
+  // last row grows the table by one more, exactly like a spreadsheet -- Umut's own
+  // description of how this should work. Returns a function that reads back the
+  // current { name: value } map, blank rows dropped. New rows are appended, not
+  // re-rendered from scratch, so typing in one row never steals focus from another
+  // mid-keystroke.
+  function buildAttributeTable(container, typeName, initial){
+    clear(container);
+    var rows = [];
+    var datalist = document.createElement("datalist");
+    datalist.id = "attrNames-" + Math.random().toString(36).slice(2);
+    attributesForType(typeName).forEach(function(n){
+      var o = document.createElement("option"); o.value = n; datalist.appendChild(o);
     });
-    return out;
+    container.appendChild(datalist);
+
+    function addRow(row){
+      var index = rows.length;
+      rows.push(row);
+      var rowEl = el("div", "two");
+      var nameInput = document.createElement("input");
+      nameInput.placeholder = "attribute"; nameInput.value = row.name; nameInput.autocomplete = "off";
+      nameInput.setAttribute("list", datalist.id);
+      var valueInput = document.createElement("input");
+      valueInput.placeholder = "value"; valueInput.value = row.value; valueInput.autocomplete = "off";
+      function sync(){
+        row.name = nameInput.value; row.value = valueInput.value;
+        if (index === rows.length - 1 && (row.name.trim() || row.value.trim())) addRow({ name:"", value:"" });
+      }
+      nameInput.oninput = sync; valueInput.oninput = sync;
+      rowEl.appendChild(nameInput); rowEl.appendChild(valueInput);
+      container.appendChild(rowEl);
+    }
+    Object.keys(initial || {}).forEach(function(k){ addRow({ name:k, value: initial[k] }); });
+    addRow({ name:"", value:"" });
+
+    return function collect(){
+      var out = {};
+      rows.forEach(function(row){ if (row.name.trim()) out[row.name.trim()] = row.value.trim(); });
+      return out;
+    };
+  }
+
+  // Any new attribute name typed for a type is remembered lab-wide for next time --
+  // fire-and-forget, additive on the worker (see routeAddType), refreshing typesCache
+  // so this same device's own suggestions are current without a re-login.
+  function rememberNewAttributes(typeName, facets){
+    var known = attributesForType(typeName);
+    Object.keys(facets || {}).forEach(function(name){
+      if (known.indexOf(name) !== -1) return;
+      workerFetch("/types", { method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() },
+        body: JSON.stringify({ attribute:{ type:typeName, name:name } }) })
+        .then(function(cfg){ typesCache = cfg; })
+        .catch(function(){});
+    });
   }
 
   var labCache = { members: null, data: {}, promise: null };
@@ -1460,27 +1504,16 @@
     sel.dataset.sig = sig;
   }
 
+  // Rebuilt only when the selected type actually changes (tracked via the container's
+  // own dataset) -- renderAll() calls this on every render, and rebuilding a live
+  // spreadsheet-style table from scratch on every keystroke elsewhere on the screen
+  // would wipe out whatever the user is mid-typing here and steal their focus.
   function renderFreezeCustomFacets(){
-    var box = clear($("fzCustomFacets"));
-    if (freeze.kind === "Cell") return;
-    var rules = rulesForType(freeze.kind);
-    var facetNames = Object.keys(rules);
-    var name = freeze.name.trim();
-    var derived = name ? E.classifyGeneric(name, rules) : {};
-    facetNames.forEach(function(f){
-      var field = el("div", "field");
-      field.appendChild(el("label", null, f));
-      var input = document.createElement("input");
-      input.autocomplete = "off";
-      input.value = freeze.customFacets[f] !== undefined ? freeze.customFacets[f] : (derived[f] || "");
-      input.oninput = function(){ freeze.customFacets[f] = input.value; };
-      field.appendChild(input);
-      box.appendChild(field);
-    });
-    if (!facetNames.length){
-      box.appendChild(el("p", "note", "No facet rules for " + esc(freeze.kind) + " yet — add one from Settings once " +
-        "you've seen a few real examples."));
-    }
+    var box = $("fzCustomFacets");
+    if (freeze.kind === "Cell"){ clear(box); box.dataset.kind = ""; freeze.collectCustomFacets = null; return; }
+    if (box.dataset.kind === freeze.kind && freeze.collectCustomFacets) return;
+    freeze.collectCustomFacets = buildAttributeTable(box, freeze.kind, freeze.customFacets);
+    box.dataset.kind = freeze.kind;
   }
 
   function renderFreezeFacets(){
@@ -1610,23 +1643,26 @@
     var stamp = Date.now().toString(36);
     for (var i = 0; i < freeze.count; i++) ids.push("v-" + stamp + "-" + i);
     var dateInput = $("fzDate").value;
+    var customFacets = freeze.collectCustomFacets ? freeze.collectCustomFacets() : {};
     var out = E.applyPlacement(state, freeze.plan, {
       name: name,
       passage: $("fzPassage").value.trim(),
       frozenOn: dateInput,
       notes: $("fzNotes").value.trim(),
       kind: freeze.kind,
-      customFacets: freeze.customFacets
+      customFacets: customFacets
     }, { ids: ids, now: new Date().toISOString(), by: getDevice() });
 
     var errors = E.errorsOnly(E.validate(out.state));
     if (errors.length){ showBanner("Not doing that: " + esc(errors[0].message)); return; }
 
     state = out.state;
+    if (freeze.kind !== "Cell") rememberNewAttributes(freeze.kind, customFacets);
     markDirty("Add " + freeze.count + " × " + name);
     showBanner("Put " + out.vials.length + " × <b>" + esc(name) + "</b> in " + esc(freeze.plan.summary) + ".");
     freeze.boxId = null;
     freeze.customFacets = {};
+    $("fzCustomFacets").dataset.kind = ""; // force a fresh, empty table on the next render
     renderAll();
   }
 
@@ -1724,32 +1760,25 @@
     body.appendChild(facetLabel);
     body.appendChild(facetBox);
     var facetInputs = {};
-    var customFacetInputs = {};
+    var customFacetsCollector = null;
+    // For a non-Cell kind, the facet table only rebuilds when the TYPE actually
+    // changes (tracked via facetBox.dataset.customKind), never on a name keystroke --
+    // unlike Cell's facets, a Plasmid/Protein/etc.'s attribute table has nothing to do
+    // with the typed name, and rebuilding it on every keystroke elsewhere in this
+    // dialog would wipe out whatever the user is mid-typing here.
     function paintFacets(){
-      clear(facetBox);
       var kind = typeSel && typeSel.value ? typeSel.value : "Cell";
       if (kind !== "Cell"){
+        if (facetBox.dataset.customKind === kind && customFacetsCollector) return;
+        clear(facetBox);
         facetLabel.textContent = kind + " details";
-        var rules = rulesForType(kind);
-        var facetNames = Object.keys(rules);
-        var derived = E.classifyGeneric(name.value.trim(), rules);
-        customFacetInputs = {};
-        if (!facetNames.length) facetBox.appendChild(el("p", "note", "No facet rules for " + esc(kind) + " yet."));
-        facetNames.forEach(function(f){
-          var row = el("div", "item");
-          var grow = el("div", "grow");
-          grow.appendChild(el("div", null, f));
-          row.appendChild(grow);
-          var inp = document.createElement("input");
-          inp.style.width = "9em";
-          inp.autocomplete = "off";
-          inp.value = (vial.customFacets && vial.customFacets[f] !== undefined) ? vial.customFacets[f] : (derived[f] || "");
-          customFacetInputs[f] = inp;
-          row.appendChild(inp);
-          facetBox.appendChild(row);
-        });
+        customFacetsCollector = buildAttributeTable(facetBox, kind, vial.kind === kind ? (vial.customFacets || {}) : {});
+        facetBox.dataset.customKind = kind;
         return;
       }
+      clear(facetBox);
+      facetBox.dataset.customKind = "";
+      customFacetsCollector = null;
       facetLabel.textContent = "Cell details";
       var derived = E.classify(name.value.trim(), state.rules);
       E.FACETS.forEach(function(f){
@@ -1833,13 +1862,10 @@
         delete v.customFacets;
       } else {
         v.kind = typeSel.value;
-        var customPinned = {};
-        Object.keys(customFacetInputs).forEach(function(f){
-          var typed = customFacetInputs[f].value.trim();
-          if (typed) customPinned[f] = typed;
-        });
-        if (Object.keys(customPinned).length) v.customFacets = customPinned; else delete v.customFacets;
+        var customFacets = customFacetsCollector ? customFacetsCollector() : {};
+        if (Object.keys(customFacets).length) v.customFacets = customFacets; else delete v.customFacets;
         delete v.facetsSetByHand;
+        rememberNewAttributes(v.kind, customFacets);
       }
 
       var p = E.parsePassage(passage.value);
@@ -2479,38 +2505,6 @@
     var n = clear($("notificationsCard"));
     if (!wu) return;
     n.appendChild(el("h3", null, "Notifications"));
-    if (!messagesCache) ensureMessagesCache().then(renderNotifications);
-
-    var bField = el("div", "field");
-    bField.appendChild(el("label", null, "Send to the lab"));
-    var bText = document.createElement("textarea");
-    bText.rows = 2;
-    bText.placeholder = wu.canBroadcast || wu.role === "admin"
-      ? message("broadcast-placeholder-direct", "Goes straight to everyone…")
-      : message("broadcast-placeholder-queued", "Goes to an admin for approval first…");
-    bField.appendChild(bText);
-    var bSend = el("button", null, "Send");
-    bSend.style.marginTop = "6px";
-    bSend.onclick = async function(){
-      var text = bText.value.trim();
-      if (!text) return;
-      bSend.disabled = true;
-      try {
-        var res = await workerFetch("/broadcasts", {
-          method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() },
-          body: JSON.stringify({ text:text })
-        });
-        bText.value = "";
-        showBanner(res.broadcast && res.broadcast.status === "sent"
-          ? "Sent to the lab."
-          : "Sent to an admin for approval.");
-      } catch(err){
-        showBanner("Couldn't send that: " + esc(err.message));
-      }
-      bSend.disabled = false;
-    };
-    bField.appendChild(bSend);
-    n.appendChild(bField);
 
     if (notifications === null){
       n.appendChild(el("p", "note", "Checking…"));
@@ -2536,13 +2530,6 @@
         var deny = el("button", "danger", "Deny");
         deny.onclick = function(){ resolveRequestNotification(note, "deny"); };
         item.appendChild(deny);
-      } else if (note.type === "broadcast-pending" && !note.read){
-        var bApprove = el("button", "primary", "Send it");
-        bApprove.onclick = function(){ resolveBroadcastNotification(note, "approve"); };
-        item.appendChild(bApprove);
-        var bDeny = el("button", "danger", "Don't send");
-        bDeny.onclick = function(){ resolveBroadcastNotification(note, "deny"); };
-        item.appendChild(bDeny);
       } else if (!note.read){
         var ok = el("button", null, "OK");
         ok.onclick = function(){ markNotificationRead(note); };
@@ -2585,18 +2572,6 @@
     }
     await markNotificationRead(note);
     renderAll();
-  }
-
-  async function resolveBroadcastNotification(note, decision){
-    try {
-      await workerFetch("/broadcasts/" + note.broadcastId + "/" + decision, {
-        method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() }
-      });
-    } catch(err){
-      showBanner("Couldn't " + (decision === "approve" ? "send" : "refuse") + " that: " + esc(err.message));
-      return;
-    }
-    await markNotificationRead(note);
   }
 
   // Builds the login/connect UI into whichever container asks for it -- the mandatory
@@ -3727,10 +3702,10 @@
 
   // ---- Types & Rules ----
   //
-  // The type list itself (Cell, Plasmid, RNA...) and its per-type facet rules are
-  // lab-wide and additive for any user (see cellstocks-worker's /types) -- this screen
-  // only adds the one thing that isn't: merge/delete, since two people can add
-  // near-duplicate types and only admin should get to clean that up.
+  // The type list itself (Cell, Plasmid, RNA...) and each type's own list of known
+  // attribute names are lab-wide and additive for any user (see cellstocks-worker's
+  // /types) -- this screen only adds the one thing that isn't: merge/delete, since two
+  // people can add near-duplicate types and only admin should get to clean that up.
   async function renderAdminTypes(){
     var c = clear($("admin-types"));
     typesCache = null; // always a fresh read here, not whatever another screen cached
@@ -3738,13 +3713,13 @@
     if (!typesCache){ c.appendChild(el("p", "note", "Couldn't reach the worker.")); return; }
 
     c.appendChild(el("h3", null, "Types"));
-    c.appendChild(el("p", "note", "Anyone can add a new type or a new facet rule from the Add screen or " +
-      "Settings — this is only for cleaning up near-duplicates two people typed separately."));
+    c.appendChild(el("p", "note", "Anyone can add a new type, or a new attribute name, from the Add screen " +
+      "— this is only for cleaning up near-duplicates two people typed separately."));
     typesCache.types.forEach(function(t){
       var row = el("div", "item");
       var grow = el("div", "grow");
       grow.appendChild(el("div", null, t.name));
-      grow.appendChild(el("div", "sub", t.facets.length ? "facets: " + t.facets.join(", ") : "no facet rules yet"));
+      grow.appendChild(el("div", "sub", (t.attributes || []).length ? "attributes seen: " + t.attributes.join(", ") : "no attributes typed yet"));
       row.appendChild(grow);
       var del = el("button", null, "Delete");
       del.onclick = async function(){
@@ -4084,7 +4059,6 @@
     freeze.name = $("fzName").value;
     freeze.boxId = null;
     renderFreezeFacets();
-    renderFreezeCustomFacets();
     renderFreezePlan();
     renderFreezeGuard();
   };

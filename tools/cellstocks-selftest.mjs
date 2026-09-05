@@ -4,7 +4,7 @@
 //
 // Loads cellstocks/engine.js and cellstocks/xlsx.js -- the same two files the app
 // loads in the browser -- and runs them against a synthetic freezer built for the
-// edge cases, and then against the real inventory in cellstocks/cellstocks.json.
+// edge cases, and then against the real inventory in cellstocks/data/umut.json.
 // The second half matters: a rule change that quietly reclassifies 350 real vials
 // should fail here, not be discovered in front of an open freezer.
 //
@@ -1144,11 +1144,15 @@ check("resolveImportRow refuses a slot that is already taken", () => {
 
 // ============================================================== real inventory
 //
-// Everything above runs on a fixture. These run on cellstocks/cellstocks.json --
+// Everything above runs on a fixture. These run on cellstocks/data/umut.json --
 // the 350 vials actually in the freezer -- so a rule change that reclassifies real
-// vials fails here rather than in front of an open door.
+// vials fails here rather than in front of an open door. This used to be
+// cellstocks/cellstocks.json, a single-account file left over from before the
+// lab-wide/multi-user split; it stopped being written the moment the worker-login
+// flow shipped (dataPath() in index.html has pointed at cellstocks/data/<name>.json
+// ever since), so it necessarily drifted out of date and was retired.
 
-const REAL_PATH = join(ROOT, "cellstocks", "cellstocks.json");
+const REAL_PATH = join(ROOT, "cellstocks", "data", "umut.json");
 const real = existsSync(REAL_PATH) ? E.mergeDefaults(JSON.parse(readFileSync(REAL_PATH, "utf8"))) : null;
 
 // Umut edits this file from his phone -- takes vials out, confirms dates in bulk,
@@ -1178,19 +1182,6 @@ check("saving the real inventory unchanged rewrites it byte for byte", () => {
     if (a[i] !== b[i]) return `first difference at line ${i + 1}: on disk ${json(a[i])}, app would write ${json(b[i])}`;
   }
   return "the files differ in length only";
-});
-
-check("Umut's migrated multi-user data file matches the original inventory exactly", () => {
-  // cellstocks/data/umut.json is Phase 2 of the lab-wide expansion: Umut's account under
-  // the layout the worker's ownership check (cellstocks-worker/worker.js) already expects
-  // -- one file per user under cellstocks/data/. Nothing reads it yet (that's Phase 3's
-  // app cutover), so today it must simply be an exact copy: no data lost, none invented.
-  const migratedPath = join(ROOT, "cellstocks", "data", "umut.json");
-  if (!existsSync(migratedPath)) return real ? "cellstocks/data/umut.json is missing" : null;
-  if (!real) return "cellstocks/data/umut.json exists but there is no cellstocks.json to compare it to";
-  const original = readFileSync(REAL_PATH, "utf8");
-  const migrated = readFileSync(migratedPath, "utf8");
-  return original === migrated ? null : "cellstocks/data/umut.json has drifted from cellstocks/cellstocks.json";
 });
 
 check("the real inventory validates with no errors", () => {

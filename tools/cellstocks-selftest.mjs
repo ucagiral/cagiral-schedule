@@ -1259,6 +1259,49 @@ check("resolveImportRow refuses a slot that is already taken", () => {
   return null;
 });
 
+// ---- Review's "Unknown" date: passage's "p?" for a date ----
+
+check("markDateUnknown records a permanent answer, and reviewQueue stops asking", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Position"), cell("Cell Name")], [cell("A1"), cell("HEK293T p12")]];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
+  if (E.reviewQueue(imported).dates.length !== 1) return "expected the dateless vial to start in Review";
+  const res = E.markDateUnknown(imported, imported.vials[0].id);
+  if (!res.ok) return `markDateUnknown failed: ${res.reason}`;
+  if (!res.vial.dateUnknown) return "expected dateUnknown to be set";
+  if (res.vial.frozenOn) return "Unknown is not a date -- frozenOn must stay unset";
+  if (E.reviewQueue(res.state).dates.length !== 0) return "a vial marked Unknown must not keep reappearing in Review";
+  return null;
+});
+
+check("confirmDate clears a prior Unknown mark", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Position"), cell("Cell Name")], [cell("A1"), cell("HEK293T p12")]];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
+  const marked = E.markDateUnknown(imported, imported.vials[0].id).state;
+  const res = E.confirmDate(marked, imported.vials[0].id, "2026-01-05");
+  if (!res.ok) return `confirmDate failed: ${res.reason}`;
+  if (res.vial.dateUnknown) return "confirming a real date must clear the Unknown mark";
+  if (res.vial.frozenOn !== "2026-01-05") return `expected frozenOn 2026-01-05, got ${json(res.vial.frozenOn)}`;
+  return null;
+});
+
+check("a blank Add-screen date defaults to today, never to Review", () => {
+  const box = { id: "b1", name: "Box 1", rows: 9, cols: 9, scheme: "grid" };
+  const state = { storage: { units: [{ id: "u1", name: "Freezer", racks: [{ id: "r1", name: "Rack 1", boxes: [box] }] }] },
+                  lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
+  const plan = E.suggestPlacement(state, { name: "HEK293T p12", count: 1 });
+  if (!plan.ok) return "expected a plan into an empty box";
+  const out = E.applyPlacement(state, plan, { name: "HEK293T p12", passage: "p12", frozenOn: "" },
+    { ids: ["v1"], now: "2026-09-05T12:00:00.000Z", by: "test" });
+  const v = out.vials[0];
+  if (v.frozenOn !== "2026-09-05") return `expected today's date, got ${json(v.frozenOn)}`;
+  if (E.reviewQueue(out.state).dates.length !== 0) return "a live Add with a blank date must not be queued for review";
+  return null;
+});
+
 // ============================================================== real inventory
 //
 // Everything above runs on a fixture. These run on cellstocks/data/umut.json --

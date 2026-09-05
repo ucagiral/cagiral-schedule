@@ -1111,13 +1111,18 @@
         var id = ids[n] !== undefined ? ids[n] : ("v-" + seg.boxId + "-" + position);
         n++;
         var passage = parsePassage(template.passage);
-        var date = template.frozenOn ? parseDate(template.frozenOn) : parseDate("");
+        // A live Add, unlike an old imported row, has a date that is knowable right
+        // now -- so a field left blank here defaults to today (ctx.now, never
+        // generated inside this function -- see the comment above) rather than
+        // going to Review the way an ambiguous imported date does.
+        var frozenInput = template.frozenOn || (c.now ? String(c.now).slice(0, 10) : "");
+        var date = frozenInput ? parseDate(frozenInput) : parseDate("");
         var vial = {
           id: id,
           name: template.name || "",
           lineId: template.lineId || lineIdFor(template.name, rules),
           passage: passage.raw, passageNumber: passage.number, passageKind: passage.kind,
-          frozenRaw: template.frozenOn || "",
+          frozenRaw: frozenInput,
           frozenOn: date.iso,
           notes: template.notes || "",
           flags: flagsFrom(template.notes || "", customFlags),
@@ -1718,7 +1723,8 @@
         box ? box.unit.name : "", box ? box.rack.name : "", box ? box.box.name : "",
         v.location ? v.location.position : "",
         v.name, v.passage || "", v.passageKind || "",
-        v.frozenOn || "", v.frozenRaw || "", v.frozenOn ? "" : "yes",
+        v.frozenOn || (v.dateUnknown ? "Unknown" : ""), v.frozenRaw || "",
+        v.frozenOn || v.dateUnknown ? "" : "yes",
         f.origin || "", f.koox || "", f.resistance || "", f.caspex || "", f.guide || "",
         (v.flags || []).join(", "), v.notes || "", v.status || "stored", v.id
       ]);
@@ -1853,8 +1859,10 @@
     });
     var dates = (state.vials || []).filter(function (v) {
       // Anything without a confirmed date: the ambiguous ones, the unparseable one,
-      // and the handful that were simply left blank.
-      return v.status !== "withdrawn" && !v.importAmbiguous && !v.frozenOn;
+      // and the handful that were simply left blank. A vial marked dateUnknown has
+      // already been asked about and answered "Unknown" -- a real, stable value (the
+      // date's own equivalent of passage's "p?"), not a thing still waiting.
+      return v.status !== "withdrawn" && !v.importAmbiguous && !v.frozenOn && !v.dateUnknown;
     }).map(function (v) {
       return { vial: v, date: parseDate(v.frozenRaw) };
     });
@@ -1882,6 +1890,19 @@
     var parsed = parseDate(iso);
     if (!parsed.iso) return { ok: false, reason: "\"" + iso + "\" is not a date I can read.", state: state };
     v.frozenOn = parsed.iso;
+    delete v.dateUnknown;
+    return { ok: true, state: next, vial: v };
+  }
+
+  // The date's answer to passage's "p?" -- a deliberate, permanent "nobody knows",
+  // recorded once so Review never asks about this vial's date again. frozenRaw is
+  // left as it was (still shown as the as-written text elsewhere); frozenOn stays
+  // unset, since "Unknown" is not a date.
+  function markDateUnknown(state, vialId) {
+    var next = clone(state);
+    var v = indexById(next.vials)[vialId];
+    if (!v) return { ok: false, reason: "No such vial.", state: state };
+    v.dateUnknown = true;
     return { ok: true, state: next, vial: v };
   }
 
@@ -1950,6 +1971,7 @@
     // state
     blankState: blankState, mergeDefaults: mergeDefaults, indexById: indexById,
     slim: slim, serialise: serialise,
-    reviewQueue: reviewQueue, confirmDate: confirmDate, resolveImportRow: resolveImportRow
+    reviewQueue: reviewQueue, confirmDate: confirmDate, markDateUnknown: markDateUnknown,
+    resolveImportRow: resolveImportRow
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

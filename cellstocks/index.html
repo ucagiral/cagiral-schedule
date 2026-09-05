@@ -1165,6 +1165,7 @@
     var bits = [];
     if (vial.passage) bits.push(vial.passage);
     if (vial.frozenOn) bits.push("frozen " + prettyDate(vial.frozenOn));
+    else if (vial.dateUnknown) bits.push("frozen Unknown");
     else if (vial.frozenRaw) bits.push("date unconfirmed (" + vial.frozenRaw + ")");
     else bits.push("no date");
     if (vial.reservedFor) bits.push("reserved for " + vial.reservedFor);
@@ -1624,7 +1625,9 @@
     var date = document.createElement("input");
     date.type = "date";
     if (vial.frozenOn) date.value = vial.frozenOn;
-    field("Date frozen", date, vial.frozenRaw
+    field("Date frozen", date, vial.dateUnknown
+      ? "Marked Unknown in Review -- picking a date here replaces that."
+      : vial.frozenRaw
       ? "The sheet says " + vial.frozenRaw + (vial.frozenOn ? "" : ", which could be read two ways.")
       : "The sheet had nothing here.");
 
@@ -1665,6 +1668,7 @@
         var parsed = E.parseDate(date.value);
         if (!parsed.iso){ showBanner("That date can't be read."); return; }
         v.frozenOn = parsed.iso;
+        delete v.dateUnknown;
       } else {
         v.frozenOn = null;
       }
@@ -2013,6 +2017,16 @@
           t.onclick = function(){ askDate(d.vial); };
           row.appendChild(t);
         }
+        // A permanent "nobody knows" -- passage's "p?" for a date. Records the answer
+        // once so this row stops coming back to Review every time it runs.
+        var unk = el("button", null, "Unknown");
+        unk.disabled = !canWrite() || ADMIN_MERGED;
+        unk.onclick = function(){
+          var r = E.markDateUnknown(state, d.vial.id);
+          if (!r.ok){ showBanner(esc(r.reason)); return; }
+          state = r.state; markDirty("Mark a date Unknown"); renderAll();
+        };
+        row.appendChild(unk);
         c.appendChild(row);
       });
       if (q.dates.length > 40) c.appendChild(el("p", "note", "…and " + (q.dates.length - 40) + " more."));

@@ -102,7 +102,7 @@
       "id": "v-3",
       "name": "hek tox4 KO g8",
       "lineId": "l-hek-tox4-ko-g8",
-      "passageKind": "unknown",
+      "passageKind": "absolute",
       "frozenRaw": "28-07-25",
       "frozenOn": "2025-07-28",
       "location": {
@@ -112,7 +112,9 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 3"
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 3",
+      "passage": "P5",
+      "passageNumber": 5
     },
     {
       "id": "v-83",
@@ -269,6 +271,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T01:44:50.670Z"
+    "savedAt": "2026-09-05T01:44:56.644Z"
   }
 }

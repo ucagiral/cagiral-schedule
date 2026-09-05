@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cell Stocks — Admin</title>
+<meta name="robots" content="noindex">
+<style>
+  /* Deliberately not the phone-first app shell cellstocks/index.html uses -- this is a
+     computer-only tool (see the width gate below and CLAUDE.md's admin-panel scoping),
+     so it can just be a plain, wide, desktop page. Same neutral colour tokens as the
+     other apps on this host, so it doesn't look like a foreign thing bolted on. */
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
+    --accent:#0891b2; --accent-soft:#cffafe; --bad:#b91c1c; --ok:#15803d;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+      --accent:#22d3ee; --accent-soft:#0b3a44; --bad:#f87171; --ok:#4ade80;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+  }
+  header{
+    display:flex; align-items:center; gap:12px; padding:14px 24px; background:var(--panel);
+    border-bottom:1px solid var(--border); position:sticky; top:0;
+  }
+  header h1{font-size:16px; margin:0; font-weight:650}
+  header .who{margin-left:auto; font-size:13px; color:var(--muted)}
+  main{max-width:1100px; margin:0 auto; padding:24px}
+  h2{font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:28px 0 10px}
+  h2:first-child{margin-top:0}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:16px}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+  .field{display:flex; flex-direction:column; gap:4px; min-width:160px}
+  .field label{font-size:11.5px; color:var(--muted); font-weight:600}
+  input,select,textarea{
+    font:inherit; padding:7px 9px; border-radius:8px; border:1px solid var(--border);
+    background:var(--bg); color:var(--text);
+  }
+  textarea{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px}
+  button{
+    font:inherit; padding:7px 14px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); color:var(--text); cursor:pointer;
+  }
+  button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+  button.danger{color:var(--bad)}
+  button:disabled{opacity:.45; cursor:not-allowed}
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  th,td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--border)}
+  th{color:var(--muted); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em}
+  .tabs{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px}
+  .tabs button{border:0; border-radius:8px 8px 0 0; background:none; padding:9px 16px; color:var(--muted)}
+  .tabs button.on{background:var(--panel); color:var(--text); font-weight:650; border:1px solid var(--border); border-bottom-color:var(--panel)}
+  .note{font-size:12.5px; color:var(--muted); line-height:1.5; margin:6px 0}
+  .msg{padding:9px 12px; border-radius:8px; font-size:13px; margin-bottom:12px}
+  .msg.error{background:rgba(185,28,28,.12); color:var(--bad)}
+  .msg.ok{background:rgba(21,128,61,.12); color:var(--ok)}
+  #tooNarrow{
+    position:fixed; inset:0; background:var(--bg); color:var(--text); display:flex;
+    align-items:center; justify-content:center; text-align:center; padding:40px; font-size:16px;
+  }
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="tooNarrow" hidden>
+  <div>
+    <p><b>This screen is too narrow for the admin panel.</b></p>
+    <p class="note">Direct data override, the history browser and the message-template editor all
+    assume a real keyboard and a wide screen. Open this page on a computer instead.</p>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <h1>Cell Stocks — Admin</h1>
+    <div class="who" id="whoami"></div>
+  </header>
+  <main>
+    <div id="flash"></div>
+
+    <div class="card" id="loginCard">
+      <h2>Log in</h2>
+      <p class="note">The hidden admin account only — not your everyday "Umut" login. See
+        <code>cellstocks-worker/README.md</code> for what the two-account split is for.</p>
+      <div class="row">
+        <div class="field"><label>Worker address</label><input id="loginUrl" placeholder="https://…workers.dev"></div>
+        <div class="field"><label>Name</label><input id="loginName" placeholder="admin"></div>
+        <div class="field"><label>Password</label><input id="loginPass" type="password"></div>
+        <button class="primary" id="loginBtn">Log in</button>
+      </div>
+    </div>
+
+    <div id="panel" hidden>
+      <div class="tabs" id="tabs">
+        <button data-tab="users" class="on">Users</button>
+        <button data-tab="requests">Requests</button>
+        <button data-tab="messages">Messages</button>
+        <button data-tab="history">History &amp; export</button>
+        <button data-tab="override">Override data</button>
+      </div>
+
+      <div id="tab-users">
+        <h2>Add a user</h2>
+        <div class="card">
+          <div class="row">
+            <div class="field"><label>Name</label><input id="newName"></div>
+            <div class="field"><label>Password</label><input id="newPass" type="password"></div>
+            <div class="field"><label>Role</label>
+              <select id="newRole"><option value="member">member</option><option value="admin">admin</option></select>
+            </div>
+            <div class="field"><label>Hidden</label>
+              <select id="newHidden"><option value="false">no</option><option value="true">yes</option></select>
+            </div>
+            <div class="field"><label>Can broadcast</label>
+              <select id="newBroadcast"><option value="false">no</option><option value="true">yes</option></select>
+            </div>
+            <button class="primary" id="createUserBtn">Create</button>
+          </div>
+        </div>
+        <h2>Every account</h2>
+        <div class="card"><table id="usersTable"><thead><tr>
+          <th>Name</th><th>Role</th><th>Hidden</th><th>Broadcast</th><th>Created</th><th></th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div id="tab-requests" hidden>
+        <h2>Every pending and resolved request, lab-wide</h2>
+        <div class="card"><table id="requestsTable"><thead><tr>
+          <th>From</th><th>To</th><th>Item</th><th>Note</th><th>Status</th><th></th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div id="tab-messages" hidden>
+        <h2>Notification wording</h2>
+        <p class="note">One field per message. Blank a field and save to reset it to the default
+          shown as its placeholder. <code>{placeholders}</code> like <code>{fromUser}</code> are
+          filled in when the message is actually sent.</p>
+        <div class="card" id="messagesCard"></div>
+      </div>
+
+      <div id="tab-history" hidden>
+        <h2>Point-in-time history</h2>
+        <div class="card">
+          <div class="row">
+            <div class="field"><label>User</label><input id="histUser" placeholder="umut"></div>
+            <div class="field"><label>At</label><input id="histAt" type="datetime-local"></div>
+            <button class="primary" id="histLoadBtn">Load</button>
+            <button id="histCommitsBtn">List every commit</button>
+          </div>
+          <div id="histResult"></div>
+        </div>
+      </div>
+
+      <div id="tab-override" hidden>
+        <h2>Direct data override</h2>
+        <p class="note">Raw JSON for one user's inventory. Loads their current live file;
+          saving replaces it entirely and regenerates the matching workbook, exactly like an
+          ordinary save from the app itself — except this bypasses ownership, so it works for
+          any user's file. Validated the same way a real save is before it's allowed through.</p>
+        <div class="card">
+          <div class="row">
+            <div class="field"><label>User</label><input id="ovUser" placeholder="umut"></div>
+            <button id="ovLoadBtn">Load</button>
+            <button id="ovValidateBtn">Validate</button>
+            <button class="primary" id="ovSaveBtn" disabled>Save</button>
+          </div>
+          <textarea id="ovText" rows="20" style="width:100%; margin-top:10px"></textarea>
+          <div id="ovMsg"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../engine.js"></script>
+<script src="../xlsx.js"></script>
+<script>
+(function(){
+  "use strict";
+  var E = window.CellStocksEngine;
+  var X = window.XlsxLite;
+
+  // This page's own storage -- distinct keys from cellstocks/index.html's cst_worker_*,
+  // even though the two pages share an origin (same GitHub Pages site, one path deeper).
+  // An admin is expected to often have both a "Umut" session in the main app and an
+  // admin session here at once; separate keys keep the two logins from clobbering
+  // each other's localStorage.
+  var LS = { url:"cst_admin_worker_url", token:"cst_admin_token", user:"cst_admin_user", cfg:"cst_admin_cfg" };
+
+  function resolveConfig(){
+    var stored = null;
+    try { stored = JSON.parse(localStorage.getItem(LS.cfg) || "null"); } catch(e){}
+    if (stored && stored.owner && stored.repo) return stored;
+    var host = location.hostname || "";
+    var m = host.match(/^([^.]+)\.github\.io$/i);
+    var seg = location.pathname.split("/").filter(Boolean);
+    if (m) return { owner: m[1], repo: seg.length ? seg[0] : (m[1] + ".github.io"), branch: "main" };
+    return { owner:null, repo:null, branch:"main" };
+  }
+  var CFG = resolveConfig();
+  var REPO = CFG.owner ? CFG.owner + "/" + CFG.repo : null;
+  var DATA_PREFIX = "cellstocks/data/";
+
+  function getUrl(){ try { return localStorage.getItem(LS.url) || null; } catch(e){ return null; } }
+  function getToken(){ try { return localStorage.getItem(LS.token) || null; } catch(e){ return null; } }
+  function getUser(){ try { return JSON.parse(localStorage.getItem(LS.user) || "null"); } catch(e){ return null; } }
+  function workerBase(u){ return String(u || "").replace(/\/+$/, ""); }
+
+  function rawURL(path){
+    return "https://raw.githubusercontent.com/" + REPO + "/" + (CFG.branch||"main") + "/" + path + "?t=" + Date.now();
+  }
+  function dataPathFor(name){ return DATA_PREFIX + String(name || "").toLowerCase() + ".json"; }
+  function xlsxPathFor(name){ return DATA_PREFIX + String(name || "").toLowerCase() + ".xlsx"; }
+
+  async function workerFetch(path, opts){
+    var url = workerBase(getUrl()) + path;
+    var headers = Object.assign({ "Content-Type":"application/json", Authorization:"Bearer " + getToken() }, (opts && opts.headers) || {});
+    var r = await fetch(url, Object.assign({}, opts || {}, { headers: headers }));
+    var body = {};
+    try { body = await r.json(); } catch(e){}
+    if (!r.ok){ var err = new Error(body.error || ("Worker said " + r.status)); err.status = r.status; throw err; }
+    return body;
+  }
+
+  function bytesToBase64(bytes){
+    var out = "", CH = 0x8000;
+    for (var i = 0; i < bytes.length; i += CH) out += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+    return btoa(out);
+  }
+
+  async function adminCommit(user, jsonState){
+    var xlsxBytes = await X.writeWorkbookAsync(E.vialsToSheets(jsonState));
+    return workerFetch("/commit", { method:"POST", body: JSON.stringify({
+      files: [
+        { path: dataPathFor(user), content: E.serialise(jsonState) },
+        { path: xlsxPathFor(user), content: bytesToBase64(xlsxBytes), base64: true }
+      ],
+      message: "Admin override for " + user
+    })});
+  }
+
+  // ------------------------------------------------------------- tiny DOM helpers
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, text){
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined && text !== null) n.textContent = text;
+    return n;
+  }
+  function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); return node; }
+  function esc(s){
+    return String(s === null || s === undefined ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function flash(text, kind){
+    var f = clear($("flash"));
+    if (!text) return;
+    f.appendChild(el("div", "msg " + (kind || "ok"), text));
+  }
+
+  // ------------------------------------------------------------- width gate
+  // Both an out-of-the-way URL (this page is never linked from the main app) and a
+  // screen-width check -- Umut asked for both. Neither is a real security boundary
+  // (that's what the worker's role==="admin" check is for); this is "wrong device for
+  // this job", not "unauthorized".
+  function checkWidth(){
+    var narrow = window.innerWidth < 900;
+    $("tooNarrow").hidden = !narrow;
+    $("app").hidden = narrow;
+  }
+  window.addEventListener("resize", checkWidth);
+
+  // ------------------------------------------------------------- login
+  async function tryLogin(){
+    var url = $("loginUrl").value.trim(), name = $("loginName").value.trim(), pass = $("loginPass").value;
+    if (!url || !name || !pass) return;
+    $("loginBtn").disabled = true;
+    try {
+      var res = await fetch(workerBase(url) + "/login", {
+        method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ name:name, password:pass })
+      });
+      var body = {};
+      try { body = await res.json(); } catch(e){}
+      if (!res.ok) throw new Error(body.error || ("Worker said " + res.status));
+      if (body.user.role !== "admin") throw new Error("that account is not an admin account -- this panel is admin-only");
+      localStorage.setItem(LS.url, workerBase(url));
+      localStorage.setItem(LS.token, body.token);
+      localStorage.setItem(LS.user, JSON.stringify(body.user));
+      flash("", null);
+      renderApp();
+    } catch(err){
+      flash(err.message, "error");
+    }
+    $("loginBtn").disabled = false;
+  }
+  $("loginBtn").onclick = tryLogin;
+
+  function renderApp(){
+    var u = getUser();
+    if (!u){
+      $("loginCard").hidden = false;
+      $("panel").hidden = true;
+      $("whoami").textContent = "";
+      return;
+    }
+    $("loginCard").hidden = true;
+    $("panel").hidden = false;
+    $("whoami").textContent = "Logged in as " + u.name;
+    if ($("loginUrl").value === "") $("loginUrl").value = getUrl() || "";
+    renderUsers();
+    renderRequests();
+    renderMessages();
+  }
+
+  // ------------------------------------------------------------- tabs
+  Array.prototype.forEach.call(document.querySelectorAll("#tabs button"), function(b){
+    b.onclick = function(){
+      Array.prototype.forEach.call(document.querySelectorAll("#tabs button"), function(x){ x.classList.toggle("on", x === b); });
+      ["users","requests","messages","history","override"].forEach(function(t){
+        $("tab-" + t).hidden = t !== b.getAttribute("data-tab");
+      });
+    };
+  });
+
+  // ------------------------------------------------------------- users
+  async function renderUsers(){
+    var tbody = clear($("usersTable").querySelector("tbody"));
+    var body;
+    try { body = await workerFetch("/admin/users"); } catch(err){ flash(err.message, "error"); return; }
+    body.users.forEach(function(u){
+      var tr = document.createElement("tr");
+      [u.name, u.role, u.hidden ? "yes" : "no", u.canBroadcast ? "yes" : "no",
+       u.createdAt ? u.createdAt.slice(0, 10) : ""].forEach(function(v){
+        tr.appendChild(el("td", null, v));
+      });
+      var actions = document.createElement("td");
+      var reset = el("button", null, "Reset password");
+      reset.onclick = function(){ resetPassword(u.name); };
+      actions.appendChild(reset);
+      var del = el("button", "danger", "Delete");
+      del.style.marginLeft = "6px";
+      del.onclick = function(){ deleteUser(u.name); };
+      actions.appendChild(del);
+      tr.appendChild(actions);
+      tbody.appendChild(tr);
+    });
+  }
+
+  $("createUserBtn").onclick = async function(){
+    var name = $("newName").value.trim(), pass = $("newPass").value;
+    if (!name || !pass) return;
+    try {
+      await workerFetch("/admin/users", { method:"POST", body: JSON.stringify({
+        name:name, password:pass, role:$("newRole").value, hidden:$("newHidden").value === "true",
+        canBroadcast:$("newBroadcast").value === "true"
+      })});
+      $("newName").value = ""; $("newPass").value = "";
+      flash("Created " + name + ".", "ok");
+      renderUsers();
+    } catch(err){ flash(err.message, "error"); }
+  };
+
+  async function resetPassword(name){
+    var pass = window.prompt("New password for " + name + ":");
+    if (!pass) return;
+    try {
+      await workerFetch("/admin/users/" + encodeURIComponent(name) + "/reset-password", { method:"POST", body: JSON.stringify({ password:pass }) });
+      flash("Password reset for " + name + ".", "ok");
+    } catch(err){ flash(err.message, "error"); }
+  }
+
+  async function deleteUser(name){
+    if (!window.confirm("Delete " + name + "? This does not delete their data file, only the account.")) return;
+    try {
+      await workerFetch("/admin/users/" + encodeURIComponent(name), { method:"DELETE" });
+      flash("Deleted " + name + ".", "ok");
+      renderUsers();
+    } catch(err){ flash(err.message, "error"); }
+  }
+
+  // ------------------------------------------------------------- requests
+  async function renderRequests(){
+    var tbody = clear($("requestsTable").querySelector("tbody"));
+    var body;
+    try { body = await workerFetch("/requests"); } catch(err){ flash(err.message, "error"); return; }
+    body.requests.forEach(function(r){
+      var tr = document.createElement("tr");
+      [r.fromUser, r.toUser, r.itemName, r.note || "", r.status].forEach(function(v){ tr.appendChild(el("td", null, v)); });
+      var actions = document.createElement("td");
+      if (r.status === "pending"){
+        var approve = el("button", "primary", "Approve");
+        approve.onclick = function(){ resolveRequestAsAdmin(r, "approve"); };
+        actions.appendChild(approve);
+        var deny = el("button", "danger", "Deny");
+        deny.style.marginLeft = "6px";
+        deny.onclick = function(){ resolveRequestAsAdmin(r, "deny"); };
+        actions.appendChild(deny);
+      }
+      tr.appendChild(actions);
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Same rule as the app's own resolveRequestNotification(): the vial never moves, an
+  // approval only marks it reservedFor the requester on the OWNER's own file. Admin can
+  // write any user's file, so this does that write directly rather than asking the
+  // owner to do it themselves.
+  async function resolveRequestAsAdmin(r, decision){
+    try {
+      await workerFetch("/requests/" + r.id + "/" + decision, { method:"POST" });
+      if (decision === "approve" && r.vialId){
+        var resp = await fetch(rawURL(dataPathFor(r.toUser)), { cache:"no-store" });
+        if (resp.ok){
+          var state = E.mergeDefaults(JSON.parse(await resp.text()));
+          var vial = E.indexById(state.vials)[r.vialId];
+          if (vial){
+            vial.reservedFor = r.fromUser;
+            await adminCommit(r.toUser, state);
+          }
+        }
+      }
+      flash("Request " + (decision === "approve" ? "approved" : "denied") + ".", "ok");
+      renderRequests();
+    } catch(err){ flash(err.message, "error"); }
+  }
+
+  // ------------------------------------------------------------- message templates
+  async function renderMessages(){
+    var card = clear($("messagesCard"));
+    var body;
+    try { body = await workerFetch("/admin/messages"); } catch(err){ flash(err.message, "error"); return; }
+    var inputs = {};
+    Object.keys(body.defaults).forEach(function(key){
+      var field = el("div", "field");
+      field.style.marginBottom = "10px";
+      field.appendChild(el("label", null, key));
+      var input = document.createElement("textarea");
+      input.rows = 2;
+      input.style.width = "100%";
+      input.placeholder = body.defaults[key];
+      input.value = body.overrides[key] || "";
+      inputs[key] = input;
+      field.appendChild(input);
+      card.appendChild(field);
+    });
+    var save = el("button", "primary", "Save changes");
+    save.onclick = async function(){
+      var messages = {};
+      Object.keys(inputs).forEach(function(key){ messages[key] = inputs[key].value; });
+      try {
+        await workerFetch("/admin/messages", { method:"PUT", body: JSON.stringify({ messages:messages }) });
+        flash("Saved.", "ok");
+        renderMessages();
+      } catch(err){ flash(err.message, "error"); }
+    };
+    card.appendChild(save);
+  }
+
+  // ------------------------------------------------------------- history & export
+  function downloadBlob(bytes, filename, type){
+    var blob = new Blob([bytes], { type:type });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  }
+
+  function renderHistoryResult(user, result){
+    var box = clear($("histResult"));
+    box.style.marginTop = "12px";
+    var state;
+    try { state = E.mergeDefaults(JSON.parse(result.content)); } catch(e){
+      box.appendChild(el("p", "note", "Couldn't parse that commit's content as JSON."));
+      return;
+    }
+    box.appendChild(el("p", "note",
+      "As of " + result.commitDate + " (commit " + result.sha.slice(0, 8) + "): " +
+      (state.vials || []).length + " item(s) recorded."));
+    var exportBtn = el("button", "primary", "Export as .xlsx");
+    exportBtn.onclick = async function(){
+      var bytes = await X.writeWorkbookAsync(E.vialsToSheets(state));
+      downloadBlob(bytes, user + "-" + result.commitDate.slice(0, 10) + ".xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    };
+    box.appendChild(exportBtn);
+  }
+
+  $("histLoadBtn").onclick = async function(){
+    var user = $("histUser").value.trim();
+    var at = $("histAt").value;
+    if (!user || !at) return;
+    try {
+      var iso = new Date(at).toISOString();
+      var result = await workerFetch("/admin/history/at?user=" + encodeURIComponent(user) + "&at=" + encodeURIComponent(iso));
+      renderHistoryResult(user, result);
+    } catch(err){ flash(err.message, "error"); }
+  };
+
+  $("histCommitsBtn").onclick = async function(){
+    var user = $("histUser").value.trim();
+    if (!user) return;
+    var box = clear($("histResult"));
+    try {
+      var body = await workerFetch("/admin/history/commits?user=" + encodeURIComponent(user));
+      var table = document.createElement("table");
+      var thead = document.createElement("thead");
+      thead.innerHTML = "<tr><th>Date</th><th>Message</th><th></th></tr>";
+      table.appendChild(thead);
+      var tbody = document.createElement("tbody");
+      body.commits.forEach(function(c){
+        var tr = document.createElement("tr");
+        tr.appendChild(el("td", null, c.date));
+        tr.appendChild(el("td", null, c.message));
+        var td = document.createElement("td");
+        var view = el("button", null, "View / export");
+        view.onclick = async function(){
+          try {
+            var result = await workerFetch("/admin/history/at?user=" + encodeURIComponent(user) + "&at=" + encodeURIComponent(c.date));
+            renderHistoryResult(user, result);
+          } catch(err){ flash(err.message, "error"); }
+        };
+        td.appendChild(view);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      box.appendChild(table);
+    } catch(err){ flash(err.message, "error"); }
+  };
+
+  // ------------------------------------------------------------- direct override
+  var overrideLoaded = null; // { user, sha-less current state as parsed JSON }
+
+  $("ovLoadBtn").onclick = async function(){
+    var user = $("ovUser").value.trim();
+    if (!user) return;
+    $("ovMsg").textContent = "";
+    $("ovSaveBtn").disabled = true;
+    try {
+      var resp = await fetch(rawURL(dataPathFor(user)), { cache:"no-store" });
+      var text = resp.ok ? await resp.text() : "{}";
+      $("ovText").value = JSON.stringify(JSON.parse(text), null, 2);
+      overrideLoaded = user;
+    } catch(err){
+      clear($("ovMsg")).appendChild(el("div", "msg error", err.message));
+    }
+  };
+
+  function validateOverride(){
+    var parsed;
+    try { parsed = JSON.parse($("ovText").value); }
+    catch(e){ clear($("ovMsg")).appendChild(el("div", "msg error", "Not valid JSON: " + e.message)); return null; }
+    var state = E.mergeDefaults(parsed);
+    var errors = E.errorsOnly(E.validate(state));
+    var box = clear($("ovMsg"));
+    if (errors.length){
+      box.appendChild(el("div", "msg error", errors.length + " error(s): " + errors[0].message));
+      return null;
+    }
+    box.appendChild(el("div", "msg ok", "Valid -- " + (state.vials || []).length + " item(s)."));
+    return state;
+  }
+
+  $("ovValidateBtn").onclick = function(){
+    $("ovSaveBtn").disabled = !validateOverride();
+  };
+
+  $("ovSaveBtn").onclick = async function(){
+    var user = $("ovUser").value.trim();
+    if (!user) return;
+    var state = validateOverride();
+    if (!state) { $("ovSaveBtn").disabled = true; return; }
+    $("ovSaveBtn").disabled = true;
+    try {
+      await adminCommit(user, state);
+      clear($("ovMsg")).appendChild(el("div", "msg ok", "Saved."));
+    } catch(err){
+      clear($("ovMsg")).appendChild(el("div", "msg error", err.message));
+    }
+  };
+
+  // ------------------------------------------------------------- boot
+  checkWidth();
+  renderApp();
+})();
+</script>
+</body>
+</html>

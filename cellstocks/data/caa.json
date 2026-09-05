@@ -157,6 +157,14 @@
   "rules": {
     "origin": [
       {
+        "match": "DuDoce",
+        "value": "Du145"
+      },
+      {
+        "match": "DuDtxR",
+        "value": "Du145"
+      },
+      {
         "match": "HEK",
         "value": "HEK293T"
       },
@@ -272,7 +280,7 @@
     }
   },
   "_meta": {
-    "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T01:45:01.223Z"
+    "savedBy": "umut-PC",
+    "savedAt": "2026-09-05T07:02:19.106Z"
   }
 }

@@ -9785,6 +9785,14 @@
     ],
     "caspex": [
       {
+        "match": "UCX",
+        "value": "CASPEX"
+      },
+      {
+        "match": "NCX",
+        "value": "CASPEX"
+      },
+      {
         "match": "CASP",
         "value": "CASPEX"
       },
@@ -9824,7 +9832,7 @@
     "defaultOperator": "Umut"
   },
   "_meta": {
-    "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-03T18:57:55.053Z"
+    "savedBy": "umut-PC",
+    "savedAt": "2026-09-05T06:56:25.887Z"
   }
 }

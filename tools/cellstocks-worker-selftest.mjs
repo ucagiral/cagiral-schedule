@@ -95,6 +95,34 @@ function makeGithubFetch({ failOn } = {}) {
   return fn;
 }
 
+// A tiny fake git history for the time-machine endpoints: `commits` is
+// newest-first, each `{sha, date, message, content}` -- mirrors what a real
+// cellstocks/data/<user>.json's commit log looks like (one save = one commit).
+function makeHistoryGithubFetch(commits) {
+  const calls = [];
+  const fn = async (url) => {
+    calls.push({ url });
+    const u = new URL(url);
+    const reply = (obj) => ({ ok: true, status: 200, text: async () => JSON.stringify(obj) });
+    if (u.pathname.endsWith("/commits")) {
+      const until = u.searchParams.get("until");
+      const matching = until ? commits.filter((c) => c.date <= until) : commits;
+      const perPage = Number(u.searchParams.get("per_page")) || matching.length;
+      return reply(matching.slice(0, perPage).map((c) => ({ sha: c.sha, commit: { author: { date: c.date }, message: c.message } })));
+    }
+    const contentsMatch = u.pathname.match(/\/contents\/(.+)$/);
+    if (contentsMatch) {
+      const sha = u.searchParams.get("ref");
+      const commit = commits.find((c) => c.sha === sha);
+      if (!commit) return { ok: false, status: 404, text: async () => JSON.stringify({ message: "not found" }) };
+      return reply({ content: Buffer.from(commit.content, "utf8").toString("base64") });
+    }
+    return { ok: false, status: 404, text: async () => JSON.stringify({ message: "unhandled in test stub: " + url }) };
+  };
+  fn.calls = calls;
+  return fn;
+}
+
 function makeEnv(overrides) {
   return Object.assign(
     {
@@ -716,6 +744,79 @@ await check("blanking out an override resets that message to its default", async
 await check("fillTemplate leaves an unknown {placeholder} untouched rather than dropping it", () => {
   const out = fillTemplate("hello {name}, {mystery}", { name: "world" });
   if (out !== "hello world, {mystery}") return `got ${json(out)}`;
+  return null;
+});
+
+// ==================================================================== history (time machine)
+//
+// "Even if someone deletes their stock, I should be able to retrieve the complete stock
+// situation on 23 May 2026 14:56" -- these prove that against a fake git history for
+// cellstocks/data/umut.json: three commits, each with different inventory content, the
+// way three real saves would look.
+
+const HISTORY_FIXTURE = [
+  { sha: "sha-3", date: "2026-05-24T09:00:00Z", message: "Take out a vial", content: '{"vials":["after-may-24"]}' },
+  { sha: "sha-2", date: "2026-05-23T14:56:00Z", message: "Freeze a new line", content: '{"vials":["as-of-may-23-1456"]}' },
+  { sha: "sha-1", date: "2026-05-01T10:00:00Z", message: "Initial import", content: '{"vials":["initial"]}' }
+];
+
+await check("history/commits lists every commit to that user's file, admin only", async () => {
+  const { env: base, token } = await adminEnvWithToken();
+  const env = Object.assign({}, base, { fetch: makeHistoryGithubFetch(HISTORY_FIXTURE) });
+  const res = await handleRequest(req("GET", "/admin/history/commits?user=Umut", undefined, token), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (body.commits.length !== 3) return `expected 3 commits, got ${body.commits.length}`;
+  if (body.commits[0].sha !== "sha-3") return `expected newest first, got ${json(body.commits.map((c) => c.sha))}`;
+  return null;
+});
+
+await check("a non-admin cannot browse or query history", async () => {
+  const { env: base, umutToken } = await twoMembers();
+  const env = Object.assign({}, base, { fetch: makeHistoryGithubFetch(HISTORY_FIXTURE) });
+  const commitsRes = await handleRequest(req("GET", "/admin/history/commits?user=Umut", undefined, umutToken), env);
+  if (commitsRes.status !== 403) return `commits: expected 403, got ${commitsRes.status}`;
+  const atRes = await handleRequest(req("GET", "/admin/history/at?user=Umut&at=2026-05-23T14:56:00Z", undefined, umutToken), env);
+  if (atRes.status !== 403) return `at: expected 403, got ${atRes.status}`;
+  return null;
+});
+
+await check("history/at returns the state as of that exact moment, not the nearest commit either way", async () => {
+  const { env: base, token } = await adminEnvWithToken();
+  const env = Object.assign({}, base, { fetch: makeHistoryGithubFetch(HISTORY_FIXTURE) });
+  const res = await handleRequest(req("GET", "/admin/history/at?user=Umut&at=2026-05-23T14:56:00Z", undefined, token), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (body.sha !== "sha-2") return `expected the exact-moment commit sha-2, got ${body.sha}`;
+  if (JSON.parse(body.content).vials[0] !== "as-of-may-23-1456") return `unexpected content: ${body.content}`;
+  return null;
+});
+
+await check("history/at one second after a commit still returns that commit, not a later one", async () => {
+  const { env: base, token } = await adminEnvWithToken();
+  const env = Object.assign({}, base, { fetch: makeHistoryGithubFetch(HISTORY_FIXTURE) });
+  const res = await handleRequest(req("GET", "/admin/history/at?user=Umut&at=2026-05-23T23:59:59Z", undefined, token), env);
+  const body = await res.json();
+  if (body.sha !== "sha-2") return `expected sha-2 (the last commit before end of day), got ${json(body)}`;
+  return null;
+});
+
+await check("history/at before the file's first commit is refused, not silently returning something", async () => {
+  const { env: base, token } = await adminEnvWithToken();
+  const env = Object.assign({}, base, { fetch: makeHistoryGithubFetch(HISTORY_FIXTURE) });
+  const res = await handleRequest(req("GET", "/admin/history/at?user=Umut&at=2026-04-01T00:00:00Z", undefined, token), env);
+  if (res.status !== 404) return `expected 404, got ${res.status}: ${json(await res.json())}`;
+  return null;
+});
+
+await check("history works for a user deleted from KV -- it reads git history, not the live account", async () => {
+  const { env: base, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Gone", password: "x" }, token), base);
+  await handleRequest(req("DELETE", "/admin/users/Gone", undefined, token), base);
+  const env = Object.assign({}, base, { fetch: makeHistoryGithubFetch(HISTORY_FIXTURE) });
+  const res = await handleRequest(req("GET", "/admin/history/at?user=Gone&at=2026-05-23T14:56:00Z", undefined, token), env);
+  const body = await res.json();
+  if (res.status !== 200 || body.sha !== "sha-2") return `expected the same history lookup to work for a deleted account: ${res.status} ${json(body)}`;
   return null;
 });
 

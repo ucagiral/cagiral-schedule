@@ -72,6 +72,23 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | POST | `/broadcasts/:id/deny` | broadcast authority | Refuses a pending broadcast; it never reaches the lab. Tells the original sender. |
 | GET | `/admin/messages` | admin | `{defaults, overrides}` — every message template this file can send, and which ones a lab has customized. |
 | PUT | `/admin/messages` | admin | `{messages: {key: text}}` — set or reset templates. See below. |
+| GET | `/admin/history/commits?user=<name>` | admin | Every commit that ever touched that user's data file, newest first. |
+| GET | `/admin/history/at?user=<name>&at=<ISO8601>` | admin | `{sha, commitDate, content}` — that user's data file exactly as it stood at or before that moment. See below. |
+
+### History (time machine)
+
+"Even if someone deletes their stock, I should be able to retrieve the complete stock situation on
+23 May 2026 14:56" — Umut, on the admin panel. Needs no separate storage: every save is already a
+git commit to `cellstocks/data/<user>.json` (see `/commit` above), so GitHub's own commit history
+for that one path *is* the time machine — including past a deleted account or a deleted data file,
+since git history does not forget either. `/admin/history/at` uses GitHub's own `until` filter on
+the Commits API, which finds the most recent commit *at or before* the given moment — not the
+nearest commit in either direction — matching what "the situation on 23 May 2026 14:56" actually
+means. Returns 404 if no commit to that file exists yet at that time, rather than silently
+returning nothing or the wrong version. The admin panel is expected to turn the returned JSON into
+a downloadable `.xlsx` client-side, the same way the live app always has (`cellstocks/xlsx.js` +
+`engine.js`'s `vialsToSheets()`) — this endpoint only needs to produce the JSON as it stood, not
+regenerate a workbook server-side.
 
 ### Editable message templates
 

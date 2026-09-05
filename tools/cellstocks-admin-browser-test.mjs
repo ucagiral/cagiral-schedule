@@ -261,29 +261,20 @@ try {
   const commitRows = await page.$$eval("#histResult tbody tr", (rows) => rows.length);
   check("the commit list shows every commit to that user's file", commitRows === 2, `got ${commitRows} rows`);
 
-  // ---- override tab ----
+  // ---- override tab: now an "act as" launcher, not a raw-JSON editor ----
   await page.click('#tabs button[data-tab="override"]');
-  await page.fill("#ovUser", "umut");
-  await page.click("#ovLoadBtn");
-  await page.waitForFunction(() => document.getElementById("ovText").value.length > 0);
-  const loadedText = await page.$eval("#ovText", (t) => t.value);
-  check("loading override data fetches the user's real live file", /HEK293T p12/.test(loadedText), loadedText);
+  await page.waitForSelector("#overrideTable tbody tr");
+  const overrideRows = await page.$$eval("#overrideTable tbody tr", (rows) => rows.map((r) => r.children[0].textContent));
+  check("the override tab lists every non-hidden account, not the hidden admin one",
+    JSON.stringify(overrideRows) === JSON.stringify(["Ayse", "Labmate"]), JSON.stringify(overrideRows));
 
-  await page.fill("#ovText", "{ not valid json");
-  await page.click("#ovValidateBtn");
-  await page.waitForFunction(() => /Not valid JSON/.test(document.getElementById("ovMsg").textContent));
-  check("invalid JSON is caught by Validate, not sent anywhere", true);
-  check("the Save button stays disabled after a failed validation", await page.$eval("#ovSaveBtn", (b) => b.disabled));
-
-  await page.fill("#ovText", JSON.stringify({ storage: { units: [] }, lines: [], vials: [], withdrawals: [], rules: {}, settings: {} }));
-  await page.click("#ovValidateBtn");
-  await page.waitForFunction(() => /Valid/.test(document.getElementById("ovMsg").textContent));
-  check("valid JSON enables Save", !(await page.$eval("#ovSaveBtn", (b) => b.disabled)));
-
-  await page.click("#ovSaveBtn");
-  await page.waitForFunction(() => document.getElementById("ovMsg").textContent === "Saved.");
-  const overrideCommit = workerCalls.filter((c) => c.path === "/commit").pop();
-  check("saving an override goes through /commit, same as an ordinary save", !!overrideCommit, JSON.stringify(overrideCommit));
+  // window.open would otherwise try to actually navigate a popup -- captured instead,
+  // since this test only needs to prove the launcher builds the right URL.
+  await page.evaluate(() => { window.__opened = []; window.open = (url) => { window.__opened.push(url); return null; }; });
+  await page.click("#overrideTable button:has-text('Open as Ayse')");
+  const openedUrl = await page.evaluate(() => window.__opened[0]);
+  check("the launcher opens the main app acting as the right user",
+    !!openedUrl && /\/cellstocks\/\?actAs=Ayse$/.test(openedUrl), openedUrl);
 
   check("no console errors were raised while exercising the admin panel", consoleErrors.length === 0, consoleErrors.join("\n    "));
 } finally {

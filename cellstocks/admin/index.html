@@ -169,21 +169,14 @@
       </div>
 
       <div id="tab-override" hidden>
-        <h2>Direct data override</h2>
-        <p class="note">Raw JSON for one user's inventory. Loads their current live file;
-          saving replaces it entirely and regenerates the matching workbook, exactly like an
-          ordinary save from the app itself — except this bypasses ownership, so it works for
-          any user's file. Validated the same way a real save is before it's allowed through.</p>
-        <div class="card">
-          <div class="row">
-            <div class="field"><label>User</label><input id="ovUser" placeholder="umut"></div>
-            <button id="ovLoadBtn">Load</button>
-            <button id="ovValidateBtn">Validate</button>
-            <button class="primary" id="ovSaveBtn" disabled>Save</button>
-          </div>
-          <textarea id="ovText" rows="20" style="width:100%; margin-top:10px"></textarea>
-          <div id="ovMsg"></div>
-        </div>
+        <h2>Override data</h2>
+        <p class="note">Opens the real app, acting as the member you pick — full use of it
+          exactly as they'd have it: freeze, boxes, rules, everything, saved straight to their own
+          file. Only which file is read and written changes; anything you send (a request, a
+          broadcast) still comes from you, the admin, not from them.</p>
+        <div class="card"><table id="overrideTable"><thead><tr>
+          <th>Name</th><th></th>
+        </tr></thead><tbody></tbody></table></div>
       </div>
     </div>
   </main>
@@ -328,6 +321,7 @@
     renderUsers();
     renderRequests();
     renderMessages();
+    renderOverride();
   }
 
   // ------------------------------------------------------------- tabs
@@ -379,6 +373,7 @@
       $("newName").value = ""; $("newPass").value = "";
       flash("Created " + name + ".", "ok");
       renderUsers();
+      renderOverride();
     } catch(err){ flash(err.message, "error"); }
   };
 
@@ -393,6 +388,7 @@
       await workerFetch("/admin/users/" + encodeURIComponent(name) + "/rename", { method:"POST", body: JSON.stringify({ newName:next }) });
       flash("Renamed " + name + " to " + next + ". Their own session (if logged in) is now signed out.", "ok");
       renderUsers();
+      renderOverride();
     } catch(err){ flash(err.message, "error"); }
   }
 
@@ -411,6 +407,7 @@
       await workerFetch("/admin/users/" + encodeURIComponent(name), { method:"DELETE" });
       flash("Deleted " + name + ".", "ok");
       renderUsers();
+      renderOverride();
     } catch(err){ flash(err.message, "error"); }
   }
 
@@ -623,56 +620,32 @@
     } catch(err){ flash(err.message, "error"); }
   };
 
-  // ------------------------------------------------------------- direct override
-  var overrideLoaded = null; // { user, sha-less current state as parsed JSON }
-
-  $("ovLoadBtn").onclick = async function(){
-    var user = $("ovUser").value.trim();
-    if (!user) return;
-    $("ovMsg").textContent = "";
-    $("ovSaveBtn").disabled = true;
-    try {
-      var resp = await fetch(rawURL(dataPathFor(user)), { cache:"no-store" });
-      var text = resp.ok ? await resp.text() : "{}";
-      $("ovText").value = JSON.stringify(JSON.parse(text), null, 2);
-      overrideLoaded = user;
-    } catch(err){
-      clear($("ovMsg")).appendChild(el("div", "msg error", err.message));
-    }
-  };
-
-  function validateOverride(){
-    var parsed;
-    try { parsed = JSON.parse($("ovText").value); }
-    catch(e){ clear($("ovMsg")).appendChild(el("div", "msg error", "Not valid JSON: " + e.message)); return null; }
-    var state = E.mergeDefaults(parsed);
-    var errors = E.errorsOnly(E.validate(state));
-    var box = clear($("ovMsg"));
-    if (errors.length){
-      box.appendChild(el("div", "msg error", errors.length + " error(s): " + errors[0].message));
-      return null;
-    }
-    box.appendChild(el("div", "msg ok", "Valid -- " + (state.vials || []).length + " item(s)."));
-    return state;
+  // ------------------------------------------------------------- override (act-as launcher)
+  // The raw-JSON editor this tab used to be is gone -- Umut asked for full parity with the
+  // real app instead (freeze, boxes, rules, everything), and the real app already has all
+  // of that. Every screen there reads/writes through dataPath()/xlsxPath(), which an
+  // admin-only "act as" mode (see effectiveIdentity() in cellstocks/index.html) can point
+  // at any member's file -- so this tab is just a launcher into it, not a second UI to
+  // maintain forever.
+  function mainAppUrl(name){
+    return new URL("../", location.href).href + "?actAs=" + encodeURIComponent(name);
   }
 
-  $("ovValidateBtn").onclick = function(){
-    $("ovSaveBtn").disabled = !validateOverride();
-  };
-
-  $("ovSaveBtn").onclick = async function(){
-    var user = $("ovUser").value.trim();
-    if (!user) return;
-    var state = validateOverride();
-    if (!state) { $("ovSaveBtn").disabled = true; return; }
-    $("ovSaveBtn").disabled = true;
-    try {
-      await adminCommit(user, state);
-      clear($("ovMsg")).appendChild(el("div", "msg ok", "Saved."));
-    } catch(err){
-      clear($("ovMsg")).appendChild(el("div", "msg error", err.message));
-    }
-  };
+  async function renderOverride(){
+    var tbody = clear($("overrideTable").querySelector("tbody"));
+    var body;
+    try { body = await workerFetch("/admin/users"); } catch(err){ flash(err.message, "error"); return; }
+    body.users.filter(function(u){ return !u.hidden; }).forEach(function(u){
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", null, u.name));
+      var td = document.createElement("td");
+      var open = el("button", "primary", "Open as " + u.name);
+      open.onclick = function(){ window.open(mainAppUrl(u.name), "_blank"); };
+      td.appendChild(open);
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    });
+  }
 
   // ------------------------------------------------------------- boot
   checkWidth();

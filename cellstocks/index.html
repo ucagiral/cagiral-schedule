@@ -348,10 +348,8 @@
     <div class="card" id="bxQuickAdd" hidden></div>
     <div class="card">
       <div class="field" id="bxOwnerField" hidden><label for="bxOwner">Whose</label><select id="bxOwner"></select></div>
-      <div class="two">
-        <div class="field"><label for="bxUnit">Unit</label><select id="bxUnit"></select></div>
-        <div class="field"><label for="bxBox">Box</label><select id="bxBox"></select></div>
-      </div>
+      <div class="field"><label for="bxUnit">Unit</label><select id="bxUnit"></select></div>
+      <div id="bxPath"></div>
       <div id="bxGrid"></div>
       <div class="occ" id="bxOcc"></div>
       <div class="bar"><i id="bxBar"></i></div>
@@ -1670,7 +1668,7 @@
   // Boxes
   // =====================================================================
 
-  var boxView = { unitId:null, boxId:null, highlight:[], owner:null };
+  var boxView = { unitId:null, boxId:null, highlight:[], owner:null, rackPath:[] };
 
   function boxGrid(boxId, opts){
     var o = opts || {};
@@ -2079,10 +2077,52 @@
       us.appendChild(o);
     });
 
-    var bs = clear($("bxBox"));
+    // A drill-down breadcrumb, one <select> per level of the unit's subdivision tree
+    // (unit -> rack -> box today; a shelf -> rack -> box unit gets an extra select),
+    // ending in the box picker. If boxView.boxId already names a real box here --
+    // e.g. jumped to from a search result -- its own real chain wins over whatever
+    // was last picked in this breadcrumb, so the levels always agree with the box.
+    var unit = E.findUnit(state, boxView.unitId);
+    var jumpedTo = boxView.boxId ? E.findBox(state, boxView.boxId) : null;
+    if (jumpedTo && jumpedTo.unit.id === boxView.unitId) boxView.rackPath = jumpedTo.chain.map(function(r){ return r.id; });
+    if (!Array.isArray(boxView.rackPath)) boxView.rackPath = [];
+
+    var pathBox = clear($("bxPath"));
+    var levelRacks = unit.racks || [];
+    var depth = 0, chosenLeaf = null;
+    while (levelRacks.length){
+      var selectedId = boxView.rackPath[depth];
+      if (!levelRacks.some(function(r){ return r.id === selectedId; })) selectedId = levelRacks[0].id;
+      boxView.rackPath[depth] = selectedId;
+      boxView.rackPath.length = depth + 1;
+
+      var lsel = document.createElement("select");
+      levelRacks.forEach(function(r){
+        var o = document.createElement("option");
+        o.value = r.id; o.textContent = r.name; o.selected = r.id === selectedId;
+        lsel.appendChild(o);
+      });
+      (function(d, sel){
+        sel.onchange = function(){
+          boxView.rackPath[d] = sel.value;
+          boxView.rackPath.length = d + 1;
+          boxView.boxId = null;
+          renderBoxes();
+        };
+      })(depth, lsel);
+      var lf = el("div", "field");
+      lf.appendChild(el("label", null, (unit.childLabel || "Rack") + (depth ? " " + (depth + 1) : "")));
+      lf.appendChild(lsel);
+      pathBox.appendChild(lf);
+
+      var chosenRack = levelRacks.filter(function(r){ return r.id === selectedId; })[0];
+      if (chosenRack.racks && chosenRack.racks.length){ levelRacks = chosenRack.racks; depth++; }
+      else { chosenLeaf = chosenRack; break; }
+    }
+
+    var bs = document.createElement("select");
     var first = null;
-    E.eachBox(state, function(box, rack, unit){
-      if (unit.id !== boxView.unitId) return;
+    (chosenLeaf ? (chosenLeaf.boxes || []) : []).forEach(function(box){
       if (!first) first = box.id;
       var occ = E.occupancy(state, box.id);
       var o = document.createElement("option");
@@ -2093,6 +2133,9 @@
     if (!boxView.boxId || !E.findBox(state, boxView.boxId) ||
         E.findBox(state, boxView.boxId).unit.id !== boxView.unitId) boxView.boxId = first;
     bs.value = boxView.boxId;
+    bs.onchange = function(){ boxView.boxId = bs.value; renderBoxes(); };
+    var bf = el("div", "field"); bf.appendChild(el("label", null, "Box")); bf.appendChild(bs);
+    pathBox.appendChild(bf);
 
     var g = clear($("bxGrid"));
     if (!boxView.boxId){ g.appendChild(el("div", "empty", "This unit has no boxes yet.")); return; }
@@ -2782,12 +2825,13 @@
         sum.boxes.length + " boxes · " + (unit.childLabel || "Rack") + "s"));
       head.appendChild(grow);
       s.appendChild(head);
-      (unit.racks || []).forEach(function(rack){
-        (rack.boxes || []).forEach(function(box){
+      E.leafRacks(state, unit.id).forEach(function(leaf){
+        var pathName = leaf.chain.map(function(r){ return r.name; }).join(" → ");
+        (leaf.rack.boxes || []).forEach(function(box){
           var occ = E.occupancy(state, box.id);
           var row = el("div", "item");
           var g2 = el("div", "grow");
-          g2.appendChild(el("div", null, "　" + rack.name + " → " + box.name));
+          g2.appendChild(el("div", null, "　" + pathName + " → " + box.name));
           g2.appendChild(el("div", "sub", box.rows + " × " + box.cols + " · " + occ.used + "/" + occ.capacity));
           row.appendChild(g2);
           var ren = el("button", null, "Rename");
@@ -2800,6 +2844,11 @@
           row.appendChild(res);
           s.appendChild(row);
         });
+        if (!(leaf.rack.boxes || []).length){
+          var empty = el("div", "item");
+          empty.appendChild(el("div", "grow sub", "　" + pathName + " — no boxes yet"));
+          s.appendChild(empty);
+        }
       });
     });
     s.appendChild(el("p", "note", "Adding a box or a freezer/tank moved to the Boxes tab — it's an everyday " +
@@ -2949,13 +2998,13 @@
     $("dlgTitle").textContent = "Add a box";
     var body = clear($("dlgBody"));
     var unit = document.createElement("select");
-    (state.storage.units || []).forEach(function(u){
-      (u.racks || []).forEach(function(rk){
-        var o = document.createElement("option");
-        o.value = u.id + "|" + rk.id;
-        o.textContent = u.name + " → " + rk.name;
-        unit.appendChild(o);
-      });
+    // Every rack that can actually hold a box today, whatever unit and however
+    // deeply nested it is -- see E.leafRacks.
+    E.leafRacks(state).forEach(function(leaf){
+      var o = document.createElement("option");
+      o.value = leaf.unit.id + "|" + leaf.rack.id;
+      o.textContent = leaf.unit.name + " → " + leaf.chain.map(function(r){ return r.name; }).join(" → ");
+      unit.appendChild(o);
     });
     var name = document.createElement("input"); name.placeholder = "Box 7"; name.autocomplete = "off";
     var fields = [["Name", name]];
@@ -2974,8 +3023,7 @@
     ok.onclick = function(){
       if (!name.value.trim() || !unit.value) return;
       var parts = unit.value.split("|");
-      var u = E.findUnit(state, parts[0]);
-      var rk = (u.racks || []).filter(function(x){ return x.id === parts[1]; })[0];
+      var rk = E.findRackNode(state, parts[1]).rack;
       var id = "b-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       if (E.findBox(state, id)) id += "-" + Date.now().toString(36).slice(-4);
       rk.boxes.push({ id:id, name:name.value.trim(), rows:9, cols:9, scheme:"grid", note:"", archived:false });
@@ -3414,6 +3462,8 @@
       var uf = el("div", "field"); uf.appendChild(el("label", null, "Unit")); uf.appendChild(unitSel);
       c.appendChild(uf);
 
+      renderAdminSubdivisions(c, s, E.findUnit(s, manageView.unitId));
+
       var boxSel = document.createElement("select");
       var first = null;
       E.eachBox(s, function(box, rack, unit){
@@ -3439,6 +3489,123 @@
     addBox.style.marginTop = "10px";
     addBox.onclick = function(){ adminAddBoxDialog(); };
     c.appendChild(addBox);
+  }
+
+  // The shelves/racks/towers between a unit and its boxes -- a simple tree, as deep
+  // as the real freezer actually is (Umut's -80 is unit -> rack -> box; a freezer ->
+  // shelf -> rack -> box is the same shape one level deeper). Structural changes here
+  // are admin-only -- everyday box-adding (any user, or admin for a member, above)
+  // stays at whatever leaf level already exists.
+  function renderAdminSubdivisions(c, s, unit){
+    if (!unit) return;
+    var box = el("div", "card");
+    box.appendChild(el("h4", null, "Subdivisions of " + unit.name));
+    box.appendChild(el("p", "note",
+      "The levels between the freezer and its boxes. A level that already holds boxes " +
+      "directly can't also hold a nested subdivision -- move or remove those boxes first."));
+
+    function nodeRow(rack, depth){
+      var row = el("div", "item");
+      var grow = el("div", "grow");
+      grow.appendChild(el("div", null, "　".repeat(depth) + rack.name));
+      var boxCount = (rack.boxes || []).length;
+      var childCount = (rack.racks || []).length;
+      grow.appendChild(el("div", "sub", boxCount ? (boxCount + " box" + (boxCount === 1 ? "" : "es"))
+        : childCount ? (childCount + " subdivision" + (childCount === 1 ? "" : "s"))
+        : "empty"));
+      row.appendChild(grow);
+      var ren = el("button", null, "Rename");
+      ren.onclick = function(){ adminRenameSubdivisionDialog(unit, rack); };
+      row.appendChild(ren);
+      var rm = el("button", "danger", "Remove");
+      rm.onclick = function(){ adminRemoveSubdivision(unit, rack); };
+      row.appendChild(rm);
+      box.appendChild(row);
+      (rack.racks || []).forEach(function(child){ nodeRow(child, depth + 1); });
+    }
+    (unit.racks || []).forEach(function(rack){ nodeRow(rack, 0); });
+    if (!(unit.racks || []).length) box.appendChild(el("p", "note", "No subdivisions yet."));
+
+    var add = el("button", "primary", "Add a subdivision");
+    add.style.marginTop = "8px";
+    add.onclick = function(){ adminAddSubdivisionDialog(unit); };
+    box.appendChild(add);
+    c.appendChild(box);
+  }
+
+  function adminAddSubdivisionDialog(unit){
+    $("dlgTitle").textContent = "Add a subdivision to " + unit.name;
+    var body = clear($("dlgBody"));
+    var parentSel = document.createElement("select");
+    var rootOpt = document.createElement("option");
+    rootOpt.value = ""; rootOpt.textContent = "(top level, directly under " + unit.name + ")";
+    parentSel.appendChild(rootOpt);
+    // Only a rack with no boxes of its own directly can take a nested subdivision --
+    // a level is either a leaf (boxes) or a group (child subdivisions), never both.
+    (function collect(racks, chain){
+      (racks || []).forEach(function(rack){
+        if (!(rack.boxes || []).length){
+          var o = document.createElement("option");
+          o.value = rack.id;
+          o.textContent = chain.concat([rack]).map(function(r){ return r.name; }).join(" → ");
+          parentSel.appendChild(o);
+        }
+        collect(rack.racks, chain.concat([rack]));
+      });
+    })(unit.racks, []);
+    var name = document.createElement("input"); name.placeholder = "Shelf 1"; name.autocomplete = "off";
+    [["Under", parentSel], ["Name", name]].forEach(function(p){
+      var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); body.appendChild(f);
+    });
+    var msg = el("p", "note"); body.appendChild(msg);
+    var foot = clear($("dlgFoot"));
+    var ok = el("button", "primary", "Add");
+    ok.onclick = async function(){
+      if (!name.value.trim()) return;
+      var r = E.addSubdivision(manageView.state, unit.id, parentSel.value || null, name.value.trim());
+      if (!r.ok){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; return; }
+      try {
+        await adminCommit(manageView.user, r.state, "Admin: added a subdivision for " + manageView.user);
+        manageView.state = r.state;
+        $("dlg").close();
+        showBanner("Added " + name.value.trim() + ".");
+        renderAdmin();
+      } catch(err){ showBanner("Couldn't save: " + esc(err.message)); }
+    };
+    foot.appendChild(ok);
+    $("dlg").showModal();
+  }
+
+  function adminRenameSubdivisionDialog(unit, rack){
+    $("dlgTitle").textContent = "Rename " + rack.name;
+    var body = clear($("dlgBody"));
+    var inp = document.createElement("input"); inp.value = rack.name; inp.autocomplete = "off";
+    body.appendChild(inp);
+    var foot = clear($("dlgFoot"));
+    var ok = el("button", "primary", "Save");
+    ok.onclick = async function(){
+      if (!inp.value.trim()) return;
+      var r = E.renameSubdivision(manageView.state, rack.id, inp.value.trim());
+      if (!r.ok){ showBanner(r.reason); return; }
+      try {
+        await adminCommit(manageView.user, r.state, "Admin: renamed a subdivision for " + manageView.user);
+        manageView.state = r.state;
+        $("dlg").close();
+        renderAdmin();
+      } catch(err){ showBanner("Couldn't save: " + esc(err.message)); }
+    };
+    foot.appendChild(ok);
+    $("dlg").showModal();
+  }
+
+  function adminRemoveSubdivision(unit, rack){
+    var r = E.removeSubdivision(manageView.state, rack.id);
+    if (!r.ok){ showBanner(r.reason); return; }
+    adminCommit(manageView.user, r.state, "Admin: removed a subdivision for " + manageView.user).then(function(){
+      manageView.state = r.state;
+      showBanner("Removed " + rack.name + ".");
+      renderAdmin();
+    }).catch(function(err){ showBanner("Couldn't save: " + esc(err.message)); });
   }
 
   function renderAdminManageBox(c, s){
@@ -3470,12 +3637,11 @@
     var body = clear($("dlgBody"));
     var s = manageView.state;
     var unitSel = document.createElement("select");
-    (s.storage.units || []).forEach(function(u){
-      (u.racks || []).forEach(function(rk){
-        var o = document.createElement("option");
-        o.value = u.id + "|" + rk.id; o.textContent = u.name + " → " + rk.name;
-        unitSel.appendChild(o);
-      });
+    E.leafRacks(s).forEach(function(leaf){
+      var o = document.createElement("option");
+      o.value = leaf.unit.id + "|" + leaf.rack.id;
+      o.textContent = leaf.unit.name + " → " + leaf.chain.map(function(r){ return r.name; }).join(" → ");
+      unitSel.appendChild(o);
     });
     var name = document.createElement("input"); name.placeholder = "Box 7"; name.autocomplete = "off";
     var rows = document.createElement("input"); rows.type = "number"; rows.min = 1; rows.value = 9;
@@ -3488,8 +3654,7 @@
     ok.onclick = async function(){
       if (!name.value.trim() || !unitSel.value) return;
       var parts = unitSel.value.split("|");
-      var u = E.findUnit(s, parts[0]);
-      var rk = (u.racks || []).filter(function(x){ return x.id === parts[1]; })[0];
+      var rk = E.findRackNode(s, parts[1]).rack;
       var id = "b-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
       if (E.findBox(s, id)) id += "-" + Date.now().toString(36).slice(-4);
       rk.boxes.push({ id:id, name:name.value.trim(), rows:Number(rows.value), cols:Number(cols.value),
@@ -3795,7 +3960,7 @@
           var w = e.w;
           var box = w.from ? E.findBox(e.state, w.from.boxId) : null;
           logRows.push([w.date || "", e.owner, w.name || "",
-            box ? box.unit.name : "", box ? box.rack.name : "", box ? box.box.name : "",
+            box ? box.unit.name : "", box ? box.chain.map(function(r){ return r.name; }).join(" / ") : "", box ? box.box.name : "",
             w.from ? w.from.position : "", w.by || "", w.purpose || "", w.notes || "", w.vialId]);
         });
         var sheets = [{ name:"Log", rows:logRows }];
@@ -3879,15 +4044,16 @@
       if (!leaving.checked || !sel.value) return;
       hoState = await adminFetchState(sel.value);
       var boxes = [];
-      E.eachBox(hoState, function(box, rack, unit){
+      E.eachBox(hoState, function(box, rack, unit, chain){
         var count = (hoState.vials || []).filter(function(v){ return v.location && v.location.boxId === box.id; }).length;
-        boxes.push({ unit:unit, rack:rack, box:box, count:count });
+        boxes.push({ unit:unit, rack:rack, chain:chain, box:box, count:count });
       });
       if (!boxes.length){ boxesWrap.appendChild(el("p", "note", sel.value + " has no boxes to hand off.")); return; }
       boxes.forEach(function(entry){
         var row = el("div", "item");
         var grow = el("div", "grow");
-        grow.appendChild(el("div", null, entry.unit.name + " → " + entry.rack.name + " → " + entry.box.name));
+        var path = [entry.unit.name].concat(entry.chain.map(function(r){ return r.name; })).concat([entry.box.name]);
+        grow.appendChild(el("div", null, path.join(" → ")));
         grow.appendChild(el("div", "sub", entry.count + " vials"));
         row.appendChild(grow);
         var assignSel = document.createElement("select");
@@ -3952,11 +4118,23 @@
         for (var i = 0; i < prepared.length; i++){
           await adminCommit(prepared[i].name, prepared[i].state, "Handoff: received boxes from " + user);
         }
+        function pruneMovedBoxes(racks){
+          (racks || []).forEach(function(r){
+            r.boxes = (r.boxes || []).filter(function(b){ return !allMovedBoxIds[b.id]; });
+            if (r.racks && r.racks.length) pruneMovedBoxes(r.racks);
+          });
+        }
+        function pruneEmptyRacks(racks){
+          return (racks || []).filter(function(r){
+            if (r.racks && r.racks.length) r.racks = pruneEmptyRacks(r.racks);
+            return (r.boxes && r.boxes.length) || (r.racks && r.racks.length);
+          });
+        }
         (sourceState.storage.units || []).forEach(function(u){
-          (u.racks || []).forEach(function(r){ r.boxes = (r.boxes || []).filter(function(b){ return !allMovedBoxIds[b.id]; }); });
+          pruneMovedBoxes(u.racks);
+          u.racks = pruneEmptyRacks(u.racks);
         });
-        (sourceState.storage.units || []).forEach(function(u){ u.racks = (u.racks || []).filter(function(r){ return r.boxes.length; }); });
-        sourceState.storage.units = (sourceState.storage.units || []).filter(function(u){ return u.racks.length; });
+        sourceState.storage.units = (sourceState.storage.units || []).filter(function(u){ return (u.racks || []).length; });
         sourceState.vials = sourceState.vials.filter(function(v){ return !(v.location && allMovedBoxIds[v.location.boxId]); });
         var sourceErrors = E.errorsOnly(E.validate(sourceState));
         if (sourceErrors.length) throw new Error("Every target was updated, but " + user + "'s own remaining inventory would be invalid: " + sourceErrors[0].message);
@@ -4109,10 +4287,11 @@
   $("fzDate").value = new Date().toISOString().slice(0, 10);
 
   $("bxOwner").onchange = function(){
-    boxView.owner = $("bxOwner").value; boxView.unitId = null; boxView.boxId = null; renderBoxes();
+    boxView.owner = $("bxOwner").value; boxView.unitId = null; boxView.boxId = null; boxView.rackPath = []; renderBoxes();
   };
-  $("bxUnit").onchange = function(){ boxView.unitId = $("bxUnit").value; boxView.boxId = null; renderBoxes(); };
-  $("bxBox").onchange = function(){ boxView.boxId = $("bxBox").value; renderBoxes(); };
+  $("bxUnit").onchange = function(){
+    boxView.unitId = $("bxUnit").value; boxView.boxId = null; boxView.rackPath = []; renderBoxes();
+  };
 
   try {
     var t = localStorage.getItem(LS.theme);

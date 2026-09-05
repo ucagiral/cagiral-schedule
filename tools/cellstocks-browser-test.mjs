@@ -743,6 +743,105 @@ try {
   }
 }
 
+// ---- the Boxes tab drills down through a nested subdivision tree ----
+//
+// Umut's real -80 is unit -> rack -> box; this proves a deeper unit -> shelf -> rack
+// -> box unit gets an extra picker automatically, that switching a shelf re-populates
+// the rack (and box) pickers underneath it, and that a 2-level unit right alongside it
+// still shows just the one rack picker it always has -- nothing here migrates or
+// flattens the existing shape.
+{
+  const server4 = await serve(8801);
+  const browser4 = await chromium.launch();
+  try {
+    const context = await browser4.newContext();
+    await context.addInitScript(() => {
+      localStorage.setItem("cst_cfg", JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" }));
+    });
+    const page = await context.newPage();
+
+    const boxD1 = { id: "b-d1", name: "Box D1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+    const boxD2 = { id: "b-d2", name: "Box D2", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+    const flatBox = { id: "b-flat-1", name: "Flat Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+    const nestedState = {
+      storage: { units: [
+        { id: "u-deep", name: "Deep Freezer", type: "freezer", childLabel: "Shelf",
+          racks: [
+            { id: "shelf-1", name: "Shelf 1", racks: [{ id: "rack-1", name: "Rack 1", boxes: [boxD1] }] },
+            { id: "shelf-2", name: "Shelf 2", racks: [{ id: "rack-2", name: "Rack 2", boxes: [boxD2] }] }
+          ] },
+        { id: "u-flat", name: "Flat Freezer", type: "freezer", childLabel: "Rack",
+          racks: [{ id: "rack-flat", name: "Rack 1", boxes: [flatBox] }] }
+      ] },
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [
+        { id: "v-d1", name: "Deep Line 1", location: { unitId: "u-deep", rackId: "rack-1", boxId: "b-d1", position: "A1" }, status: "stored" },
+        { id: "v-d2", name: "Deep Line 2", location: { unitId: "u-deep", rackId: "rack-2", boxId: "b-d2", position: "A1" }, status: "stored" }
+      ]
+    };
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks.json") || url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(nestedState) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "fake-session-token", user: { name: "Umut", role: "member", hidden: false } }) });
+      }
+      if (path === "/messages") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ messages: {} }) });
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto(`http://localhost:8801/cellstocks/`);
+    await page.waitForSelector("#gateBody input");
+    const li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("Umut");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "fake-session-token");
+
+    await page.click("nav button[data-screen=boxes]");
+    await page.selectOption("#bxUnit", "u-deep");
+    await page.waitForSelector("#bxPath select");
+
+    const deepSelectCount = await page.$$eval("#bxPath select", (els) => els.length);
+    check("a unit -> shelf -> rack -> box unit shows three pickers under the breadcrumb (shelf, rack, box)",
+      deepSelectCount === 3, `saw ${deepSelectCount}`);
+
+    const boxNameOnShelf1 = await page.$$eval("#bxPath select",
+      (els) => els[els.length - 1].selectedOptions[0].textContent);
+    check("Shelf 1's default drill-down lands on Box D1", /Box D1/.test(boxNameOnShelf1), boxNameOnShelf1);
+
+    const shelfSelect = await page.$("#bxPath select");
+    await shelfSelect.selectOption("shelf-2");
+    await page.waitForFunction(() => {
+      const last = document.querySelectorAll("#bxPath select");
+      const box = last[last.length - 1];
+      return box && box.selectedOptions[0] && /Box D2/.test(box.selectedOptions[0].textContent);
+    });
+    check("switching to Shelf 2 re-populates the rack and box pickers underneath it", true);
+
+    await page.selectOption("#bxUnit", "u-flat");
+    await page.waitForFunction(() => document.querySelectorAll("#bxPath select").length === 2);
+    const flatSelectCount = await page.$$eval("#bxPath select", (els) => els.length);
+    check("a plain unit -> rack -> box unit alongside it still shows just one rack picker plus the box picker",
+      flatSelectCount === 2, `saw ${flatSelectCount}`);
+  } catch (err) {
+    check("the Boxes tab drills down through a nested subdivision tree", false, String(err));
+  } finally {
+    await browser4.close();
+    server4.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

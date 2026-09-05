@@ -157,6 +157,10 @@
   "rules": {
     "origin": [
       {
+        "match": "DuDoce",
+        "value": "Du145"
+      },
+      {
         "match": "DuDtxR",
         "value": "Du145"
       },
@@ -277,6 +281,6 @@
   },
   "_meta": {
     "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T07:02:08.972Z"
+    "savedAt": "2026-09-05T07:02:19.106Z"
   }
 }

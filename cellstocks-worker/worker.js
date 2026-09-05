@@ -212,6 +212,47 @@ async function commitFilesAtomic(env, files, message) {
   return commit.sha;
 }
 
+// Renames a user's data/workbook pair in one commit -- admin-only, part of renaming an
+// account (see routeRenameUser below). Reuses the same six-call git-data shape as
+// commitFilesAtomic (ref -> base commit -> ... -> tree -> commit -> ref update), but the
+// tree entries here copy an existing blob to its new path (by reusing the blob sha the
+// Contents API already reports, rather than re-uploading identical content) and delete
+// the old path in the SAME tree -- GitHub's tree API deletes an entry when its sha is
+// null. One tree means the file is never briefly duplicated or briefly missing. A pair
+// that 404s (the user never saved anything yet) is skipped rather than failing the whole
+// rename.
+async function renameUserFiles(env, oldName, newName) {
+  const branch = env.GITHUB_BRANCH || "main";
+  const ref = await githubApi(env, "GET", `/git/ref/heads/${branch}`);
+  const baseSha = ref.object.sha;
+  const baseCommit = await githubApi(env, "GET", `/git/commits/${baseSha}`);
+  const tree = [];
+  const pairs = [
+    [dataPathFor(oldName), dataPathFor(newName)],
+    [xlsxPathFor(oldName), xlsxPathFor(newName)]
+  ];
+  for (const [oldPath, newPath] of pairs) {
+    let existing;
+    try {
+      existing = await githubApi(env, "GET", `/contents/${oldPath}?ref=${encodeURIComponent(branch)}`);
+    } catch (err) {
+      if (err.status === 404) continue;
+      throw err;
+    }
+    tree.push({ path: newPath, mode: "100644", type: "blob", sha: existing.sha });
+    tree.push({ path: oldPath, mode: "100644", type: "blob", sha: null });
+  }
+  if (!tree.length) return null;
+  const newTree = await githubApi(env, "POST", "/git/trees", { base_tree: baseCommit.tree.sha, tree });
+  const commit = await githubApi(env, "POST", "/git/commits", {
+    message: `Rename ${DATA_PREFIX}${oldName.toLowerCase()}.* to ${newName.toLowerCase()}.* (admin rename)`,
+    tree: newTree.sha,
+    parents: [baseSha]
+  });
+  await githubApi(env, "PATCH", `/git/refs/heads/${branch}`, { sha: commit.sha });
+  return commit.sha;
+}
+
 // Every user's data lives under this prefix, one JSON file and one generated .xlsx per
 // user, named after their account -- this is the ownership boundary the commit endpoint
 // enforces.
@@ -604,6 +645,70 @@ async function routeResetPassword(request, env, name) {
   return json({ ok: true });
 }
 
+// Renaming touches everywhere the old name was ever recorded, not just the account
+// itself -- Umut asked that a rename "update everything", so requests/broadcasts get
+// their fromUser/toUser fields rewritten and notifications (keyed by recipient name, so
+// this is a re-key, not a field edit) move under the new prefix. What is deliberately
+// NOT touched: the wording of a notification already sent -- "Umut is asking about X" is
+// what was actually said at the time, and rewriting it later would be inventing a history
+// that didn't happen, not correcting one.
+async function migrateUserReferences(env, oldName, newName) {
+  const oldLower = oldName.toLowerCase();
+
+  const requests = await listByPrefix(env.CST_KV, "request:");
+  await Promise.all(requests
+    .filter((r) => r.fromUser.toLowerCase() === oldLower || r.toUser.toLowerCase() === oldLower)
+    .map((r) => {
+      if (r.fromUser.toLowerCase() === oldLower) r.fromUser = newName;
+      if (r.toUser.toLowerCase() === oldLower) r.toUser = newName;
+      return kvPutJson(env.CST_KV, requestKey(r.id), r);
+    }));
+
+  const broadcasts = await listByPrefix(env.CST_KV, "broadcast:");
+  await Promise.all(broadcasts
+    .filter((b) => b.fromUser.toLowerCase() === oldLower)
+    .map((b) => { b.fromUser = newName; return kvPutJson(env.CST_KV, broadcastKey(b.id), b); }));
+
+  const notifications = await listByPrefix(env.CST_KV, `notification:${oldLower}:`);
+  await Promise.all(notifications.map((n) => {
+    n.user = newName;
+    return kvPutJson(env.CST_KV, notificationKey(newName, n.id), n).then(() =>
+      env.CST_KV.delete(notificationKey(oldName, n.id))
+    );
+  }));
+}
+
+async function routeRenameUser(request, env, name) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const body = await request.json().catch(() => null);
+  if (!body || !body.newName) return json({ error: "newName is required" }, 400);
+  if (!/^[a-zA-Z0-9_-]+$/.test(body.newName)) return json({ error: "name may only contain letters, digits, - and _" }, 400);
+  const existing = await kvGetJson(env.CST_KV, userKey(name));
+  if (!existing) return json({ error: "no such user" }, 404);
+  if (body.newName.toLowerCase() === existing.name.toLowerCase()) return json({ error: "that is already this account's name" }, 400);
+  const taken = await kvGetJson(env.CST_KV, userKey(body.newName));
+  if (taken) return json({ error: "that name is already taken" }, 409);
+
+  try {
+    await renameUserFiles(env, existing.name, body.newName);
+  } catch (err) {
+    return json({ error: err.message }, requestErrorStatus(err));
+  }
+  const oldKey = userKey(existing.name);
+  existing.name = body.newName;
+  await kvPutJson(env.CST_KV, userKey(existing.name), existing);
+  await env.CST_KV.delete(oldKey);
+  await migrateUserReferences(env, name, body.newName);
+  // Existing sessions are for the old KV key, which no longer resolves -- requireSession
+  // already 401s the moment a session's user record is gone, so this is effectively an
+  // immediate, if unannounced, forced logout. Renaming an account you're using right now
+  // means logging back in under the new name; that's the same trade-off deleting an
+  // account already makes.
+  return json({ user: publicUser(existing) });
+}
+
 async function routeCommit(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -824,6 +929,8 @@ async function handleRequest(request, env) {
       response = await routeDeleteUser(request, env, decodeURIComponent(path.split("/")[3]));
     } else if (/^\/admin\/users\/[^/]+\/reset-password$/.test(path) && request.method === "POST") {
       response = await routeResetPassword(request, env, decodeURIComponent(path.split("/")[3]));
+    } else if (/^\/admin\/users\/[^/]+\/rename$/.test(path) && request.method === "POST") {
+      response = await routeRenameUser(request, env, decodeURIComponent(path.split("/")[3]));
     } else if (path === "/commit" && request.method === "POST") response = await routeCommit(request, env);
     else if (path === "/requests" && request.method === "POST") response = await routeCreateRequest(request, env);
     else if (path === "/requests" && request.method === "GET") response = await routeListRequests(request, env);

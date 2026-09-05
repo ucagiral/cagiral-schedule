@@ -110,6 +110,14 @@ try {
     }
     if (/^\/admin\/users\/[^/]+$/.test(path) && method === "DELETE") return json({ ok: true });
     if (/^\/admin\/users\/[^/]+\/reset-password$/.test(path) && method === "POST") return json({ ok: true });
+    if (/^\/admin\/users\/([^/]+)\/rename$/.test(path) && method === "POST") {
+      const oldName = decodeURIComponent(path.match(/^\/admin\/users\/([^/]+)\/rename$/)[1]);
+      const posted = JSON.parse(req.postData());
+      const user = usersDb.find((u) => u.name === oldName);
+      if (user) user.name = posted.newName;
+      requestsDb.forEach((r) => { if (r.fromUser === oldName) r.fromUser = posted.newName; if (r.toUser === oldName) r.toUser = posted.newName; });
+      return json({ user });
+    }
 
     if (path === "/requests" && method === "GET") return json({ requests: requestsDb });
     if (/^\/requests\/req-1\/(approve|deny)$/.test(path) && method === "POST") {
@@ -175,6 +183,16 @@ try {
   const createCall = workerCalls.find((c) => c.path === "/admin/users" && c.method === "POST");
   check("creating a user posts name/password/role/hidden/canBroadcast",
     createCall && JSON.parse(createCall.body).name === "Labmate", JSON.stringify(createCall));
+
+  // ---- renaming a user ----
+  page.once("dialog", (dialog) => dialog.accept("Ayse"));
+  await page.click("#usersTable tbody tr:has-text('Umut') button:has-text('Rename')");
+  await page.waitForFunction(() => /Renamed Umut to Ayse/.test(document.getElementById("flash").textContent));
+  const renameCall = workerCalls.find((c) => c.path === "/admin/users/Umut/rename" && c.method === "POST");
+  check("renaming posts the new name to the right user's rename endpoint",
+    renameCall && JSON.parse(renameCall.body).newName === "Ayse", JSON.stringify(renameCall));
+  const rowsAfterRename = await page.$$eval("#usersTable tbody tr", (rows) => rows.map((r) => r.children[0].textContent));
+  check("the users table reflects the new name", rowsAfterRename.includes("Ayse") && !rowsAfterRename.includes("Umut"), JSON.stringify(rowsAfterRename));
 
   // ---- requests tab ----
   await page.click('#tabs button[data-tab="requests"]');

@@ -16976,6 +16976,10 @@
   "rules": {
     "origin": [
       {
+        "match": "Osc19",
+        "value": "OSC19"
+      },
+      {
         "match": "Mcf",
         "value": "MCF7"
       },
@@ -17096,6 +17100,6 @@
   },
   "_meta": {
     "savedBy": "Umut iphone cell stocks",
-    "savedAt": "2026-09-05T15:22:18.274Z"
+    "savedAt": "2026-09-05T15:24:07.066Z"
   }
 }

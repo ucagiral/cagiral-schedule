@@ -3978,7 +3978,8 @@
       "facetsFromSheet": {
         "origin": "HEK293T",
         "koox": "WT"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-102",
@@ -9834,6 +9835,6 @@
   },
   "_meta": {
     "savedBy": "umut-PC",
-    "savedAt": "2026-09-05T06:56:25.887Z"
+    "savedAt": "2026-09-05T20:15:14.247Z"
   }
 }

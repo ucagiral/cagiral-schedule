@@ -70,6 +70,21 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | GET | `/broadcasts` | Bearer token | Broadcast authority sees every broadcast, pending or resolved; anyone else sees only their own. |
 | POST | `/broadcasts/:id/approve` | broadcast authority | Sends a pending broadcast to the lab and tells the original sender it went out. |
 | POST | `/broadcasts/:id/deny` | broadcast authority | Refuses a pending broadcast; it never reaches the lab. Tells the original sender. |
+| GET | `/admin/messages` | admin | `{defaults, overrides}` — every message template this file can send, and which ones a lab has customized. |
+| PUT | `/admin/messages` | admin | `{messages: {key: text}}` — set or reset templates. See below. |
+
+### Editable message templates
+
+Every notification this file ever sends — "X is asking about Y", a broadcast line, an
+approval/denial — is a named template (`DEFAULT_MESSAGES`), not an inline string, because Umut
+asked to be able to edit these from the admin panel. `PUT /admin/messages` merges into a single
+stored override object (there are only a handful of templates and they only ever change together,
+from one editor screen): send `{key: "new text with {placeholders}"}` to override a message, or
+`{key: ""}` (empty/blank) to reset that one back to its default. An unknown key is rejected outright
+rather than silently stored, so a typo in the editor can't quietly create a template nothing ever
+reads. `{placeholder}` substitution (`fillTemplate()`) leaves an unrecognized placeholder in a
+custom template untouched rather than dropping it, so a typo'd `{itme}` shows up as literal text
+instead of vanishing — visible and fixable, not silently wrong.
 
 ### Who has broadcast authority
 

@@ -8,7 +8,7 @@
 // No network, no Cloudflare account, no deploy. See that file's own header for why it is
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
-import { handleRequest, dataPathFor, xlsxPathFor, canWrite } from "../cellstocks-worker/worker.js";
+import { handleRequest, dataPathFor, xlsxPathFor, canWrite, fillTemplate } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -646,6 +646,76 @@ await check("a hidden account never receives a broadcast", async () => {
   await handleRequest(req("POST", "/broadcasts", { text: "hello lab" }, umutLogin.token), env);
   const adminNotifs = await (await handleRequest(req("GET", "/notifications", undefined, adminToken), env)).json();
   if (adminNotifs.notifications.some((n) => n.type === "broadcast")) return "the hidden admin account received a broadcast meant for the visible lab";
+  return null;
+});
+
+// ==================================================================== message templates
+//
+// Every notification text in worker.js goes through a named template now, not an inline
+// string -- Umut asked to be able to edit these ("X requests ABC vial from your box" and
+// "many more") from the admin panel. These prove the default behavior is unchanged (the
+// 42 checks above already do that implicitly, since none of them were touched by this),
+// that an override actually changes what a real notification says, that only admin can
+// read or write the config, and that an unknown key or a blanked-out override is handled
+// the way the editor needs (rejected / reset-to-default) rather than silently corrupting
+// the stored config.
+
+await check("an admin can read the default and overridden message templates", async () => {
+  const { env, token } = await adminEnvWithToken();
+  const res = await handleRequest(req("GET", "/admin/messages", undefined, token), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (body.defaults.request !== "{fromUser} is asking about {itemName}{noteSuffix}") return `unexpected default: ${json(body.defaults.request)}`;
+  if (json(body.overrides) !== "{}") return `expected no overrides yet, got ${json(body.overrides)}`;
+  return null;
+});
+
+await check("a non-admin cannot read or write message templates", async () => {
+  const { env, umutToken } = await twoMembers();
+  const getRes = await handleRequest(req("GET", "/admin/messages", undefined, umutToken), env);
+  if (getRes.status !== 403) return `GET: expected 403, got ${getRes.status}`;
+  const putRes = await handleRequest(req("PUT", "/admin/messages", { messages: { request: "x" } }, umutToken), env);
+  if (putRes.status !== 403) return `PUT: expected 403, got ${putRes.status}`;
+  return null;
+});
+
+await check("an unknown message key is refused, not silently stored", async () => {
+  const { env, token } = await adminEnvWithToken();
+  const res = await handleRequest(req("PUT", "/admin/messages", { messages: { "not-a-real-key": "x" } }, token), env);
+  if (res.status !== 400) return `expected 400, got ${res.status}`;
+  return null;
+});
+
+await check("an override actually changes what a real request notification says", async () => {
+  const { env, adminToken, umutToken, labmateToken } = await twoMembers();
+  const putRes = await handleRequest(
+    req("PUT", "/admin/messages", { messages: { request: "[custom] {fromUser} wants {itemName}" } }, adminToken),
+    env
+  );
+  if (putRes.status !== 200) return `PUT failed: ${putRes.status}`;
+
+  await handleRequest(req("POST", "/requests", { toUser: "Labmate", itemName: "HEK293T p12" }, umutToken), env);
+  const { notifications } = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
+  if (notifications[0].text !== "[custom] Umut wants HEK293T p12") return `unexpected text: ${json(notifications[0])}`;
+  return null;
+});
+
+await check("blanking out an override resets that message to its default", async () => {
+  const { env, adminToken, umutToken, labmateToken } = await twoMembers();
+  await handleRequest(req("PUT", "/admin/messages", { messages: { request: "[custom] {fromUser} wants {itemName}" } }, adminToken), env);
+  const resetRes = await handleRequest(req("PUT", "/admin/messages", { messages: { request: "" } }, adminToken), env);
+  const resetBody = await resetRes.json();
+  if (Object.prototype.hasOwnProperty.call(resetBody.overrides, "request")) return `override was not cleared: ${json(resetBody.overrides)}`;
+
+  await handleRequest(req("POST", "/requests", { toUser: "Labmate", itemName: "HEK293T p12" }, umutToken), env);
+  const { notifications } = await (await handleRequest(req("GET", "/notifications", undefined, labmateToken), env)).json();
+  if (notifications[0].text !== "Umut is asking about HEK293T p12") return `expected the default text back, got ${json(notifications[0].text)}`;
+  return null;
+});
+
+await check("fillTemplate leaves an unknown {placeholder} untouched rather than dropping it", () => {
+  const out = fillTemplate("hello {name}, {mystery}", { name: "world" });
+  if (out !== "hello world, {mystery}") return `got ${json(out)}`;
   return null;
 });
 

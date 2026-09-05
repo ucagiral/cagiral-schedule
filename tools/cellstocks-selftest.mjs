@@ -1103,6 +1103,87 @@ check("box geometry is read from the data, never assumed", () => {
   return null;
 });
 
+// ---- import: a cell naming more than one physical vial ("A4 & A5") ----
+
+check("splitPositions splits on &, commas, and/ve, and same-row hyphen ranges", () => {
+  if (json(E.splitPositions("A4 & A5")) !== json(["A4", "A5"])) return `"A4 & A5" -> ${json(E.splitPositions("A4 & A5"))}`;
+  if (json(E.splitPositions("A8, B1")) !== json(["A8", "B1"])) return `"A8, B1" -> ${json(E.splitPositions("A8, B1"))}`;
+  if (json(E.splitPositions("A4 and A5")) !== json(["A4", "A5"])) return `"A4 and A5" -> ${json(E.splitPositions("A4 and A5"))}`;
+  if (json(E.splitPositions("A4 ve A5")) !== json(["A4", "A5"])) return `"A4 ve A5" -> ${json(E.splitPositions("A4 ve A5"))}`;
+  if (json(E.splitPositions("A4-A6")) !== json(["A4", "A5", "A6"])) return `"A4-A6" -> ${json(E.splitPositions("A4-A6"))}`;
+  if (json(E.splitPositions("A2")) !== json(["A2"])) return `a single position must come back unchanged: ${json(E.splitPositions("A2"))}`;
+  if (json(E.splitPositions("")) !== json([])) return "blank text must split to nothing";
+  return null;
+});
+
+check("a multi-position row becomes one vial per slot", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name")],
+    [cell("A4 & A5"), cell("HEK293T p12")],
+    [cell("A8, B1"), cell("Du145 WT")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  if (out.state.vials.length !== 4) return `expected 4 vials from 2 rows, got ${out.state.vials.length}`;
+  if (out.state.vials.some((v) => v.importAmbiguous)) return "a clean multi-position row must not be queued for review";
+  const positions = out.state.vials.map((v) => v.location && v.location.position).sort();
+  if (json(positions) !== json(["A4", "A5", "A8", "B1"])) return `unexpected positions: ${json(positions)}`;
+  const names = out.state.vials.map((v) => v.name).sort();
+  if (json(names) !== json(["Du145 WT", "Du145 WT", "HEK293T p12", "HEK293T p12"])) return `unexpected names: ${json(names)}`;
+  return null;
+});
+
+check("a multi-position row falls back to review if a piece collides or doesn't parse", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name")],
+    [cell("A1"), cell("Line one")],
+    [cell("A1 & A2"), cell("Line two")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  const collided = out.state.vials.find((v) => v.name === "Line two");
+  if (!collided) return "the colliding row must still surface, not vanish";
+  return null;
+});
+
+check("a Unit column fans rows out into separate storage units", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Place in lab"), cell("Place in the Box"), cell("box name"), cell("Cell Name")],
+    [cell("Liquid nitrogen"), cell("A2"), cell("PINK"), cell("HEK293T p12")],
+    [cell("-80 freezer"), cell("A1"), cell("BLUE"), cell("Du145 WT")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const g = E.guessColumns(rows, 0);
+  const byIndex = {};
+  g.forEach((x) => { byIndex[x.index] = x.role; });
+  if (byIndex[0] !== "unit") return `"Place in lab" guessed as ${json(byIndex[0])}`;
+  if (byIndex[1] !== "position") return `"Place in the Box" guessed as ${json(byIndex[1])}`;
+  if (byIndex[2] !== "box") return `"box name" guessed as ${json(byIndex[2])}`;
+
+  const out = E.importSheet(sheet, { columns: { unit: 0, position: 1, box: 2, name: 3 }, headerRow: 1 });
+  if (out.state.storage.units.length !== 2) return `expected 2 units, got ${out.state.storage.units.length}`;
+  const names = out.state.storage.units.map((u) => u.name).sort();
+  if (json(names) !== json(["-80 freezer", "Liquid nitrogen"])) return `unexpected unit names: ${json(names)}`;
+  return null;
+});
+
+check("an unrecognized column mapped to \"New\" becomes a real field, not notes text", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name"), cell("myco")],
+    [cell("A1"), cell("HEK293T p12"), cell("negative")]
+  ];
+  const sheet = { name: "Sheet1", rows, merges: [] };
+  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1, customColumns: { 2: "Myco status" } });
+  const v = out.state.vials[0];
+  if (!v.custom || v.custom["Myco status"] !== "negative") return `expected a custom field, got ${json(v.custom)}`;
+  if (v.notes) return `a custom column must not be folded into notes: ${json(v.notes)}`;
+  return null;
+});
+
 // ---- import: a row nobody could place goes to Review, never guessed or dropped ----
 
 check("a row with no name is queued for review instead of dropped or guessed", () => {

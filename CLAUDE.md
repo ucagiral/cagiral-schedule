@@ -148,11 +148,12 @@ worker handles by sweeping only its own prefix.
   Do not "optimise" this into first-free-slot packing.
 - **The name is the only thing typed.** Origin, KO/OX, resistance, CASPEX and guide are derived
   from it by `classify()`, which is the spreadsheet's five formulas — and **the rules are data in
-  `cellstocks.json`, never code**. Umut said he may define new common labels; that has to stay a
-  Rules-screen edit. A facet he has set by hand is never recomputed.
-- **`cellstocks.json` is the inventory. `cell-stocks.xlsx` is generated from it on every save** and
-  committed in the same commit, never the reverse. A hand edit to the workbook is thrown away by
-  the next save; do not add a path that reads it back.
+  each account's own `cellstocks/data/<name>.json`, never code**. Umut said he may define new
+  common labels; that has to stay a Rules-screen edit. A facet he has set by hand is never
+  recomputed.
+- **`cellstocks/data/<name>.json` is the inventory, one file per account. `cellstocks/data/<name>.xlsx`
+  is generated from it on every save** and committed in the same commit, never the reverse. A hand
+  edit to the workbook is thrown away by the next save; do not add a path that reads it back.
 - **Two stored vials in one slot is an error, not a warning.** `validate()` returns it as one and
   the save is refused. Do not downgrade it, and do not add a code path that places a vial without
   going through `validate` first.

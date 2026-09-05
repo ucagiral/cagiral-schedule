@@ -83,15 +83,15 @@ jobs:
             new Function(fs.readFileSync("cellstocks/xlsx.js", "utf8"))();
             new Function(fs.readFileSync("cellstocks/engine.js", "utf8"))();
             const E = globalThis.CellStocksEngine, X = globalThis.XlsxLite;
-            const state = E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/cellstocks.json", "utf8")));
+            const state = E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/data/umut.json", "utf8")));
             const flatten = (wb) => wb.sheets.map((s) => [s.name, s.rows.map((r) => r.map((c) => (c ? c.value : null)))]);
             Promise.all([
               X.writeWorkbookAsync(E.vialsToSheets(state)).then(X.readWorkbook),
-              X.readWorkbook(fs.readFileSync("cellstocks/cell-stocks.xlsx"))
+              X.readWorkbook(fs.readFileSync("cellstocks/data/umut.xlsx"))
             ]).then(([fresh, onDisk]) => {
               const a = JSON.stringify(flatten(fresh)), b = JSON.stringify(flatten(onDisk));
               if (a !== b) {
-                console.error("cell-stocks.xlsx does not match cellstocks.json.");
+                console.error("cellstocks/data/umut.xlsx does not match cellstocks/data/umut.json.");
                 console.error("Regenerate it — the app writes it on every save, so a content mismatch");
                 console.error("means it was committed by hand or the generator changed.");
                 process.exit(1);

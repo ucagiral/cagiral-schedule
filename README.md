@@ -427,11 +427,11 @@ for the backend and `cellstocks/admin/` for the admin panel.
 
 | Piece | What it does |
 |---|---|
-| `cellstocks/cellstocks.json` | **The source of truth.** Every vial, every box, the classifier rules, the withdrawal log. |
+| `cellstocks/data/<name>.json` | **The source of truth, one file per account.** Every vial, every box, the classifier rules, the withdrawal log — Umut's own is `cellstocks/data/umut.json`. |
 | `cellstocks/engine.js` | Every rule the app has, as pure functions. The browser loads it with a `<script>` tag and `tools/cellstocks-selftest.mjs` runs the same file in node — one copy of the rules, tested where it runs. |
 | `cellstocks/xlsx.js` | Reads and writes `.xlsx` with no dependencies. A spreadsheet is a zip of XML, so reading is a zip walk plus the browser's own `DecompressionStream`, and writing is the same XML zipped back up. |
-| `cellstocks/index.html` | The app. Reads and writes the JSON through the GitHub API. |
-| `cellstocks/cell-stocks.xlsx` | **Generated.** Rewritten from the JSON on every save and committed with it. Never edit by hand — the next save overwrites it. |
+| `cellstocks/index.html` | The app. Reads and writes the JSON through the worker (or, on the older per-device flow, through the GitHub API). |
+| `cellstocks/data/<name>.xlsx` | **Generated.** Rewritten from that account's JSON on every save and committed with it. Never edit by hand — the next save overwrites it. |
 | `protocols/cryopreservation.md` | How long a −80 vial is good for, and what has to be recorded about one, with sources. |
 | `.github/workflows/cellstocks.yml` | Runs the self-test on every change, and checks the workbook still matches the inventory. |
 | `cellstocks-worker/` | The lab-wide, multi-user backend — a small Cloudflare Worker that privately holds the one GitHub write token and is the only thing that can commit a write, so it is the only thing that can enforce who owns what. See `cellstocks-worker/README.md`. |
@@ -491,8 +491,8 @@ Boxes are coloured by cell, so each row reads as one band and a stray vial is ob
 
 In the spreadsheet this came from, the cell name is the only thing typed. Origin, KO/OX,
 resistance, CASPEX and guide are all formulas over that one string. Those five formulas live in
-`cellstocks.json` as **data**, editable under Settings → Rules, so a new common label is an edit in
-the app and not a change to any code.
+each account's own `cellstocks/data/<name>.json` as **data**, editable under Settings → Rules, so a
+new common label is an edit in the app and not a change to any code.
 
 Running the sheet's own formulas over its own 350 rows turned up five bugs, all fixed in the rules
 the app ships with, and the Review screen lists every row where the corrected reading disagrees

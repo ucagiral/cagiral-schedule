@@ -1103,6 +1103,144 @@ check("box geometry is read from the data, never assumed", () => {
   return null;
 });
 
+// ---- storage: a unit's racks are a tree, arbitrarily deep ----
+//
+// Umut's real -80 is unit -> rack -> box; these prove the same functions handle a
+// deeper unit -> shelf -> rack -> box just as well, and that a 2-level unit like
+// the fixture above is completely unaffected (nothing here migrates existing data).
+
+function nestedFixture() {
+  return E.mergeDefaults({
+    storage: {
+      units: [
+        { id: "u-deep", name: "Deep Freezer", type: "freezer", childLabel: "Shelf",
+          racks: [
+            { id: "shelf-1", name: "Shelf 1", racks: [
+              { id: "rack-1", name: "Rack 1", boxes: [box("b-d1", "Box D1", 9, 9)] },
+              { id: "rack-2", name: "Rack 2", boxes: [] }
+            ] },
+            { id: "shelf-2", name: "Shelf 2", boxes: [box("b-d2", "Box D2", 9, 9)] }
+          ] }
+      ]
+    },
+    vials: [vial("v-d1", "HEK293T", "b-d1", "A1")]
+  });
+}
+
+check("eachBox descends through nested subdivisions, not just one level", () => {
+  const s = nestedFixture();
+  const seen = [];
+  E.eachBox(s, (b) => seen.push(b.id));
+  if (json(seen.sort()) !== json(["b-d1", "b-d2"])) return `saw ${json(seen)}`;
+  return null;
+});
+
+check("findBox's chain lists every subdivision from the unit's root to the box's own rack", () => {
+  const s = nestedFixture();
+  const f = E.findBox(s, "b-d1");
+  if (!f) return "b-d1 was not found";
+  if (json(f.chain.map((r) => r.id)) !== json(["shelf-1", "rack-1"])) return `chain was ${json(f.chain.map((r) => r.id))}`;
+  if (f.rack.id !== "rack-1") return `rack should still be the immediate (leaf) one, got ${f.rack.id}`;
+  return null;
+});
+
+check("locationPath prints every level of a deep chain, not just the leaf rack", () => {
+  const s = nestedFixture();
+  const p = E.locationPath(s, { boxId: "b-d1", position: "A1" });
+  if (p !== "Deep Freezer → Shelf 1 → Rack 1 → Box D1 → A1") return `got ${json(p)}`;
+  return null;
+});
+
+check("a 2-level unit (today's real shape) is completely unaffected by chain support", () => {
+  const s = fixture();
+  const p = E.locationPath(s, { boxId: "b-a", position: "A1" });
+  if (p !== "-80 Freezer → Rack 1 → Box A → A1") return `got ${json(p)}`;
+  return null;
+});
+
+check("leafRacks lists only racks with no child subdivisions, each with its full chain", () => {
+  const s = nestedFixture();
+  const leaves = E.leafRacks(s).map((l) => l.rack.id).sort();
+  if (json(leaves) !== json(["rack-1", "rack-2", "shelf-2"])) return `got ${json(leaves)}`;
+  const rack2 = E.leafRacks(s).filter((l) => l.rack.id === "rack-2")[0];
+  if (json(rack2.chain.map((r) => r.id)) !== json(["shelf-1", "rack-2"])) return `rack-2 chain was ${json(rack2.chain.map((r) => r.id))}`;
+  return null;
+});
+
+check("addSubdivision nests a new rack under an empty (boxless) leaf, and mints a fresh id", () => {
+  const s = nestedFixture();
+  const r1 = E.addSubdivision(s, null, "rack-2", "Rack 2a");
+  if (!r1.ok) return `refused: ${r1.reason}`;
+  if (!E.findRackNode(r1.state, r1.rack.id)) return "the new rack isn't findable in the returned state";
+  if (E.findRackNode(r1.state, r1.rack.id).parent.id !== "rack-2") return "the new rack's parent is wrong";
+
+  const r2 = E.addSubdivision(s, "u-deep", null, "Shelf 3");
+  if (!r2.ok) return `refused a top-level add: ${r2.reason}`;
+  if (E.findRackNode(r2.state, r2.rack.id).parent !== null) return "a top-level subdivision should have no parent";
+  return null;
+});
+
+check("addSubdivision refuses to nest under a rack that already holds boxes directly", () => {
+  const s = nestedFixture();
+  const r = E.addSubdivision(s, null, "rack-1", "Rack 1a");
+  if (r.ok) return "should have refused -- rack-1 already has Box D1 in it";
+  return null;
+});
+
+check("renameSubdivision renames a subdivision by id", () => {
+  const s = nestedFixture();
+  const r = E.renameSubdivision(s, "shelf-2", "Top Shelf");
+  if (!r.ok) return `refused: ${r.reason}`;
+  if (E.findRackNode(r.state, "shelf-2").rack.name !== "Top Shelf") return "name didn't change";
+  return null;
+});
+
+check("removeSubdivision refuses when boxes exist anywhere underneath, even nested deep", () => {
+  const s = nestedFixture();
+  const r = E.removeSubdivision(s, "shelf-1");
+  if (r.ok) return "should have refused -- shelf-1 contains Box D1 two levels down";
+  return null;
+});
+
+check("removeSubdivision removes an empty subdivision, including an empty nested one", () => {
+  const s = nestedFixture();
+  const r = E.removeSubdivision(s, "rack-2");
+  if (!r.ok) return `refused: ${r.reason}`;
+  if (E.findRackNode(r.state, "rack-2")) return "rack-2 is still there";
+  if (!E.findRackNode(r.state, "shelf-1")) return "shelf-1 itself should still be there -- only rack-2 was removed";
+  return null;
+});
+
+check("a handoff-style box move recurses into nested subdivisions, not just the top level", () => {
+  // Mirrors the admin handoff's own prune step (index.html) on a deeper tree, since
+  // that code walks the same structure by hand rather than through an engine call.
+  // Emptied-out structure is pruned all the way up, same as the existing flat
+  // (2-level) handoff code already does for a rack left with zero boxes.
+  const s = nestedFixture();
+  const movedBoxIds = { "b-d1": true };
+  function pruneBoxes(racks) {
+    (racks || []).forEach((r) => {
+      r.boxes = (r.boxes || []).filter((b) => !movedBoxIds[b.id]);
+      if (r.racks && r.racks.length) pruneBoxes(r.racks);
+    });
+  }
+  function pruneEmpty(racks) {
+    return (racks || []).filter((r) => {
+      if (r.racks && r.racks.length) r.racks = pruneEmpty(r.racks);
+      return (r.boxes && r.boxes.length) || (r.racks && r.racks.length);
+    });
+  }
+  pruneBoxes(s.storage.units[0].racks);
+  s.storage.units[0].racks = pruneEmpty(s.storage.units[0].racks);
+  const remaining = [];
+  E.eachBox(s, (b) => remaining.push(b.id));
+  if (json(remaining) !== json(["b-d2"])) return `remaining boxes: ${json(remaining)}`;
+  if (E.findRackNode(s, "rack-1")) return "rack-1 (now boxless) should have been pruned away";
+  if (E.findRackNode(s, "shelf-1")) return "shelf-1 (now childless too -- rack-2 was already empty) should have been pruned away";
+  if (!E.findRackNode(s, "shelf-2")) return "shelf-2 still has Box D2 -- it must survive";
+  return null;
+});
+
 // ---- item types: applyPlacement()'s kind/customFacets ----
 //
 // Non-Cell facets are typed in by hand (a dynamic attribute/value table on the Add

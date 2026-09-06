@@ -106,6 +106,30 @@
           "racks": []
         }
       ]
+    },
+    {
+      "id": "u-freezer-3",
+      "name": "Freezer 3",
+      "type": "",
+      "note": "",
+      "childLabel": "Rack",
+      "racks": []
+    },
+    {
+      "id": "u-freezer-4",
+      "name": "Freezer 4",
+      "type": "",
+      "note": "",
+      "childLabel": "Rack",
+      "racks": []
+    },
+    {
+      "id": "u-freezer-5",
+      "name": "Freezer 5",
+      "type": "",
+      "note": "",
+      "childLabel": "Rack",
+      "racks": []
     }
   ]
 }

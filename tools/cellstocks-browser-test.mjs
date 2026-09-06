@@ -1042,45 +1042,6 @@ try {
       lastMemberCommit && !lastMemberCommit.storage,
       JSON.stringify(lastMemberCommit && Object.keys(lastMemberCommit)));
 
-    // ---- deleting one named thing -------------------------------------------------
-    //
-    // The count fields could only ever trim from the END of a list, so there was no way
-    // to delete the middle shelf or one particular box. Delete lives in the row's own
-    // edit dialog, not on the row: the row is what you tap to open a folder.
-    await editRow("Rack 3");                       // empty, added by the grow step above
-    await page.waitForSelector("#dlgFoot button.danger");
-    page.once("dialog", (d) => d.accept());
-    await page.click("#dlgFoot button.danger");
-    await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Rack 3"]'));
-    check("an empty rack can be deleted by name, leaving its siblings alone",
-      lastStorageCommit &&
-      lastStorageCommit.units[0].racks[0].racks.map((r) => r.name).join(",") === "Rack 1,Rack 2",
-      JSON.stringify(lastStorageCommit && lastStorageCommit.units[0].racks[0].racks.map((r) => r.name)));
-
-    // Box D1 holds umut's vial, and that vial is in umut's file, not admin's -- so the
-    // refusal has to have counted the whole lab to see it at all. (The box dialog has a
-    // standing note of its own, so the refusal is read off the whole dialog body.)
-    const dialogText = () => page.evaluate(() => document.getElementById("dlgBody").textContent);
-    await editRow("Box D1");
-    await page.waitForSelector("#dlgFoot button.danger");
-    await page.click("#dlgFoot button.danger");
-    await page.waitForFunction(() => /still holds/.test(document.getElementById("dlgBody").textContent));
-    const boxRefusal = await dialogText();
-    check("deleting a box that still holds a vial is refused, counting the whole lab",
-      /1 vial/.test(boxRefusal) && /Box D1/.test(boxRefusal), boxRefusal);
-    await page.evaluate(() => document.getElementById("dlg").close());
-
-    // Its parent cannot go either, while that box is still inside it. Box D1 was dragged
-    // into Tower 1 a few steps up, so that is the rack holding it now.
-    await editRow("Tower 1");
-    await page.waitForSelector("#dlgFoot button.danger");
-    await page.click("#dlgFoot button.danger");
-    await page.waitForFunction(() => /boxes in it/.test(document.getElementById("dlgBody").textContent));
-    const rackRefusal = await dialogText();
-    check("a rack that still has boxes under it cannot be deleted",
-      /Tower 1/.test(rackRefusal) && /boxes in it/.test(rackRefusal), rackRefusal);
-    await page.evaluate(() => document.getElementById("dlg").close());
-
     // ---- dragging a whole shelf ---------------------------------------------------
     //
     // Boxes have always been draggable; a shelf or a tower had to be rebuilt by hand at
@@ -1111,6 +1072,64 @@ try {
       lastMemberCommit && lastMemberCommit.vials[0].location.unitId === "u-ln2" &&
       lastMemberCommit.vials[0].location.rackId === "tower-1",
       JSON.stringify(lastMemberCommit && lastMemberCommit.vials));
+    // ---- deleting one named thing -------------------------------------------------
+    //
+    // The count fields could only ever trim from the END of a list, so there was no way
+    // to delete the middle shelf or one particular box. Delete lives in the row's own
+    // edit dialog, not on the row: the row is what you tap to open a folder.
+    await editRow("Rack 3");                       // empty, added by the grow step above
+    await page.waitForSelector("#dlgFoot button.danger");
+    page.once("dialog", (d) => d.accept());
+    await page.click("#dlgFoot button.danger");
+    await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Rack 3"]'));
+    // Shelf One has been dragged into the LN2 tank by now, so find it in the tree rather
+    // than assuming which freezer it hangs under.
+    const shelfOne = (st) => {
+      let hit = null;
+      (function walk(racks){ (racks || []).forEach((r) => { if (r.id === "shelf-1") hit = r; walk(r.racks); }); })
+        ((st.units || []).reduce((acc, u) => acc.concat(u.racks || []), []));
+      return hit;
+    };
+    check("an empty rack can be deleted by name, leaving its siblings alone",
+      lastStorageCommit && shelfOne(lastStorageCommit) &&
+      shelfOne(lastStorageCommit).racks.map((r) => r.name).join(",") === "Rack 1,Rack 2",
+      JSON.stringify(lastStorageCommit && shelfOne(lastStorageCommit)));
+
+    // Box D1 still holds umut's vial, and that vial is in umut's file, not admin's. Admin
+    // can delete it anyway -- no Handoff, no emptying it by hand first -- but the vial is
+    // taken out and logged rather than erased, and the confirm says so before anything runs.
+    let confirmText = "";
+    page.once("dialog", (d) => { confirmText = d.message(); d.accept(); });
+    await editRow("Box D1");
+    await page.waitForSelector("#dlgFoot button.danger");
+    await page.click("#dlgFoot button.danger");
+    await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Box D1"]'));
+    check("the confirm counts the vials and whose they are before anything is deleted",
+      /1 vial/.test(confirmText) && /umut/.test(confirmText) && /logged/.test(confirmText), confirmText);
+    check("a box that still holds a vial can be deleted by admin, with no Handoff",
+      lastStorageCommit && !JSON.stringify(lastStorageCommit).includes("b-d1"),
+      JSON.stringify(lastStorageCommit && lastStorageCommit.units));
+    // The oldest rule in this app: nothing deletes a vial. It leaves the active
+    // inventory as a withdrawal, with a snapshot of where it was.
+    const gone = lastMemberCommit && (lastMemberCommit.vials || []).filter((v) => v.id === "v-d1")[0];
+    check("its vial is withdrawn in its owner's own file, not erased",
+      !!gone && gone.status === "withdrawn" && !gone.location, JSON.stringify(gone));
+    const logged = lastMemberCommit && (lastMemberCommit.withdrawals || [])
+      .filter((w) => w.vialId === "v-d1")[0];
+    check("and the Log keeps where it was and why it went",
+      !!logged && logged.from && logged.from.boxId === "b-d1" && /removed from the freezer/.test(logged.notes || ""),
+      JSON.stringify(logged));
+
+    // Its parent goes the same way -- empty now, so nothing to take out.
+    page.once("dialog", (d) => d.accept());
+    await editRow("Tower 1");
+    await page.waitForSelector("#dlgFoot button.danger");
+    await page.click("#dlgFoot button.danger");
+    await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Tower 1"]'));
+    check("a rack goes too, taking its (now empty) boxes with it",
+      lastStorageCommit && !(lastStorageCommit.units[1].racks || []).some((r) => r.id === "tower-1"),
+      JSON.stringify(lastStorageCommit && lastStorageCommit.units[1]));
+
   } catch (err) {
     check("Admin's Structure screen is one folder tree for the whole lab", false, String(err));
   } finally {

@@ -340,6 +340,37 @@ const LAB_TREE_WITH_UMUT = JSON.stringify({
   ] }]
 });
 
+// The app is served from this same Worker now, so the address carries no GitHub username
+// and the page and the API share one origin (which is why CORS stops applying to it).
+// Anything that is not one of the API's own routes is the app.
+await check("a path that is not an API route is handed to the static assets", async () => {
+  const { env, token } = await adminEnvWithToken();
+  const asked = [];
+  env.ASSETS = { fetch: async (req) => { asked.push(new URL(req.url).pathname); return new Response("<!doctype html>", { status: 200 }); } };
+  const res = await handleRequest(req("GET", "/engine.js", undefined, token), env);
+  if (res.status !== 200) return `expected the asset, got ${res.status}`;
+  if (json(asked) !== json(["/engine.js"])) return `assets were asked for ${json(asked)}`;
+  return null;
+});
+
+await check("an API route is still the API, not an asset", async () => {
+  const { env, token } = await adminEnvWithToken();
+  env.ASSETS = { fetch: async () => new Response("nope", { status: 200 }) };
+  const res = await handleRequest(req("GET", "/session", undefined, token), env);
+  const body = await res.json();
+  if (res.status !== 200 || !body.user) return `/session did not reach the API: ${res.status} ${json(body)}`;
+  return null;
+});
+
+await check("with no assets bound at all, an unknown path is still a plain 404", async () => {
+  // Node's own selftest runs the Worker with no ASSETS binding, and so does any deploy
+  // made by a wrangler too old to understand one -- neither may start 500ing.
+  const { env, token } = await adminEnvWithToken();
+  const res = await handleRequest(req("GET", "/nothing-here", undefined, token), env);
+  if (res.status !== 404) return `expected 404, got ${res.status}`;
+  return null;
+});
+
 await check("deleting a user who still owns a box is refused, and names the box", async () => {
   const { env, token } = await adminEnvWithToken();
   await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "lab-password" }, token), env);

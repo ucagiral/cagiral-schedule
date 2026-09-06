@@ -100,6 +100,25 @@ to `member`:
 the Add tab and the admin tools for them; `canWrite()` enforces the write half here rather
 than trusting it to.
 
+## Serving the app
+
+The Worker also serves the app itself. `wrangler.toml` binds `../cellstocks` as `[assets]`,
+so a request that matches one of the API's routes is handled by `worker.js` and everything
+else falls through to those files (see the end of `handleRequest`). Two things follow:
+
+- the address carries no GitHub username, which is why it is done this way;
+- the page and the API are one origin, so the app's own calls are same-origin and CORS
+  never applies to them. `ALLOWED_ORIGIN` is still set, for the GitHub Pages copy, which
+  keeps working for anyone holding the old link.
+
+A deploy that fails — an older `wrangler` that does not understand `[assets]`, say — leaves
+the previously deployed Worker running, so this cannot take the backend down. With no
+binding at all (the Node selftest), an unknown path is a plain 404, exactly as before.
+
+**The repository is still public, so the inventory still is.** This changed the address, not
+who can read `cellstocks/data/*.json`. Closing that means a private repo and every read
+going through this Worker.
+
 ## Deleting a user
 
 `DELETE /admin/users/:name` deletes the account, its session, and its

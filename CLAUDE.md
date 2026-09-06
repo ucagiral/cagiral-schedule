@@ -154,6 +154,13 @@ worker handles by sweeping only its own prefix.
 - **`cellstocks/data/<name>.json` is one person's vials, one file per account. `cellstocks/data/<name>.xlsx`
   is generated from it on every save** and committed in the same commit, never the reverse. A hand
   edit to the workbook is thrown away by the next save; do not add a path that reads it back.
+- **An empty structure is an answer, not a missing one.** `labStorageLoaded` says whether
+  the tree has been read this session; never infer it from `labStorage.units` being empty.
+  Deleting the last freezer made the app treat the tree as unloaded and re-read it from
+  raw.githubusercontent, which serves the previous version for a while after a commit — so
+  the deleted freezers came back on screen and the next delete wrote one of them back.
+  There are five rounds of that in `lab-storage.json`'s history. A commit is the freshest
+  copy there is: after one, never re-read.
 - **There is one freezer, so there is one structure file.** `cellstocks/lab-storage.json` holds the
   whole lab's tree — `labName`, `labIcon`, freezers/tanks → racks → boxes — and every box carries an
   `owner`. Storing a copy of it inside each member's file was wrong three rounds running: it made

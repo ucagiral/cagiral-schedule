@@ -276,10 +276,15 @@ worker handles by sweeping only its own prefix.
   change: git keeps every previous morning, and a dated file would mean a new link daily.
   `cellstocks/pdf.js` is the PDF writer, dependency-free like `xlsx.js` beside it and just as
   minimal (one built-in font, Latin-1, so `Şişli` prints as `Sisli` — folded, never dropped).
-  A GitHub Action builds and commits at 04:40 UTC and only when something changed; a
-  scheduled Claude session mails them at 08:00 Istanbul to `cellstocks/exports/recipients.json`,
-  which admin edits under Admin → History & export and is the only path there the worker
-  lets the app write.
+  One GitHub Action at 05:00 UTC (08:00 Istanbul) builds, commits only when something
+  changed, and mails. `tools/cellstocks-mail.mjs` speaks SMTP itself rather than using a
+  ready-made action, because whatever sends this is handed the mailbox's app password on
+  every run and **this repository is public**; it is tested against a fake server, and its
+  error transcript redacts the credentials because it ends up in a public build log.
+  Recipients live in `cellstocks/exports/recipients.json`, which admin edits under
+  Admin → History & export and is the only path under `exports/` the worker lets the app
+  write. No secret, or nobody on the list, skips the mail — it never fails the build and
+  never claims to have sent something it did not.
 - Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get

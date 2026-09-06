@@ -26,6 +26,8 @@ on:
       - tools/cellstocks-worker-selftest.mjs
       - tools/cellstocks-export.mjs
       - tools/cellstocks-export-selftest.mjs
+      - tools/cellstocks-mail.mjs
+      - tools/cellstocks-mail-selftest.mjs
       - .github/workflows/cellstocks.yml
   pull_request:
     paths:
@@ -35,6 +37,8 @@ on:
       - tools/cellstocks-worker-selftest.mjs
       - tools/cellstocks-export.mjs
       - tools/cellstocks-export-selftest.mjs
+      - tools/cellstocks-mail.mjs
+      - tools/cellstocks-mail-selftest.mjs
       - .github/workflows/cellstocks.yml
   workflow_dispatch:
 
@@ -73,6 +77,13 @@ jobs:
       # worth mailing anybody.
       - name: Layout export self-test
         run: node tools/cellstocks-export-selftest.mjs
+
+      # The mailer, against a fake SMTP server written in the test: the MIME message is
+      # read back part by part, and the conversation is driven over a real socket. A body
+      # no client can open and an exchange that stalls on a multi-line reply both look
+      # like "it sent" from the outside.
+      - name: Mailer self-test
+        run: node tools/cellstocks-mail-selftest.mjs
 
       # The inventory is the app's source of truth and the workbook is generated
       # from it. If the two ever disagree, the sheet somebody downloads is wrong,

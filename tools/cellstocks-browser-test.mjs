@@ -872,10 +872,14 @@ try {
     let lastStorageCommit = null;
     let lastMemberCommit = null;
     let lastCommitPaths = [];
+    let staleTree = null;
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
       if (url.includes("cellstocks/lab-storage.json")) {
-        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+        // `staleTree`, once set, stands in for raw.githubusercontent still serving the
+        // previous version of a file for a while after it has been committed.
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify(staleTree || labStorage) });
       }
       if (url.includes("cellstocks/data/umut.json")) {
         return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) });
@@ -1129,6 +1133,30 @@ try {
     check("a rack goes too, taking its (now empty) boxes with it",
       lastStorageCommit && !(lastStorageCommit.units[1].racks || []).some((r) => r.id === "tower-1"),
       JSON.stringify(lastStorageCommit && lastStorageCommit.units[1]));
+
+    // ---- an empty tree is an answer, not a missing one -----------------------------
+    //
+    // Deleting the last freezer used to bring the others back. The app treated "no units"
+    // as "not loaded yet" and re-read the file -- and raw.githubusercontent serves the
+    // previous version for a while after a commit, so the deleted freezers reappeared and
+    // the next delete wrote one of them back. Five rounds of that are in the real
+    // lab-storage.json's history. Here the raw route is frozen at the original two-freezer
+    // tree from this point on, which is exactly that stale copy.
+    staleTree = JSON.parse(JSON.stringify(labStorage));
+    for (const unit of ["Deep -80", "LN2 Tank"]) {
+      page.once("dialog", (d) => d.accept());
+      await editRow(unit);
+      await page.waitForSelector("#dlgFoot button.danger");
+      await page.click("#dlgFoot button.danger");
+      await page.waitForFunction((n) => !document.querySelector(`.treeBody[data-title="${n}"]`), unit);
+    }
+    await page.waitForTimeout(600);
+    const leftOnScreen = await titles();
+    check("deleting the last freezer leaves the tree empty instead of reviving the others",
+      leftOnScreen.length === 1 && leftOnScreen[0] === "CAA LAB", JSON.stringify(leftOnScreen));
+    check("and the emptied tree is what was committed",
+      lastStorageCommit && (lastStorageCommit.units || []).length === 0,
+      JSON.stringify(lastStorageCommit && lastStorageCommit.units));
 
   } catch (err) {
     check("Admin's Structure screen is one folder tree for the whole lab", false, String(err));

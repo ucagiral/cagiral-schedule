@@ -794,6 +794,7 @@
       // hydrated onto state.storage so every screen keeps reading it exactly where it
       // always did. slim() takes it back off again before this account's file is saved.
       labStorage = await fetchLabStorage();
+      labStorageLoaded = true;
       state = E.hydrateStorage(own, labStorage, effectiveIdentity());
       cacheSave();
       setStatus(canWrite() ? "Ready" : "Read-only", "");
@@ -873,6 +874,15 @@
   // worker. Held here so a save can put it back on the state after a reload and so
   // the Structure screen has something to edit.
   var labStorage = E.blankStorage();
+  // Whether the lab's structure has been read this session at all. It has to be tracked
+  // rather than inferred from labStorage being empty, because **empty is a real answer**:
+  // an admin who has just deleted the last freezer has an empty tree, and treating that
+  // as "not loaded yet" sends the app back to raw.githubusercontent -- which serves the
+  // previous version for a while after a commit. That is what made deleted freezers keep
+  // coming back: delete the last one, the tree reads as empty, the app "reloads" it from
+  // a stale copy, both freezers are on screen again, and the next delete writes one of
+  // them back. Five rounds of it are in this file's git history.
+  var labStorageLoaded = false;
   var ownFileExists = false;
 
   async function fetchLabStorage(){
@@ -931,6 +941,7 @@
       .concat(await staleWorkbookFiles(next));
     await workerCommit(files, message || "Update the lab's storage structure");
     labStorage = E.mergeStorageDefaults(next);
+    labStorageLoaded = true;   // what was just written is the freshest copy there is
     // Every member's cached copy is now stale, including this session's own state.
     state = E.hydrateStorage(state, labStorage, effectiveIdentity());
     labCache.members = null; labCache.data = {};
@@ -1180,7 +1191,7 @@
         // A member's file holds only their vials now, so each one is hydrated with the
         // lab's shared structure before anything renders it -- otherwise every merged
         // view would show vials with no box, no path and no occupancy.
-        if (!labStorage || !(labStorage.units || []).length) labStorage = await fetchLabStorage();
+        if (!labStorageLoaded){ labStorage = await fetchLabStorage(); labStorageLoaded = true; }
         await Promise.all(names.map(function(name){
           return fetchWithTimeout(rawURL(DATA_PREFIX + name + ".json"), 10000)
             .then(function(r){ return r.ok ? r.text() : null; })
@@ -3625,7 +3636,7 @@
   async function adminFetchState(user){
     var resp = await fetch(rawURL(DATA_PREFIX + user.toLowerCase() + ".json"), { cache:"no-store" });
     var text = resp.ok ? await resp.text() : "{}";
-    if (!(labStorage.units || []).length) labStorage = await fetchLabStorage();
+    if (!labStorageLoaded){ labStorage = await fetchLabStorage(); labStorageLoaded = true; }
     return E.hydrateStorage(E.mergeDefaults(JSON.parse(text)), labStorage, user);
   }
 

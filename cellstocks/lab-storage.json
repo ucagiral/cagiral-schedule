@@ -5,7 +5,7 @@
     {
       "id": "u-f80",
       "name": "-80°C Freezer 1",
-      "type": "freezer",
+      "type": "-80°C",
       "note": "",
       "childLabel": "Rack",
       "racks": [

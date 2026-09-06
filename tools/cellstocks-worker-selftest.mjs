@@ -343,6 +343,25 @@ const LAB_TREE_WITH_UMUT = JSON.stringify({
 // The app is served from this same Worker now, so the address carries no GitHub username
 // and the page and the API share one origin (which is why CORS stops applying to it).
 // Anything that is not one of the API's own routes is the app.
+// The login failure that came of binding the assets: on the GitHub Pages copy a login is
+// cross-origin, so the browser sends OPTIONS /login first, and Cloudflare's asset router
+// answered that before worker.js ever ran -- without the Access-Control-Allow-* headers,
+// so the browser refused the real request and the app said "Failed to fetch". The Worker
+// runs first now (run_worker_first in wrangler.toml); this is the check that it answers.
+await check("a CORS preflight is answered by the Worker, with the allow headers, never by assets", async () => {
+  const { env } = await adminEnvWithToken();
+  let assetsAsked = false;
+  env.ASSETS = { fetch: async () => { assetsAsked = true; return new Response("", { status: 405 }); } };
+  const res = await handleRequest(new Request("https://worker.example/login", { method: "OPTIONS" }), env);
+  if (res.status !== 204) return `expected 204, got ${res.status}`;
+  if (assetsAsked) return "the preflight was handed to the assets instead of answered";
+  const allow = res.headers.get("Access-Control-Allow-Origin");
+  if (!allow) return "the preflight carried no Access-Control-Allow-Origin";
+  if (!/POST/.test(res.headers.get("Access-Control-Allow-Methods") || "")) return "POST is not allowed by the preflight";
+  if (!/Authorization/i.test(res.headers.get("Access-Control-Allow-Headers") || "")) return "Authorization is not an allowed header";
+  return null;
+});
+
 await check("a path that is not an API route is handed to the static assets", async () => {
   const { env, token } = await adminEnvWithToken();
   const asked = [];

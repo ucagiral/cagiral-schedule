@@ -833,7 +833,7 @@ async function handleRequest(request, env) {
     // are then one origin -- every call it makes is same-origin, so CORS stops applying
     // to the app at all. Without the binding (the Node selftest, an older wrangler) this
     // is a plain 404, exactly as it was.
-    else if (env.ASSETS && request.method === "GET") return env.ASSETS.fetch(request);
+    else if (env.ASSETS && (request.method === "GET" || request.method === "HEAD")) return env.ASSETS.fetch(request);
     else response = json({ error: "not found" }, 404);
   } catch (err) {
     response = json({ error: err && err.message ? err.message : "internal error" }, 500);

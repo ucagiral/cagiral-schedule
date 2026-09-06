@@ -70,6 +70,30 @@
           ],
           "racks": [],
           "icon": "❄️"
+        },
+        {
+          "id": "r-rack-2",
+          "name": "Rack 2",
+          "boxes": [],
+          "racks": []
+        },
+        {
+          "id": "r-rack-3",
+          "name": "Rack 3",
+          "boxes": [],
+          "racks": []
+        },
+        {
+          "id": "r-rack-4",
+          "name": "Rack 4",
+          "boxes": [],
+          "racks": []
+        },
+        {
+          "id": "r-rack-5",
+          "name": "Rack 5",
+          "boxes": [],
+          "racks": []
         }
       ],
       "icon": ""

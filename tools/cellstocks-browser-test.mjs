@@ -74,7 +74,13 @@ try {
   const emptyState = { lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
   // One freezer for the whole lab, in its own file -- a member's own file holds only
   // their vials, and every box in the shared tree says whose it is.
-  const labmateBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "labmate" };
+  // Deliberately unowned. A box with no owner is a real state -- admin adds one in the
+  // Structure screen before saying whose it is -- and it is the only state in which an
+  // account holding vials can be deleted outright: the worker refuses the delete while
+  // the person still owns a box, and Handoff is the way through. That refusal has its
+  // own test further down; this fixture is here to exercise the cache invalidation
+  // *after* a delete, which is a different thing.
+  const labmateBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
   const labStorage = {
     labName: "CAA Lab Stocks", labIcon: "",
     units: [{ id: "u-1", name: "Labmate's Freezer", type: "freezer", childLabel: "Rack",
@@ -144,26 +150,26 @@ try {
   check("the nav (and the rest of the app shell) is hidden behind the gate", navHiddenBeforeLogin);
 
   // ---- three-way appearance control (lives in the gate before login, in Settings after) ----
-  const segButtons = await page.$$eval("#gateBody .seg button", (btns) => btns.map((b) => b.textContent.trim()));
+  const segButtons = await page.$$eval("#gateAppearance .seg button", (btns) => btns.map((b) => b.textContent.trim()));
   check("the appearance control offers System, Light and Dark", JSON.stringify(segButtons) === JSON.stringify(["System", "Light", "Dark"]),
     `got ${JSON.stringify(segButtons)}`);
 
-  const systemIsDefault = await page.$eval("#gateBody .seg button", (b) => b.classList.contains("on"));
+  const systemIsDefault = await page.$eval("#gateAppearance .seg button", (b) => b.classList.contains("on"));
   check("System is selected by default (no theme forced yet)", systemIsDefault);
 
-  await page.click("#gateBody .seg button:nth-child(2)"); // Light
+  await page.click("#gateAppearance .seg button:nth-child(2)"); // Light
   let attr = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
   let stored = await page.evaluate(() => localStorage.getItem("cst_theme"));
   check("clicking Light sets data-theme=light and persists it", attr === "light" && stored === "light", `attr=${attr} stored=${stored}`);
 
-  await page.click("#gateBody .seg button:nth-child(3)"); // Dark
+  await page.click("#gateAppearance .seg button:nth-child(3)"); // Dark
   attr = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
   stored = await page.evaluate(() => localStorage.getItem("cst_theme"));
   check("clicking Dark sets data-theme=dark and persists it", attr === "dark" && stored === "dark", `attr=${attr} stored=${stored}`);
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   check("the dark theme actually changes the rendered background", bg !== "rgb(246, 247, 249)", `background stayed ${bg}`);
 
-  await page.click("#gateBody .seg button:nth-child(1)"); // System
+  await page.click("#gateAppearance .seg button:nth-child(1)"); // System
   attr = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));
   stored = await page.evaluate(() => localStorage.getItem("cst_theme"));
   check("clicking System clears data-theme and the stored override", attr === null && stored === null, `attr=${attr} stored=${stored}`);
@@ -865,6 +871,7 @@ try {
     };
     let lastStorageCommit = null;
     let lastMemberCommit = null;
+    let lastCommitPaths = [];
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
       if (url.includes("cellstocks/lab-storage.json")) {
@@ -890,6 +897,7 @@ try {
       }
       if (path === "/commit" && req.method() === "POST") {
         const body = JSON.parse(req.postData());
+        lastCommitPaths = body.files.map((f) => f.path);
         const file = body.files.find((f) => f.path.endsWith(".json"));
         // The tree and a member's vials are two separate files now, and the screen
         // writes whichever one the change actually belongs to.
@@ -966,6 +974,26 @@ try {
       lastStorageCommit && lastStorageCommit.units[0].racks[0].name === "Shelf One" &&
       lastStorageCommit.units[0].racks[0].racks.length === 3,
       JSON.stringify(lastStorageCommit && lastStorageCommit.units[0].racks[0]));
+    // Renaming a level that no workbook mentions writes the tree and nothing else --
+    // the sheets name the unit, the leaf rack and the box, never the shelf between them.
+    check("a rename no workbook mentions does not drag anybody's .xlsx into the commit",
+      lastCommitPaths.length === 1 && lastCommitPaths[0] === "cellstocks/lab-storage.json",
+      JSON.stringify(lastCommitPaths));
+
+    // A workbook spells its locations out by name -- unit, rack, box -- and carries a
+    // whole `storage` sheet besides, so renaming a freezer makes every member's .xlsx
+    // wrong while not one vial has moved. It has to be regenerated in the SAME commit,
+    // or the repo is left inconsistent: exactly what CI caught the first time Umut
+    // renamed a freezer from his phone.
+    await editRow("Deep Freezer");
+    await page.waitForSelector("#dlgBody input");
+    await page.fill("#dlgBody input", "Deep -80");
+    await page.click("#dlgFoot button.primary");
+    await page.waitForFunction(() => !!document.querySelector('.treeBody[data-title="Deep -80"]'));
+    check("renaming a freezer regenerates the affected member's workbook in the same commit",
+      lastCommitPaths.includes("cellstocks/lab-storage.json") &&
+      lastCommitPaths.includes("cellstocks/data/umut.xlsx"),
+      JSON.stringify(lastCommitPaths));
 
     // Shrinking to nothing would strand Box D1's vial -- and that vial is in umut's
     // file, not admin's, so the refusal has to have read the whole lab to see it.
@@ -1013,6 +1041,76 @@ try {
     check("moving a box never writes the structure into a member's file",
       lastMemberCommit && !lastMemberCommit.storage,
       JSON.stringify(lastMemberCommit && Object.keys(lastMemberCommit)));
+
+    // ---- deleting one named thing -------------------------------------------------
+    //
+    // The count fields could only ever trim from the END of a list, so there was no way
+    // to delete the middle shelf or one particular box. Delete lives in the row's own
+    // edit dialog, not on the row: the row is what you tap to open a folder.
+    await editRow("Rack 3");                       // empty, added by the grow step above
+    await page.waitForSelector("#dlgFoot button.danger");
+    page.once("dialog", (d) => d.accept());
+    await page.click("#dlgFoot button.danger");
+    await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Rack 3"]'));
+    check("an empty rack can be deleted by name, leaving its siblings alone",
+      lastStorageCommit &&
+      lastStorageCommit.units[0].racks[0].racks.map((r) => r.name).join(",") === "Rack 1,Rack 2",
+      JSON.stringify(lastStorageCommit && lastStorageCommit.units[0].racks[0].racks.map((r) => r.name)));
+
+    // Box D1 holds umut's vial, and that vial is in umut's file, not admin's -- so the
+    // refusal has to have counted the whole lab to see it at all. (The box dialog has a
+    // standing note of its own, so the refusal is read off the whole dialog body.)
+    const dialogText = () => page.evaluate(() => document.getElementById("dlgBody").textContent);
+    await editRow("Box D1");
+    await page.waitForSelector("#dlgFoot button.danger");
+    await page.click("#dlgFoot button.danger");
+    await page.waitForFunction(() => /still holds/.test(document.getElementById("dlgBody").textContent));
+    const boxRefusal = await dialogText();
+    check("deleting a box that still holds a vial is refused, counting the whole lab",
+      /1 vial/.test(boxRefusal) && /Box D1/.test(boxRefusal), boxRefusal);
+    await page.evaluate(() => document.getElementById("dlg").close());
+
+    // Its parent cannot go either, while that box is still inside it. Box D1 was dragged
+    // into Tower 1 a few steps up, so that is the rack holding it now.
+    await editRow("Tower 1");
+    await page.waitForSelector("#dlgFoot button.danger");
+    await page.click("#dlgFoot button.danger");
+    await page.waitForFunction(() => /boxes in it/.test(document.getElementById("dlgBody").textContent));
+    const rackRefusal = await dialogText();
+    check("a rack that still has boxes under it cannot be deleted",
+      /Tower 1/.test(rackRefusal) && /boxes in it/.test(rackRefusal), rackRefusal);
+    await page.evaluate(() => document.getElementById("dlg").close());
+
+    // ---- dragging a whole shelf ---------------------------------------------------
+    //
+    // Boxes have always been draggable; a shelf or a tower had to be rebuilt by hand at
+    // the destination. It carries everything underneath it, so the vials in those boxes
+    // get their unit refreshed in their owner's own file.
+    const rackDrag = await page.evaluate(() => {
+      const shelfRow = document.querySelector('.treeBody[data-title="Shelf One"]')?.closest(".treeRow");
+      const targetRow = document.querySelector('.treeBody[data-title="LN2 Tank"]')?.closest(".treeRow");
+      if (!shelfRow) return { ok: false, reason: "Shelf One row not found" };
+      if (!targetRow) return { ok: false, reason: "LN2 Tank drop target not found" };
+      if (!shelfRow.draggable) return { ok: false, reason: "a rack row is not draggable" };
+      if (!targetRow.ondrop) return { ok: false, reason: "a freezer row has no drop handler" };
+      const store = {};
+      const dataTransfer = { setData: (k, v) => { store[k] = v; }, getData: (k) => store[k] };
+      shelfRow.ondragstart({ dataTransfer });
+      targetRow.ondrop({ dataTransfer, preventDefault: () => {} });
+      return { ok: true, payload: store["text/plain"] };
+    });
+    check("a rack row is draggable and a freezer row accepts it", rackDrag.ok, JSON.stringify(rackDrag));
+    check("the drag payload says what kind of thing is moving",
+      rackDrag.payload === "rack:shelf-1", JSON.stringify(rackDrag.payload));
+    await page.waitForTimeout(500);
+    check("a whole shelf moves into another freezer, bringing its racks and boxes",
+      lastStorageCommit && lastStorageCommit.units[1].racks.some((r) => r.id === "shelf-1") &&
+      lastStorageCommit.units[0].racks.length === 0,
+      JSON.stringify(lastStorageCommit && lastStorageCommit.units.map((u) => ({ name: u.name, racks: (u.racks || []).map((r) => r.id) }))));
+    check("the vial under the moved shelf has its unit refreshed, its own rack untouched",
+      lastMemberCommit && lastMemberCommit.vials[0].location.unitId === "u-ln2" &&
+      lastMemberCommit.vials[0].location.rackId === "tower-1",
+      JSON.stringify(lastMemberCommit && lastMemberCommit.vials));
   } catch (err) {
     check("Admin's Structure screen is one folder tree for the whole lab", false, String(err));
   } finally {
@@ -1172,6 +1270,24 @@ try {
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=users]");
     await page.waitForFunction(() => /umut/.test(document.getElementById("admin-users").textContent));
+
+    // A member who still owns a box in the shared tree cannot simply be deleted -- that
+    // is how eight boxes ended up naming an account that no longer existed. The refusal
+    // is the worker's (409), but the screen says it without the round trip and sends
+    // people to Handoff, which is the thing that actually resolves it. No dialog handler
+    // here on purpose: if the guard ever regressed, the confirm would appear, headless
+    // Chromium would dismiss it, and this check would time out rather than quietly pass.
+    await page.evaluate(() => {
+      const row = Array.from(document.querySelectorAll("#admin-users .item"))
+        .find((r) => /umut/.test(r.textContent));
+      Array.from(row.querySelectorAll("button")).find((b) => b.textContent.trim() === "Delete").click();
+    });
+    await page.waitForFunction(() => /Handoff/.test(document.querySelector(".banner")?.textContent || ""),
+      { timeout: 10000 });
+    const deleteBanner = await page.evaluate(() => document.querySelector(".banner").textContent);
+    check("deleting a member who still owns a box is refused, naming the box and pointing at Handoff",
+      /Box 1/.test(deleteBanner) && /Handoff/.test(deleteBanner), deleteBanner);
+
     page.once("dialog", (d) => d.accept("ayse"));
     await page.evaluate(() => {
       const row = Array.from(document.querySelectorAll("#admin-users .item"))

@@ -100,6 +100,19 @@ to `member`:
 the Add tab and the admin tools for them; `canWrite()` enforces the write half here rather
 than trusting it to.
 
+## Deleting a user
+
+`DELETE /admin/users/:name` deletes the account, its session, and its
+`cellstocks/data/<name>.{json,xlsx}` in one commit — Umut's rule, from round 6: deleting
+somebody takes their stock with them.
+
+It is **refused with a 409 while that person still owns a box** in
+`cellstocks/lab-storage.json`, and the error names the boxes. Their vials would go with
+their file, but their boxes are in the lab's shared tree and nothing would clean them up —
+before that tree was shared, the boxes lived in the account's own file and went with it.
+`Admin → Handoff` is the way through: it gives every box a new owner (or discards it) and
+then deletes the account itself.
+
 ## Renaming a user
 
 `POST /admin/users/:name/rename` is a real identity change, not a display-name edit — Umut asked

@@ -256,6 +256,235 @@
     return null;
   }
 
+  // Every box anywhere underneath a given rack node (itself or any descendant),
+  // with the chain to each -- what a shrinking count needs in order to name every
+  // box that would be stranded, rather than a generic refusal.
+  function boxesUnderRack(state, rackId) {
+    var node = findRackNode(state, rackId);
+    if (!node) return [];
+    var out = [];
+    leafRacks(state).forEach(function (lr) {
+      if (lr.chain.indexOf(node.rack) === -1) return;
+      (lr.rack.boxes || []).forEach(function (box) { out.push({ box: box, rack: lr.rack, chain: lr.chain }); });
+    });
+    return out;
+  }
+
+  // The child-rack list a count field is editing: a unit's own top-level racks
+  // (parentRackId null) or a rack's own nested racks.
+  function childrenOf(state, unitId, parentRackId) {
+    if (!parentRackId) {
+      var unit = findUnit(state, unitId);
+      return (unit && unit.racks) || [];
+    }
+    var found = findRackNode(state, parentRackId);
+    return (found && found.rack.racks) || [];
+  }
+
+  // Grows or shrinks a parent's child-rack list to exactly `count`, auto-naming new
+  // ones "<childLabel> N" -- renameable afterward with renameSubdivision, the same
+  // way typing a number into a spreadsheet cell just starts a row someone edits
+  // later. A shrink that would strand a box anywhere underneath a removed rack is
+  // refused outright, naming every one of them and why -- never a partial or silent
+  // deletion.
+  function setSubdivisionCount(state, unitId, parentRackId, count, childLabel) {
+    var n = Math.max(0, Math.floor(Number(count) || 0));
+    var current = childrenOf(state, unitId, parentRackId);
+    var label = childLabel || "Level";
+
+    // A rack that already holds boxes directly can't also grow child subdivisions
+    // -- the same leaf-or-group rule addSubdivision() enforces one at a time.
+    if (parentRackId && n > current.length) {
+      var parentNode = findRackNode(state, parentRackId);
+      if (parentNode && (parentNode.rack.boxes || []).length) {
+        return { ok: false, reason: parentNode.rack.name +
+          " already holds boxes directly -- a subdivision can't be added under it." };
+      }
+    }
+
+    if (n < current.length) {
+      var removed = current.slice(n);
+      var affected = [];
+      removed.forEach(function (rack) {
+        boxesUnderRack(state, rack.id).forEach(function (b) { affected.push({ box: b.box, rack: rack }); });
+      });
+      if (affected.length) {
+        var msgs = affected.map(function (a) {
+          return a.box.name + " needs a new location because " + a.rack.name + " is being removed";
+        });
+        return { ok: false, reason: msgs.join("; ") + "." };
+      }
+    }
+
+    var next = clone(state);
+    var list;
+    if (parentRackId) {
+      var found = findRackNode(next, parentRackId);
+      if (!found) return { ok: false, reason: "No such subdivision." };
+      found.rack.racks = found.rack.racks || [];
+      list = found.rack.racks;
+    } else {
+      var unit = findUnit(next, unitId);
+      if (!unit) return { ok: false, reason: "No such unit." };
+      unit.racks = unit.racks || [];
+      list = unit.racks;
+    }
+    if (n < list.length) {
+      list.length = n;
+    } else {
+      for (var i = list.length; i < n; i++) {
+        var name = label + " " + (i + 1);
+        var id = "r-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        if (findRackNode(next, id)) id += "-" + Date.now().toString(36).slice(-4) + "-" + i;
+        list.push({ id: id, name: name, boxes: [], racks: [] });
+      }
+    }
+    return { ok: true, state: next };
+  }
+
+  // Same grow/shrink contract, one level up: a lab's freezer/tank count is just
+  // another flexible level of the same tree, not a special case.
+  function setUnitCount(state, count) {
+    var n = Math.max(0, Math.floor(Number(count) || 0));
+    var current = (state.storage && state.storage.units) || [];
+    if (n < current.length) {
+      var removed = current.slice(n);
+      var affected = [];
+      removed.forEach(function (unit) {
+        leafRacks(state, unit.id).forEach(function (lr) {
+          (lr.rack.boxes || []).forEach(function (box) { affected.push({ box: box, unit: unit }); });
+        });
+      });
+      if (affected.length) {
+        var msgs = affected.map(function (a) {
+          return a.box.name + " needs a new location because " + a.unit.name + " is being removed";
+        });
+        return { ok: false, reason: msgs.join("; ") + "." };
+      }
+    }
+    var next = clone(state);
+    next.storage = next.storage || { units: [] };
+    next.storage.units = next.storage.units || [];
+    if (n < next.storage.units.length) {
+      next.storage.units.length = n;
+    } else {
+      for (var i = next.storage.units.length; i < n; i++) {
+        var name = "Freezer " + (i + 1);
+        var id = "u-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        if (findUnit(next, id)) id += "-" + Date.now().toString(36).slice(-4) + "-" + i;
+        next.storage.units.push({ id: id, name: name, type: "", note: "", childLabel: "Rack", racks: [] });
+      }
+    }
+    return { ok: true, state: next };
+  }
+
+  // Rename plus the two unit-only fields (temperature/type, a free note) -- deeper
+  // levels keep using renameSubdivision, which is name-only on purpose.
+  function setUnitDetails(state, unitId, details) {
+    var d = details || {};
+    var next = clone(state);
+    var unit = findUnit(next, unitId);
+    if (!unit) return { ok: false, reason: "No such unit." };
+    if (d.name !== undefined) {
+      var trimmed = String(d.name).trim();
+      if (!trimmed) return { ok: false, reason: "A name is required." };
+      unit.name = trimmed;
+    }
+    if (d.type !== undefined) unit.type = String(d.type).trim();
+    if (d.note !== undefined) unit.note = String(d.note).trim();
+    return { ok: true, state: next };
+  }
+
+  // Moves a box to a SIBLING rack only -- one under the exact same parent (another
+  // rack's own child, or another top-level rack of the same unit) -- never across
+  // units or across a deeper branch. That is the deliberate boundary of the
+  // Structure screen's drag-and-drop: a real cross-branch move needs a picker UI
+  // this round doesn't have. Keeps the box's id and every vial's position label;
+  // only the parent it hangs off of changes, so unitId/rackId on every vial in it
+  // are updated too -- those are what locationPath/validate actually check.
+  function moveBoxToSibling(state, boxId, targetRackId) {
+    var found = findBox(state, boxId);
+    if (!found) return { ok: false, reason: "No such box." };
+    var target = findRackNode(state, targetRackId);
+    if (!target) return { ok: false, reason: "No such destination." };
+    if (target.rack.id === found.rack.id) return { ok: false, reason: "That box is already there." };
+    if ((target.rack.racks || []).length) {
+      return { ok: false, reason: target.rack.name + " already holds subdivisions -- it can't take a box directly." };
+    }
+    var sourceParentId = found.chain.length > 1 ? found.chain[found.chain.length - 2].id : null;
+    var targetParentId = target.parent ? target.parent.id : null;
+    if (found.unit.id !== target.unit.id || sourceParentId !== targetParentId) {
+      return { ok: false, reason: target.rack.name + " is not a sibling of " + found.rack.name +
+        " -- moving across freezers or shelves isn't supported here." };
+    }
+
+    var next = clone(state);
+    var f2 = findBox(next, boxId);
+    var t2 = findRackNode(next, targetRackId);
+    var srcList = f2.rack.boxes || [];
+    var idx = srcList.indexOf(f2.box);
+    if (idx === -1) return { ok: false, reason: "That box wasn't found where expected." };
+    srcList.splice(idx, 1);
+    t2.rack.boxes = t2.rack.boxes || [];
+    t2.rack.boxes.push(f2.box);
+
+    next.vials.forEach(function (v) {
+      if (v.location && v.location.boxId === boxId) {
+        v.location.unitId = t2.unit.id;
+        v.location.rackId = t2.rack.id;
+      }
+    });
+    return { ok: true, state: next };
+  }
+
+  // Grows or shrinks a leaf rack's own box count to exactly `count`, same contract
+  // as setSubdivisionCount one level up: auto-names new ones "Box N" at a default
+  // 9x9 (Resize handles changing that after), and refuses a shrink outright if any
+  // box being removed still holds a stored vial, naming it and why. A rack that
+  // already holds child subdivisions can't take boxes directly either -- the same
+  // leaf-or-group rule setSubdivisionCount enforces the other way around.
+  function setBoxCount(state, rackId, count) {
+    var n = Math.max(0, Math.floor(Number(count) || 0));
+    var node = findRackNode(state, rackId);
+    if (!node) return { ok: false, reason: "No such subdivision." };
+    var current = node.rack.boxes || [];
+
+    if (n > current.length && (node.rack.racks || []).length) {
+      return { ok: false, reason: node.rack.name + " already holds subdivisions -- it can't take boxes directly." };
+    }
+
+    if (n < current.length) {
+      var removed = current.slice(n);
+      var affected = [];
+      removed.forEach(function (b) {
+        var stored = (state.vials || []).some(function (v) {
+          return v.status !== "withdrawn" && v.location && v.location.boxId === b.id;
+        });
+        if (stored) affected.push(b.name);
+      });
+      if (affected.length) {
+        var msgs = affected.map(function (name) { return name + " needs a new location because it is being removed"; });
+        return { ok: false, reason: msgs.join("; ") + "." };
+      }
+    }
+
+    var next = clone(state);
+    var n2 = findRackNode(next, rackId);
+    n2.rack.boxes = n2.rack.boxes || [];
+    var list = n2.rack.boxes;
+    if (n < list.length) {
+      list.length = n;
+    } else {
+      for (var i = list.length; i < n; i++) {
+        var name = "Box " + (i + 1);
+        var id = "b-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        if (findBox(next, id)) id += "-" + Date.now().toString(36).slice(-4) + "-" + i;
+        list.push({ id: id, name: name, rows: 9, cols: 9, scheme: "grid", note: "", archived: false });
+      }
+    }
+    return { ok: true, state: next };
+  }
+
   // "-80 Freezer -> Rack 1 -> ONGOING -> C4", and the very same code prints "Tower"
   // for the nitrogen tank, because that word is data (unit.childLabel) too. Prints
   // every level of the chain, so a unit with more than one subdivision deep (a
@@ -2074,6 +2303,9 @@
     // subdivisions (a unit's rack tree, arbitrarily deep -- see the eachBox comment)
     findRackNode: findRackNode, leafRacks: leafRacks, addSubdivision: addSubdivision,
     renameSubdivision: renameSubdivision, removeSubdivision: removeSubdivision,
+    boxesUnderRack: boxesUnderRack, childrenOf: childrenOf,
+    setSubdivisionCount: setSubdivisionCount, setUnitCount: setUnitCount,
+    setUnitDetails: setUnitDetails, setBoxCount: setBoxCount, moveBoxToSibling: moveBoxToSibling,
     // classification
     FACETS: FACETS, DEFAULT_RULES: DEFAULT_RULES, classify: classify, facetsFor: facetsFor,
     classifyAll: classifyAll, parsePassage: parsePassage, passageLabel: passageLabel,

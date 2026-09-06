@@ -1211,6 +1211,163 @@ check("removeSubdivision removes an empty subdivision, including an empty nested
   return null;
 });
 
+// ---- storage: the Structure screen's count-based bulk operations ----
+//
+// setSubdivisionCount/setUnitCount are what a "how many?" field on the Structure
+// screen actually calls -- grow auto-names new children, shrink refuses outright
+// (naming every stranded box) rather than ever discarding one silently.
+
+check("setSubdivisionCount grows a parent's children, auto-naming the new ones by the given label", () => {
+  const s = nestedFixture();
+  // shelf-1 already has 2 children (rack-1, rack-2); growing to 4 appends two more
+  // rather than touching the two that already exist.
+  const r = E.setSubdivisionCount(s, "u-deep", "shelf-1", 4, "Rack");
+  if (!r.ok) return `refused: ${r.reason}`;
+  const kids = E.childrenOf(r.state, "u-deep", "shelf-1");
+  if (kids.length !== 4) return `expected 4 children, got ${json(kids.map((k) => k.name))}`;
+  if (kids[0].id !== "rack-1" || kids[1].id !== "rack-2") return "the two existing racks must be untouched";
+  if (kids[2].name !== "Rack 3" || kids[3].name !== "Rack 4") return `new ones named wrong: ${json(kids.slice(2).map((k) => k.name))}`;
+  return null;
+});
+
+check("setSubdivisionCount refuses to grow under a rack that already holds boxes directly", () => {
+  const s = nestedFixture();
+  // shelf-2 holds Box D2 directly (no racks) -- it can't also become a group.
+  const r = E.setSubdivisionCount(s, "u-deep", "shelf-2", 2, "Rack");
+  if (r.ok) return "should have refused -- shelf-2 already holds Box D2 directly";
+  return null;
+});
+
+check("setSubdivisionCount shrinks an all-empty tail without refusing", () => {
+  const s = nestedFixture();
+  const grown = E.setSubdivisionCount(s, "u-deep", "shelf-1", 3, "Rack").state;
+  const r = E.setSubdivisionCount(grown, "u-deep", "shelf-1", 1, "Rack");
+  if (!r.ok) return `refused: ${r.reason}`;
+  // rack-1 (index 0, holds Box D1) must survive; the two empty ones grown above go.
+  if (E.childrenOf(r.state, "u-deep", "shelf-1").length !== 1) return "expected exactly 1 child left";
+  if (!E.findRackNode(r.state, "rack-1")) return "rack-1 (not empty) should have survived a shrink to 1";
+  return null;
+});
+
+check("setSubdivisionCount refuses a shrink that would strand a box, naming it and why", () => {
+  const s = nestedFixture();
+  const r = E.setSubdivisionCount(s, "u-deep", "shelf-1", 0, "Rack");
+  if (r.ok) return "should have refused -- rack-1 (under shelf-1) holds Box D1";
+  if (!/Box D1/.test(r.reason) || !/Rack 1/.test(r.reason)) return `reason didn't name the box or rack: ${json(r.reason)}`;
+  if (E.findRackNode(s, "rack-1") === null) return "the original state must be untouched on refusal";
+  return null;
+});
+
+check("setSubdivisionCount at the unit's own top level (parentRackId null) works the same way", () => {
+  const s = nestedFixture();
+  const r = E.setSubdivisionCount(s, "u-deep", null, 4, "Shelf");
+  if (!r.ok) return `refused: ${r.reason}`;
+  if (E.childrenOf(r.state, "u-deep", null).length !== 4) return "expected 4 top-level shelves";
+  return null;
+});
+
+check("setUnitCount grows the lab's own freezer/tank list, auto-naming and minting fresh ids", () => {
+  const s = nestedFixture();
+  const r = E.setUnitCount(s, 3);
+  if (!r.ok) return `refused: ${r.reason}`;
+  if (r.state.storage.units.length !== 3) return `expected 3 units, got ${r.state.storage.units.length}`;
+  const ids = r.state.storage.units.map((u) => u.id);
+  if (new Set(ids).size !== ids.length) return `duplicate unit ids: ${json(ids)}`;
+  return null;
+});
+
+check("setUnitCount refuses a shrink that would strand a box, naming it and which freezer", () => {
+  const s = nestedFixture();
+  const r = E.setUnitCount(s, 0);
+  if (r.ok) return "should have refused -- Deep Freezer holds two boxes";
+  if (!/Deep Freezer/.test(r.reason)) return `reason didn't name the freezer: ${json(r.reason)}`;
+  return null;
+});
+
+check("setUnitDetails renames a unit and sets its type/note, both unit-only fields", () => {
+  const s = nestedFixture();
+  const r = E.setUnitDetails(s, "u-deep", { name: "Deep -80", type: "-80", note: "back corner" });
+  if (!r.ok) return `refused: ${r.reason}`;
+  const u = E.findUnit(r.state, "u-deep");
+  if (u.name !== "Deep -80" || u.type !== "-80" || u.note !== "back corner") return `got ${json(u)}`;
+  return null;
+});
+
+check("setBoxCount grows a leaf rack's boxes, auto-naming and defaulting to 9x9", () => {
+  const s = nestedFixture();
+  const r = E.setBoxCount(s, "rack-2", 2); // rack-2 starts with zero boxes
+  if (!r.ok) return `refused: ${r.reason}`;
+  const kids = E.findRackNode(r.state, "rack-2").rack.boxes;
+  if (kids.length !== 2) return `expected 2 boxes, got ${json(kids.map((b) => b.name))}`;
+  if (kids[0].name !== "Box 1" || kids[1].name !== "Box 2") return `named wrong: ${json(kids.map((b) => b.name))}`;
+  if (kids[0].rows !== 9 || kids[0].cols !== 9) return `expected a default 9x9 box, got ${json(kids[0])}`;
+  return null;
+});
+
+check("setBoxCount shrinks an empty tail without refusing", () => {
+  const s = nestedFixture();
+  const grown = E.setBoxCount(s, "rack-2", 3).state;
+  const r = E.setBoxCount(grown, "rack-2", 1);
+  if (!r.ok) return `refused: ${r.reason}`;
+  if (E.findRackNode(r.state, "rack-2").rack.boxes.length !== 1) return "expected exactly 1 box left";
+  return null;
+});
+
+check("setBoxCount refuses to shrink past a box that still holds a stored vial", () => {
+  const s = nestedFixture();
+  const r = E.setBoxCount(s, "rack-1", 0); // rack-1's one box (Box D1) holds vial v-d1
+  if (r.ok) return "should have refused -- Box D1 holds v-d1";
+  if (!/Box D1/.test(r.reason)) return `reason didn't name the box: ${json(r.reason)}`;
+  return null;
+});
+
+check("setBoxCount refuses to add boxes under a rack that already holds subdivisions", () => {
+  const s = nestedFixture();
+  const r = E.setBoxCount(s, "shelf-1", 1); // shelf-1 already has child racks (rack-1, rack-2)
+  if (r.ok) return "should have refused -- shelf-1 already holds subdivisions";
+  return null;
+});
+
+// ---- storage: moving a box between siblings (Structure screen's drag-and-drop) ----
+
+check("moveBoxToSibling moves a box between two racks under the same parent", () => {
+  const s = nestedFixture();
+  // rack-1 and rack-2 are both direct children of shelf-1 -- true siblings, and
+  // rack-2 already starts empty in the fixture.
+  const r = E.moveBoxToSibling(s, "b-d1", "rack-2");
+  if (!r.ok) return `refused: ${r.reason}`;
+  const f = E.findBox(r.state, "b-d1");
+  if (f.rack.id !== "rack-2") return `box is in ${f.rack.id}, not rack-2`;
+  const v = r.state.vials.filter((v) => v.id === "v-d1")[0];
+  if (v.location.rackId !== "rack-2" || v.location.unitId !== "u-deep") return `vial location wasn't updated: ${json(v.location)}`;
+  return null;
+});
+
+check("moveBoxToSibling refuses a target that isn't an actual sibling (different parent)", () => {
+  const s = nestedFixture();
+  // b-d1 lives in rack-1, whose parent is shelf-1. shelf-2 sits at the unit's own
+  // top level (its parent is the unit, not shelf-1) -- not a sibling, even though
+  // shelf-2 itself is a leaf (holds Box D2 directly).
+  const r = E.moveBoxToSibling(s, "b-d1", "shelf-2");
+  if (r.ok) return "should have refused -- shelf-2 is not a sibling of rack-1";
+  return null;
+});
+
+check("moveBoxToSibling refuses moving across a different freezer entirely", () => {
+  const s = E.mergeDefaults({
+    storage: { units: [
+      { id: "u-deep", name: "Deep Freezer", childLabel: "Rack",
+        racks: [{ id: "rack-1", name: "Rack 1", boxes: [box("b-d1", "Box D1", 9, 9)] }] },
+      { id: "u-flat", name: "Flat Freezer", childLabel: "Rack",
+        racks: [{ id: "rack-flat", name: "Rack 1", boxes: [] }] }
+    ] },
+    vials: [vial("v-d1", "HEK293T", "b-d1", "A1")]
+  });
+  const r = E.moveBoxToSibling(s, "b-d1", "rack-flat");
+  if (r.ok) return "should have refused -- rack-flat is under a completely different unit";
+  return null;
+});
+
 check("a handoff-style box move recurses into nested subdivisions, not just the top level", () => {
   // Mirrors the admin handoff's own prune step (index.html) on a deeper tree, since
   // that code walks the same structure by hand rather than through an engine call.

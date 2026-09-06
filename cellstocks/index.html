@@ -4,6 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CAApp</title>
+<script>
+// The app has one address now, and it is not this one. It used to live at
+// <account>.github.io/cagiral-schedule/cellstocks/, which put a person's name in front
+// of everyone holding the link; it is served by its own Worker instead. This file is
+// still published to GitHub Pages -- the whole repository is, and .nojekyll means there
+// is no way to publish some of it and not the rest -- so the old address answers, and
+// what it does is send you on. Anyone with the old bookmark, or the old icon on their
+// home screen, lands in the right place instead of on a 404.
+//
+// First thing in <head>, before the manifest or a single byte of the app, so the old
+// address never renders and never registers a service worker of its own.
+(function(){
+  if (!/\.github\.io$/i.test(location.hostname || "")) return;
+  location.replace("https://cellstocks-worker.caalab.workers.dev/");
+})();
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">

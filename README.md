@@ -411,7 +411,12 @@ rather than as intent. It needs playwright; without it, it says so and exits wit
 ## Cell Stocks
 
 - **App:** `https://cellstocks-worker.caalab.workers.dev`
-- Also still at `https://<account>.github.io/cagiral-schedule/cellstocks/`, for old links
+
+The old GitHub Pages address, `https://<account>.github.io/cagiral-schedule/cellstocks/`,
+now redirects here. It had a person's name in it, which is the reason for the move; the
+file still has to be published (the whole repository is, and `.nojekyll` means there is no
+publishing some of it and not the rest), so it answers and sends you on rather than 404ing
+an old bookmark or an old home-screen icon.
 
 A third app, sharing this repository and nothing else — not the data, not the rules, not even the
 browser storage. It knows what is in the −80 °C freezer: type a few words and it says which box and

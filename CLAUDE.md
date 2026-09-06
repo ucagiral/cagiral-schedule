@@ -250,7 +250,10 @@ worker handles by sweeping only its own prefix.
   not from GitHub Pages.** `cellstocks-worker` has an
   `[assets]` binding over `cellstocks/`, so the page and the API are one origin: the address
   carries no GitHub username, and the app's own calls are same-origin, so CORS never applies
-  to them. `ALLOWED_ORIGIN` still names the Pages address, which keeps working for old links.
+  to them. The old Pages address **redirects here** — first thing in `<head>`, before the
+  manifest, so it never renders and never registers a service worker of its own. It cannot
+  simply be unpublished: the whole repository goes to Pages and `.nojekyll` rules out
+  excluding part of it. `ALLOWED_ORIGIN` still names the Pages origin, which costs nothing.
   `resolveConfig()` reads owner/repo out of an `*.github.io` address and falls back to
   `DEFAULT_REPO` anywhere else; `sw.js` derives its scope from `registration.scope` rather
   than testing for a literal `/cellstocks/`, which silently disabled it off Pages. The

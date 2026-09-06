@@ -21,11 +21,25 @@
     },
     {
       "id": "u-freezer-2",
-      "name": "Freezer 2",
-      "type": "",
+      "name": "Liquid Nitrogen",
+      "type": "-196",
       "note": "",
       "childLabel": "Rack",
-      "racks": []
+      "racks": [
+        {
+          "id": "r-rack-1",
+          "name": "Rack 1",
+          "boxes": [],
+          "racks": []
+        },
+        {
+          "id": "r-rack-2",
+          "name": "Rack 2",
+          "boxes": [],
+          "racks": []
+        }
+      ],
+      "icon": "🥶"
     },
     {
       "id": "u-freezer-3",

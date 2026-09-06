@@ -502,7 +502,22 @@
   // unauthenticated raw fetch always works) -- only a write needs an opinion about who
   // is allowed to make it, so only save() and the login/logout calls below ever talk
   // to the worker. See cellstocks-worker/README.md for what it does and why.
-  function getWorkerUrl(){ try { return localStorage.getItem(LS.workerUrl) || null; } catch(e){ return null; } }
+  // Where the backend is. Stored per device, because it is a device setting and always
+  // has been -- but when the app is being served BY that backend (its own Worker
+  // address, which is now the normal way in), the answer is simply "here". Typing the
+  // URL into the login gate stops being a step, and the whole class of "the lab changed
+  // its Cloudflare subdomain and everyone's saved URL went dead" stops existing.
+  //
+  // Only the GitHub Pages copy still has to be told, since there the page and the
+  // backend genuinely are two different hosts.
+  function servedByWorker(){ return !/\.github\.io$/i.test(location.hostname || ""); }
+  function getWorkerUrl(){
+    try {
+      var stored = localStorage.getItem(LS.workerUrl);
+      if (stored) return stored;
+    } catch(e){}
+    return servedByWorker() ? location.origin : null;
+  }
   function getWorkerToken(){ try { return localStorage.getItem(LS.workerToken) || null; } catch(e){ return null; } }
   function getWorkerUser(){ try { return JSON.parse(localStorage.getItem(LS.workerUser) || "null"); } catch(e){ return null; } }
   function workerBase(url){ return String(url || "").replace(/\/+$/, ""); }
@@ -2682,7 +2697,12 @@
       wform.autocomplete = "off";
       var wurl = document.createElement("input");
       wurl.placeholder = "Worker address (https://…workers.dev)";
-      wurl.value = getWorkerUrl() || "";
+      // When the page is being served BY the backend, the answer is this address, and
+      // it is offered even if an older one is still saved on this device. That is not a
+      // hypothetical: changing the lab's Cloudflare subdomain changes this host, and
+      // every device that had typed the old one in would otherwise be left logging in
+      // against a name that no longer resolves. Logging in stores whatever is here.
+      wurl.value = servedByWorker() ? location.origin : (getWorkerUrl() || "");
       wurl.autocomplete = "off";
       var wname = document.createElement("input");
       wname.placeholder = "Name"; wname.style.marginTop = "8px"; wname.autocomplete = "off";

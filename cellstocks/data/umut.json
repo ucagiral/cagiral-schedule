@@ -63,6 +63,10 @@
     ],
     "resistance": [
       {
+        "match": "50CR",
+        "value": "50CR"
+      },
+      {
         "match": "Dtx",
         "value": "DtxR"
       },
@@ -119,6 +123,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T19:53:35.491Z"
+    "savedAt": "2026-09-06T19:54:01.296Z"
   }
 }

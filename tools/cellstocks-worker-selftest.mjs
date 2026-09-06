@@ -66,9 +66,12 @@ function makeKv() {
 // have been committed, and `failOn` lets a test make one specific step fail without
 // having to fake the calls before it.
 
-// `contents` is an optional { [path]: sha } map for GET /contents/<path> -- what
-// renameUserFiles() looks up before copying a file to its new path. A path not in the
-// map 404s, the same as a user who never saved anything yet.
+// `contents` is an optional map for GET /contents/<path> -- what renameUserFiles() looks
+// up before copying a file to its new path, and what boxesOwnedBy() reads the lab's
+// storage tree out of. A value may be a bare sha string, or { sha, text } when the
+// caller actually reads the file's bytes (the text is base64-encoded here, the way
+// GitHub returns it). A path not in the map 404s, the same as a user who never saved
+// anything yet.
 function makeGithubFetch({ failOn, contents } = {}) {
   const calls = [];
   let blobN = 0;
@@ -90,9 +93,13 @@ function makeGithubFetch({ failOn, contents } = {}) {
     const reply = (obj) => ({ ok: true, status: 200, text: async () => JSON.stringify(obj) });
     if (step === "contents") {
       const path = decodeURIComponent(contentsMatch[1]);
-      const sha = contents && contents[path];
-      if (!sha) return { ok: false, status: 404, text: async () => JSON.stringify({ message: "not found" }) };
-      return reply({ sha });
+      const entry = contents && contents[path];
+      if (!entry) return { ok: false, status: 404, text: async () => JSON.stringify({ message: "not found" }) };
+      if (typeof entry === "string") return reply({ sha: entry });
+      return reply({
+        sha: entry.sha || "content-sha",
+        content: Buffer.from(entry.text, "utf8").toString("base64")
+      });
     }
     if (step === "ref") return reply({ object: { sha: "base-ref-sha" } });
     if (step === "base-commit") return reply({ tree: { sha: "base-tree-sha" } });
@@ -313,6 +320,60 @@ await check("deleting a user also deletes their data and workbook from git", asy
   const paths = treeCall.body.tree.map((t) => `${t.path}:${t.sha === null ? "null" : t.sha}`);
   const wantDelete = paths.includes("cellstocks/data/umut.json:null") && paths.includes("cellstocks/data/umut.xlsx:null");
   if (!wantDelete) return `unexpected tree entries: ${json(paths)}`;
+  return null;
+});
+
+// Umut's call, after his own test left eight boxes in the shared tree naming an account
+// that no longer existed: a delete is refused while the person still owns a box, and
+// Handoff -- which gives every box a new owner or discards it and then deletes the
+// account -- is the way through. Before the tree was shared this could not happen: the
+// boxes lived in the account's own file and went with it.
+const LAB_TREE_WITH_UMUT = JSON.stringify({
+  labName: "CAA Lab Stocks",
+  units: [{ id: "u-1", name: "-80", childLabel: "Rack", racks: [
+    { id: "r-1", name: "Rack 1", racks: [
+      { id: "r-1-1", name: "Shelf 1", boxes: [
+        { id: "b-1", name: "UMUT CELLS", owner: "umut" },
+        { id: "b-2", name: "Somebody else's", owner: "busra" }
+      ] }
+    ] }
+  ] }]
+});
+
+await check("deleting a user who still owns a box is refused, and names the box", async () => {
+  const { env, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "lab-password" }, token), env);
+  env.fetch = makeGithubFetch({
+    contents: { "cellstocks/lab-storage.json": { text: LAB_TREE_WITH_UMUT } }
+  });
+  const res = await handleRequest(req("DELETE", "/admin/users/Umut", undefined, token), env);
+  if (res.status !== 409) return `expected 409, got ${res.status}`;
+  const body = await res.json();
+  if (!/UMUT CELLS/.test(body.error)) return `the refusal does not name the box: ${body.error}`;
+  if (!/Handoff/.test(body.error)) return `the refusal does not point at Handoff: ${body.error}`;
+  if (json(body.boxes) !== json(["UMUT CELLS"])) return `unexpected box list: ${json(body.boxes)}`;
+  const treeCall = env.fetch.calls.find((c) => c.url.includes("/git/trees"));
+  if (treeCall) return `a refused delete must not touch git: ${json(treeCall)}`;
+  return null;
+});
+
+await check("a nested box belonging to somebody else does not block their delete", async () => {
+  const { env, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Ayse", password: "lab-password" }, token), env);
+  env.fetch = makeGithubFetch({
+    contents: { "cellstocks/lab-storage.json": { text: LAB_TREE_WITH_UMUT } }
+  });
+  const res = await handleRequest(req("DELETE", "/admin/users/Ayse", undefined, token), env);
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(await res.json())}`;
+  return null;
+});
+
+await check("with no structure file at all, a delete still goes through", async () => {
+  const { env, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "lab-password" }, token), env);
+  env.fetch = makeGithubFetch();   // every path 404s, the structure file included
+  const res = await handleRequest(req("DELETE", "/admin/users/Umut", undefined, token), env);
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(await res.json())}`;
   return null;
 });
 

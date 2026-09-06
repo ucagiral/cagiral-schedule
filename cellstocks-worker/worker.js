@@ -456,12 +456,58 @@ async function routeCreateUser(request, env) {
   return json({ user: publicUser(user) }, 201);
 }
 
+// Which boxes in the lab's shared tree say they belong to `name`. Deleting an account
+// deletes its files and its vials with them, but its boxes live in a file nothing here
+// would clean up: before the tree was shared they went with the account's own file, and
+// now they would be left behind naming somebody who no longer exists. So the delete is
+// refused while any remain, and Handoff -- which gives every box a new owner or discards
+// it, and then deletes the account itself -- is the way through.
+async function boxesOwnedBy(env, name) {
+  const branch = env.GITHUB_BRANCH || "main";
+  let file;
+  try {
+    file = await githubApi(env, "GET", `/contents/${LAB_STORAGE_PATH}?ref=${encodeURIComponent(branch)}`);
+  } catch (err) {
+    if (err.status === 404) return [];   // no structure file yet, so nobody owns a box
+    throw err;
+  }
+  let storage;
+  try {
+    storage = JSON.parse(base64ToUtf8(file.content || ""));
+  } catch (err) {
+    // An unreadable structure file is not a licence to strand boxes in it.
+    throw new Error("could not read the lab's storage structure to check for boxes");
+  }
+  const owner = String(name).toLowerCase();
+  const found = [];
+  (function walkUnits(units) {
+    (units || []).forEach((unit) => (function walkRacks(racks) {
+      (racks || []).forEach((rack) => {
+        (rack.boxes || []).forEach((box) => {
+          if (String(box.owner || "").toLowerCase() === owner) found.push(box.name || box.id);
+        });
+        walkRacks(rack.racks);
+      });
+    })(unit.racks));
+  })(storage.units);
+  return found;
+}
+
 async function routeDeleteUser(request, env, name) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
   if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
   const existing = await kvGetJson(env.CST_KV, userKey(name));
   if (!existing) return json({ error: "no such user" }, 404);
+  const boxes = await boxesOwnedBy(env, name);
+  if (boxes.length) {
+    return json({
+      error: `${existing.name} still owns ${boxes.length} box${boxes.length === 1 ? "" : "es"} in the lab's freezer ` +
+             `(${boxes.slice(0, 5).join(", ")}${boxes.length > 5 ? ", and more" : ""}). Hand them over first, from ` +
+             `Admin -> Handoff: it gives every box a new owner (or discards it) and then deletes this account.`,
+      boxes
+    }, 409);
+  }
   await deleteUserFiles(env, name);
   await env.CST_KV.delete(userKey(name));
   return json({ ok: true });
@@ -807,6 +853,7 @@ export {
   ROLES,
   LAB_STORAGE_PATH,
   ICON_PREFIX,
+  boxesOwnedBy,
   base64ToUtf8,
   TYPES_CONFIG_KEY,
   DEFAULT_TYPE_NAMES

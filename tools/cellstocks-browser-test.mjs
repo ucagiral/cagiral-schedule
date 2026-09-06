@@ -74,7 +74,13 @@ try {
   const emptyState = { lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
   // One freezer for the whole lab, in its own file -- a member's own file holds only
   // their vials, and every box in the shared tree says whose it is.
-  const labmateBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "labmate" };
+  // Deliberately unowned. A box with no owner is a real state -- admin adds one in the
+  // Structure screen before saying whose it is -- and it is the only state in which an
+  // account holding vials can be deleted outright: the worker refuses the delete while
+  // the person still owns a box, and Handoff is the way through. That refusal has its
+  // own test further down; this fixture is here to exercise the cache invalidation
+  // *after* a delete, which is a different thing.
+  const labmateBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
   const labStorage = {
     labName: "CAA Lab Stocks", labIcon: "",
     units: [{ id: "u-1", name: "Labmate's Freezer", type: "freezer", childLabel: "Rack",
@@ -865,6 +871,7 @@ try {
     };
     let lastStorageCommit = null;
     let lastMemberCommit = null;
+    let lastCommitPaths = [];
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
       if (url.includes("cellstocks/lab-storage.json")) {
@@ -890,6 +897,7 @@ try {
       }
       if (path === "/commit" && req.method() === "POST") {
         const body = JSON.parse(req.postData());
+        lastCommitPaths = body.files.map((f) => f.path);
         const file = body.files.find((f) => f.path.endsWith(".json"));
         // The tree and a member's vials are two separate files now, and the screen
         // writes whichever one the change actually belongs to.
@@ -966,6 +974,26 @@ try {
       lastStorageCommit && lastStorageCommit.units[0].racks[0].name === "Shelf One" &&
       lastStorageCommit.units[0].racks[0].racks.length === 3,
       JSON.stringify(lastStorageCommit && lastStorageCommit.units[0].racks[0]));
+    // Renaming a level that no workbook mentions writes the tree and nothing else --
+    // the sheets name the unit, the leaf rack and the box, never the shelf between them.
+    check("a rename no workbook mentions does not drag anybody's .xlsx into the commit",
+      lastCommitPaths.length === 1 && lastCommitPaths[0] === "cellstocks/lab-storage.json",
+      JSON.stringify(lastCommitPaths));
+
+    // A workbook spells its locations out by name -- unit, rack, box -- and carries a
+    // whole `storage` sheet besides, so renaming a freezer makes every member's .xlsx
+    // wrong while not one vial has moved. It has to be regenerated in the SAME commit,
+    // or the repo is left inconsistent: exactly what CI caught the first time Umut
+    // renamed a freezer from his phone.
+    await editRow("Deep Freezer");
+    await page.waitForSelector("#dlgBody input");
+    await page.fill("#dlgBody input", "Deep -80");
+    await page.click("#dlgFoot button.primary");
+    await page.waitForFunction(() => !!document.querySelector('.treeBody[data-title="Deep -80"]'));
+    check("renaming a freezer regenerates the affected member's workbook in the same commit",
+      lastCommitPaths.includes("cellstocks/lab-storage.json") &&
+      lastCommitPaths.includes("cellstocks/data/umut.xlsx"),
+      JSON.stringify(lastCommitPaths));
 
     // Shrinking to nothing would strand Box D1's vial -- and that vial is in umut's
     // file, not admin's, so the refusal has to have read the whole lab to see it.
@@ -1172,6 +1200,24 @@ try {
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=users]");
     await page.waitForFunction(() => /umut/.test(document.getElementById("admin-users").textContent));
+
+    // A member who still owns a box in the shared tree cannot simply be deleted -- that
+    // is how eight boxes ended up naming an account that no longer existed. The refusal
+    // is the worker's (409), but the screen says it without the round trip and sends
+    // people to Handoff, which is the thing that actually resolves it. No dialog handler
+    // here on purpose: if the guard ever regressed, the confirm would appear, headless
+    // Chromium would dismiss it, and this check would time out rather than quietly pass.
+    await page.evaluate(() => {
+      const row = Array.from(document.querySelectorAll("#admin-users .item"))
+        .find((r) => /umut/.test(r.textContent));
+      Array.from(row.querySelectorAll("button")).find((b) => b.textContent.trim() === "Delete").click();
+    });
+    await page.waitForFunction(() => /Handoff/.test(document.querySelector(".banner")?.textContent || ""),
+      { timeout: 10000 });
+    const deleteBanner = await page.evaluate(() => document.querySelector(".banner").textContent);
+    check("deleting a member who still owns a box is refused, naming the box and pointing at Handoff",
+      /Box 1/.test(deleteBanner) && /Handoff/.test(deleteBanner), deleteBanner);
+
     page.once("dialog", (d) => d.accept("ayse"));
     await page.evaluate(() => {
       const row = Array.from(document.querySelectorAll("#admin-users .item"))

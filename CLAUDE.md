@@ -175,6 +175,19 @@ worker handles by sweeping only its own prefix.
   character; an uploaded image lands in `cellstocks/icons/` (admin only, PNG/JPG/WEBP, no SVG — it
   is markup and this repo is public) and the node stores only the filename. `iconKind()` decides
   which by extension; nothing else guesses.
+- **An account that still owns a box cannot be deleted.** Its vials go with its file, but
+  its boxes live in the shared tree and would be left behind naming somebody who no longer
+  exists — which is exactly what happened the first time Umut tested it. `routeDeleteUser`
+  refuses with a 409 that names the boxes; the app says the same thing without the round
+  trip and points at Handoff, which is the way through. Do not "clean up" by silently
+  dropping or unassigning the boxes.
+- **A workbook is generated from the inventory, and the inventory is two files.** The sheets
+  name the unit, the leaf rack and the box, and there is a whole `storage` sheet, so a rename
+  in the tree makes every affected member's `.xlsx` wrong while no vial has moved.
+  `commitLabStorage` regenerates them *in the same commit* as the tree — never a follow-up —
+  and works out who is affected by comparing the generated sheets, not by guessing which
+  edits count as renames. CI checks every `cellstocks/data/*.json` that has a workbook, never
+  one account by name.
 - **A handoff hands over, it does not copy.** The boxes stay physically where they are — only
   `box.owner` changes in the shared file — the vials move into the new owner's file under freshly
   minted ids, every box must be given a destination (or explicitly Discarded) first, and then the

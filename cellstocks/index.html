@@ -744,6 +744,11 @@
       // that must render as a blank inventory, never as whatever the previously-active account
       // (or a stale in-memory state left over from before a worker login/logout) happened to be.
       var own = (text !== null && text !== undefined) ? E.mergeDefaults(JSON.parse(text)) : E.blankState();
+      // Whether this account has a committed inventory file at all, which is not the
+      // same question as whether it is supposed to have one: admin has no inventory by
+      // role, yet cellstocks/data/admin.json exists from before that rule and carries a
+      // generated workbook that still has to be kept in step with the shared tree.
+      ownFileExists = (text !== null && text !== undefined);
       // The freezer is the lab's, not this account's: it comes from its own file and is
       // hydrated onto state.storage so every screen keeps reading it exactly where it
       // always did. slim() takes it back off again before this account's file is saved.
@@ -827,6 +832,7 @@
   // worker. Held here so a save can put it back on the state after a reload and so
   // the Structure screen has something to edit.
   var labStorage = E.blankStorage();
+  var ownFileExists = false;
 
   async function fetchLabStorage(){
     try {
@@ -840,11 +846,49 @@
     }
   }
 
-  // Admin-only. The structure is not part of anybody's inventory, so it commits on its
-  // own -- no .xlsx alongside it, nothing else in the commit.
+  // The workbook spells a location out by name -- the vials sheet reads "-80 °C Freezer",
+  // "Rack 1", "DUZENLE", "A1", and there is a whole `storage` sheet describing the tree.
+  // So renaming a freezer, a rack or a box on the Structure screen makes every member's
+  // .xlsx wrong even though not one vial moved, and even for a member who owns nothing in
+  // the branch that was renamed. The workbook is generated from the inventory, so it has
+  // to travel in the same commit as the change that invalidates it; committing the tree
+  // alone left the repository inconsistent, which is what the CI workbook check caught.
+  function sheetsText(hydrated){
+    return JSON.stringify(E.vialsToSheets(hydrated).map(function(sh){ return [sh.name, sh.rows]; }));
+  }
+
+  async function staleWorkbookFiles(nextStorage){
+    // Admin edits the tree for the whole lab and may write anybody's workbook. A member
+    // only ever reaches their own boxes (Settings → Storage filters to them), so their
+    // own file is the only one they can make stale -- and the only one they may write.
+    var admin = isAdminUser();
+    var me = (effectiveIdentity() || "").toLowerCase();
+    var owners = admin ? (labCache.members || []).slice() : (hasOwnInventory() && me ? [me] : []);
+    // labCache.members is everyone *else*, so an admin's own committed file -- which
+    // exists from before admin stopped having an inventory -- would never be refreshed
+    // and would drift the moment a freezer was renamed. Include it when it is really there.
+    if (admin && me && ownFileExists && owners.indexOf(me) === -1) owners.push(me);
+    var files = [];
+    for (var i = 0; i < owners.length; i++){
+      var name = owners[i];
+      var own = (name === me) ? state : (admin ? labCache.data[name] : null);
+      if (!own) continue;
+      var after = E.hydrateStorage(own, nextStorage, name);
+      if (sheetsText(E.hydrateStorage(own, labStorage, name)) === sheetsText(after)) continue;
+      var bytes = await X.writeWorkbookAsync(E.vialsToSheets(after));
+      files.push({ path: DATA_PREFIX + name + ".xlsx", content: bytesToBase64(bytes), base64: true });
+    }
+    return files;
+  }
+
+  // The structure is not part of anybody's inventory, so it commits on its own -- plus
+  // any member workbook whose rows the change rewrites (see above).
   async function commitLabStorage(next, message){
-    await workerCommit([{ path: LAB_STORAGE_PATH, content: E.serialiseStorage(next) }],
-      message || "Update the lab's storage structure");
+    // Admin needs everybody's vials to know whose workbook the rename touches.
+    if (isAdminUser() && !labCache.members) await ensureLabCache();
+    var files = [{ path: LAB_STORAGE_PATH, content: E.serialiseStorage(next) }]
+      .concat(await staleWorkbookFiles(next));
+    await workerCommit(files, message || "Update the lab's storage structure");
     labStorage = E.mergeStorageDefaults(next);
     // Every member's cached copy is now stale, including this session's own state.
     state = E.hydrateStorage(state, labStorage, effectiveIdentity());
@@ -4309,6 +4353,21 @@
       var del = el("button", "danger", "Delete");
       del.style.marginLeft = "6px";
       del.onclick = async function(){
+        // The worker refuses this outright while they still own a box, so that a
+        // deleted account can never leave boxes behind in the lab's shared tree naming
+        // somebody who no longer exists. Saying so here saves the round trip and points
+        // at the screen that actually handles it.
+        var theirs = [];
+        E.eachBox(labStorage, function(box){
+          if ((box.owner || "").toLowerCase() === u.name.toLowerCase()) theirs.push(box.name);
+        });
+        if (theirs.length){
+          showBanner(esc(u.name) + " still owns " + theirs.length + " box" + (theirs.length === 1 ? "" : "es") +
+                     " in the freezer (" + esc(theirs.slice(0, 3).join(", ")) + (theirs.length > 3 ? ", and more" : "") +
+                     "). Use <b>Handoff</b> instead — it gives every box a new owner, or discards it, and then " +
+                     "deletes the account.");
+          return;
+        }
         if (!window.confirm("Delete " + u.name + "? This also deletes their data and workbook — it cannot be undone.")) return;
         try {
           await workerFetch("/admin/users/" + encodeURIComponent(u.name), { method:"DELETE", headers: adminAuth() });

@@ -76,7 +76,7 @@ jobs:
       # check first found that out here, on this very PR, on a workbook nothing had
       # touched: two 9x9 boxes' worth of rows read back byte-for-byte identical, only
       # the zlib stream around them differed.
-      - name: The committed workbook still matches the inventory
+      - name: Every committed workbook still matches its inventory
         run: |
           node -e '
             const fs = require("fs");
@@ -88,21 +88,29 @@ jobs:
             // cellstocks/lab-storage.json exactly the way the app does before anything
             // reads a location out of it.
             const lab = E.mergeStorageDefaults(JSON.parse(fs.readFileSync("cellstocks/lab-storage.json", "utf8")));
-            const state = E.hydrateStorage(E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/data/umut.json", "utf8"))), lab, "umut");
+            // Every account, not one named one. Naming umut here meant this step died
+            // with ENOENT the first time that account was deleted from the admin panel,
+            // reporting a missing file as a workbook mismatch.
             const flatten = (wb) => wb.sheets.map((s) => [s.name, s.rows.map((r) => r.map((c) => (c ? c.value : null)))]);
-            Promise.all([
-              X.writeWorkbookAsync(E.vialsToSheets(state)).then(X.readWorkbook),
-              X.readWorkbook(fs.readFileSync("cellstocks/data/umut.xlsx"))
-            ]).then(([fresh, onDisk]) => {
-              const a = JSON.stringify(flatten(fresh)), b = JSON.stringify(flatten(onDisk));
-              if (a !== b) {
-                console.error("cellstocks/data/umut.xlsx does not match cellstocks/data/umut.json.");
-                console.error("Regenerate it — the app writes it on every save, so a content mismatch");
-                console.error("means it was committed by hand or the generator changed.");
-                process.exit(1);
+            const names = fs.readdirSync("cellstocks/data")
+              .filter((f) => f.endsWith(".json"))
+              .map((f) => f.replace(/\.json$/, ""))
+              .filter((n) => fs.existsSync("cellstocks/data/" + n + ".xlsx"));
+            (async () => {
+              for (const name of names) {
+                const state = E.hydrateStorage(E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/data/" + name + ".json", "utf8"))), lab, name);
+                const fresh = await X.readWorkbook(await X.writeWorkbookAsync(E.vialsToSheets(state)));
+                const onDisk = await X.readWorkbook(fs.readFileSync("cellstocks/data/" + name + ".xlsx"));
+                if (JSON.stringify(flatten(fresh)) !== JSON.stringify(flatten(onDisk))) {
+                  console.error("cellstocks/data/" + name + ".xlsx does not match cellstocks/data/" + name + ".json.");
+                  console.error("Regenerate it - the app writes it on every save, so a content mismatch");
+                  console.error("means it was committed by hand or the generator changed.");
+                  process.exit(1);
+                }
+                console.log(name + ": workbook content matches the inventory (" + onDisk.sheets.length + " sheets)");
               }
-              console.log("workbook content matches the inventory (" + onDisk.sheets.length + " sheets)");
-            }).catch((err) => { console.error(err); process.exit(1); });
+              if (!names.length) console.log("no member inventories committed yet - nothing to compare");
+            })().catch((err) => { console.error(err); process.exit(1); });
           '
 
   # Merging worker.js used to only run the self-test above -- the live Cloudflare Worker

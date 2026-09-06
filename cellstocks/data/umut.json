@@ -63,9 +63,6 @@
         "value": "KO"
       },
       {
-        "extract": "(?<![A-Za-z])(?:KO|OX|3xFLAG)"
-      },
-      {
         "match": "CASP",
         "value": "CASPEX"
       },
@@ -139,6 +136,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T19:55:15.602Z"
+    "savedAt": "2026-09-06T19:55:20.130Z"
   }
 }

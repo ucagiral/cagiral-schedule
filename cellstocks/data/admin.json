@@ -58,10 +58,6 @@
         "extract": "(?<![A-Za-z])(?:KO|OX|3xFLAG)"
       },
       {
-        "match": "CASP",
-        "value": "CASPEX"
-      },
-      {
         "value": "WT"
       }
     ],
@@ -112,6 +108,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T17:52:34.129Z"
+    "savedAt": "2026-09-06T17:52:52.944Z"
   }
 }

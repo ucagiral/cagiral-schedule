@@ -1,0 +1,110 @@
+{
+  "labName": "CAA Lab Stocks",
+  "labIcon": "",
+  "units": [
+    {
+      "id": "u-f80",
+      "name": "-80 °C Freezer",
+      "type": "freezer",
+      "note": "",
+      "childLabel": "Rack",
+      "racks": [
+        {
+          "id": "r-1",
+          "name": "Rack 1",
+          "boxes": [
+            {
+              "id": "b-umut-caa-cells",
+              "name": "UMUT CAA CELLS",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
+            },
+            {
+              "id": "b-umut-cells-80",
+              "name": "UMUT CELLS -80",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
+            },
+            {
+              "id": "b-duzenle",
+              "name": "DUZENLE",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
+            },
+            {
+              "id": "b-ongoing",
+              "name": "ONGOING",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
+            },
+            {
+              "id": "b-umut-cells-4",
+              "name": "UMUT CELLS -4-",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
+            },
+            {
+              "id": "b-box-6",
+              "name": "Box 6",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
+            }
+          ],
+          "racks": []
+        }
+      ]
+    },
+    {
+      "id": "u-ln2",
+      "name": "LN2 Tank",
+      "type": "ln2",
+      "note": "",
+      "childLabel": "Tower",
+      "racks": [
+        {
+          "id": "t-1",
+          "name": "Tower 1",
+          "boxes": [
+            {
+              "id": "b-ln2-1",
+              "name": "Box 1",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
+            },
+            {
+              "id": "b-ln2-2",
+              "name": "Box 2",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
+            }
+          ],
+          "racks": []
+        }
+      ]
+    }
+  ]
+}

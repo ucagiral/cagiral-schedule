@@ -151,9 +151,30 @@ worker handles by sweeping only its own prefix.
   each account's own `cellstocks/data/<name>.json`, never code**. Umut said he may define new
   common labels; that has to stay a Rules-screen edit. A facet he has set by hand is never
   recomputed.
-- **`cellstocks/data/<name>.json` is the inventory, one file per account. `cellstocks/data/<name>.xlsx`
+- **`cellstocks/data/<name>.json` is one person's vials, one file per account. `cellstocks/data/<name>.xlsx`
   is generated from it on every save** and committed in the same commit, never the reverse. A hand
   edit to the workbook is thrown away by the next save; do not add a path that reads it back.
+- **There is one freezer, so there is one structure file.** `cellstocks/lab-storage.json` holds the
+  whole lab's tree — `labName`, `labIcon`, freezers/tanks → racks → boxes — and every box carries an
+  `owner`. Storing a copy of it inside each member's file was wrong three rounds running: it made
+  the one physical −80 exist as several unrelated records, and it put a person level in a tree whose
+  spec (his own picture) has none. `slim()` strips `storage` before a member file is saved and
+  `hydrateStorage()` puts it back at load, so every engine function still reads `state.storage`
+  exactly where it always did. Do not put the tree back into a member file.
+- **The Structure screen is a folder tree, all of it on screen at once.** Root, freezers, racks,
+  boxes, expand/collapse, ✎ on every row including the root, drag a box onto any rack in the lab.
+  It is admin-only, and it is the third attempt — do not "simplify" it back into one level at a
+  time or a per-member picker. A shrink that would strand a box is refused by name: *"X kutusu Y
+  rafı silindiğinden dolayı yeni lokasyona yerleştirilmeli"*.
+- **Every folder carries its own icon, and both kinds are real.** An emoji is stored as the
+  character; an uploaded image lands in `cellstocks/icons/` (admin only, PNG/JPG/WEBP, no SVG — it
+  is markup and this repo is public) and the node stores only the filename. `iconKind()` decides
+  which by extension; nothing else guesses.
+- **A handoff hands over, it does not copy.** The boxes stay physically where they are — only
+  `box.owner` changes in the shared file — the vials move into the new owner's file under freshly
+  minted ids, every box must be given a destination (or explicitly Discarded) first, and then the
+  departing account is deleted along with both its files. Do not reintroduce the old "From <user>"
+  unit, and do not leave the account standing.
 - **Two stored vials in one slot is an error, not a warning.** `validate()` returns it as one and
   the save is refused. Do not downgrade it, and do not add a code path that places a vial without
   going through `validate` first.

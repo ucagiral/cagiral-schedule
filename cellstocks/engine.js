@@ -136,8 +136,20 @@
     });
   }
 
+  // Storage is shared by the whole lab, in its own file, while vials stay in each
+  // member's own -- so the same traversal has to work over two shapes: a member's
+  // hydrated state (state.storage.units, what every screen renders against) and the
+  // bare lab-storage object ({ labName, units }, what the Structure screen edits and
+  // what cellstocks/lab-storage.json holds). One accessor rather than two copies of
+  // every walker.
+  function unitsOf(root) {
+    if (!root) return [];
+    if (root.storage && root.storage.units) return root.storage.units;
+    return root.units || [];
+  }
+
   function eachBox(state, fn) {
-    var units = (state && state.storage && state.storage.units) || [];
+    var units = unitsOf(state);
     units.forEach(function (unit) {
       walkRackList(unit.racks || [], [], function (box, chain) {
         fn(box, chain[chain.length - 1], unit, chain);
@@ -158,7 +170,7 @@
   // removeSubdivision) walks to find a node by id.
   function findRackNode(state, rackId) {
     var found = null;
-    (state && state.storage && state.storage.units || []).forEach(function (unit) {
+    unitsOf(state).forEach(function (unit) {
       if (found) return;
       (function walk(racks, parent, chain) {
         (racks || []).forEach(function (rack) {
@@ -177,7 +189,7 @@
   // offer as a destination, so a box only ever lands at an actual bottom level.
   function leafRacks(state, unitId) {
     var out = [];
-    (state && state.storage && state.storage.units || []).forEach(function (unit) {
+    unitsOf(state).forEach(function (unit) {
       if (unitId && unit.id !== unitId) return;
       (function walk(racks, chain) {
         (racks || []).forEach(function (rack) {
@@ -251,7 +263,7 @@
   }
 
   function findUnit(state, unitId) {
-    var units = (state && state.storage && state.storage.units) || [];
+    var units = unitsOf(state);
     for (var i = 0; i < units.length; i++) if (units[i].id === unitId) return units[i];
     return null;
   }
@@ -346,7 +358,7 @@
   // another flexible level of the same tree, not a special case.
   function setUnitCount(state, count) {
     var n = Math.max(0, Math.floor(Number(count) || 0));
-    var current = (state.storage && state.storage.units) || [];
+    var current = unitsOf(state);
     if (n < current.length) {
       var removed = current.slice(n);
       var affected = [];
@@ -363,16 +375,18 @@
       }
     }
     var next = clone(state);
-    next.storage = next.storage || { units: [] };
-    next.storage.units = next.storage.units || [];
-    if (n < next.storage.units.length) {
-      next.storage.units.length = n;
+    // Either shape: a member's hydrated state, or the bare lab-storage object.
+    if (next.storage) next.storage.units = next.storage.units || [];
+    else next.units = next.units || [];
+    var units = unitsOf(next);
+    if (n < units.length) {
+      units.length = n;
     } else {
-      for (var i = next.storage.units.length; i < n; i++) {
+      for (var i = units.length; i < n; i++) {
         var name = "Freezer " + (i + 1);
         var id = "u-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
         if (findUnit(next, id)) id += "-" + Date.now().toString(36).slice(-4) + "-" + i;
-        next.storage.units.push({ id: id, name: name, type: "", note: "", childLabel: "Rack", racks: [] });
+        units.push({ id: id, name: name, type: "", note: "", childLabel: "Rack", racks: [] });
       }
     }
     return { ok: true, state: next };
@@ -395,27 +409,25 @@
     return { ok: true, state: next };
   }
 
-  // Moves a box to a SIBLING rack only -- one under the exact same parent (another
-  // rack's own child, or another top-level rack of the same unit) -- never across
-  // units or across a deeper branch. That is the deliberate boundary of the
-  // Structure screen's drag-and-drop: a real cross-branch move needs a picker UI
-  // this round doesn't have. Keeps the box's id and every vial's position label;
-  // only the parent it hangs off of changes, so unitId/rackId on every vial in it
-  // are updated too -- those are what locationPath/validate actually check.
-  function moveBoxToSibling(state, boxId, targetRackId) {
+  // Moves a box to any leaf rack anywhere in the tree. It was siblings-only while the
+  // Structure screen showed one level at a time and could not put source and target on
+  // screen together; the folder tree shows the whole lab at once, so a box can be
+  // dragged into another shelf or another freezer entirely -- which is what Umut asked
+  // for in the first place.
+  //
+  // The box keeps its id and every vial keeps its position label: physically nothing
+  // moves inside the box, only which rack it hangs off. Vials live in their owner's own
+  // file, not here, so when this runs against the shared lab storage there are none to
+  // touch; when it runs against a member's hydrated state, their location.unitId/rackId
+  // (what validate() cross-checks) are refreshed to match.
+  function moveBox(state, boxId, targetRackId) {
     var found = findBox(state, boxId);
     if (!found) return { ok: false, reason: "No such box." };
     var target = findRackNode(state, targetRackId);
     if (!target) return { ok: false, reason: "No such destination." };
     if (target.rack.id === found.rack.id) return { ok: false, reason: "That box is already there." };
     if ((target.rack.racks || []).length) {
-      return { ok: false, reason: target.rack.name + " already holds subdivisions -- it can't take a box directly." };
-    }
-    var sourceParentId = found.chain.length > 1 ? found.chain[found.chain.length - 2].id : null;
-    var targetParentId = target.parent ? target.parent.id : null;
-    if (found.unit.id !== target.unit.id || sourceParentId !== targetParentId) {
-      return { ok: false, reason: target.rack.name + " is not a sibling of " + found.rack.name +
-        " -- moving across freezers or shelves isn't supported here." };
+      return { ok: false, reason: target.rack.name + " holds subdivisions, so it can't take a box directly." };
     }
 
     var next = clone(state);
@@ -428,13 +440,13 @@
     t2.rack.boxes = t2.rack.boxes || [];
     t2.rack.boxes.push(f2.box);
 
-    next.vials.forEach(function (v) {
+    (next.vials || []).forEach(function (v) {
       if (v.location && v.location.boxId === boxId) {
         v.location.unitId = t2.unit.id;
         v.location.rackId = t2.rack.id;
       }
     });
-    return { ok: true, state: next };
+    return { ok: true, state: next, movedTo: { unitId: t2.unit.id, rackId: t2.rack.id } };
   }
 
   // Grows or shrinks a leaf rack's own box count to exactly `count`, same contract
@@ -1146,11 +1158,17 @@
     return NO_ORIGIN;
   }
 
-  function boxesFor(state, unitId) {
+  // `owner` scopes this to one member's own boxes. It matters now that the freezer is
+  // shared: without it, an Add would happily propose putting your vial in someone
+  // else's box, because every box in the lab is in state.storage. A box with no owner
+  // recorded at all is nobody's in particular and stays available -- that is what an
+  // unmigrated or hand-added box looks like, and refusing those would strand them.
+  function boxesFor(state, unitId, owner) {
     var out = [];
     eachBox(state, function (box, rack, unit, chain) {
       if (box.archived) return;
       if (unitId && unit.id !== unitId) return;
+      if (owner && box.owner && box.owner.toLowerCase() !== String(owner).toLowerCase()) return;
       out.push({ box: box, rack: rack, unit: unit, chain: chain });
     });
     return out;
@@ -1262,7 +1280,7 @@
   function suggestPlacementRandom(state, req) {
     var count = Math.max(1, Number(req.count) || 1);
     var unitId = req.unitId || (state.settings && state.settings.defaultUnitId) || null;
-    var boxes = boxesFor(state, unitId).filter(function (entry) {
+    var boxes = boxesFor(state, unitId, req.owner || state._owner).filter(function (entry) {
       return req.boxId ? entry.box.id === req.boxId : true;
     });
     if (!boxes.length) {
@@ -1314,7 +1332,7 @@
     var rules = state.rules || DEFAULT_RULES;
     var origin = originForRequest(state, req, rules);
 
-    var boxes = boxesFor(state, unitId).filter(function (entry) {
+    var boxes = boxesFor(state, unitId, req.owner || state._owner).filter(function (entry) {
       return req.boxId ? entry.box.id === req.boxId : true;
     });
     if (!boxes.length) {
@@ -2132,19 +2150,71 @@
   // This is the shape the file is committed in, so it lives here rather than in the
   // app: the selftest can then prove that loading the file and writing it back is a
   // no-op, which is what stops the app and the committed inventory drifting apart.
+  function stripEmpties(obj, keep) {
+    Object.keys(obj).forEach(function (k) {
+      if (keep.indexOf(k) !== -1) return;
+      var v = obj[k];
+      if (v === "" || v === null || v === undefined || (Array.isArray(v) && !v.length)) delete obj[k];
+    });
+  }
+
   function slim(state) {
     var copy = clone(state);
-    function strip(obj, keep) {
-      Object.keys(obj).forEach(function (k) {
-        if (keep.indexOf(k) !== -1) return;
-        var v = obj[k];
-        if (v === "" || v === null || v === undefined || (Array.isArray(v) && !v.length)) delete obj[k];
-      });
-    }
-    (copy.vials || []).forEach(function (v) { strip(v, ["id", "name"]); });
-    (copy.lines || []).forEach(function (l) { strip(l, ["id", "name"]); });
-    eachBox(copy, function (box) { strip(box, ["id", "name", "rows", "cols"]); });
+    (copy.vials || []).forEach(function (v) { stripEmpties(v, ["id", "name"]); });
+    (copy.lines || []).forEach(function (l) { stripEmpties(l, ["id", "name"]); });
+    // The freezer belongs to the lab, not to whoever happens to be logged in: it lives
+    // in cellstocks/lab-storage.json and is hydrated onto state.storage at load (see
+    // hydrateStorage). A member's own file must never carry a second copy of it, or the
+    // two would drift the first time an admin renamed a rack.
+    delete copy.storage;
+    delete copy._owner;
     return copy;
+  }
+
+  // The lab's shared structure, written to cellstocks/lab-storage.json. Boxes keep the
+  // same shape they always had plus `owner`; any node may carry an `icon`.
+  function slimStorage(storage) {
+    var copy = clone(storage || {});
+    copy.units = copy.units || [];
+    eachBox(copy, function (box) { stripEmpties(box, ["id", "name", "rows", "cols", "owner"]); });
+    return copy;
+  }
+
+  function serialiseStorage(storage) {
+    return JSON.stringify(slimStorage(storage), null, 2) + "\n";
+  }
+
+  function blankStorage() {
+    return { labName: "CAA Lab Stocks", labIcon: "", units: [] };
+  }
+
+  function mergeStorageDefaults(storage) {
+    var s = storage && typeof storage === "object" ? clone(storage) : {};
+    if (!Array.isArray(s.units)) s.units = [];
+    if (typeof s.labName !== "string" || !s.labName.trim()) s.labName = blankStorage().labName;
+    if (typeof s.labIcon !== "string") s.labIcon = "";
+    return s;
+  }
+
+  // Puts the lab's shared structure onto a member's state for the length of a session.
+  // Everything that renders -- occupancy, locationPath, placement, validate -- reads
+  // state.storage, so hydrating here is what lets one shared freezer serve every
+  // account without a single one of those functions knowing it moved. slim() takes it
+  // back off before the member's own file is written.
+  function hydrateStorage(state, storage, owner) {
+    var next = clone(state);
+    next.storage = { units: clone(mergeStorageDefaults(storage).units) };
+    if (owner) next._owner = owner;
+    return next;
+  }
+
+  // An icon is either an uploaded image (a filename under cellstocks/icons/) or an
+  // emoji typed straight in. One field, told apart by its extension, so a node carries
+  // one `icon` string rather than two half-empty ones.
+  function iconKind(value) {
+    var v = String(value === null || value === undefined ? "" : value).trim();
+    if (!v) return null;
+    return /\.(png|jpe?g|webp)$/i.test(v) ? "image" : "emoji";
   }
 
   // Exactly what the app commits, so "what would be written" is one call everywhere.
@@ -2305,7 +2375,7 @@
     renameSubdivision: renameSubdivision, removeSubdivision: removeSubdivision,
     boxesUnderRack: boxesUnderRack, childrenOf: childrenOf,
     setSubdivisionCount: setSubdivisionCount, setUnitCount: setUnitCount,
-    setUnitDetails: setUnitDetails, setBoxCount: setBoxCount, moveBoxToSibling: moveBoxToSibling,
+    setUnitDetails: setUnitDetails, setBoxCount: setBoxCount, moveBox: moveBox,
     // classification
     FACETS: FACETS, DEFAULT_RULES: DEFAULT_RULES, classify: classify, facetsFor: facetsFor,
     classifyAll: classifyAll, parsePassage: parsePassage, passageLabel: passageLabel,
@@ -2320,7 +2390,7 @@
     normaliseText: normaliseText, tokenise: tokenise, matchScore: matchScore,
     searchExtents: searchExtents, search: search, searchGroups: searchGroups,
     // placement
-    NO_ORIGIN: NO_ORIGIN, originOfVial: originOfVial, rowsOf: rowsOf, rowTakes: rowTakes,
+    NO_ORIGIN: NO_ORIGIN, originOfVial: originOfVial, boxesFor: boxesFor, rowsOf: rowsOf, rowTakes: rowTakes,
     mixedRows: mixedRows, suggestPlacement: suggestPlacement, applyPlacement: applyPlacement,
     GROUPING_STRATEGIES: GROUPING_STRATEGIES, IMPLEMENTED_GROUPING_STRATEGIES: IMPLEMENTED_GROUPING_STRATEGIES,
     groupingStrategyFor: groupingStrategyFor,
@@ -2334,6 +2404,8 @@
     // state
     blankState: blankState, mergeDefaults: mergeDefaults, indexById: indexById,
     slim: slim, serialise: serialise,
+    slimStorage: slimStorage, serialiseStorage: serialiseStorage, blankStorage: blankStorage,
+    mergeStorageDefaults: mergeStorageDefaults, hydrateStorage: hydrateStorage, iconKind: iconKind,
     reviewQueue: reviewQueue, confirmDate: confirmDate, markDateUnknown: markDateUnknown,
     resolveImportRow: resolveImportRow
   };

@@ -118,11 +118,23 @@ the new name, the same trade-off deleting an account already makes.
 ## Ownership and atomicity on `/commit`
 
 A member may only commit their own `cellstocks/data/<name>.json` and `cellstocks/data/<name>.xlsx`.
-An admin may commit any file under `cellstocks/data/`. Nothing outside that prefix is ever
-writable through this endpoint — it is not a general GitHub proxy, only enough surface for this
-one job. Every file in a `/commit` request is ownership-checked before any GitHub call is made,
-so a request that mixes one writable path with one forbidden path is rejected whole — nothing is
-partially committed.
+An admin may commit any file under `cellstocks/data/`. Two paths sit outside that prefix and are
+writable on purpose:
+
+- `cellstocks/lab-storage.json` — the lab's one shared storage tree. **Any signed-in member may
+  write it**, because adding a box to the freezer is everyday work and there is no per-node
+  permission model here to express "this branch is mine". The trade-off is deliberate and
+  recorded in `canWrite()` itself: the structure screen that rewrites the whole tree is
+  admin-only in the app, and every write lands as an ordinary git commit, so a bad one is
+  visible in the history and revertable.
+- `cellstocks/icons/<file>.{png,jpg,jpeg,webp}` — **admin only**, and the filename is validated
+  against `^[a-zA-Z0-9._-]+$` before the extension check, so no nested path and no `..` gets
+  through. No SVG: it is markup, and this repository is public.
+
+Nothing else outside `cellstocks/data/` is ever writable through this endpoint — it is not a
+general GitHub proxy, only enough surface for this one job. Every file in a `/commit` request is
+ownership-checked before any GitHub call is made, so a request that mixes one writable path with
+one forbidden path is rejected whole — nothing is partially committed.
 
 `/commit` takes one or more files and lands them in a single git commit via the git data API
 (blob → tree → commit → ref update), the same sequence `cellstocks/index.html`'s own

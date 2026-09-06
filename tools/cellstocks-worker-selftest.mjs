@@ -8,7 +8,7 @@
 // No network, no Cloudflare account, no deploy. See that file's own header for why it is
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
-import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES } from "../cellstocks-worker/worker.js";
+import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -723,6 +723,48 @@ await check("an unknown route 404s instead of falling through to something else"
   const env = makeEnv();
   const res = await handleRequest(req("GET", "/nonexistent"), env);
   if (res.status !== 404) return `expected 404, got ${res.status}`;
+  return null;
+});
+
+// ==================================================================== shared lab storage
+
+await check("the lab's shared structure is writable by any member, and by no PI", async () => {
+  const member = { name: "Umut", role: "member" };
+  if (!canWrite(member, LAB_STORAGE_PATH)) return "a member cannot add a box for themselves any more";
+  if (!canWrite({ name: "admin", role: "admin" }, LAB_STORAGE_PATH)) return "admin cannot write the structure";
+  if (canWrite({ name: "Chief", role: "pi" }, LAB_STORAGE_PATH)) return "a PI must not write the structure";
+  // Still nothing else outside the data prefix.
+  if (canWrite(member, "cellstocks/index.html")) return "a member could write app code";
+  if (canWrite(member, "cellstocks/lab-storage.json.bak")) return "a near-miss path was accepted";
+  return null;
+});
+
+await check("a member may commit the lab structure but still not another member's inventory", async () => {
+  const { env, token } = await adminEnvWithToken();
+  await handleRequest(req("POST", "/admin/users", { name: "Umut", password: "a" }, token), env);
+  const { body: umutLogin } = await login(env, "Umut", "a");
+  env.fetch = makeGithubFetch();
+  const ok = await handleRequest(req("POST", "/commit", {
+    files: [{ path: LAB_STORAGE_PATH, content: '{"labName":"CAA Lab Stocks","units":[]}' }], message: "m"
+  }, umutLogin.token), env);
+  if (ok.status !== 200) return `expected 200 for the shared structure, got ${ok.status}: ${json(await ok.json())}`;
+  const nope = await handleRequest(req("POST", "/commit", {
+    files: [{ path: dataPathFor("Someone"), content: "{}" }], message: "m"
+  }, umutLogin.token), env);
+  if (nope.status !== 403) return `expected 403 for someone else's inventory, got ${nope.status}`;
+  return null;
+});
+
+await check("a folder icon is admin-only, images only, and never a path escape", async () => {
+  const admin = { name: "admin", role: "admin" };
+  const member = { name: "Umut", role: "member" };
+  if (!canWrite(admin, ICON_PREFIX + "freezer.png")) return "admin cannot upload a PNG icon";
+  if (!canWrite(admin, ICON_PREFIX + "tank-1a.webp")) return "admin cannot upload a WEBP icon";
+  if (canWrite(member, ICON_PREFIX + "freezer.png")) return "a member could upload an icon";
+  if (canWrite(admin, ICON_PREFIX + "evil.svg")) return "SVG must not be accepted -- it is markup, in a public repo";
+  if (canWrite(admin, ICON_PREFIX + "evil.html")) return "a non-image extension was accepted";
+  if (canWrite(admin, ICON_PREFIX + "../data/umut.json")) return "a path traversal was accepted";
+  if (canWrite(admin, ICON_PREFIX + "nested/dir.png")) return "a nested path was accepted";
   return null;
 });
 

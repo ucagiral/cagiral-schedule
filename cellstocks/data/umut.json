@@ -92,6 +92,36 @@
             ]
           }
         ]
+      },
+      {
+        "id": "u-0x7xiuro",
+        "name": "From CAA",
+        "type": "freezer",
+        "childLabel": "Rack",
+        "racks": [
+          {
+            "id": "r-atbl7jvs",
+            "name": "From CAA",
+            "boxes": [
+              {
+                "id": "b-3addye13",
+                "name": "CLAUDE BOX 1",
+                "rows": 9,
+                "cols": 9,
+                "scheme": "grid",
+                "archived": false
+              },
+              {
+                "id": "b-jppmz675",
+                "name": "fff",
+                "rows": 9,
+                "cols": 9,
+                "scheme": "grid",
+                "archived": false
+              }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -9587,6 +9617,78 @@
         "origin": "LnCap",
         "koox": "WT"
       }
+    },
+    {
+      "id": "v-emcm6az9",
+      "name": "hek caspex g8",
+      "lineId": "l-hek-caspex-g8",
+      "passageKind": "absolute",
+      "frozenRaw": "28-07-25",
+      "frozenOn": "2025-07-28",
+      "location": {
+        "unitId": "u-0x7xiuro",
+        "rackId": "r-atbl7jvs",
+        "boxId": "b-3addye13",
+        "position": "A1"
+      },
+      "status": "stored",
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 2",
+      "passage": "P6",
+      "passageNumber": 6
+    },
+    {
+      "id": "v-x8hm3iw7",
+      "name": "hek tox4 KO g8",
+      "lineId": "l-hek-tox4-ko-g8",
+      "passageKind": "absolute",
+      "frozenRaw": "28-07-25",
+      "frozenOn": "2025-07-28",
+      "location": {
+        "unitId": "u-0x7xiuro",
+        "rackId": "r-atbl7jvs",
+        "boxId": "b-3addye13",
+        "position": "A2"
+      },
+      "status": "stored",
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 3",
+      "passage": "P5",
+      "passageNumber": 5
+    },
+    {
+      "id": "v-zde7yyzi",
+      "name": "LNCAP",
+      "lineId": "l-lncap",
+      "passageKind": "absolute",
+      "frozenRaw": "28-07-25",
+      "frozenOn": "2025-07-28",
+      "location": {
+        "unitId": "u-0x7xiuro",
+        "rackId": "r-atbl7jvs",
+        "boxId": "b-jppmz675",
+        "position": "A1"
+      },
+      "status": "stored",
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 83",
+      "passage": "p5",
+      "passageNumber": 5
+    },
+    {
+      "id": "v-rb9gprqv",
+      "name": "lncap caspex",
+      "lineId": "l-lncap-caspex",
+      "passageKind": "absolute",
+      "frozenRaw": "28-07-25",
+      "frozenOn": "2025-07-28",
+      "location": {
+        "unitId": "u-0x7xiuro",
+        "rackId": "r-atbl7jvs",
+        "boxId": "b-jppmz675",
+        "position": "A2"
+      },
+      "status": "stored",
+      "importedFrom": "CAA Lab-Cell Stocks (-80 & LiqNitro)-2 NEW.xlsx!Claude App!row 84",
+      "passage": "P6",
+      "passageNumber": 6
     }
   ],
   "withdrawals": [

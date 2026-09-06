@@ -63,6 +63,10 @@
     ],
     "resistance": [
       {
+        "match": "Dtx",
+        "value": "DtxR"
+      },
+      {
         "match": "Doce",
         "value": "DtxR"
       },
@@ -115,6 +119,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T19:53:16.775Z"
+    "savedAt": "2026-09-06T19:53:35.491Z"
   }
 }

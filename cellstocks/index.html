@@ -486,6 +486,10 @@
   // name so neither path is baked into the data.
   var ICON_PREFIX = "cellstocks/icons/";
   var ICON_SRC_PREFIX = "icons/";
+  // Who the nightly layout export is mailed to. Lab-wide, admin-only, and a committed
+  // file rather than a Worker setting, because the thing that sends the mail reads the
+  // repository and never logs in.
+  var RECIPIENTS_PATH = "cellstocks/exports/recipients.json";
 
   // Where the inventory is read from. On <owner>.github.io it is read straight out of
   // the address, which is how this app has always found its own repository. Served from
@@ -4724,8 +4728,94 @@
     setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
   }
 
+  // ---- who the nightly layout export goes to ----
+  //
+  // The export itself is built and committed by a scheduled job, from the repository --
+  // nothing here generates it. All this screen owns is the list of addresses, which is a
+  // committed file for the same reason: whatever sends the mail reads the repo, and has
+  // no account to log in with.
+  async function renderExportRecipients(c){
+    c.appendChild(el("h3", null, "Daily layout export"));
+    c.appendChild(el("p", "note",
+      "Every morning the freezer's layout is rebuilt — an Excel workbook with a grid per box, " +
+      "a printable PDF map for the freezer door, and a one-row-per-box summary — and mailed to " +
+      "the addresses below. Leave it empty and nothing is sent; the files are still rebuilt and " +
+      "kept in the repository."));
+
+    var list = el("div");
+    c.appendChild(list);
+    var msg = el("div");
+    var current = [];
+
+    function draw(){
+      clear(list);
+      if (!current.length) list.appendChild(el("p", "note", "Nobody yet — the export is written but not mailed."));
+      current.forEach(function(addr, i){
+        var row = el("div", "item");
+        row.appendChild(el("div", "grow", addr));
+        var del = el("button", "danger", "Remove");
+        del.onclick = async function(){
+          var next = current.slice(0, i).concat(current.slice(i + 1));
+          await saveRecipients(next);
+        };
+        row.appendChild(del);
+        list.appendChild(row);
+      });
+    }
+
+    async function saveRecipients(next){
+      clear(msg).appendChild(el("p", "note", "Saving…"));
+      try {
+        await workerCommit(
+          [{ path: RECIPIENTS_PATH, content: JSON.stringify({ emails: next }, null, 2) + "\n" }],
+          "Set who the daily layout export goes to");
+        current = next;
+        draw();
+        clear(msg).appendChild(el("p", "note", "Saved. The next morning's export goes to " +
+          (next.length ? next.join(", ") : "nobody") + "."));
+      } catch(err){
+        clear(msg).appendChild(el("p", "note", "Couldn't save that: " + esc(err.message)));
+      }
+    }
+
+    var input = document.createElement("input");
+    input.type = "email";
+    input.placeholder = "somebody@example.com";
+    input.autocomplete = "off";
+    var add = el("button", "primary", "Add");
+    add.onclick = async function(){
+      var addr = input.value.trim();
+      // Deliberately loose: this is a list an admin types, not a signup form, and the
+      // only cost of a typo is a bounce. It rejects what is obviously not an address.
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(addr)){
+        clear(msg).appendChild(el("p", "note", "That does not look like an email address."));
+        return;
+      }
+      if (current.some(function(a){ return a.toLowerCase() === addr.toLowerCase(); })){
+        clear(msg).appendChild(el("p", "note", addr + " is already on the list."));
+        return;
+      }
+      input.value = "";
+      await saveRecipients(current.concat([addr]));
+    };
+    var row = el("div", "row tight");
+    row.appendChild(input); row.appendChild(add);
+    c.appendChild(row);
+    c.appendChild(msg);
+
+    try {
+      var resp = await fetch(rawURL(RECIPIENTS_PATH), { cache:"no-store" });
+      if (resp.ok){
+        var body = JSON.parse(await resp.text());
+        current = (body.emails || []).filter(function(a){ return typeof a === "string" && a; });
+      }
+    } catch(err){ /* no list yet is not an error -- it is the starting state */ }
+    draw();
+  }
+
   function renderAdminHistory(){
     var c = clear($("admin-history"));
+    renderExportRecipients(c);
     c.appendChild(el("h3", null, "Export everything"));
     c.appendChild(el("p", "note", "One workbook: every current member's vials, one sheet each, plus a first " +
       "sheet listing every withdrawal lab-wide."));

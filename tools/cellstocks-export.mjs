@@ -19,13 +19,19 @@ import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const outFlag = process.argv.indexOf("--out");
-const OUT_DIR = outFlag !== -1 ? process.argv[outFlag + 1] : join(ROOT, "cellstocks", "exports");
+// --root points the whole thing at a different checkout, which is how the selftest runs
+// it over a fixture freezer instead of the real one; --out only moves where it writes.
+const arg = (flag, fallback) => {
+  const i = process.argv.indexOf(flag);
+  return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
+};
+const HERE = join(dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = arg("--root", HERE);
+const OUT_DIR = arg("--out", join(ROOT, "cellstocks", "exports"));
 
-new Function(readFileSync(join(ROOT, "cellstocks", "engine.js"), "utf8"))();
-new Function(readFileSync(join(ROOT, "cellstocks", "xlsx.js"), "utf8"))();
-new Function(readFileSync(join(ROOT, "cellstocks", "pdf.js"), "utf8"))();
+new Function(readFileSync(join(HERE, "cellstocks", "engine.js"), "utf8"))();
+new Function(readFileSync(join(HERE, "cellstocks", "xlsx.js"), "utf8"))();
+new Function(readFileSync(join(HERE, "cellstocks", "pdf.js"), "utf8"))();
 const E = globalThis.CellStocksEngine;
 const X = globalThis.XlsxLite;
 const P = globalThis.PdfLite;

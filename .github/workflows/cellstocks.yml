@@ -24,6 +24,8 @@ on:
       - cellstocks-worker/**
       - tools/cellstocks-selftest.mjs
       - tools/cellstocks-worker-selftest.mjs
+      - tools/cellstocks-export.mjs
+      - tools/cellstocks-export-selftest.mjs
       - .github/workflows/cellstocks.yml
   pull_request:
     paths:
@@ -31,6 +33,8 @@ on:
       - cellstocks-worker/**
       - tools/cellstocks-selftest.mjs
       - tools/cellstocks-worker-selftest.mjs
+      - tools/cellstocks-export.mjs
+      - tools/cellstocks-export-selftest.mjs
       - .github/workflows/cellstocks.yml
   workflow_dispatch:
 
@@ -62,6 +66,13 @@ jobs:
       # in node exactly like the browser-side engine above -- see cellstocks-worker/README.md.
       - name: Worker self-test
         run: node tools/cellstocks-worker-selftest.mjs
+
+      # The daily layout export: builds it over a fixture freezer and reads all three
+      # files back. Reading them back is the point -- an .xlsx no reader accepts and a
+      # PDF with a wrong cross-reference table both "write successfully", and neither is
+      # worth mailing anybody.
+      - name: Layout export self-test
+        run: node tools/cellstocks-export-selftest.mjs
 
       # The inventory is the app's source of truth and the workbook is generated
       # from it. If the two ever disagree, the sheet somebody downloads is wrong,

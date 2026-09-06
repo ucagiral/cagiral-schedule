@@ -73,9 +73,17 @@
         },
         {
           "id": "r-rack-2",
-          "name": "Rack 2",
+          "name": "Shelf 1 - Busra",
           "boxes": [],
-          "racks": []
+          "racks": [
+            {
+              "id": "r-rack-1",
+              "name": "Rack 1",
+              "boxes": [],
+              "racks": []
+            }
+          ],
+          "icon": "❄️"
         },
         {
           "id": "r-rack-3",

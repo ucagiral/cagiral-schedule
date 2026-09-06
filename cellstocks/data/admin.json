@@ -67,6 +67,10 @@
     ],
     "resistance": [
       {
+        "match": "50CR",
+        "value": "CisR"
+      },
+      {
         "match": "EnzaR",
         "value": "EnzaR"
       },
@@ -112,6 +116,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T17:52:01.786Z"
+    "savedAt": "2026-09-06T17:52:15.305Z"
   }
 }

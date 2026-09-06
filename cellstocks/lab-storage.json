@@ -43,11 +43,37 @@
     },
     {
       "id": "u-freezer-3",
-      "name": "Freezer 3",
-      "type": "",
+      "name": "Fridge 1",
+      "type": "-20",
       "note": "",
       "childLabel": "Rack",
-      "racks": []
+      "racks": [
+        {
+          "id": "r-rack-1-vjgl-0",
+          "name": "Rack 1",
+          "boxes": [],
+          "racks": []
+        },
+        {
+          "id": "r-rack-2-vjgl-1",
+          "name": "Rack 2",
+          "boxes": [],
+          "racks": []
+        },
+        {
+          "id": "r-rack-3",
+          "name": "Rack 3",
+          "boxes": [],
+          "racks": []
+        },
+        {
+          "id": "r-rack-4",
+          "name": "Rack 4",
+          "boxes": [],
+          "racks": []
+        }
+      ],
+      "icon": "❄️"
     }
   ]
 }

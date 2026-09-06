@@ -4,17 +4,19 @@ name: Cell stocks daily layout export
 # asked for: an Excel workbook with a grid per box, a printable PDF map for the freezer
 # door, and a one-row-per-box summary.
 #
-# 04:40 UTC, which is 07:40 in Istanbul -- twenty minutes before the mail that carries
-# them goes out at 08:00, so the files are already committed and current when it does.
-# (Two separate things on purpose: this job needs no secrets and always runs; the mail
-# is sent by a scheduled Claude session, which is what has an inbox to send from.)
+# 05:00 UTC, which is 08:00 in Istanbul: build, commit if anything changed, and mail.
 #
 # The file names never change. A dated file would mean a new link every morning and a
 # directory nobody prunes; git already keeps every previous morning.
 on:
   schedule:
-    - cron: "40 4 * * *"
+    - cron: "0 5 * * *"
   workflow_dispatch:
+    inputs:
+      skip_mail:
+        description: "Build and commit, but do not send the mail"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -63,3 +65,27 @@ jobs:
           done
           echo "::error::could not push the layout export after three attempts"
           exit 1
+
+      # The mailer speaks SMTP itself (tools/cellstocks-mail.mjs) rather than going
+      # through a third-party action: whatever sends this is handed the mailbox's app
+      # password on every run, and this repository is public.
+      #
+      # Skipped, not failed, when the secret is not set -- the same way the worker deploy
+      # skips without its token, so a fork and a lab that has not set this up yet both
+      # still pass. It exits 0 by itself when nobody is on the recipients list.
+      - name: Check for the mail credentials
+        id: mail
+        run: echo "configured=${{ secrets.MAIL_PASSWORD != '' && secrets.MAIL_USER != '' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Mail today's layout
+        if: steps.mail.outputs.configured == 'true' && inputs.skip_mail != true
+        env:
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: node tools/cellstocks-mail.mjs
+
+      - name: No mail credentials configured
+        if: steps.mail.outputs.configured != 'true'
+        run: |
+          echo "::warning::MAIL_USER / MAIL_PASSWORD are not set, so today's layout was built and committed but not mailed."
+          echo "::warning::Add them under Settings -> Secrets and variables -> Actions. MAIL_PASSWORD is a Gmail app password, not the account password."

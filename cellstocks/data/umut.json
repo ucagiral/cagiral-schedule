@@ -93,10 +93,6 @@
         "caseSensitive": true
       },
       {
-        "extract": "DtxR|50CR|CR",
-        "notInOrigin": true
-      },
-      {
         "value": "-"
       }
     ],
@@ -131,6 +127,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T19:54:28.300Z"
+    "savedAt": "2026-09-06T19:54:43.969Z"
   }
 }

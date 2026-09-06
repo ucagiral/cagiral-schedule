@@ -410,7 +410,7 @@ rather than as intent. It needs playwright; without it, it says so and exits wit
 
 ## Cell Stocks
 
-- **App:** `https://cellstocks-worker.caalab.workers.dev`
+- **App:** `https://cellstocks-worker.caalabworkersdev.workers.dev`
 
 The old GitHub Pages address, `https://<account>.github.io/cagiral-schedule/cellstocks/`,
 now redirects here. It had a person's name in it, which is the reason for the move; the

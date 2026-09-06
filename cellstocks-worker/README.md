@@ -102,7 +102,7 @@ than trusting it to.
 
 ## Serving the app
 
-**The app lives at `https://cellstocks-worker.caalab.workers.dev`.** The Worker also serves
+**The app lives at `https://cellstocks-worker.caalabworkersdev.workers.dev`.** The Worker also serves
 the app itself. `wrangler.toml` binds `../cellstocks` as `[assets]`,
 so a request that matches one of the API's routes is handled by `worker.js` and everything
 else falls through to those files (see the end of `handleRequest`). Two things follow:
@@ -114,9 +114,18 @@ else falls through to those files (see the end of `handleRequest`). Two things f
 
 The host is `<worker name>.<the account's workers.dev subdomain>`. That subdomain is an
 account-level setting in the Cloudflare dashboard (Workers & Pages → Subdomain) and is not
-in this repository — it was changed from the default, which was the account's own name, to
-`caalab`, because the point of moving off GitHub Pages was to stop the address naming a
-person. **Changing it again changes this host**, and any device with the old address saved
+in this repository — it was changed from the default, which was the account's own name,
+because the point of moving off GitHub Pages was to stop the address naming a person.
+
+**Read the deployed host out of the deploy log, never out of what was typed into that
+field.** Cloudflare strips the punctuation: typing `caalab.workers.dev` produced the
+subdomain `caalabworkersdev`, so the real host is
+`cellstocks-worker.caalabworkersdev.workers.dev` and not the address it looked like it
+would be. Logging in against the address it looked like gives a bare "Failed to fetch",
+because the name does not resolve — which is exactly what happened, and cost an hour of
+looking for a CORS bug that was not there.
+
+**Changing the subdomain changes this host**, and any device with the old address saved
 would be logging in against a name that no longer resolves. That is why the login gate
 offers the address the page was served from, in preference to whatever is saved.
 

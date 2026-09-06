@@ -1,0 +1,125 @@
+{
+  "origin": [
+    {
+      "match": "Du",
+      "value": "Du145"
+    },
+    {
+      "match": "HEK",
+      "value": "HEK293T"
+    },
+    {
+      "match": "LCC",
+      "value": "LnCap"
+    },
+    {
+      "match": "LNC",
+      "value": "LnCap"
+    },
+    {
+      "match": "LNCX",
+      "value": "LnCap"
+    },
+    {
+      "match": "LUCX",
+      "value": "LuCap35CR"
+    },
+    {
+      "match": "LuCap",
+      "value": "LuCap35CR"
+    },
+    {
+      "match": "LnCap",
+      "value": "LnCap"
+    },
+    {
+      "match": "Huh",
+      "value": "Huh7"
+    },
+    {
+      "match": "HepG",
+      "value": "HepG2"
+    },
+    {
+      "match": "MDA",
+      "value": "MDA-MB-231"
+    }
+  ],
+  "koox": [
+    {
+      "extract": "(?<![A-Za-z])(?:KO|OX|3xFLAG)"
+    },
+    {
+      "match": "FLAG",
+      "value": "FLAG"
+    },
+    {
+      "match": "OX",
+      "value": "OX"
+    },
+    {
+      "match": "KO",
+      "value": "KO"
+    },
+    {
+      "match": "CASP",
+      "value": "CASPEX"
+    },
+    {
+      "value": "WT"
+    }
+  ],
+  "resistance": [
+    {
+      "match": "50CR",
+      "value": "CisR"
+    },
+    {
+      "match": "EnzaR",
+      "value": "EnzaR"
+    },
+    {
+      "match": "ER",
+      "value": "EnzaR",
+      "wordBoundary": true,
+      "caseSensitive": true
+    },
+    {
+      "match": "35CR",
+      "value": "CR"
+    },
+    {
+      "match": "UCX",
+      "value": "CR"
+    },
+    {
+      "match": "Dtx",
+      "value": "DtxR"
+    },
+    {
+      "match": "Doce",
+      "value": "DtxR"
+    },
+    {
+      "value": "-"
+    }
+  ],
+  "caspex": [
+    {
+      "match": "CASP",
+      "value": "CASPEX"
+    },
+    {
+      "value": "-"
+    }
+  ],
+  "guide": [
+    {
+      "extract": "(DS)?g\\d+(\\.\\d+)?|gNT|g[PC]\\d+",
+      "longest": true
+    },
+    {
+      "value": "-"
+    }
+  ]
+}

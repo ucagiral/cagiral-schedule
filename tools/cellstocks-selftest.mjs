@@ -1330,8 +1330,13 @@ check("a vial stores the whole route, and refreshPaths rewrites it after a move"
   const f = treeFixture();
   let st = f.state;
   st.vials = [Object.assign(vial("v-x", "HEK293T", f.boxId, "A1"), { location: E.locationFor(st, f.boxId, "A1") })];
-  if (json(st.vials[0].location.path) !== json([f.freezer, f.shelf, f.rack])) {
+  // Each step carries both: the id, so a rename cannot break it, and the name, so the
+  // file still says where the vial is to somebody reading it without the tree.
+  if (E.pathKey(st.vials[0].location.path) !== [f.freezer, f.shelf, f.rack].join("/")) {
     return `the stored path is wrong: ${json(st.vials[0].location.path)}`;
+  }
+  if (E.pathNames(st.vials[0].location.path) !== "Freezer 1/Shelf 1/Metal Rack 1") {
+    return `the stored path has no readable names: ${json(st.vials[0].location.path)}`;
   }
   if (E.errorsOnly(E.validate(st)).length) return `a fresh state does not validate: ${json(E.validate(st))}`;
 
@@ -1345,8 +1350,20 @@ check("a vial stores the whole route, and refreshPaths rewrites it after a move"
   const fixed = E.refreshPaths(moved.state);
   if (fixed.touched !== 1) return `refreshPaths touched ${fixed.touched}`;
   if (E.validate(fixed.state).filter((p) => p.code === "stale-path").length) return "the path was not fixed";
-  if (json(fixed.state.vials[0].location.path) !== json([f.tank])) {
+  if (E.pathKey(fixed.state.vials[0].location.path) !== f.tank) {
     return `the new path is wrong: ${json(fixed.state.vials[0].location.path)}`;
+  }
+
+  // Renaming a layer leaves the ids right and the names wrong, which is a different
+  // complaint with a different fix -- and refreshPaths is that fix too.
+  const renamed = E.editNode(fixed.state, f.tank, { name: "LN2 Tank Two" });
+  const nameStale = E.validate(renamed.state).filter((p) => p.code === "stale-path");
+  if (!nameStale.length) return "a renamed layer left the stored names unreported";
+  if (!/renamed/.test(nameStale[0].message)) return `unhelpful message: ${nameStale[0].message}`;
+  const reNamed = E.refreshPaths(renamed.state);
+  if (reNamed.touched !== 1) return `refreshPaths ignored a rename (touched ${reNamed.touched})`;
+  if (E.pathNames(reNamed.state.vials[0].location.path) !== "LN2 Tank Two") {
+    return `the names were not refreshed: ${json(reNamed.state.vials[0].location.path)}`;
   }
   return null;
 });
@@ -1728,6 +1745,92 @@ check("iconKind tells an uploaded image from an emoji, and blank from both", () 
   return null;
 });
 
+// ---------------------------------------------------------------- shared rules
+//
+// The rules were per-account and had genuinely drifted apart -- admin read
+// "Du145 TOX4 KO" as a knockout and umut's copy as an overexpression. Umut asked for
+// them merged and shared. Merging an ordered, first-match-wins list is not
+// concatenation, and these are the three things that make it not.
+
+check("a merged facet keeps a matcher's first position, and drops the later duplicate", () => {
+  const out = E.mergeRuleSets([
+    { owner: "a", rules: { origin: [{ match: "Du", value: "Du145" }, { match: "HEK", value: "HEK293T" }] } },
+    { owner: "b", rules: { origin: [{ match: "HEK", value: "HEK293T" }, { match: "Du", value: "Du145" }] } }
+  ]);
+  const seen = out.rules.origin.map((r) => r.match).join(",");
+  // Moving "Du" after "HEK" would change what it beats, so the first account's order wins.
+  if (seen !== "Du,HEK") return `order changed: ${seen}`;
+  if (out.conflicts.length) return `a plain duplicate was called a conflict: ${json(out.conflicts)}`;
+  return null;
+});
+
+check("the same matcher with a different value is reported, never silently settled", () => {
+  const out = E.mergeRuleSets([
+    { owner: "admin", rules: { resistance: [{ match: "50CR", value: "CisR" }] } },
+    { owner: "umut", rules: { resistance: [{ match: "50CR", value: "50CR" }] } }
+  ]);
+  if (out.rules.resistance.length !== 1) return `both readings were kept: ${json(out.rules.resistance)}`;
+  if (out.conflicts.length !== 1) return `the disagreement went unreported: ${json(out.conflicts)}`;
+  const c = out.conflicts[0];
+  if (c.kept !== "CisR" || c.dropped !== "50CR" || c.keptFrom !== "admin" || c.droppedFrom !== "umut") {
+    return `the report does not say who wanted what: ${json(c)}`;
+  }
+  return null;
+});
+
+check("a catch-all sorts last, so a merged rule can never be dead code behind it", () => {
+  // umut's list ends in a bare {value:"WT"}; admin's has a rule that must still be
+  // reachable after it. Appended naively, everything after the catch-all never runs.
+  const out = E.mergeRuleSets([
+    { owner: "umut", rules: { koox: [{ match: "OX", value: "OX" }, { value: "WT" }] } },
+    { owner: "admin", rules: { koox: [{ match: "CASP", value: "CASPEX" }, { value: "WT" }] } }
+  ]);
+  const list = out.rules.koox;
+  if (list[list.length - 1].value !== "WT" || list[list.length - 1].match !== undefined) {
+    return `the catch-all is not last: ${json(list)}`;
+  }
+  if (!list.some((r) => r.match === "CASP")) return `a rule was lost: ${json(list)}`;
+  // And it must actually be reached.
+  if (E.classify("Du145 CASPEX g5", out.rules).koox !== "CASPEX") {
+    return `CASP is unreachable behind the catch-all: ${json(list)}`;
+  }
+  return null;
+});
+
+check("two catch-alls that disagree are a conflict too, not two catch-alls", () => {
+  const out = E.mergeRuleSets([
+    { owner: "a", rules: { resistance: [{ value: "-" }] } },
+    { owner: "b", rules: { resistance: [{ value: "none" }] } }
+  ]);
+  if (out.rules.resistance.length !== 1) return `two fallbacks survived: ${json(out.rules.resistance)}`;
+  if (out.conflicts.length !== 1) return "the disagreeing fallback went unreported";
+  return null;
+});
+
+check("merging is pure -- the sets it was given come back untouched", () => {
+  const mine = { origin: [{ match: "HEK", value: "HEK293T" }] };
+  const before = json(mine);
+  E.mergeRuleSets([{ owner: "a", rules: mine }, { owner: "b", rules: { origin: [{ match: "Du", value: "Du145" }] } }]);
+  return json(mine) === before ? null : `the input was mutated: ${json(mine)}`;
+});
+
+check("a member's saved file carries no rules of its own any more", () => {
+  const st = E.mergeDefaults({ vials: [], lines: [] });
+  const written = JSON.parse(E.serialise(st));
+  if (written.rules !== undefined) return `slim() still writes rules: ${json(Object.keys(written))}`;
+  if (written.storage !== undefined) return "slim() still writes the storage tree";
+  // And hydrating puts them back where every screen already reads them.
+  const shared = { origin: [{ match: "Zed", value: "ZedLine" }] };
+  const hydrated = E.hydrateRules(st, shared);
+  if (E.classify("Zed 12", hydrated.rules).origin !== "ZedLine") {
+    return `the shared rules did not reach state.rules: ${json(hydrated.rules.origin)}`;
+  }
+  // A facet the shared file does not mention still falls back to the built-in defaults,
+  // rather than becoming undefined and classifying everything as nothing.
+  if (!hydrated.rules.guide || !hydrated.rules.guide.length) return "a missing facet was left empty";
+  return null;
+});
+
 // ============================================================== real inventory
 //
 // Everything above runs on a fixture. These run on cellstocks/data/umut.json --
@@ -1745,8 +1848,13 @@ const LAB_STORAGE_PATH = join(ROOT, "cellstocks", "lab-storage.json");
 // checks have to run against the same thing the app renders, so they hydrate too.
 const labStorage = existsSync(LAB_STORAGE_PATH)
   ? E.mergeStorageDefaults(JSON.parse(readFileSync(LAB_STORAGE_PATH, "utf8"))) : E.blankStorage();
+// The rules moved out of each member's file into one shared set, the same way the tree
+// did, so the real inventory is hydrated with both -- exactly what the app does at load.
+const LAB_RULES_PATH = join(ROOT, "cellstocks", "lab-rules.json");
+const labRules = existsSync(LAB_RULES_PATH)
+  ? E.mergeRulesDefaults(JSON.parse(readFileSync(LAB_RULES_PATH, "utf8"))) : E.mergeRulesDefaults(null);
 const realOwnFile = existsSync(REAL_PATH) ? E.mergeDefaults(JSON.parse(readFileSync(REAL_PATH, "utf8"))) : null;
-const real = realOwnFile ? E.hydrateStorage(realOwnFile, labStorage, "umut") : null;
+const real = realOwnFile ? E.hydrateRules(E.hydrateStorage(realOwnFile, labStorage, "umut"), labRules) : null;
 
 // Umut edits this file from his phone -- takes vials out, confirms dates in bulk,
 // fixes a passage -- and this suite runs on every one of those saves. A check here
@@ -1775,6 +1883,13 @@ check("saving the real inventory unchanged rewrites it byte for byte", () => {
     if (a[i] !== b[i]) return `first difference at line ${i + 1}: on disk ${json(a[i])}, app would write ${json(b[i])}`;
   }
   return "the files differ in length only";
+});
+
+check("the committed lab rules are the ones on disk, written byte for byte", () => {
+  if (!existsSync(LAB_RULES_PATH)) return null;   // not merged yet
+  const onDisk = readFileSync(LAB_RULES_PATH, "utf8");
+  const written = E.serialiseRules(labRules);
+  return written === onDisk ? null : "the app would rewrite cellstocks/lab-rules.json on its next save";
 });
 
 check("the real inventory validates with no errors", () => {

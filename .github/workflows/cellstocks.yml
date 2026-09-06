@@ -28,6 +28,7 @@ on:
       - tools/cellstocks-export-selftest.mjs
       - tools/cellstocks-mail.mjs
       - tools/cellstocks-mail-selftest.mjs
+      - tools/cellstocks-merge-rules.mjs
       - .github/workflows/cellstocks.yml
   pull_request:
     paths:
@@ -39,6 +40,7 @@ on:
       - tools/cellstocks-export-selftest.mjs
       - tools/cellstocks-mail.mjs
       - tools/cellstocks-mail-selftest.mjs
+      - tools/cellstocks-merge-rules.mjs
       - .github/workflows/cellstocks.yml
   workflow_dispatch:
 
@@ -110,6 +112,13 @@ jobs:
             // cellstocks/lab-storage.json exactly the way the app does before anything
             // reads a location out of it.
             const lab = E.mergeStorageDefaults(JSON.parse(fs.readFileSync("cellstocks/lab-storage.json", "utf8")));
+            // Same story for the classification rules, which moved out of each account
+            // into one shared set: the vials sheet spells every facet out, so reading a
+            // member file without them would compare against the built-in defaults and
+            // report a mismatch on a workbook nobody had touched.
+            const labRules = E.mergeRulesDefaults(
+              fs.existsSync("cellstocks/lab-rules.json")
+                ? JSON.parse(fs.readFileSync("cellstocks/lab-rules.json", "utf8")) : null);
             // Every account, not one named one. Naming umut here meant this step died
             // with ENOENT the first time that account was deleted from the admin panel,
             // reporting a missing file as a workbook mismatch.
@@ -120,7 +129,8 @@ jobs:
               .filter((n) => fs.existsSync("cellstocks/data/" + n + ".xlsx"));
             (async () => {
               for (const name of names) {
-                const state = E.hydrateStorage(E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/data/" + name + ".json", "utf8"))), lab, name);
+                const own = E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/data/" + name + ".json", "utf8")));
+                const state = E.hydrateRules(E.hydrateStorage(own, lab, name), labRules);
                 const fresh = await X.readWorkbook(await X.writeWorkbookAsync(E.vialsToSheets(state)));
                 const onDisk = await X.readWorkbook(fs.readFileSync("cellstocks/data/" + name + ".xlsx"));
                 if (JSON.stringify(flatten(fresh)) !== JSON.stringify(flatten(onDisk))) {

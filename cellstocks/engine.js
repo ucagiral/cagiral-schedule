@@ -409,10 +409,30 @@
   // where it was even if the tree file is lost. The tree stays the source of truth for
   // what is drawn: pathOf() derives it, and a stored path that disagrees is reported by
   // validate() rather than silently believed or silently overwritten.
+  //
+  // Each step is {id, name}, not one or the other. An id alone survives a rename but
+  // says nothing to a person reading the file -- which is the whole reason the path is
+  // stored -- and a name alone goes stale the moment a shelf is renamed. Keeping both
+  // means a rename leaves the ids right, a move leaves the names right, and either way
+  // validate() can say precisely what disagrees.
   function pathOf(root, boxId) {
     var f = findBox(root, boxId);
     if (!f) return null;
-    return f.chain.map(function (n) { return n.id; });
+    return f.chain.map(function (n) { return { id: n.id, name: n.name }; });
+  }
+
+  // The two path shapes compared as one string, so "has this moved?" is one test. An
+  // older file may still hold a bare array of ids; those compare on the id alone rather
+  // than being reported as stale for want of a name they never carried.
+  function pathKey(path) {
+    return (path || []).map(function (step) {
+      return typeof step === "string" ? step : (step && step.id) || "";
+    }).join("/");
+  }
+  function pathNames(path) {
+    return (path || []).map(function (step) {
+      return typeof step === "string" ? "" : ((step && step.name) || "");
+    }).join("/");
   }
 
   function locationFor(root, boxId, position) {
@@ -445,7 +465,8 @@
       if (!v.location || !v.location.boxId) return;
       var path = pathOf(next, v.location.boxId);
       if (!path) return;                      // the box is gone; unknown-box says so
-      if ((v.location.path || []).join("/") === path.join("/")) return;
+      if (pathKey(v.location.path) === pathKey(path) &&
+          pathNames(v.location.path) === pathNames(path)) return;
       v.location.path = path;
       touched++;
     });
@@ -1612,10 +1633,13 @@
       // warning: the box is real and the vial is in it, so nothing is lost -- the path
       // is just stale, which is what it looks like after a move that half-finished.
       if (Array.isArray(v.location.path)) {
-        var actual = entry.chain.map(function (n) { return n.id; }).join("/");
-        if (v.location.path.join("/") !== actual) {
+        var actual = pathOf(state, v.location.boxId) || [];
+        if (pathKey(v.location.path) !== pathKey(actual)) {
           warn("stale-path", v.name + " remembers a different route to " + entry.box.name +
                " than the freezer now has.", v.id);
+        } else if (pathNames(v.location.path) !== pathNames(actual)) {
+          warn("stale-path", v.name + " remembers the old names on the way to " + entry.box.name +
+               " — something above it was renamed.", v.id);
         }
       }
 
@@ -2142,8 +2166,101 @@
     // hydrateStorage). A member's own file must never carry a second copy of it, or the
     // two would drift the first time an admin renamed a rack.
     delete copy.storage;
+    // The rules are the lab's too, since Umut asked for one shared set: they live in
+    // cellstocks/lab-rules.json and are hydrated onto state.rules at load. A member's
+    // own file must never carry a second copy, or the two drift the first time somebody
+    // edits a rule -- which is precisely how the lab ended up with five different
+    // answers for the same cell name.
+    delete copy.rules;
     delete copy._owner;
     return copy;
+  }
+
+  // =====================================================================
+  // Rules are the lab's, not one account's
+  // =====================================================================
+  //
+  // Every account started from the same DEFAULT_RULES and then edited its own copy, so
+  // the lab ended up classifying the same cell name several different ways depending on
+  // whose screen you were looking at. Umut's call: merge what exists and share one set
+  // from here on, in cellstocks/lab-rules.json.
+  //
+  // Merging is not concatenation. A facet's rules are ordered and the first one that
+  // matches wins, so three things have to hold:
+  //
+  //   * a matcher that appears twice keeps its FIRST position -- moving it would change
+  //     what it beats,
+  //   * the same matcher with a different value is a real disagreement between two
+  //     people, and is reported rather than silently resolved,
+  //   * a fallback (a bare `value` with nothing to match on) catches everything, so
+  //     anything after it is dead code and it always sorts last.
+  //
+  // Pure, and returns what it dropped: nothing about somebody's rules gets changed
+  // behind their back without the change being listed.
+  function ruleMatcher(rule) {
+    if (!rule || typeof rule !== "object") return null;
+    var flags = [rule.wordBoundary ? "b" : "", rule.caseSensitive ? "c" : "",
+                 rule.longest ? "l" : "", rule.notInOrigin ? "n" : ""].join("");
+    if (rule.match !== undefined && rule.value !== undefined) return "m:" + rule.match + ":" + flags;
+    if (rule.extract) return "x:" + rule.extract + ":" + flags;
+    return "fallback";
+  }
+
+  function mergeRuleSets(sets) {
+    var merged = {};
+    var conflicts = [];
+    FACETS.forEach(function (facet) {
+      var kept = [], fallback = null, seen = {};
+      (sets || []).forEach(function (entry) {
+        var owner = entry && entry.owner;
+        var list = (entry && entry.rules && entry.rules[facet]) || [];
+        list.forEach(function (rule) {
+          var key = ruleMatcher(rule);
+          if (!key) return;
+          if (key === "fallback") {
+            if (!fallback) { fallback = { rule: clone(rule), owner: owner }; return; }
+            if (JSON.stringify(fallback.rule.value) !== JSON.stringify(rule.value)) {
+              conflicts.push({ facet: facet, matcher: "(anything else)", kept: fallback.rule.value,
+                               keptFrom: fallback.owner, dropped: rule.value, droppedFrom: owner });
+            }
+            return;
+          }
+          if (seen[key]) {
+            if (JSON.stringify(seen[key].rule.value) !== JSON.stringify(rule.value)) {
+              conflicts.push({ facet: facet, matcher: rule.match || rule.extract,
+                               kept: seen[key].rule.value, keptFrom: seen[key].owner,
+                               dropped: rule.value, droppedFrom: owner });
+            }
+            return;
+          }
+          seen[key] = { rule: clone(rule), owner: owner };
+          kept.push(seen[key].rule);
+        });
+      });
+      if (fallback) kept.push(fallback.rule);
+      merged[facet] = kept;
+    });
+    return { rules: merged, conflicts: conflicts };
+  }
+
+  // A member's file no longer carries rules; the shared set is put onto state at load,
+  // exactly the way the storage tree is.
+  function hydrateRules(state, labRules) {
+    var next = clone(state);
+    next.rules = mergeRulesDefaults(labRules);
+    return next;
+  }
+
+  function mergeRulesDefaults(rules) {
+    var r = rules && typeof rules === "object" ? clone(rules) : {};
+    FACETS.forEach(function (f) { if (!Array.isArray(r[f])) r[f] = clone(DEFAULT_RULES[f]); });
+    return r;
+  }
+
+  function serialiseRules(rules) {
+    var out = {};
+    FACETS.forEach(function (f) { out[f] = (mergeRulesDefaults(rules))[f]; });
+    return JSON.stringify(out, null, 2) + "\n";
   }
 
   // The lab's shared structure, written to cellstocks/lab-storage.json. Boxes keep the
@@ -2380,7 +2497,10 @@
     // the tree: one recursive kind of node, marked isBox where it stops
     eachNode: eachNode, findNode: findNode, layers: layers, isBoxNode: isBoxNode,
     addNode: addNode, editNode: editNode, moveNode: moveNode, removeNode: removeNode,
-    nodeContents: nodeContents, pathOf: pathOf, locationFor: locationFor, isPlaced: isPlaced,
+    mergeRuleSets: mergeRuleSets, ruleMatcher: ruleMatcher, hydrateRules: hydrateRules,
+    mergeRulesDefaults: mergeRulesDefaults, serialiseRules: serialiseRules,
+    nodeContents: nodeContents, pathOf: pathOf, pathKey: pathKey, pathNames: pathNames,
+    locationFor: locationFor, isPlaced: isPlaced,
     refreshPaths: refreshPaths,
     childrenOfRoot: childrenOfRoot, unplacedOf: unplacedOf, UNPLACED: UNPLACED,
     // the three-level names, kept as a view over that tree (see the comment there)

@@ -56,20 +56,17 @@ stays a separate, hidden login — see the plan this shipped from for why).
 | POST | `/logout` | Bearer token | Invalidate the session. |
 | GET | `/session` | Bearer token | `{user}` — confirms who a token belongs to. |
 | GET | `/admin/users` | admin | List every account (no password data). |
-| POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?}`. |
+| POST | `/admin/users` | admin | Create an account: `{name, password, role?, hidden?}`. `role` is one of `member`, `admin`, `pi` — anything else is a 400, never a silent demotion. |
 | DELETE | `/admin/users/:name` | admin | Delete an account, its `cellstocks/data/<name>.{json,xlsx}` pair, and revokes its sessions immediately. |
 | POST | `/admin/users/:name/reset-password` | admin | `{password}`. |
-| POST | `/admin/users/:name/rename` | admin | `{newName}`. Moves the git files, the KV account record, and every request/notification that named them. Invalidates their current session — see below. |
+| POST | `/admin/users/:name/rename` | admin | `{newName}`. Moves the git files and the KV account record. Invalidates their current session — see below. |
 | POST | `/commit` | Bearer token | `{files: [{path, content, base64?}], message}` — one atomic commit under `cellstocks/data/`. See below. |
-| POST | `/requests` | Bearer token | Ask another member's owner for an item: `{toUser, itemName, vialId?, note?}`. Notifies `toUser`, not the requester. |
-| GET | `/requests` | Bearer token | Every request this account is on either side of (as requester or owner), newest first. |
-| POST | `/requests/:id/approve` | owner or admin | Marks the request approved and notifies the requester. See below for what "approved" does and doesn't do. |
-| POST | `/requests/:id/deny` | owner or admin | Marks the request denied and notifies the requester. |
-| GET | `/notifications` | Bearer token | This account's own notifications, newest first. |
-| POST | `/notifications/:id/read` | that notification's own recipient | Marks one notification read. 404s for anyone else, including admin — there is no cross-account notification access. |
-| GET | `/messages` | Bearer token | `{messages}` — every template's *effective* text (a lab's override where it has one, the shipped default otherwise). |
-| GET | `/admin/messages` | admin | `{defaults, overrides}` — every message template this file can send, and which ones a lab has customized. |
-| PUT | `/admin/messages` | admin | `{messages: {key: text}}` — set or reset templates. See below. |
+| GET | `/types` | Bearer token | The lab-wide item-type list, and each type's known attribute names. |
+| POST | `/types` | Bearer token | Additive only: `{name}` adds a type, `{attribute: {type, name}}` adds one attribute name. Never removes or overwrites anyone else's addition. |
+| POST | `/admin/types/merge` | admin | `{from, into}` — folds one type's attribute names into another and removes it. |
+| DELETE | `/admin/types/:name` | admin | Removes a type. Vials already using it keep the name as history. |
+| POST | `/admin/types/:name/attributes/rename` | admin | `{from, to}` — renames one attribute name; renaming onto an existing one merges them. |
+| DELETE | `/admin/types/:name/attributes/:attr` | admin | Removes one attribute name from the suggestion list. Values already recorded under it are untouched. |
 | GET | `/admin/history/commits?user=<name>` | admin | Every commit that ever touched that user's data file, newest first. |
 | GET | `/admin/history/at?user=<name>&at=<ISO8601>` | admin | `{sha, commitDate, content}` — that user's data file exactly as it stood at or before that moment. See below. |
 
@@ -88,22 +85,20 @@ a downloadable `.xlsx` client-side, the same way the live app always has (`cells
 `engine.js`'s `vialsToSheets()`) — this endpoint only needs to produce the JSON as it stood, not
 regenerate a workbook server-side.
 
-### Editable message templates
+## Roles
 
-Every notification this file ever sends — "X is asking about Y", an
-approval/denial — is a named template (`DEFAULT_MESSAGES`), not an inline string, because Umut
-asked to be able to edit these from the admin panel. `PUT /admin/messages` merges into a single
-stored override object (there are only a handful of templates and they only ever change together,
-from one editor screen): send `{key: "new text with {placeholders}"}` to override a message, or
-`{key: ""}` (empty/blank) to reset that one back to its default. An unknown key is rejected outright
-rather than silently stored, so a typo in the editor can't quietly create a template nothing ever
-reads. `{placeholder}` substitution (`fillTemplate()`) leaves an unrecognized placeholder in a
-custom template untouched rather than dropping it, so a typo'd `{itme}` shows up as literal text
-instead of vanishing — visible and fixable, not silently wrong.
+Three, and the list is a whitelist — an unknown role is a 400 rather than a silent demotion
+to `member`:
 
-`GET /messages` (any logged-in user) is how the app reads the *effective* text of any template to
-display it; `GET/PUT /admin/messages` (admin-only) is the separate, admin-only pair for the editor
-screen, which additionally needs to know which ones are overridden.
+| Role | Own inventory | Can write | Sees |
+|---|---|---|---|
+| `member` | yes | only their own `cellstocks/data/<name>.{json,xlsx}` | their own boxes; other members' via the app's search-in-lab |
+| `admin` | no | anywhere under `cellstocks/data/` | everything, and the admin tools |
+| `pi` | **no** | **nothing** — `canWrite()` refuses every path, including one named after them | everything, read-only |
+
+`pi` is the lab head: they read and search the whole lab and change none of it. The app hides
+the Add tab and the admin tools for them; `canWrite()` enforces the write half here rather
+than trusting it to.
 
 ## Renaming a user
 
@@ -116,12 +111,6 @@ for a rename to "update everything", so it touches three things:
    deletes the old path (a tree entry with `sha: null` deletes it) — one commit, so the file is
    never briefly duplicated or briefly missing. A pair that 404s (never saved) is skipped.
 2. **The KV account record** — a new `user:<newname>` key, the old one deleted.
-3. **Every historical reference** — `fromUser`/`toUser` on `request:*` records, and every
-   `notification:<oldname>:*` entry re-keyed under the new name
-   (notifications are keyed by recipient, so this is a re-key, not a field edit). The wording of a
-   notification already sent is left exactly as it was — "Umut is asking about X" is what was
-   actually said at the time; rewriting it would be inventing history, not correcting it.
-
 Deleting the old KV key means any of that account's existing sessions stop resolving immediately
 (`requireSession` re-reads the user record on every call) — a rename forces a fresh login under
 the new name, the same trade-off deleting an account already makes.
@@ -143,18 +132,6 @@ window where the committed workbook and the inventory it's supposed to describe 
 is exactly what `CLAUDE.md` says must never happen. `content` is the raw file text for JSON,
 base64 (`base64: true`) for the binary workbook.
 
-## Requests and notifications: what "approved" does and doesn't do
-
-The physical vial never moves through any of this. Umut's answer was explicit: approving a
-request just marks the item "reserved for" the requester on the *owner's own side*, because
-physically it's still sitting in the owner's own freezer until someone actually hands it over.
-That marking is an ordinary edit to the owner's own `cellstocks/data/<owner>.json`, made through
-`/commit` above like any other save — this Worker has no idea what a "vial" is and never touches
-one. What it owns is the bookkeeping neither side could otherwise see: the pending request itself
-(a requester cannot write into someone else's file to leave a note there) and the notification
-that tells the other side something happened. The app is responsible for turning an approval into
-an actual `reservedFor`-style field on the vial and saving it — that's app-side work, not here.
-
 ## Testing without Cloudflare
 
 `worker.js` is a plain module (`export default { fetch }`, plus named exports) built only on
@@ -162,7 +139,7 @@ Web platform primitives (`fetch`, `Request`/`Response`, `crypto.subtle`) that bo
 runtime and Node 20 implement — no build step, same as the rest of this repository.
 `tools/cellstocks-worker-selftest.mjs` runs it directly in Node against an in-memory stand-in
 for KV and a stubbed GitHub API, so the whole request lifecycle (bootstrap → login → admin
-user CRUD → ownership-checked atomic commit → request/approve/notify) is provable without
+user CRUD → ownership-checked atomic commit → type and attribute management) is provable without
 deploying anything:
 
 ```bash

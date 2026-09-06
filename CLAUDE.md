@@ -177,6 +177,20 @@ worker handles by sweeping only its own prefix.
   tick before it throws any row away. `#N/A` is not a value and is never imported as one.
 - **Absolute and relative passages are separate scales.** `p+2` must never be comparable with `p2`,
   and the 68 vials marked `p?` must never vanish from a search without the UI saying so.
+- **There is no messaging in this app, and that is deliberate.** Requests, notifications and
+  editable message templates were all built and then removed at Umut's word ("toplu mesaj
+  ozelligini tamamen kaldir", then all of it). A lab-mate's vial in a lab-wide search shows whose
+  it is and exactly which slot it sits in, and nothing else — you go and ask the person. Do not
+  reintroduce an in-app way to ask.
+- **Three roles: member, admin, PI.** A member has their own inventory. Admin has none and has the
+  tools. **A PI has no inventory of their own at all** — they read and search everyone else's and
+  change nothing, which the worker enforces in `canWrite()` rather than trusting the app to hide
+  the buttons. An unknown role is refused, never quietly demoted to member.
+- **A rule or an attribute name can be edited and deleted, not only added.** Both previews what it
+  would do to the real inventory first (how many vials read differently, how many of those are
+  pinned by hand and so do not move) — `ruleImpact()` in the app, over `E.classifyAll`. Deleting an
+  attribute name only stops it being *suggested*; a value already recorded under it is never
+  touched.
 - Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get

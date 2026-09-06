@@ -51,6 +51,10 @@
     ],
     "koox": [
       {
+        "match": "FLAG",
+        "value": "FLAG"
+      },
+      {
         "match": "OX",
         "value": "OX"
       },
@@ -135,6 +139,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T19:55:08.025Z"
+    "savedAt": "2026-09-06T19:55:15.602Z"
   }
 }

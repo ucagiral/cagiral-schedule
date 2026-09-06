@@ -2416,6 +2416,17 @@
       "notes": "",
       "start": "10:00",
       "end": "10:30"
+    },
+    {
+      "id": "emtq6x6st4z16c",
+      "date": "2026-09-07",
+      "title": "LNCX & LUCX Expand",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "10:40",
+      "end": "11:10"
     }
   ],
   "_groups": {
@@ -2451,7 +2462,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-06T19:13:50.338Z",
+    "lastModified": "2026-09-06T19:14:05.501Z",
     "modifiedBy": "Windows PC"
   }
 }

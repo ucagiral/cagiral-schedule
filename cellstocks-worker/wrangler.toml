@@ -24,6 +24,14 @@ kv_namespaces = [
 [assets]
 directory = "../cellstocks"
 binding = "ASSETS"
+# The Worker runs FIRST, for every request, and hands anything that is not one of its own
+# routes to env.ASSETS itself (see the end of handleRequest). Without this, Cloudflare's
+# asset router answers before worker.js ever runs -- and it answers the CORS preflight
+# (OPTIONS /login) that a browser on the GitHub Pages copy sends before logging in. That
+# preflight came back without the Access-Control-Allow-* headers, so the browser refused
+# the real request and the login failed with a bare "Failed to fetch". Same-origin logins
+# (the app served from here) never send a preflight, which is why only the Pages copy broke.
+run_worker_first = true
 
 [vars]
 GITHUB_OWNER = "ucagiral"

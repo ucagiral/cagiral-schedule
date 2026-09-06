@@ -75,7 +75,7 @@
     },
     {
       "id": "u-ln2",
-      "name": "LN2 Tank",
+      "name": "-80 °C Freezer",
       "type": "ln2",
       "note": "",
       "childLabel": "Tower",
@@ -105,7 +105,8 @@
           ],
           "racks": []
         }
-      ]
+      ],
+      "icon": ""
     },
     {
       "id": "u-freezer-3",

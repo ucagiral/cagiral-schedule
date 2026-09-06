@@ -270,6 +270,16 @@ worker handles by sweeping only its own prefix.
   **The repository is still public, so the data still is** — this changed the address, not
   that. The real fix is a private repo with every read going through the Worker; Umut knows
   and chose the address for now.
+- **The freezer's layout is exported every morning, in three shapes, and mailed.**
+  `tools/cellstocks-export.mjs` writes `cellstocks/exports/layout.{xlsx,pdf,csv}` — a grid
+  sheet per box, a printable map for the freezer door, and one row per box. The names never
+  change: git keeps every previous morning, and a dated file would mean a new link daily.
+  `cellstocks/pdf.js` is the PDF writer, dependency-free like `xlsx.js` beside it and just as
+  minimal (one built-in font, Latin-1, so `Şişli` prints as `Sisli` — folded, never dropped).
+  A GitHub Action builds and commits at 04:40 UTC and only when something changed; a
+  scheduled Claude session mails them at 08:00 Istanbul to `cellstocks/exports/recipients.json`,
+  which admin edits under Admin → History & export and is the only path there the worker
+  lets the app write.
 - Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get

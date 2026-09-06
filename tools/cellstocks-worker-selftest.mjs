@@ -348,6 +348,36 @@ const LAB_TREE_WITH_UMUT = JSON.stringify({
 // answered that before worker.js ever ran -- without the Access-Control-Allow-* headers,
 // so the browser refused the real request and the app said "Failed to fetch". The Worker
 // runs first now (run_worker_first in wrangler.toml); this is the check that it answers.
+// The nightly layout export is mailed to a list an admin keeps in the app. It is a
+// committed file rather than a KV setting because the scheduled job that sends the mail
+// reads the repository and has no account to log in with.
+await check("only an admin may write the export recipients list", async () => {
+  const { env, adminToken, umutToken } = await twoMembers();
+  const file = { path: "cellstocks/exports/recipients.json", content: '{"emails":["a@b.co"]}' };
+
+  env.fetch = makeGithubFetch();
+  const asMember = await handleRequest(req("POST", "/commit", { files: [file], message: "m" }, umutToken), env);
+  if (asMember.status !== 403) return `a member was allowed to write it: ${asMember.status}`;
+
+  env.fetch = makeGithubFetch();
+  const asAdmin = await handleRequest(req("POST", "/commit", { files: [file], message: "m" }, adminToken), env);
+  if (asAdmin.status !== 200) return `admin was refused: ${asAdmin.status} ${json(await asAdmin.json())}`;
+  return null;
+});
+
+await check("the recipients path is exact -- nothing else under exports/ is writable", async () => {
+  const { env, adminToken } = await twoMembers();
+  env.fetch = makeGithubFetch();
+  const res = await handleRequest(req("POST", "/commit", {
+    files: [{ path: "cellstocks/exports/layout.pdf", content: "x" }], message: "m"
+  }, adminToken), env);
+  // The exports themselves are written by the scheduled job through git, not through
+  // this endpoint -- letting the app overwrite them would make the daily file a place
+  // anyone logged in as admin could put anything.
+  if (res.status !== 403) return `expected 403 for a non-recipients export path, got ${res.status}`;
+  return null;
+});
+
 await check("a CORS preflight is answered by the Worker, with the allow headers, never by assets", async () => {
   const { env } = await adminEnvWithToken();
   let assetsAsked = false;

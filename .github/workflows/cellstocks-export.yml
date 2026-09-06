@@ -1,0 +1,65 @@
+name: Cell stocks daily layout export
+
+# Rebuilds the freezer's layout every morning and commits it, in the three shapes Umut
+# asked for: an Excel workbook with a grid per box, a printable PDF map for the freezer
+# door, and a one-row-per-box summary.
+#
+# 04:40 UTC, which is 07:40 in Istanbul -- twenty minutes before the mail that carries
+# them goes out at 08:00, so the files are already committed and current when it does.
+# (Two separate things on purpose: this job needs no secrets and always runs; the mail
+# is sent by a scheduled Claude session, which is what has an inbox to send from.)
+#
+# The file names never change. A dated file would mean a new link every morning and a
+# directory nobody prunes; git already keeps every previous morning.
+on:
+  schedule:
+    - cron: "40 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cellstocks-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # xlsx.js needs CompressionStream, which node has had since 18. Pinned to 20 like
+      # the rest of this repository's tooling.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build the layout exports
+        run: node tools/cellstocks-export.mjs
+
+      # Only commits when something actually changed. Most mornings nothing has: the
+      # freezer is the same as it was, and a commit a day saying so would bury the
+      # mornings when it is not.
+      - name: Commit them if they changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- cellstocks/exports; then
+            echo "the layout is unchanged since the last export -- nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cellstocks/exports
+          git commit -m "Daily freezer layout export"
+          # The app commits to main from people's phones all day; a push that raced one
+          # of those saves would fail on a stale ref rather than lose it. Rebase and
+          # retry rather than force anything.
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "push rejected (attempt $attempt) -- rebasing onto the newer main"
+            git pull --rebase origin main
+          done
+          echo "::error::could not push the layout export after three attempts"
+          exit 1

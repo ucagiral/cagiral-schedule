@@ -271,6 +271,7 @@ const DATA_PREFIX = "cellstocks/data/";
 // legally be named "_storage" (the name rule allows an underscore), and their own file
 // must never be able to collide with the lab's.
 const LAB_STORAGE_PATH = "cellstocks/lab-storage.json";
+const RECIPIENTS_PATH = "cellstocks/exports/recipients.json";
 const ICON_PREFIX = "cellstocks/icons/";
 
 function dataPathFor(name) {
@@ -304,6 +305,11 @@ function canWrite(user, path) {
   // reading the committed tree and proving the incoming one changes only box lists --
   // worth doing if this lab ever outgrows trusting each other.
   if (path === LAB_STORAGE_PATH) return true;
+
+  // Who the nightly layout export is mailed to. Admin-only, and one exact path: the
+  // scheduled job that sends the mail reads the repository rather than logging in, so
+  // this has to be a committed file rather than something kept in KV.
+  if (path === RECIPIENTS_PATH) return user.role === "admin";
 
   // Folder icons for that structure. Admin-only, since only the Structure screen
   // uploads one, and images only: no SVG, which is markup, in a public repository.
@@ -859,6 +865,7 @@ export {
   sessionKey,
   ROLES,
   LAB_STORAGE_PATH,
+  RECIPIENTS_PATH,
   ICON_PREFIX,
   boxesOwnedBy,
   base64ToUtf8,

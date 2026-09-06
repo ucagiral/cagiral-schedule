@@ -123,10 +123,11 @@ writable on purpose:
 
 - `cellstocks/lab-storage.json` — the lab's one shared storage tree. **Any signed-in member may
   write it**, because adding a box to the freezer is everyday work and there is no per-node
-  permission model here to express "this branch is mine". The trade-off is deliberate and
-  recorded in `canWrite()` itself: the structure screen that rewrites the whole tree is
-  admin-only in the app, and every write lands as an ordinary git commit, so a bad one is
-  visible in the history and revertable.
+  permission model here to express "this branch is mine". What a member is *offered* is
+  narrower than that: a box, and only a box. Adding or removing a freezer or tank is admin's
+  alone, from the Structure screen — that rule lives in the app, since this check is
+  path-based. The trade-off is deliberate and recorded in `canWrite()` itself, and every write
+  lands as an ordinary git commit, so a bad one is visible in the history and revertable.
 - `cellstocks/icons/<file>.{png,jpg,jpeg,webp}` — **admin only**, and the filename is validated
   against `^[a-zA-Z0-9._-]+$` before the extension check, so no nested path and no `..` gets
   through. No SVG: it is markup, and this repository is public.

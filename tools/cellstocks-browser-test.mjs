@@ -71,16 +71,24 @@ try {
   page.on("console", (msg) => { if (msg.type() === "error") consoleErrors.push(msg.text()); });
   page.on("pageerror", (err) => consoleErrors.push(String(err)));
 
-  const emptyState = { storage: { units: [] }, lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
-  const labmateBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+  const emptyState = { lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
+  // One freezer for the whole lab, in its own file -- a member's own file holds only
+  // their vials, and every box in the shared tree says whose it is.
+  const labmateBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "labmate" };
+  const labStorage = {
+    labName: "CAA Lab Stocks", labIcon: "",
+    units: [{ id: "u-1", name: "Labmate's Freezer", type: "freezer", childLabel: "Rack",
+              racks: [{ id: "r-1", name: "Rack 1", boxes: [labmateBox] }] }]
+  };
   const labmateState = {
-    storage: { units: [{ id: "u-1", name: "Labmate's Freezer", type: "freezer", childLabel: "Rack",
-                         racks: [{ id: "r-1", name: "Rack 1", boxes: [labmateBox] }] }] },
     lines: [], withdrawals: [], rules: {}, settings: {},
     vials: [{ id: "v-lm-1", name: "Special Guest Line", location: { unitId: "u-1", rackId: "r-1", boxId: "b-1", position: "A1" }, status: "stored" }]
   };
   await page.route("https://raw.githubusercontent.com/**", (route) => {
     const url = route.request().url();
+    if (url.includes("cellstocks/lab-storage.json")) {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+    }
     if (url.includes("cellstocks/data/labmate.json")) {
       return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labmateState) });
     }
@@ -522,8 +530,13 @@ try {
     });
     const page = await context.newPage();
     const emptyState = { storage: { units: [] }, lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
-    await page.route("https://raw.githubusercontent.com/**", (route) =>
-      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(emptyState) }));
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      if (route.request().url().includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ labName: "CAA Lab Stocks", units: [] }) });
+      }
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(emptyState) });
+    });
     // Never fulfilled, never aborted -- a request that just sits there, the same as a
     // real stalled connection looks like from the page's own point of view.
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", () => {});
@@ -596,23 +609,29 @@ try {
     });
     const page = await context.newPage();
 
-    const caaBox = { id: "b-caa-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
-    const caaState = {
-      storage: { units: [{ id: "u-caa-1", name: "CAA Freezer", type: "freezer", childLabel: "Rack",
-                           racks: [{ id: "r-caa-1", name: "Rack 1", boxes: [caaBox] }] }] },
-      lines: [], withdrawals: [], rules: {}, settings: {},
-      vials: [{ id: "v-2", name: "CAA Line", location: { unitId: "u-caa-1", rackId: "r-caa-1", boxId: "b-caa-1", position: "A1" }, status: "stored" }]
+    // One lab freezer holding both people's boxes -- the handoff only changes who owns
+    // the box, so caa's box must already be sitting in the shared tree beside umut's.
+    const caaBox = { id: "b-caa-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "caa" };
+    const umutBox = { id: "b-umut-1", name: "Box 2", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "",
+      units: [{ id: "u-1", name: "-80 Freezer", type: "freezer", childLabel: "Rack",
+                racks: [{ id: "r-1", name: "Rack 1", boxes: [caaBox, umutBox] }] }]
     };
-    const umutBox = { id: "b-umut-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
-    const umutState = {
-      storage: { units: [{ id: "u-umut-1", name: "Umut Freezer", type: "freezer", childLabel: "Rack",
-                           racks: [{ id: "r-umut-1", name: "Rack 1", boxes: [umutBox] }] }] },
+    const caaState = {
       lines: [], withdrawals: [], rules: {}, settings: {},
-      vials: [{ id: "v-2", name: "Umut's Own Line", location: { unitId: "u-umut-1", rackId: "r-umut-1", boxId: "b-umut-1", position: "A1" }, status: "stored" }]
+      vials: [{ id: "v-2", name: "CAA Line", location: { unitId: "u-1", rackId: "r-1", boxId: "b-caa-1", position: "A1" }, status: "stored" }]
+    };
+    const umutState = {
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-2", name: "Umut's Own Line", location: { unitId: "u-1", rackId: "r-1", boxId: "b-umut-1", position: "A1" }, status: "stored" }]
     };
     let committedUmutState = null;
+    let committedStorage = null;
+    let deletedUser = null;
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
       if (url.includes("cellstocks/data/caa.json")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(caaState) });
       if (url.includes("cellstocks/data/umut.json")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) });
       return route.fulfill({ status: 404, body: "" });
@@ -633,7 +652,12 @@ try {
       if (path === "/commit" && req.method() === "POST") {
         const body = JSON.parse(req.postData());
         const jsonFile = body.files.find((f) => f.path.endsWith(".json"));
-        if (jsonFile.path.includes("umut")) committedUmutState = JSON.parse(jsonFile.content);
+        if (jsonFile.path.includes("lab-storage")) committedStorage = JSON.parse(jsonFile.content);
+        else if (jsonFile.path.includes("umut")) committedUmutState = JSON.parse(jsonFile.content);
+        return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+      }
+      if (path.startsWith("/admin/users/") && req.method() === "DELETE") {
+        deletedUser = decodeURIComponent(path.slice("/admin/users/".length));
         return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
       }
       return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
@@ -657,16 +681,30 @@ try {
     const boxSelects = await page.$$("#admin-handoff select");
     // boxSelects[0] is "Who's leaving"; the per-box assignment select is next.
     await boxSelects[1].selectOption("umut");
-    await page.click("#admin-handoff button.primary");
+    // Deleting an account is a confirm(); headless Chromium dismisses dialogs unless
+    // something answers them.
+    page.on("dialog", (d) => d.accept());
+    await page.click("#admin-handoff button.danger");
     await page.waitForTimeout(300);
 
     const handoffMsg = await page.evaluate(() => document.querySelector("#admin-handoff div:last-child").textContent);
     check("a handoff into an account with a colliding vial id succeeds instead of refusing the commit",
-      !/share the id|invalid after this handoff/.test(handoffMsg), handoffMsg);
+      !/share the id|would be invalid/.test(handoffMsg), handoffMsg);
     check("umut's committed state ends up with two vials under two different ids",
       committedUmutState && committedUmutState.vials.length === 2 &&
       new Set(committedUmutState.vials.map((v) => v.id)).size === 2,
       JSON.stringify(committedUmutState && committedUmutState.vials));
+    // Nothing physically moves in a handoff: the box keeps its id, its rack and its
+    // slot, and only the name on it changes.
+    const handedBox = committedStorage && committedStorage.units[0].racks[0].boxes.find((b) => b.id === "b-caa-1");
+    check("the handed-over box stays exactly where it was and only changes owner",
+      !!handedBox && handedBox.owner === "umut" && committedStorage.units[0].racks[0].boxes.length === 2,
+      JSON.stringify(handedBox));
+    check("the vial arrives in umut's file still in b-caa-1 / A1",
+      committedUmutState && committedUmutState.vials.some((v) =>
+        v.name === "CAA Line" && v.location.boxId === "b-caa-1" && v.location.position === "A1"),
+      JSON.stringify(committedUmutState && committedUmutState.vials));
+    check("the account that was handed over is deleted afterwards", deletedUser === "caa", String(deletedUser));
   } catch (err) {
     check("a handoff into an account with a colliding vial id succeeds instead of refusing the commit", false, String(err));
   } finally {
@@ -692,11 +730,12 @@ try {
     });
     const page = await context.newPage();
 
-    const boxD1 = { id: "b-d1", name: "Box D1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
-    const boxD2 = { id: "b-d2", name: "Box D2", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
-    const flatBox = { id: "b-flat-1", name: "Flat Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
-    const nestedState = {
-      storage: { units: [
+    const boxD1 = { id: "b-d1", name: "Box D1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const boxD2 = { id: "b-d2", name: "Box D2", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const flatBox = { id: "b-flat-1", name: "Flat Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const nestedStorage = {
+      labName: "CAA Lab Stocks", labIcon: "",
+      units: [
         { id: "u-deep", name: "Deep Freezer", type: "freezer", childLabel: "Shelf",
           racks: [
             { id: "shelf-1", name: "Shelf 1", racks: [{ id: "rack-1", name: "Rack 1", boxes: [boxD1] }] },
@@ -704,7 +743,9 @@ try {
           ] },
         { id: "u-flat", name: "Flat Freezer", type: "freezer", childLabel: "Rack",
           racks: [{ id: "rack-flat", name: "Rack 1", boxes: [flatBox] }] }
-      ] },
+      ]
+    };
+    const nestedState = {
       lines: [], withdrawals: [], rules: {}, settings: {},
       vials: [
         { id: "v-d1", name: "Deep Line 1", location: { unitId: "u-deep", rackId: "rack-1", boxId: "b-d1", position: "A1" }, status: "stored" },
@@ -713,6 +754,9 @@ try {
     };
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(nestedStorage) });
+      }
       if (url.includes("cellstocks.json") || url.includes("cellstocks/data/umut.json")) {
         return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(nestedState) });
       }
@@ -773,12 +817,13 @@ try {
   }
 }
 
-// ---- Admin's Structure screen: drill-down, rename, count fields, sibling drag ----
+// ---- Admin's Structure screen: one folder tree for the whole lab ----
 //
-// Separate from the everyday Boxes tab's dropdown breadcrumb (tested above) --
-// admin-only, one level of a member's storage tree on screen at a time, a "How
-// many?" field that grows/shrinks children in bulk, and drag-and-drop between
-// sibling racks (see engine.js's setSubdivisionCount/setBoxCount/moveBoxToSibling).
+// The third attempt at this, and the one that matches Umut's picture: a single tree
+// rooted at the lab, opening straight into the freezers with no person level in it.
+// Everything is on screen at once, every folder renames (the root included), every
+// folder takes an icon, and because every branch is drawn a box can be dragged onto
+// any rack in the lab -- not just a sibling.
 {
   const server5 = await serve(8802);
   const browser5 = await chromium.launch();
@@ -789,30 +834,39 @@ try {
     });
     const page = await context.newPage();
 
-    const boxD1 = { id: "b-d1", name: "Box D1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
-    let umutState = {
-      storage: { units: [
+    const boxD1 = { id: "b-d1", name: "Box D1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    let labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "",
+      units: [
         { id: "u-deep", name: "Deep Freezer", type: "-80", childLabel: "Rack",
           racks: [
             { id: "shelf-1", name: "Shelf 1", racks: [
               { id: "rack-1", name: "Rack 1", boxes: [boxD1] },
               { id: "rack-2", name: "Rack 2", boxes: [] }
             ] }
-          ] }
-      ] },
+          ] },
+        { id: "u-ln2", name: "LN2 Tank", type: "LN2", childLabel: "Tower",
+          racks: [{ id: "tower-1", name: "Tower 1", boxes: [] }] }
+      ]
+    };
+    let umutState = {
       lines: [], withdrawals: [], rules: {}, settings: {},
       vials: [{ id: "v-d1", name: "Deep Line 1", location: { unitId: "u-deep", rackId: "rack-1", boxId: "b-d1", position: "A1" }, status: "stored" }]
     };
-    let lastCommit = null;
+    let lastStorageCommit = null;
+    let lastMemberCommit = null;
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
       if (url.includes("cellstocks/data/umut.json")) {
         return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) });
       }
       return route.fulfill({ status: 404, body: "" });
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
-      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) }));
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json" }]) }));
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -826,9 +880,11 @@ try {
       }
       if (path === "/commit" && req.method() === "POST") {
         const body = JSON.parse(req.postData());
-        const jsonFile = body.files.find((f) => f.path.endsWith(".json"));
-        lastCommit = JSON.parse(jsonFile.content);
-        umutState = lastCommit; // the next raw.githubusercontent fetch (adminFetchState) sees the new state
+        const file = body.files.find((f) => f.path.endsWith(".json"));
+        // The tree and a member's vials are two separate files now, and the screen
+        // writes whichever one the change actually belongs to.
+        if (file.path.includes("lab-storage")) { lastStorageCommit = JSON.parse(file.content); labStorage = lastStorageCommit; }
+        else { lastMemberCommit = JSON.parse(file.content); umutState = lastMemberCommit; }
         return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
       }
       return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
@@ -845,100 +901,110 @@ try {
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=structure]");
-    await page.waitForSelector("#structureUser");
-    await page.selectOption("#structureUser", "umut");
+    await page.waitForFunction(() => !!document.querySelector('#admin-structure .treeBody[data-title="Box D1"]'));
 
-    // Clicks the row whose title matches exactly, via the stable data-title hook
-    // structureRow() sets -- avoids any ambiguity with Playwright's text engine
-    // over partial/nested text matches.
-    function clickRow(title){
-      return page.click(`#admin-structure .structRowBody[data-title="${title}"]`);
-    }
     function editRow(title){
       return page.evaluate((t) => {
-        const body = document.querySelector(`#admin-structure .structRowBody[data-title="${t}"]`);
+        const body = document.querySelector(`#admin-structure .treeBody[data-title="${t}"]`);
         const btn = body && body.parentElement.querySelector(".structRowEdit");
         if (btn) btn.click();
       }, title);
     }
+    const titles = () => page.evaluate(() =>
+      Array.from(document.querySelectorAll("#admin-structure .treeBody")).map((b) => b.dataset.title));
 
-    await page.waitForFunction(() => /Deep Freezer/.test(document.getElementById("admin-structure").textContent));
-    check("the units level shows the member's freezer", true);
+    // Every level at once, root first -- this is the whole point of the rewrite.
+    const shown = await titles();
+    check("the whole lab is on screen at once, from the root down to a box",
+      ["CAA Lab Stocks", "Deep Freezer", "Shelf 1", "Rack 1", "Box D1", "Rack 2", "LN2 Tank", "Tower 1"]
+        .every((t) => shown.includes(t)), JSON.stringify(shown));
+    check("there is no person level anywhere in the tree",
+      !shown.includes("umut") && !(await page.$("#structureUser")), JSON.stringify(shown));
 
-    // Drill Deep Freezer -> Shelf 1 -> its two racks.
-    await clickRow("Deep Freezer");
-    await page.waitForFunction(() => /Shelf 1/.test(document.getElementById("admin-structure").textContent));
-    await clickRow("Shelf 1");
-    await page.waitForFunction(() => document.querySelector('[data-title="Rack 1"]') && document.querySelector('[data-title="Rack 2"]'));
-    check("drilling in two levels reaches Shelf 1's two racks", true);
+    // Collapsing a folder hides its whole subtree and nothing else.
+    await page.click('#admin-structure .treeBody[data-title="Deep Freezer"]');
+    await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Shelf 1"]'));
+    const collapsed = await titles();
+    check("collapsing a freezer hides everything under it but leaves its siblings alone",
+      !collapsed.includes("Rack 1") && collapsed.includes("LN2 Tank") && collapsed.includes("Deep Freezer"),
+      JSON.stringify(collapsed));
+    await page.click('#admin-structure .treeBody[data-title="Deep Freezer"]');
+    await page.waitForFunction(() => !!document.querySelector('.treeBody[data-title="Box D1"]'));
 
-    // Grow the rack count from 2 to 3 -- a third, auto-named rack should appear.
-    // (Every level of this unit shares its one childLabel, "Rack" -- so both the
-    // top-level racks and this nested level auto-name new children the same way.)
-    await page.fill("#structureCountInput", "3");
-    await page.click("#structureCountSet");
-    await page.waitForFunction(() => !!document.querySelector('[data-title="Rack 3"]'));
-    check("setting the count to 3 grows a third, auto-named rack", true);
-    check("the growth was actually committed to the member's file",
-      lastCommit && lastCommit.storage.units[0].racks[0].racks.length === 3,
-      JSON.stringify(lastCommit && lastCommit.storage.units[0].racks[0].racks));
-
-    // Renaming rack-1 through its Edit button.
-    await editRow("Rack 1");
+    // The root itself renames, and takes an icon, like any other folder.
+    await editRow("CAA Lab Stocks");
     await page.waitForSelector("#dlgBody input");
-    await page.fill("#dlgBody input", "Rack One");
+    await page.fill("#dlgBody input", "CAA LAB");
+    await page.click("#dlgBody .iconPalette button.iconChoice");
     await page.click("#dlgFoot button.primary");
-    await page.waitForFunction(() => !!document.querySelector('[data-title="Rack One"]'));
-    check("renaming through the Edit dialog is committed and reflected immediately", true);
+    await page.waitForFunction(() => !!document.querySelector('.treeBody[data-title="CAA LAB"]'));
+    check("the lab root renames from its own ✎, like every other folder",
+      lastStorageCommit && lastStorageCommit.labName === "CAA LAB",
+      JSON.stringify(lastStorageCommit && lastStorageCommit.labName));
+    check("the root's icon is stored on the lab, not hardcoded",
+      lastStorageCommit && !!lastStorageCommit.labIcon,
+      JSON.stringify(lastStorageCommit && lastStorageCommit.labIcon));
 
-    // Shrinking the count to 0 must be refused -- Rack One (renamed rack-1, first
-    // in the list) still holds Box D1's vial -- and the refusal must name the box.
+    // A rack's ✎ carries its name, its icon and how many children it holds.
+    await editRow("Shelf 1");
+    await page.waitForSelector("#structureCountInput");
+    await page.fill("#dlgBody input", "Shelf One");
+    await page.fill("#structureCountInput", "3");
+    await page.click("#dlgFoot button.primary");
+    await page.waitForFunction(() => !!document.querySelector('.treeBody[data-title="Rack 3"]'));
+    check("one dialog renames a folder and grows its children in the same save",
+      lastStorageCommit && lastStorageCommit.units[0].racks[0].name === "Shelf One" &&
+      lastStorageCommit.units[0].racks[0].racks.length === 3,
+      JSON.stringify(lastStorageCommit && lastStorageCommit.units[0].racks[0]));
+
+    // Shrinking to nothing would strand Box D1's vial -- and that vial is in umut's
+    // file, not admin's, so the refusal has to have read the whole lab to see it.
+    await editRow("Shelf One");
+    await page.waitForSelector("#structureCountInput");
     await page.fill("#structureCountInput", "0");
-    await page.click("#structureCountSet");
-    await page.waitForFunction(() => /Box D1/.test(document.querySelector(".banner")?.textContent || ""));
-    const banner = await page.evaluate(() => document.querySelector(".banner").textContent);
-    check("a shrink that would strand a box is refused, naming the box", /Box D1/.test(banner), banner);
-    check("the refused shrink did not actually change the committed state",
-      lastCommit && lastCommit.storage.units[0].racks[0].racks.length === 3,
-      JSON.stringify(lastCommit && lastCommit.storage.units[0].racks[0].racks.length));
+    await page.click("#dlgFoot button.primary");
+    await page.waitForFunction(() => /Box D1/.test(document.querySelector("#dlgBody .note")?.textContent || ""));
+    const refusal = await page.evaluate(() => document.querySelector("#dlgBody .note").textContent);
+    check("a shrink that would strand a box is refused, naming the box and its new-location duty",
+      /Box D1/.test(refusal) && /location/.test(refusal), refusal);
+    await page.click("#dlgFoot button:not(.primary), #dlg button.ghost").catch(() => {});
+    await page.evaluate(() => document.getElementById("dlg").close());
 
-    // Drag Box D1 from Rack One onto its sibling Rack 2. Playwright's mouse API
-    // doesn't emit native HTML5 drag events on its own, so this invokes the row's
-    // own ondragstart/ondrop handlers directly with a stand-in DataTransfer --
-    // exactly what a real drag does, without fighting the browser's drag internals.
-    await clickRow("Rack One");
-    await page.waitForFunction(() => !!document.querySelector('[data-title="Box D1"]'));
+    // Drag Box D1 out of Deep Freezer entirely and into the LN2 tank -- impossible
+    // before, when only siblings were on screen. Playwright's mouse API doesn't emit
+    // native HTML5 drag events, so the row's own handlers are invoked directly with a
+    // stand-in DataTransfer, which is what a real drag does.
     const isDesktop = await page.evaluate(() => !("ontouchstart" in window));
-    check("the box-list level runs in a desktop (non-touch) context for this test", isDesktop);
-
+    check("the structure tree runs in a desktop (non-touch) context for this test", isDesktop);
     const dragResult = await page.evaluate(() => {
-      const boxBody = document.querySelector('[data-title="Box D1"]');
-      const sibBody = document.querySelector('[data-title="Rack 2"]');
-      const boxRow = boxBody && boxBody.closest(".item");
-      const sibRow = sibBody && sibBody.closest(".item");
+      const boxRow = document.querySelector('.treeBody[data-title="Box D1"]')?.closest(".treeRow");
+      const targetRow = document.querySelector('.treeBody[data-title="Tower 1"]')?.closest(".treeRow");
       if (!boxRow) return { ok: false, reason: "Box D1 row not found" };
-      if (!sibRow) return { ok: false, reason: "Rack 2 sibling drop target not found" };
+      if (!targetRow) return { ok: false, reason: "Tower 1 drop target not found" };
       if (!boxRow.ondragstart) return { ok: false, reason: "Box D1 row isn't draggable" };
-      if (!sibRow.ondrop) return { ok: false, reason: "Rack 2 chip has no drop handler" };
+      if (!targetRow.ondrop) return { ok: false, reason: "Tower 1 has no drop handler" };
       const store = {};
       const dataTransfer = { setData: (k, v) => { store[k] = v; }, getData: (k) => store[k] };
       boxRow.ondragstart({ dataTransfer });
-      sibRow.ondrop({ dataTransfer, preventDefault: () => {} });
+      targetRow.ondrop({ dataTransfer, preventDefault: () => {} });
       return { ok: true };
     });
     check("the drag simulation found both rows and their handlers", dragResult.ok, JSON.stringify(dragResult));
     await page.waitForFunction(
-      () => !document.querySelector('[data-title="Box D1"]'),
-      { timeout: 5000 }
-    ).catch(() => {});
-    check("dragging Box D1 onto Rack 2 moved it there",
-      lastCommit && lastCommit.storage.units[0].racks[0].racks[1].boxes.some((b) => b.id === "b-d1"),
-      JSON.stringify(lastCommit && lastCommit.storage.units[0].racks[0].racks.map((r) => ({ id: r.id, boxes: (r.boxes || []).map((b) => b.id) }))));
-    check("the moved vial's rackId was updated to the new parent",
-      lastCommit && lastCommit.vials.find((v) => v.id === "v-d1").location.rackId === "rack-2",
-      JSON.stringify(lastCommit && lastCommit.vials));
+      () => !!document.querySelector('.treeBody[data-title="Tower 1"]'), { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(400);
+    check("a box drags into a different freezer, not just a sibling rack",
+      lastStorageCommit && lastStorageCommit.units[1].racks[0].boxes.some((b) => b.id === "b-d1"),
+      JSON.stringify(lastStorageCommit && lastStorageCommit.units.map((u) => u.name)));
+    check("the box's vial follows it in its owner's own file",
+      lastMemberCommit && lastMemberCommit.vials[0].location.unitId === "u-ln2" &&
+      lastMemberCommit.vials[0].location.rackId === "tower-1",
+      JSON.stringify(lastMemberCommit && lastMemberCommit.vials));
+    check("moving a box never writes the structure into a member's file",
+      lastMemberCommit && !lastMemberCommit.storage,
+      JSON.stringify(lastMemberCommit && Object.keys(lastMemberCommit)));
   } catch (err) {
-    check("Admin's Structure screen supports drill-down, rename, counts and sibling drag", false, String(err));
+    check("Admin's Structure screen is one folder tree for the whole lab", false, String(err));
   } finally {
     await browser5.close();
     server5.close();
@@ -961,15 +1027,21 @@ try {
     });
     const page = await context.newPage();
 
-    const memberBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+    const memberBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "",
+      units: [{ id: "u-1", name: "Lab Freezer", type: "freezer", childLabel: "Rack",
+                racks: [{ id: "r-1", name: "Rack 1", boxes: [memberBox] }] }]
+    };
     const memberState = {
-      storage: { units: [{ id: "u-1", name: "Umut's Freezer", type: "freezer", childLabel: "Rack",
-                           racks: [{ id: "r-1", name: "Rack 1", boxes: [memberBox] }] }] },
       lines: [], withdrawals: [], rules: {}, settings: {},
       vials: [{ id: "v-1", name: "Umut Only Line", location: { unitId: "u-1", rackId: "r-1", boxId: "b-1", position: "A1" }, status: "stored" }]
     };
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
       if (url.includes("cellstocks/data/umut.json")) {
         return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(memberState) });
       }
@@ -1039,16 +1111,23 @@ try {
 
     // One vial whose origin only a rule can decide, so deleting that rule has a real,
     // countable effect to show in the preview.
+    const labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "",
+      units: [{ id: "u-1", name: "Freezer", type: "freezer", childLabel: "Rack",
+                racks: [{ id: "r-1", name: "Rack 1", boxes: [{ id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", archived: false, owner: "umut" }] }] }]
+    };
     const umutState = {
-      storage: { units: [{ id: "u-1", name: "Freezer", type: "freezer", childLabel: "Rack",
-                           racks: [{ id: "r-1", name: "Rack 1", boxes: [{ id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", archived: false }] }] }] },
       lines: [], withdrawals: [], settings: {},
       rules: { origin: [{ match: "HEK", value: "HEK293T" }], koox: [], resistance: [], caspex: [], guide: [] },
       vials: [{ id: "v-1", name: "HEK ATP7B KO g3", location: { unitId: "u-1", rackId: "r-1", boxId: "b-1", position: "A1" }, status: "stored" }]
     };
     let renameCall = null;
-    await page.route("https://raw.githubusercontent.com/**", (route) =>
-      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) }));
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      if (route.request().url().includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) });
+    });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
     await page.route("https://fake-worker.example/**", (route) => {

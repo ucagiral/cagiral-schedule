@@ -196,6 +196,23 @@
   }
   .dual input[type=range]::-moz-range-track{background:none; border:0}
 
+  /* The storage tree: one row per folder, indented by depth, with the whole lab open
+     at once. A box row is draggable and a leaf rack is a drop target (desktop only). */
+  .tree{display:flex; flex-direction:column; gap:2px; margin-top:8px}
+  .treeRow{display:flex; align-items:center; gap:6px; padding:4px 6px; border-radius:8px}
+  .treeRow:hover{background:var(--panel)}
+  .treeRow.dropTarget{outline:2px dashed var(--accent); outline-offset:-2px; background:var(--accent-soft)}
+  .treeBody{display:flex; align-items:center; gap:6px; cursor:pointer; min-width:0}
+  .treeName{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .treeBody .sub{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .nodeIcon{width:1.2em; height:1.2em; object-fit:contain; flex:0 0 auto; text-align:center; line-height:1.2}
+  .twisty{flex:0 0 auto; width:22px; padding:0; border:0; background:none; color:var(--muted); font-size:12px}
+  .twisty:disabled{opacity:.35}
+  .structRowEdit{flex:0 0 auto; padding:2px 8px}
+  .iconPreview{display:flex; align-items:center; gap:8px; margin-bottom:6px}
+  .iconPalette{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px}
+  .iconChoice{padding:4px 8px; font-size:16px; line-height:1}
+
   /* Scrolls sideways rather than clipping: the Admin strip has more tabs than fit on a
      phone, and `overflow:hidden` hard-cut the last one ("Handoff") with nothing to say it
      was there. flex-shrink:0 + nowrap stops a button ever being squeezed below its own
@@ -442,6 +459,15 @@
   var LEGACY_DATA_PATH = "cellstocks/cellstocks.json";
   var LEGACY_XLSX_PATH = "cellstocks/cell-stocks.xlsx";
   var DATA_PREFIX = "cellstocks/data/";
+  // The lab's own structure -- one freezer tree shared by everyone, admin-writable
+  // only, and deliberately outside DATA_PREFIX so it can never collide with a member
+  // named "_storage" (the worker's name rule allows an underscore).
+  var LAB_STORAGE_PATH = "cellstocks/lab-storage.json";
+  // Uploaded folder icons: committed under the repo path, displayed relative to the
+  // app (which is served from /cellstocks/), and stored in the JSON as a bare file
+  // name so neither path is baked into the data.
+  var ICON_PREFIX = "cellstocks/icons/";
+  var ICON_SRC_PREFIX = "icons/";
 
   function resolveConfig(){
     var stored = null;
@@ -560,8 +586,14 @@
   // own -- see the Admin tab's "Manage a box" instead), not a fresh account to prompt an
   // import into.
   function isFreshAccount(){
-    return hasOwnInventory() && !!effectiveIdentity() &&
-      !(state.storage.units || []).length && !(state.vials || []).length;
+    if (!hasOwnInventory() || !effectiveIdentity()) return false;
+    if ((state.vials || []).length) return false;
+    // The freezer belongs to the whole lab now, so somebody else's boxes standing in
+    // the shared tree say nothing about whether this account has anything of its own.
+    var me = String(effectiveIdentity()).toLowerCase();
+    var mine = 0;
+    E.eachBox(state, function(box){ if ((box.owner || "").toLowerCase() === me) mine++; });
+    return !mine;
   }
   function ghHeaders(){
     var h = { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
@@ -711,7 +743,12 @@
       // A miss (404, or no token/legacy file yet) means this account has nothing saved yet --
       // that must render as a blank inventory, never as whatever the previously-active account
       // (or a stale in-memory state left over from before a worker login/logout) happened to be.
-      state = (text !== null && text !== undefined) ? E.mergeDefaults(JSON.parse(text)) : E.blankState();
+      var own = (text !== null && text !== undefined) ? E.mergeDefaults(JSON.parse(text)) : E.blankState();
+      // The freezer is the lab's, not this account's: it comes from its own file and is
+      // hydrated onto state.storage so every screen keeps reading it exactly where it
+      // always did. slim() takes it back off again before this account's file is saved.
+      labStorage = await fetchLabStorage();
+      state = E.hydrateStorage(own, labStorage, effectiveIdentity());
       cacheSave();
       setStatus(canWrite() ? "Ready" : "Read-only", "");
       if (!canWrite()){
@@ -783,6 +820,49 @@
   function workbookBytes(){ return X.writeWorkbookAsync(E.vialsToSheets(state)); }
 
   var saveTimer = null;
+  // ---- the lab's shared structure ----
+  //
+  // One file for the whole lab (LAB_STORAGE_PATH), read by everyone straight from
+  // GitHub like every other read in this app, written only by admin through the
+  // worker. Held here so a save can put it back on the state after a reload and so
+  // the Structure screen has something to edit.
+  var labStorage = E.blankStorage();
+
+  async function fetchLabStorage(){
+    try {
+      var resp = await fetch(rawURL(LAB_STORAGE_PATH), { cache:"no-store" });
+      if (!resp.ok) return E.blankStorage();
+      return E.mergeStorageDefaults(JSON.parse(await resp.text()));
+    } catch(err){
+      // A lab with no structure file yet is a lab with no freezers yet, not an error:
+      // admin adds the first one from the Structure screen.
+      return E.blankStorage();
+    }
+  }
+
+  // Admin-only. The structure is not part of anybody's inventory, so it commits on its
+  // own -- no .xlsx alongside it, nothing else in the commit.
+  async function commitLabStorage(next, message){
+    await workerCommit([{ path: LAB_STORAGE_PATH, content: E.serialiseStorage(next) }],
+      message || "Update the lab's storage structure");
+    labStorage = E.mergeStorageDefaults(next);
+    // Every member's cached copy is now stale, including this session's own state.
+    state = E.hydrateStorage(state, labStorage, effectiveIdentity());
+    labCache.members = null; labCache.data = {};
+  }
+
+  // A box lives in the lab's shared file, so editing one is a read-modify-write of that
+  // file rather than an edit to this account's own state. Re-reads first for the same
+  // reason addBoxDialog does: somebody else may have touched the structure since this
+  // screen was drawn.
+  async function editLabBox(boxId, mutate, message){
+    var fresh = await fetchLabStorage();
+    var found = E.findBox(fresh, boxId);
+    if (!found) throw new Error("that box is no longer in the lab's structure");
+    mutate(found.box);
+    await commitLabStorage(fresh, message);
+  }
+
   function markDirty(message){
     dirty = true;
     cacheSave();
@@ -1012,10 +1092,16 @@
           // excluded here at all: every real member comes back).
           .filter(function(n){ return n !== selfName; });
         labCache.members = names;
+        // A member's file holds only their vials now, so each one is hydrated with the
+        // lab's shared structure before anything renders it -- otherwise every merged
+        // view would show vials with no box, no path and no occupancy.
+        if (!labStorage || !(labStorage.units || []).length) labStorage = await fetchLabStorage();
         await Promise.all(names.map(function(name){
           return fetchWithTimeout(rawURL(DATA_PREFIX + name + ".json"), 10000)
             .then(function(r){ return r.ok ? r.text() : null; })
-            .then(function(text){ if (text) labCache.data[name] = E.mergeDefaults(JSON.parse(text)); })
+            .then(function(text){
+              if (text) labCache.data[name] = E.hydrateStorage(E.mergeDefaults(JSON.parse(text)), labStorage, name);
+            })
             .catch(function(){});
         }));
       } finally {
@@ -2691,8 +2777,9 @@
     var s = clear($("storageCard"));
     s.appendChild(el("h3", null, "Storage"));
     s.appendChild(el("p", "note",
-      "A freezer and a nitrogen tank are the same shape here — a unit, its racks or towers, and " +
-      "boxes with a grid. Nothing about 9×9 is built in."));
+      "The freezers, racks and towers belong to the whole lab — admin lays them out in " +
+      "Admin → Structure. What's below is your own boxes inside them; renaming or " +
+      "resizing one changes it for everybody, because there is only one of it."));
 
     var GROUPING_OPTIONS = [
       { id:"category-row", name:"One row per cell", note:"The rule this app has always used: a row holds one cell, never two." },
@@ -2724,9 +2811,12 @@
         sum.boxes.length + " boxes · " + (unit.childLabel || "Rack") + "s"));
       head.appendChild(grow);
       s.appendChild(head);
+      var me = (effectiveIdentity() || "").toLowerCase();
       E.leafRacks(state, unit.id).forEach(function(leaf){
         var pathName = leaf.chain.map(function(r){ return r.name; }).join(" → ");
-        (leaf.rack.boxes || []).forEach(function(box){
+        // Somebody else's box is theirs to rename; this screen is about your own.
+        var mine = (leaf.rack.boxes || []).filter(function(b){ return !b.owner || b.owner.toLowerCase() === me; });
+        mine.forEach(function(box){
           var occ = E.occupancy(state, box.id);
           var row = el("div", "item");
           var g2 = el("div", "grow");
@@ -2743,9 +2833,11 @@
           row.appendChild(res);
           s.appendChild(row);
         });
-        if (!(leaf.rack.boxes || []).length){
+        if (!mine.length){
           var empty = el("div", "item");
-          empty.appendChild(el("div", "grow sub", "　" + pathName + " — no boxes yet"));
+          var others = (leaf.rack.boxes || []).length;
+          empty.appendChild(el("div", "grow sub", "　" + pathName + " — " +
+            (others ? others + " box" + (others === 1 ? "" : "es") + ", none of them yours" : "no boxes yet")));
           s.appendChild(empty);
         }
       });
@@ -2873,11 +2965,16 @@
     inp.autocomplete = "off";
     body.appendChild(inp);
     var foot = clear($("dlgFoot"));
+    var msg = el("p", "note"); body.appendChild(msg);
     var ok = el("button", "primary", "Save");
-    ok.onclick = function(){
+    ok.onclick = async function(){
       if (!inp.value.trim()) return;
-      box.name = inp.value.trim();
-      $("dlg").close(); markDirty("Rename a box"); renderAll();
+      ok.disabled = true;
+      try {
+        await editLabBox(box.id, function(b){ b.name = inp.value.trim(); }, "Rename a box");
+        $("dlg").close(); renderAll();
+      } catch(err){ msg.textContent = "Couldn't save that: " + err.message; msg.style.color = "var(--bad)"; }
+      ok.disabled = false;
     };
     foot.appendChild(ok);
     $("dlg").showModal();
@@ -2897,11 +2994,15 @@
     body.appendChild(msg);
     var foot = clear($("dlgFoot"));
     var ok = el("button", "primary", "Save");
-    ok.onclick = function(){
+    ok.onclick = async function(){
       var can = E.canResizeBox(state, box.id, Number(rows.value), Number(cols.value));
       if (!can.ok){ msg.textContent = can.reason; msg.style.color = "var(--bad)"; return; }
-      box.rows = Number(rows.value); box.cols = Number(cols.value);
-      $("dlg").close(); markDirty("Resize a box"); renderAll();
+      ok.disabled = true;
+      try {
+        await editLabBox(box.id, function(b){ b.rows = Number(rows.value); b.cols = Number(cols.value); }, "Resize a box");
+        $("dlg").close(); renderAll();
+      } catch(err){ msg.textContent = "Couldn't save that: " + err.message; msg.style.color = "var(--bad)"; }
+      ok.disabled = false;
     };
     foot.appendChild(ok);
     $("dlg").showModal();
@@ -2933,17 +3034,37 @@
       f.appendChild(p[1]);
       body.appendChild(f);
     });
-    body.appendChild(el("p", "note", "Starts at 9×9 — resize it afterwards from Settings → Storage."));
+    body.appendChild(el("p", "note", "Starts at 9×9 — resize it afterwards from Settings → Storage. " +
+      "The freezer itself is shared by the whole lab; the box is yours."));
     var foot = clear($("dlgFoot"));
+    var msg = el("p", "note"); body.appendChild(msg);
     var ok = el("button", "primary", "Add");
-    ok.onclick = function(){
+    ok.onclick = async function(){
       if (!name.value.trim() || !unit.value) return;
-      var parts = unit.value.split("|");
-      var rk = E.findRackNode(state, parts[1]).rack;
-      var id = "b-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-      if (E.findBox(state, id)) id += "-" + Date.now().toString(36).slice(-4);
-      rk.boxes.push({ id:id, name:name.value.trim(), rows:9, cols:9, scheme:"grid", note:"", archived:false });
-      $("dlg").close(); markDirty("Add a box"); renderAll();
+      ok.disabled = true;
+      try {
+        // The freezer is the lab's, so this lands in the shared file, not in this
+        // account's own. Re-read it first: somebody else may have added a rack since
+        // this screen was drawn, and this is last-write-wins like every file here.
+        var fresh = await fetchLabStorage();
+        var rackId = unit.value.split("|")[1];
+        var rk = E.findRackNode(fresh, rackId);
+        if (!rk){ msg.textContent = "That rack has just been removed — reopen this and pick another."; ok.disabled = false; return; }
+        var id = "b-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        if (E.findBox(fresh, id)) id += "-" + Date.now().toString(36).slice(-4);
+        rk.rack.boxes = rk.rack.boxes || [];
+        // The box is this account's: placement and the everyday screens filter on it.
+        rk.rack.boxes.push({ id:id, name:name.value.trim(), rows:9, cols:9, scheme:"grid",
+                             note:"", archived:false, owner: (effectiveIdentity() || "").toLowerCase() });
+        await commitLabStorage(fresh, "Add a box");
+        $("dlg").close();
+        showBanner("Added <b>" + esc(name.value.trim()) + "</b>.");
+        renderAll();
+      } catch(err){
+        msg.textContent = "Couldn't save that: " + err.message;
+        msg.style.color = "var(--bad)";
+      }
+      ok.disabled = false;
     };
     foot.appendChild(ok);
     $("dlg").showModal();
@@ -2957,17 +3078,30 @@
     f.appendChild(el("label", null, "Name"));
     f.appendChild(name);
     body.appendChild(f);
-    body.appendChild(el("p", "note", "Starts with one rack; boxes go in afterwards. Give the type or " +
-      "how it's subdivided its own name later, from Settings → Storage, if the default doesn't fit."));
+    body.appendChild(el("p", "note", "Starts with one rack; boxes go in afterwards. This is a freezer for " +
+      "the whole lab, not just for you — admin can rename it, give it a temperature or add more " +
+      "levels from Admin → Structure."));
+    var msg = el("p", "note"); body.appendChild(msg);
     var foot = clear($("dlgFoot"));
     var ok = el("button", "primary", "Add");
-    ok.onclick = function(){
+    ok.onclick = async function(){
       if (!name.value.trim()) return;
-      var id = "u-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-      if (E.findUnit(state, id)) id += "-" + Date.now().toString(36).slice(-4);
-      var racks = [{ id: id + "-r1", name: "Rack 1", boxes: [] }];
-      state.storage.units.push({ id:id, name:name.value.trim(), type:"", childLabel:"Rack", racks:racks });
-      $("dlg").close(); markDirty("Add a unit"); renderAll();
+      ok.disabled = true;
+      try {
+        var fresh = await fetchLabStorage();
+        var id = "u-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        if (E.findUnit(fresh, id)) id += "-" + Date.now().toString(36).slice(-4);
+        fresh.units.push({ id:id, name:name.value.trim(), type:"", note:"", childLabel:"Rack",
+                           racks:[{ id: id + "-r1", name: "Rack 1", boxes: [] }] });
+        await commitLabStorage(fresh, "Add a freezer or tank");
+        $("dlg").close();
+        showBanner("Added <b>" + esc(name.value.trim()) + "</b>.");
+        renderAll();
+      } catch(err){
+        msg.textContent = "Couldn't save that: " + err.message;
+        msg.style.color = "var(--bad)";
+      }
+      ok.disabled = false;
     };
     foot.appendChild(ok);
     $("dlg").showModal();
@@ -3417,10 +3551,14 @@
     });
   }
 
+  // A member's file plus the lab's shared structure, which is what every screen expects
+  // a state to be. Admin edits one member's vials through this; the structure itself is
+  // edited on the Structure screen and committed separately (see commitLabStorage).
   async function adminFetchState(user){
     var resp = await fetch(rawURL(DATA_PREFIX + user.toLowerCase() + ".json"), { cache:"no-store" });
     var text = resp.ok ? await resp.text() : "{}";
-    return E.mergeDefaults(JSON.parse(text));
+    if (!(labStorage.units || []).length) labStorage = await fetchLabStorage();
+    return E.hydrateStorage(E.mergeDefaults(JSON.parse(text)), labStorage, user);
   }
 
   var adminTab = "manage";
@@ -3524,315 +3662,472 @@
     c.appendChild(addBox);
   }
 
-  // ---- Structure: a member's storage tree, one level at a time. ----
+  // ---- Structure: the lab's freezer, as a folder tree ----
   //
-  // Admin-only, separate from the everyday Boxes tab (which keeps its dropdown
-  // breadcrumb exactly as it was). Tapping/clicking a row's body drills into it;
-  // a separate Edit button renames it (plus type/note, freezer level only). A
-  // "How many?" field at the top of every level grows or shrinks that level's
-  // children in bulk, auto-naming new ones -- see engine.js's setUnitCount/
-  // setSubdivisionCount/setBoxCount, all of which refuse a shrink outright (naming
-  // every box that would be stranded) rather than ever discarding one silently.
-  // `path` is every id drilled into so far, root to current: [] is the member's own
-  // list of freezers/tanks, [unitId] is that unit's own top-level racks, and every
-  // id after that is a rack (or, at the very end, a box) one level deeper.
-  var structureView = { user:null, state:null, path:[] };
+  // One tree for the whole lab, not one per person: Umut's own picture of what he wanted
+  // has no person level in it at all, and the -80 in the corridor is one freezer however
+  // many people keep boxes in it. It lives in cellstocks/lab-storage.json; each box
+  // records whose it is. Every folder is open at once, the way a file browser shows one,
+  // so a box can be dragged to any rack in the lab rather than only to a sibling.
+  //
+  // Editing the structure is admin's; adding your own box is everyone's (the Boxes tab's
+  // quick-add), which is why the worker lets any member write this file.
+  var structureView = { expanded: null, dirtyIds: {} };
 
-  // Desktop-only, per Umut's own answer -- dragging a box onto a sibling rack
-  // (see moveBoxToSibling) is a mouse gesture, not something offered on a phone.
+  // Desktop-only, per Umut's own answer -- dragging a box onto another rack is a mouse
+  // gesture, not something to offer on a phone.
   function isDesktopPointer(){ return !("ontouchstart" in window); }
+
+  var LEVEL_ICON = { lab: "🏢", unit: "🧊", rack: "📁", box: "📦" };
+  var ICON_CHOICES = ["📁", "📂", "🗃️", "🧊", "❄️", "🥶",
+                      "🧪", "🔬", "📦", "🗄️", "🌡️", "⭐"];
+
+  // An icon is one string: an uploaded file name (rendered as an image from
+  // cellstocks/icons/) or an emoji typed straight in. E.iconKind() is the only thing
+  // that decides which, so the app and the engine can never disagree about it.
+  function iconNode(value, level){
+    var kind = E.iconKind(value);
+    if (kind === "image"){
+      var img = document.createElement("img");
+      img.src = ICON_SRC_PREFIX + value;
+      img.alt = "";
+      img.className = "nodeIcon";
+      return img;
+    }
+    var span = el("span", "nodeIcon", kind === "emoji" ? value : (LEVEL_ICON[level] || LEVEL_ICON.rack));
+    return span;
+  }
 
   async function renderAdminStructure(){
     var c = clear($("admin-structure"));
-    var users = await adminUsers().catch(function(err){ c.appendChild(el("p", "note", err.message)); return []; });
-    var visible = users.filter(function(u){ return !u.hidden; });
-
-    var userSel = document.createElement("select");
-    userSel.id = "structureUser";
-    userSel.appendChild(el("option", null, "Choose a member…"));
-    visible.forEach(function(u){
-      var o = document.createElement("option"); o.value = u.name; o.textContent = u.name;
-      if (u.name === structureView.user) o.selected = true;
-      userSel.appendChild(o);
-    });
-    userSel.onchange = function(){
-      structureView.user = userSel.value || null;
-      structureView.state = null; structureView.path = [];
-      renderAdminStructure();
-    };
-    var f = el("div", "field"); f.appendChild(el("label", null, "Member")); f.appendChild(userSel);
-    c.appendChild(f);
-
-    if (!structureView.user) return;
-    if (!structureView.state){
-      c.appendChild(el("p", "note", "Loading " + structureView.user + "'s storage…"));
-      structureView.state = await adminFetchState(structureView.user);
-      renderAdminStructure();
-      return;
-    }
-
-    renderStructureLevel(c);
-  }
-
-  async function structureCommit(next, message){
-    try {
-      await adminCommit(structureView.user, next, message);
-      structureView.state = next;
-      renderAdmin();
-    } catch(err){ showBanner("Couldn't save: " + esc(err.message)); }
-  }
-
-  function structureBreadcrumb(){
-    var s = structureView.state, path = structureView.path;
-    var parts = ["CAA Lab Stocks", structureView.user];
-    if (path.length){
-      var unit = E.findUnit(s, path[0]);
-      parts.push(unit ? unit.name : "?");
-      for (var i = 1; i < path.length; i++){
-        var rackNode = E.findRackNode(s, path[i]);
-        if (rackNode){ parts.push(rackNode.rack.name); continue; }
-        var boxNode = E.findBox(s, path[i]);
-        parts.push(boxNode ? boxNode.box.name : "?");
-      }
-    }
-    return parts.join(" › ");
-  }
-
-  // A single row: click/tap the body to drill in, a separate Edit button for
-  // rename/details -- one consistent interaction on both desktop and phone.
-  function structureRow(title, subtitle){
-    var row = el("div", "item structRow");
-    var body = el("div", "grow structRowBody");
-    body.style.cursor = "pointer";
-    body.dataset.title = title;
-    body.appendChild(el("div", null, title));
-    if (subtitle) body.appendChild(el("div", "sub", subtitle));
-    row.appendChild(body);
-    var editBtn = el("button", "structRowEdit", "Edit");
-    row.appendChild(editBtn);
-    return { el: row, body: body, editBtn: editBtn };
-  }
-
-  function appendCountField(c, label, current, onSet, idSuffix){
-    var wrap = el("div", "two");
-    var f = el("div", "field");
-    f.appendChild(el("label", null, label));
-    var inp = document.createElement("input");
-    inp.type = "number"; inp.min = 0; inp.value = current; inp.autocomplete = "off";
-    inp.id = "structureCountInput" + (idSuffix || "");
-    f.appendChild(inp);
-    wrap.appendChild(f);
-    var btn = el("button", "primary", "Set");
-    btn.id = "structureCountSet" + (idSuffix || "");
-    btn.onclick = function(){
-      var r = onSet(Number(inp.value));
-      if (!r.ok){ showBanner(r.reason); return; }
-      structureCommit(r.state, "Admin: set a count for " + structureView.user);
-    };
-    wrap.appendChild(btn);
-    c.appendChild(wrap);
-  }
-
-  function renderStructureLevel(c){
-    var s = structureView.state, path = structureView.path;
-    c.appendChild(el("p", "note", structureBreadcrumb()));
-    if (path.length){
-      var back = el("button", null, "← Up one level");
-      back.onclick = function(){ structureView.path.pop(); renderAdmin(); };
-      c.appendChild(back);
-    }
-
-    if (!path.length){ renderUnitsLevel(c); return; }
-
-    var unitId = path[0];
-    if (path.length === 1){ renderRacksLevel(c, unitId, null); return; }
-
-    var lastId = path[path.length - 1];
-    var boxFound = E.findBox(s, lastId);
-    if (boxFound){ renderBoxLevel(c, boxFound.box); return; }
-
-    var node = E.findRackNode(s, lastId);
-    if (!node){
-      c.appendChild(el("p", "note", "That no longer exists."));
-      structureView.path.pop();
-      return;
-    }
-    if (node.rack.racks && node.rack.racks.length) renderRacksLevel(c, unitId, lastId);
-    else if (node.rack.boxes && node.rack.boxes.length) renderBoxesLevel(c, unitId, lastId);
-    else {
-      c.appendChild(el("p", "note", "Nothing here yet -- set a count below for whichever this actually is."));
-      renderRacksLevel(c, unitId, lastId);
-      renderBoxesLevel(c, unitId, lastId);
-    }
-  }
-
-  function renderUnitsLevel(c){
-    var s = structureView.state;
-    var units = s.storage.units || [];
-    appendCountField(c, "How many freezers/tanks?", units.length, function(n){ return E.setUnitCount(s, n); });
-    units.forEach(function(unit){
-      var childLabel = unit.childLabel || "Rack";
-      var count = (unit.racks || []).length;
-      var sub = (unit.type ? unit.type + " · " : "") + count + " " + childLabel.toLowerCase() + (count === 1 ? "" : "s");
-      var row = structureRow(unit.name, sub);
-      row.body.onclick = function(){ structureView.path = [unit.id]; renderAdmin(); };
-      row.editBtn.onclick = function(){ editUnitDialog(unit); };
-      c.appendChild(row.el);
-    });
-    if (!units.length) c.appendChild(el("p", "note", "Nothing here yet -- set a count above."));
-  }
-
-  function renderRacksLevel(c, unitId, parentRackId){
-    var s = structureView.state;
-    var childLabel = E.findUnit(s, unitId).childLabel || "Rack";
-    var kids = E.childrenOf(s, unitId, parentRackId);
-    appendCountField(c, "How many " + childLabel.toLowerCase() + "s?", kids.length, function(n){
-      return E.setSubdivisionCount(s, unitId, parentRackId, n, childLabel);
-    });
-    kids.forEach(function(rack){
-      var boxCount = (rack.boxes || []).length, childCount = (rack.racks || []).length;
-      var sub = boxCount ? (boxCount + " box" + (boxCount === 1 ? "" : "es"))
-        : childCount ? (childCount + " subdivision" + (childCount === 1 ? "" : "s"))
-        : "empty";
-      var row = structureRow(rack.name, sub);
-      row.body.onclick = function(){ structureView.path = structureView.path.concat([rack.id]); renderAdmin(); };
-      row.editBtn.onclick = function(){ renameSubdivisionDialog(rack); };
-      c.appendChild(row.el);
-    });
-    if (!kids.length) c.appendChild(el("p", "note", "Nothing here yet -- set a count above."));
-  }
-
-  function renderBoxesLevel(c, unitId, rackId){
-    var s = structureView.state;
-    var node = E.findRackNode(s, rackId);
-    var boxes = node.rack.boxes || [];
-    appendCountField(c, "How many boxes?", boxes.length, function(n){ return E.setBoxCount(s, rackId, n); }, "Boxes");
-
-    boxes.forEach(function(box){
-      var occ = E.occupancy(s, box.id);
-      var row = structureRow(box.name, occ.used + "/" + occ.capacity + " slots full");
-      row.body.onclick = function(){ structureView.path = structureView.path.concat([box.id]); renderAdmin(); };
-      row.editBtn.onclick = function(){ editBoxDialog(box); };
-      if (isDesktopPointer()){
-        row.el.draggable = true;
-        row.el.ondragstart = function(ev){ ev.dataTransfer.setData("text/plain", box.id); };
-      }
-      c.appendChild(row.el);
-    });
-    if (!boxes.length) c.appendChild(el("p", "note", "Nothing here yet -- set a count above."));
-
-    // Sibling drop targets (see engine.js's moveBoxToSibling): dragging a box onto
-    // another rack under the exact same parent moves it there. Moving to a
-    // different freezer/shelf isn't reachable this way -- deliberately, per Umut.
-    var siblings = (node.parent ? (node.parent.racks || []) : (E.findUnit(s, unitId).racks || []))
-      .filter(function(r){ return r.id !== rackId; });
-    if (siblings.length && isDesktopPointer() && boxes.length){
-      var dropWrap = el("div", "card");
-      dropWrap.appendChild(el("p", "note", "Drag a box here to move it to a sibling " +
-        (E.findUnit(s, unitId).childLabel || "rack").toLowerCase() + ":"));
-      siblings.forEach(function(sib){
-        var chip = el("div", "item");
-        var chipBody = el("div", "grow", sib.name);
-        chipBody.dataset.title = sib.name;
-        chip.appendChild(chipBody);
-        chip.ondragover = function(ev){ ev.preventDefault(); };
-        chip.ondrop = function(ev){
-          ev.preventDefault();
-          var boxId = ev.dataTransfer.getData("text/plain");
-          var r = E.moveBoxToSibling(s, boxId, sib.id);
-          if (!r.ok){ showBanner(r.reason); return; }
-          structureCommit(r.state, "Admin: moved a box for " + structureView.user);
-        };
-        dropWrap.appendChild(chip);
+    if (!structureView.expanded){
+      // Everything open the first time: a lab this size fits on a screen, and the point
+      // of the tree is seeing the whole thing at once.
+      structureView.expanded = {};
+      (labStorage.units || []).forEach(function(u){
+        structureView.expanded[u.id] = true;
+        E.leafRacks(labStorage, u.id).forEach(function(leaf){
+          leaf.chain.forEach(function(r){ structureView.expanded[r.id] = true; });
+        });
       });
-      c.appendChild(dropWrap);
     }
+    // Everyone's vials, so a count and a "this would strand N vials" refusal can be
+    // honest about boxes that are not admin's own.
+    if (!labCache.members){
+      c.appendChild(el("p", "note", "Loading the lab…"));
+      ensureLabCache().then(renderAdmin);
+      return;
+    }
+
+    c.appendChild(el("p", "note",
+      "The whole lab's storage, in one tree. Tap a folder to open or close it, ✎ to rename it, " +
+      "give it an icon or set how many it holds. Drag a box onto any rack to move it."));
+
+    var tree = el("div", "tree");
+    tree.appendChild(structureRootRow());
+    (labStorage.units || []).forEach(function(unit){ renderTreeNode(tree, unit, "unit", 1); });
+    if (!(labStorage.units || []).length){
+      tree.appendChild(el("p", "note", "No freezers yet — use ✎ on the lab row above to say how many."));
+    }
+    c.appendChild(tree);
   }
 
-  // Reuses the app's own boxGrid() -- which reads the *global* `state` for rules
-  // and colours -- by swapping it for the member's fetched state for the length of
-  // the call, the same trick admin's merged Boxes/Find/Review/Log views already
-  // use (see ADMIN_MERGED and renderBoxes()'s admin branch).
-  function renderBoxLevel(c, box){
-    var real = state;
-    state = structureView.state;
+  // How many stored vials sit in a given box, lab-wide -- the owner's file is where they
+  // live, so this reads every member's, not admin's own.
+  function labVialCounts(){
+    var counts = {};
+    Object.keys(labCache.data || {}).forEach(function(name){
+      (labCache.data[name].vials || []).forEach(function(v){
+        if (v.status === "withdrawn" || !v.location || !v.location.boxId) return;
+        counts[v.location.boxId] = (counts[v.location.boxId] || 0) + 1;
+      });
+    });
+    return counts;
+  }
+
+  function structureRootRow(){
+    var row = el("div", "treeRow");
+    var body = el("div", "grow treeBody");
+    body.dataset.title = labStorage.labName;
+    body.appendChild(iconNode(labStorage.labIcon, "lab"));
+    body.appendChild(el("span", "treeName", labStorage.labName));
+    var n = (labStorage.units || []).length;
+    body.appendChild(el("span", "sub", n + " freezer" + (n === 1 ? "" : "s") + " / tank" + (n === 1 ? "" : "s")));
+    row.appendChild(body);
+    var edit = el("button", "structRowEdit", "✎");
+    edit.title = "Rename the lab, change its icon, or set how many freezers it has";
+    edit.onclick = function(){ editLabDialog(); };
+    row.appendChild(edit);
+    return row;
+  }
+
+  function renderTreeNode(container, node, level, depth){
+    var isUnit = level === "unit";
+    var isBox = level === "box";
+    var children = isBox ? [] : (isUnit ? (node.racks || []) : ((node.racks || []).length ? node.racks : (node.boxes || [])));
+    var childLevel = isUnit ? "rack" : ((node.racks || []).length ? "rack" : "box");
+    var open = !!structureView.expanded[node.id];
+
+    var row = el("div", "treeRow");
+    row.style.paddingLeft = (depth * 18) + "px";
+
+    var twisty = el("button", "twisty", children.length ? (open ? "▾" : "▸") : "·");
+    twisty.disabled = !children.length;
+    twisty.onclick = function(){ structureView.expanded[node.id] = !open; renderAdmin(); };
+    row.appendChild(twisty);
+
+    var body = el("div", "grow treeBody");
+    body.dataset.title = node.name;
+    body.dataset.id = node.id;
+    body.appendChild(iconNode(node.icon, level));
+    body.appendChild(el("span", "treeName", node.name));
+    body.appendChild(el("span", "sub", structureSubtitle(node, level)));
+    body.onclick = function(){
+      if (!children.length) return;
+      structureView.expanded[node.id] = !open;
+      renderAdmin();
+    };
+    row.appendChild(body);
+
+    var edit = el("button", "structRowEdit", "✎");
+    edit.onclick = function(){
+      if (isBox) editStructureBoxDialog(node);
+      else editNodeDialog(node, level);
+    };
+    row.appendChild(edit);
+
+    // A box is what gets dragged; any rack with no child racks is where it can land.
+    if (isBox && isDesktopPointer()){
+      row.draggable = true;
+      row.ondragstart = function(ev){ ev.dataTransfer.setData("text/plain", node.id); };
+    }
+    if (!isBox && !isUnit && !(node.racks || []).length){
+      row.ondragover = function(ev){ ev.preventDefault(); row.classList.add("dropTarget"); };
+      row.ondragleave = function(){ row.classList.remove("dropTarget"); };
+      row.ondrop = function(ev){
+        ev.preventDefault();
+        row.classList.remove("dropTarget");
+        moveBoxTo(ev.dataTransfer.getData("text/plain"), node.id);
+      };
+    }
+    container.appendChild(row);
+
+    if (!open) return;
+    children.forEach(function(child){ renderTreeNode(container, child, childLevel, depth + 1); });
+  }
+
+  function structureSubtitle(node, level){
+    if (level === "box"){
+      var counts = labVialCounts();
+      var cap = (Number(node.rows) || 0) * (Number(node.cols) || 0);
+      return (counts[node.id] || 0) + "/" + cap + (node.owner ? " · " + node.owner : " · unassigned");
+    }
+    var racks = (node.racks || []).length;
+    var boxes = (node.boxes || []).length;
+    var bits = [];
+    if (level === "unit" && node.type) bits.push(node.type);
+    if (racks) bits.push(racks + " " + ((node.childLabel || "level").toLowerCase()) + (racks === 1 ? "" : "s"));
+    else if (boxes) bits.push(boxes + " box" + (boxes === 1 ? "" : "es"));
+    else bits.push("empty");
+    if (level === "unit" && node.note) bits.push(node.note);
+    return bits.join(" · ");
+  }
+
+  async function moveBoxTo(boxId, rackId){
+    if (!boxId) return;
+    var r = E.moveBox(labStorage, boxId, rackId);
+    if (!r.ok){ showBanner(r.reason); return; }
     try {
-      var occ = E.occupancy(state, box.id);
-      c.appendChild(el("p", "note", occ.used + "/" + occ.capacity + " slots full"));
-      c.appendChild(boxGrid(box.id, { static: true }));
-    } finally { state = real; }
-    var editBtn = el("button", "primary", "Edit (rename / resize)");
-    editBtn.style.marginTop = "8px";
-    editBtn.onclick = function(){ editBoxDialog(box); };
-    c.appendChild(editBtn);
+      await commitLabStorage(r.state, "Move a box");
+      // The box's own vials record which unit and rack they are in, and those live in
+      // the owner's file -- not here. Bring that file along, or validate() would call
+      // every one of them a unit mismatch.
+      var box = E.findBox(r.state, boxId);
+      if (box && box.box.owner) await refreshVialLocations(box.box.owner, boxId, r.movedTo);
+      showBanner("Moved <b>" + esc(box ? box.box.name : boxId) + "</b>.");
+      renderAdmin();
+    } catch(err){ showBanner("Couldn't save that: " + esc(err.message)); }
   }
 
-  function editUnitDialog(unit){
-    $("dlgTitle").textContent = "Edit " + unit.name;
-    var body = clear($("dlgBody"));
-    var name = document.createElement("input"); name.value = unit.name; name.autocomplete = "off";
-    var type = document.createElement("input"); type.value = unit.type || ""; type.placeholder = "-80, LN2…"; type.autocomplete = "off";
-    var note = document.createElement("input"); note.value = unit.note || ""; note.placeholder = "back corner"; note.autocomplete = "off";
-    [["Name", name], ["Type / temperature", type], ["Note", note]].forEach(function(p){
-      var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); body.appendChild(f);
+  async function refreshVialLocations(owner, boxId, movedTo){
+    var s = await adminFetchState(owner);
+    var touched = 0;
+    (s.vials || []).forEach(function(v){
+      if (v.location && v.location.boxId === boxId){
+        v.location.unitId = movedTo.unitId;
+        v.location.rackId = movedTo.rackId;
+        touched++;
+      }
     });
-    var msg = el("p", "note"); body.appendChild(msg);
-    var foot = clear($("dlgFoot"));
-    var ok = el("button", "primary", "Save");
-    ok.onclick = function(){
-      var r = E.setUnitDetails(structureView.state, unit.id, { name: name.value, type: type.value, note: note.value });
-      if (!r.ok){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; return; }
-      $("dlg").close();
-      structureCommit(r.state, "Admin: edited a freezer/tank for " + structureView.user);
-    };
-    foot.appendChild(ok);
-    $("dlg").showModal();
+    if (!touched) return;
+    await adminCommit(owner, s, "Follow a box that moved");
+    labCache.members = null; labCache.data = {};
   }
 
-  function renameSubdivisionDialog(rack){
-    $("dlgTitle").textContent = "Rename " + rack.name;
-    var body = clear($("dlgBody"));
-    var inp = document.createElement("input"); inp.value = rack.name; inp.autocomplete = "off";
-    body.appendChild(inp);
-    var foot = clear($("dlgFoot"));
-    var ok = el("button", "primary", "Save");
-    ok.onclick = function(){
-      if (!inp.value.trim()) return;
-      var r = E.renameSubdivision(structureView.state, rack.id, inp.value.trim());
-      if (!r.ok){ showBanner(r.reason); return; }
-      $("dlg").close();
-      structureCommit(r.state, "Admin: renamed a subdivision for " + structureView.user);
-    };
-    foot.appendChild(ok);
-    $("dlg").showModal();
-  }
+  // ---- the structure's own dialogs ----
 
-  function editBoxDialog(box){
-    $("dlgTitle").textContent = "Edit " + box.name;
-    var body = clear($("dlgBody"));
-    var name = document.createElement("input"); name.value = box.name; name.autocomplete = "off";
-    var rows = document.createElement("input"); rows.type = "number"; rows.min = 1; rows.value = box.rows;
-    var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = box.cols;
-    [["Name", name], ["Rows", rows], ["Columns", cols]].forEach(function(p){
-      var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); body.appendChild(f);
+  function iconField(body, current, onPick){
+    var f = el("div", "field");
+    f.appendChild(el("label", null, "Icon"));
+    var picked = { value: current || "" };
+    var preview = el("div", "iconPreview");
+    function paintPreview(){
+      clear(preview).appendChild(iconNode(picked.value, "rack"));
+      preview.appendChild(el("span", "sub", picked.value ? picked.value : "default"));
+    }
+    var palette = el("div", "iconPalette");
+    ICON_CHOICES.forEach(function(emoji){
+      var b = el("button", "iconChoice", emoji);
+      b.onclick = function(){ picked.value = emoji; onPick(picked.value); paintPreview(); };
+      palette.appendChild(b);
     });
-    var msg = el("p", "note"); body.appendChild(msg);
+    var clearBtn = el("button", "iconChoice", "✕");
+    clearBtn.title = "Back to the default icon";
+    clearBtn.onclick = function(){ picked.value = ""; onPick(""); paintPreview(); };
+    palette.appendChild(clearBtn);
+
+    // An uploaded image, exactly the way the wardrobe app already does it: read as
+    // base64 in the browser, committed as a real file, and only its name stored here.
+    var upload = el("button", null, "Upload an image…");
+    upload.onclick = function(){
+      var input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/png,image/jpeg,image/webp";
+      input.onchange = async function(){
+        var file = input.files && input.files[0];
+        if (!file) return;
+        upload.disabled = true;
+        upload.textContent = "Uploading…";
+        try {
+          var name = await uploadIcon(file);
+          picked.value = name; onPick(name); paintPreview();
+        } catch(err){ showBanner("Couldn't upload that: " + esc(err.message)); }
+        upload.disabled = false;
+        upload.textContent = "Upload an image…";
+      };
+      input.click();
+    };
+
+    paintPreview();
+    f.appendChild(preview);
+    f.appendChild(palette);
+    f.appendChild(upload);
+    body.appendChild(f);
+  }
+
+  async function uploadIcon(file){
+    var ext = (/\.(png|jpe?g|webp)$/i.exec(file.name) || [])[0];
+    if (!ext) throw new Error("only PNG, JPG or WEBP");
+    var slug = file.name.replace(/\.[^.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    var fileName = (slug || "icon") + "-" + Date.now().toString(36) + ext.toLowerCase();
+    var base64 = await blobToBase64(file);
+    await workerCommit([{ path: ICON_PREFIX + fileName, content: base64, base64: true }], "Add a storage icon");
+    return fileName;
+  }
+
+  function blobToBase64(blob){
+    return new Promise(function(resolve, reject){
+      var r = new FileReader();
+      r.onerror = function(){ reject(new Error("couldn't read that file")); };
+      r.onload = function(){ resolve(String(r.result).split(",")[1] || ""); };
+      r.readAsDataURL(blob);
+    });
+  }
+
+  function structureDialog(title, build){
+    $("dlgTitle").textContent = title;
+    var body = clear($("dlgBody"));
+    var msg = el("p", "note");
     var foot = clear($("dlgFoot"));
     var ok = el("button", "primary", "Save");
-    ok.onclick = function(){
-      if (!name.value.trim()) return;
-      var can = E.canResizeBox(structureView.state, box.id, Number(rows.value), Number(cols.value));
-      if (!can.ok){ msg.textContent = can.reason; msg.style.color = "var(--bad)"; return; }
-      var next = JSON.parse(JSON.stringify(structureView.state));
-      var found = E.findBox(next, box.id);
-      found.box.name = name.value.trim();
-      found.box.rows = Number(rows.value);
-      found.box.cols = Number(cols.value);
-      $("dlg").close();
-      structureCommit(next, "Admin: edited a box for " + structureView.user);
+    var apply = build(body, msg);
+    body.appendChild(msg);
+    ok.onclick = async function(){
+      ok.disabled = true;
+      try {
+        var r = apply();
+        if (r && r.ok === false){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; ok.disabled = false; return; }
+        await commitLabStorage(r.state, r.message);
+        $("dlg").close();
+        renderAdmin();
+      } catch(err){ msg.textContent = "Couldn't save that: " + err.message; msg.style.color = "var(--bad)"; }
+      ok.disabled = false;
     };
     foot.appendChild(ok);
     $("dlg").showModal();
+  }
+
+  function editLabDialog(){
+    structureDialog("Edit " + labStorage.labName, function(body){
+      var name = document.createElement("input"); name.value = labStorage.labName; name.autocomplete = "off";
+      var f = el("div", "field"); f.appendChild(el("label", null, "Name")); f.appendChild(name); body.appendChild(f);
+      var icon = { value: labStorage.labIcon || "" };
+      iconField(body, icon.value, function(v){ icon.value = v; });
+      var count = document.createElement("input");
+      count.type = "number"; count.min = 0; count.value = (labStorage.units || []).length;
+      count.id = "structureCountInput";
+      var cf = el("div", "field");
+      cf.appendChild(el("label", null, "How many freezers / tanks?"));
+      cf.appendChild(count);
+      body.appendChild(cf);
+      return function(){
+        if (!name.value.trim()) return { ok:false, reason:"A name is required." };
+        var r = E.setUnitCount(labStorage, Number(count.value));
+        if (!r.ok) return r;
+        var next = r.state;
+        next.labName = name.value.trim();
+        next.labIcon = icon.value;
+        return { state: next, message: "Edit the lab's structure" };
+      };
+    });
+  }
+
+  function editNodeDialog(node, level){
+    structureDialog("Edit " + node.name, function(body){
+      var name = document.createElement("input"); name.value = node.name; name.autocomplete = "off";
+      var fields = [["Name", name]];
+      var type = null, note = null;
+      if (level === "unit"){
+        type = document.createElement("input");
+        type.value = node.type || ""; type.placeholder = "-80, LN2…"; type.autocomplete = "off";
+        note = document.createElement("input");
+        note.value = node.note || ""; note.placeholder = "back corner"; note.autocomplete = "off";
+        fields.push(["Type / temperature", type], ["Note", note]);
+      }
+      fields.forEach(function(p){
+        var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); body.appendChild(f);
+      });
+      var icon = { value: node.icon || "" };
+      iconField(body, icon.value, function(v){ icon.value = v; });
+
+      // A node holds either child racks or boxes, never both -- so it gets whichever
+      // count applies, and a genuinely empty one gets both and becomes whichever is used.
+      var hasBoxes = (node.boxes || []).length > 0;
+      var hasRacks = (node.racks || []).length > 0;
+      // Every level inside a unit is named after that unit's own childLabel -- a -80's
+      // shelves and the racks inside them are all "Rack 3" style, set once on the unit.
+      var childLabel = level === "unit"
+        ? (node.childLabel || "Rack")
+        : ((E.findRackNode(labStorage, node.id) || {}).unit || {}).childLabel || "Rack";
+      var rackCount = null, boxCount = null;
+      if (level === "unit" || !hasBoxes){
+        rackCount = document.createElement("input");
+        rackCount.type = "number"; rackCount.min = 0; rackCount.value = (node.racks || []).length;
+        rackCount.id = "structureCountInput";
+        var rf = el("div", "field");
+        rf.appendChild(el("label", null, "How many " + childLabel.toLowerCase() + "s?"));
+        rf.appendChild(rackCount);
+        body.appendChild(rf);
+      }
+      if (level !== "unit" && !hasRacks){
+        boxCount = document.createElement("input");
+        boxCount.type = "number"; boxCount.min = 0; boxCount.value = (node.boxes || []).length;
+        boxCount.id = "structureBoxCountInput";
+        var bf = el("div", "field");
+        bf.appendChild(el("label", null, "How many boxes?"));
+        bf.appendChild(boxCount);
+        body.appendChild(bf);
+      }
+
+      return function(){
+        if (!name.value.trim()) return { ok:false, reason:"A name is required." };
+        var next = labStorage, r;
+        if (rackCount){
+          var unitId = level === "unit" ? node.id : E.findRackNode(next, node.id).unit.id;
+          var parentId = level === "unit" ? null : node.id;
+          r = E.setSubdivisionCount(next, unitId, parentId, Number(rackCount.value), childLabel);
+          if (!r.ok) return r;
+          next = r.state;
+        }
+        if (boxCount){
+          r = setBoxCountWithOwner(next, node.id, Number(boxCount.value));
+          if (!r.ok) return r;
+          next = r.state;
+        }
+        if (level === "unit"){
+          r = E.setUnitDetails(next, node.id, { name: name.value, type: type.value, note: note.value });
+          if (!r.ok) return r;
+          next = r.state;
+          E.findUnit(next, node.id).icon = icon.value;
+        } else {
+          r = E.renameSubdivision(next, node.id, name.value);
+          if (!r.ok) return r;
+          next = r.state;
+          E.findRackNode(next, node.id).rack.icon = icon.value;
+        }
+        return { state: next, message: "Edit " + name.value.trim() };
+      };
+    });
+  }
+
+  // setBoxCount only knows about boxes; a box also needs an owner, and a shrink has to
+  // count vials that live in other people's files. Both are supplied here.
+  function setBoxCountWithOwner(storage, rackId, count){
+    var node = E.findRackNode(storage, rackId);
+    if (!node) return { ok:false, reason:"No such subdivision." };
+    var counts = labVialCounts();
+    var current = node.rack.boxes || [];
+    var n = Math.max(0, Math.floor(Number(count) || 0));
+    if (n < current.length){
+      var stranded = current.slice(n).filter(function(b){ return counts[b.id]; });
+      if (stranded.length){
+        return { ok:false, reason: stranded.map(function(b){
+          return b.name + " still holds " + counts[b.id] + " vial" + (counts[b.id] === 1 ? "" : "s") +
+                 " and needs a new location first";
+        }).join("; ") + "." };
+      }
+    }
+    var r = E.setBoxCount(storage, rackId, n);
+    if (!r.ok) return r;
+    // A box admin adds on someone's behalf starts unassigned; the box's own ✎ says whose.
+    return r;
+  }
+
+  function editStructureBoxDialog(box){
+    structureDialog("Edit " + box.name, function(body){
+      var name = document.createElement("input"); name.value = box.name; name.autocomplete = "off";
+      var rows = document.createElement("input"); rows.type = "number"; rows.min = 1; rows.value = box.rows;
+      var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = box.cols;
+      var owner = document.createElement("select");
+      var ownerNames = (labCache.members || []).slice().sort();
+      var opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "(nobody yet)";
+      owner.appendChild(opt0);
+      ownerNames.forEach(function(n){
+        var o = document.createElement("option"); o.value = n; o.textContent = n;
+        if ((box.owner || "").toLowerCase() === n.toLowerCase()) o.selected = true;
+        owner.appendChild(o);
+      });
+      [["Name", name], ["Whose", owner], ["Rows", rows], ["Columns", cols]].forEach(function(p){
+        var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); body.appendChild(f);
+      });
+      var icon = { value: box.icon || "" };
+      iconField(body, icon.value, function(v){ icon.value = v; });
+      body.appendChild(el("p", "note",
+        "Rows and columns describe the box itself; tapping it on the Boxes tab still shows the grid."));
+
+      return function(){
+        if (!name.value.trim()) return { ok:false, reason:"A name is required." };
+        var counts = labVialCounts();
+        // Shrinking a box can strand a vial that isn't in this account's own file, so
+        // check against the whole lab rather than against admin's empty inventory.
+        var owned = labCache.data[box.owner] || null;
+        if (owned){
+          var can = E.canResizeBox(owned, box.id, Number(rows.value), Number(cols.value));
+          if (!can.ok) return { ok:false, reason: can.reason };
+        } else if (counts[box.id] && (Number(rows.value) * Number(cols.value)) < counts[box.id]){
+          return { ok:false, reason: box.name + " holds " + counts[box.id] + " vials, more than that grid has slots." };
+        }
+        var next = JSON.parse(JSON.stringify(labStorage));
+        var found = E.findBox(next, box.id);
+        found.box.name = name.value.trim();
+        found.box.rows = Number(rows.value);
+        found.box.cols = Number(cols.value);
+        found.box.icon = icon.value;
+        if (owner.value) found.box.owner = owner.value;
+        else delete found.box.owner;
+        return { state: next, message: "Edit " + name.value.trim() };
+      };
+    });
   }
 
   function renderAdminManageBox(c, s){
@@ -3880,19 +4175,26 @@
     var ok = el("button", "primary", "Add");
     ok.onclick = async function(){
       if (!name.value.trim() || !unitSel.value) return;
-      var parts = unitSel.value.split("|");
-      var rk = E.findRackNode(s, parts[1]).rack;
-      var id = "b-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-      if (E.findBox(s, id)) id += "-" + Date.now().toString(36).slice(-4);
-      rk.boxes.push({ id:id, name:name.value.trim(), rows:Number(rows.value), cols:Number(cols.value),
-                      scheme:"grid", note:"", archived:false });
+      ok.disabled = true;
       try {
-        await adminCommit(manageView.user, s, "Admin: added a box for " + manageView.user);
+        // The box goes into the lab's shared structure, marked as this member's --
+        // their own file only ever holds vials now.
+        var fresh = await fetchLabStorage();
+        var rk = E.findRackNode(fresh, unitSel.value.split("|")[1]);
+        if (!rk) throw new Error("that rack is no longer in the lab's structure");
+        var id = "b-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        if (E.findBox(fresh, id)) id += "-" + Date.now().toString(36).slice(-4);
+        rk.rack.boxes = rk.rack.boxes || [];
+        rk.rack.boxes.push({ id:id, name:name.value.trim(), rows:Number(rows.value), cols:Number(cols.value),
+                             scheme:"grid", note:"", archived:false, owner: manageView.user.toLowerCase() });
+        await commitLabStorage(fresh, "Admin: added a box for " + manageView.user);
+        manageView.state = await adminFetchState(manageView.user);
         manageView.boxId = id;
         $("dlg").close();
-        showBanner("Added " + name.value.trim() + " for " + esc(manageView.user) + ".");
+        showBanner("Added " + esc(name.value.trim()) + " for " + esc(manageView.user) + ".");
         renderAdmin();
       } catch(err){ showBanner("Couldn't save: " + esc(err.message)); }
+      ok.disabled = false;
     };
     foot.appendChild(ok);
     $("dlg").showModal();
@@ -4034,7 +4336,7 @@
           // per name for the whole session, and both names are now wrong in it.
           labCache.members = null; labCache.data = {};
           if (manageView.user === u.name){ manageView.user = null; manageView.state = null; }
-          if (structureView.user === u.name){ structureView.user = null; structureView.state = null; }
+          structureView.expanded = null;   // owner labels in the tree are now wrong
           showBanner("Renamed " + esc(u.name) + " to <b>" + esc(newName) + "</b>.");
           renderAdminUsers();
         } catch(err){ showBanner(err.message); }
@@ -4251,10 +4553,13 @@
 
   async function renderAdminHandoff(){
     var c = clear($("admin-handoff"));
-    c.appendChild(el("p", "note", "Pick who's leaving. Their boxes get handed off one at a time to whoever " +
-      "should take over each -- a box left on “Keep with them” is untouched."));
+    c.appendChild(el("p", "note",
+      "Somebody leaving the lab. Their boxes stay exactly where they physically are -- the " +
+      "freezer belongs to the lab -- and change hands to whoever takes them over. Once every " +
+      "box has somewhere to go, their account and its files are deleted."));
     var users = await adminUsers().catch(function(){ return []; });
-    hoAllNames = users.filter(function(u){ return !u.hidden; }).map(function(u){ return u.name; });
+    // A PI holds no inventory, so they can neither leave boxes behind nor take any on.
+    hoAllNames = users.filter(function(u){ return !u.hidden && u.role !== "pi"; }).map(function(u){ return u.name; });
     var sel = document.createElement("select");
     hoAllNames.forEach(function(n){ var o = document.createElement("option"); o.value = n; o.textContent = n; sel.appendChild(o); });
     var f = el("div", "field"); f.appendChild(el("label", null, "Who's leaving")); f.appendChild(sel);
@@ -4265,7 +4570,7 @@
     c.appendChild(lbl);
     var boxesWrap = el("div");
     c.appendChild(boxesWrap);
-    var applyBtn = el("button", "primary", "Apply handoff");
+    var applyBtn = el("button", "danger", "Hand over and delete the account");
     applyBtn.hidden = true;
     applyBtn.style.marginTop = "10px";
     c.appendChild(applyBtn);
@@ -4276,25 +4581,39 @@
       clear(boxesWrap); applyBtn.hidden = true; hoState = null; hoAssignments = {};
       if (!leaving.checked || !sel.value) return;
       hoState = await adminFetchState(sel.value);
+      var owner = sel.value.toLowerCase();
       var boxes = [];
-      E.eachBox(hoState, function(box, rack, unit, chain){
-        var count = (hoState.vials || []).filter(function(v){ return v.location && v.location.boxId === box.id; }).length;
-        boxes.push({ unit:unit, rack:rack, chain:chain, box:box, count:count });
+      // Their boxes are the ones in the lab's shared structure marked as theirs.
+      E.eachBox(labStorage, function(box, rack, unit, chain){
+        if ((box.owner || "").toLowerCase() !== owner) return;
+        var count = (hoState.vials || []).filter(function(v){
+          return v.status !== "withdrawn" && v.location && v.location.boxId === box.id;
+        }).length;
+        boxes.push({ unit:unit, chain:chain, box:box, count:count });
       });
-      if (!boxes.length){ boxesWrap.appendChild(el("p", "note", sel.value + " has no boxes to hand off.")); return; }
+      if (!boxes.length){
+        boxesWrap.appendChild(el("p", "note", sel.value + " has no boxes -- their account can be deleted straight away."));
+        applyBtn.hidden = false;
+        return;
+      }
+      boxesWrap.appendChild(el("p", "note", "Every box needs a destination before the account can go."));
       boxes.forEach(function(entry){
         var row = el("div", "item");
         var grow = el("div", "grow");
         var path = [entry.unit.name].concat(entry.chain.map(function(r){ return r.name; })).concat([entry.box.name]);
         grow.appendChild(el("div", null, path.join(" → ")));
-        grow.appendChild(el("div", "sub", entry.count + " vials"));
+        grow.appendChild(el("div", "sub", entry.count + " vial" + (entry.count === 1 ? "" : "s")));
         row.appendChild(grow);
         var assignSel = document.createElement("select");
-        var keep = document.createElement("option"); keep.value = ""; keep.textContent = "Keep with " + sel.value;
-        assignSel.appendChild(keep);
+        var none = document.createElement("option"); none.value = ""; none.textContent = "(nobody yet)";
+        assignSel.appendChild(none);
         hoAllNames.filter(function(n){ return n !== sel.value; }).forEach(function(n){
-          var o = document.createElement("option"); o.value = n; o.textContent = n; assignSel.appendChild(o);
+          var o = document.createElement("option"); o.value = n; o.textContent = "→ " + n; assignSel.appendChild(o);
         });
+        var discard = document.createElement("option");
+        discard.value = " discard";
+        discard.textContent = "Discard (delete " + entry.count + " vial" + (entry.count === 1 ? "" : "s") + ")";
+        assignSel.appendChild(discard);
         assignSel.onchange = function(){ hoAssignments[entry.box.id] = assignSel.value; };
         row.appendChild(assignSel);
         boxesWrap.appendChild(row);
@@ -4304,86 +4623,95 @@
 
     applyBtn.onclick = async function(){
       var user = sel.value;
-      if (!hoState || !user) return;
-      var byTarget = {};
-      Object.keys(hoAssignments).forEach(function(boxId){
-        var target = hoAssignments[boxId];
-        if (target) (byTarget[target] = byTarget[target] || []).push(boxId);
-      });
-      var targetNames = Object.keys(byTarget);
-      if (!targetNames.length){ clear(msg).appendChild(el("div", "note", "Nothing assigned yet.")); return; }
+      if (!user) return;
+      var owner = user.toLowerCase();
+      var myBoxes = [];
+      E.eachBox(labStorage, function(box){ if ((box.owner || "").toLowerCase() === owner) myBoxes.push(box); });
+
+      var unassigned = myBoxes.filter(function(b){ return !hoAssignments[b.id]; });
+      if (unassigned.length){
+        clear(msg).appendChild(el("div", "note",
+          "Still nowhere to go: " + unassigned.map(function(b){ return b.name; }).join(", ") +
+          ". Give every box a new owner (or Discard it) first."));
+        return;
+      }
+      var discarding = myBoxes.filter(function(b){ return hoAssignments[b.id] === " discard"; });
+      var discardedVials = (hoState.vials || []).filter(function(v){
+        return v.location && discarding.some(function(b){ return b.id === v.location.boxId; });
+      }).length;
+      if (!window.confirm("Hand " + (myBoxes.length - discarding.length) + " box(es) over" +
+          (discarding.length ? ", discard " + discarding.length + " box(es) with " + discardedVials + " vial(s)" : "") +
+          ", then delete " + user + "'s account and both its files? This cannot be undone.")) return;
+
       applyBtn.disabled = true;
       try {
-        var sourceState = E.mergeDefaults(JSON.parse(JSON.stringify(hoState)));
-        var allMovedBoxIds = {};
+        // 1. The boxes change hands where they already are: only `owner` moves, and the
+        //    tree, the ids and every position stay exactly as they were. A discarded box
+        //    is removed from the structure entirely.
+        var nextStorage = JSON.parse(JSON.stringify(labStorage));
+        var byTarget = {};
+        myBoxes.forEach(function(box){
+          var target = hoAssignments[box.id];
+          if (target === " discard"){
+            var f2 = E.findBox(nextStorage, box.id);
+            var list = f2.rack.boxes;
+            list.splice(list.indexOf(f2.box), 1);
+            return;
+          }
+          E.findBox(nextStorage, box.id).box.owner = target.toLowerCase();
+          (byTarget[target] = byTarget[target] || []).push(box.id);
+        });
+
+        // 2. The vials follow their box into the new owner's own file, keeping their
+        //    slot but taking fresh ids -- two accounts mint ids independently, so
+        //    "v-2" from one can collide with "v-2" in the other (PR #82).
         var prepared = [];
+        var targetNames = Object.keys(byTarget);
         for (var t = 0; t < targetNames.length; t++){
           var target = targetNames[t];
           var targetState = await adminFetchState(target);
-          var newUnitId = adminNewId("u");
-          var newRack = { id: adminNewId("r"), name: "From " + user, boxes: [] };
-          targetState.storage.units.push({ id:newUnitId, name:"From " + user, type:"freezer", childLabel:"Rack", racks:[newRack] });
-          byTarget[target].forEach(function(boxId){
-            var found = E.findBox(sourceState, boxId);
-            if (!found) return;
-            allMovedBoxIds[boxId] = true;
-            var newBoxId = adminNewId("b");
-            newRack.boxes.push(JSON.parse(JSON.stringify(Object.assign({}, found.box, { id:newBoxId }))));
-            sourceState.vials.forEach(function(v){
-              if (v.location && v.location.boxId === boxId){
-                var moved = JSON.parse(JSON.stringify(v));
-                // Every account generates its own vial ids independently (often small,
-                // sequential ones from an import -- "v-2" in one account is no relation
-                // to "v-2" in another), so keeping the source's id risks colliding with
-                // one the target already has. A fresh id here is exactly as safe as the
-                // fresh box/unit/rack ids already minted a few lines up for the same
-                // reason.
-                moved.id = adminNewId("v");
-                moved.location = { unitId:newUnitId, rackId:newRack.id, boxId:newBoxId, position:v.location.position };
-                targetState.vials.push(moved);
-              }
-            });
+          var ids = {};
+          byTarget[target].forEach(function(id){ ids[id] = true; });
+          (hoState.vials || []).forEach(function(v){
+            if (!v.location || !ids[v.location.boxId]) return;
+            var moved = JSON.parse(JSON.stringify(v));
+            moved.id = adminNewId("v");
+            targetState.vials.push(moved);
           });
-          var errors = E.errorsOnly(E.validate(targetState));
-          if (errors.length) throw new Error(target + "'s inventory would be invalid after this handoff: " + errors[0].message);
+          (hoState.withdrawals || []).forEach(function(w){
+            if (!w.from || !ids[w.from.boxId]) return;
+            var movedW = JSON.parse(JSON.stringify(w));
+            movedW.id = adminNewId("w");
+            targetState.withdrawals.push(movedW);
+          });
+          var errors = E.errorsOnly(E.validate(E.hydrateStorage(targetState, nextStorage, target)));
+          if (errors.length) throw new Error(target + "'s inventory would be invalid after this: " + errors[0].message);
           prepared.push({ name:target, state:targetState });
         }
+
+        // 3. Write it all: the structure first, then each new owner's file, then the
+        //    account itself goes -- DELETE /admin/users also removes both its files.
+        await commitLabStorage(nextStorage, "Handoff: " + user + "'s boxes change hands");
         for (var i = 0; i < prepared.length; i++){
-          await adminCommit(prepared[i].name, prepared[i].state, "Handoff: received boxes from " + user);
+          await adminCommit(prepared[i].name, prepared[i].state, "Handoff: took over boxes from " + user);
         }
-        function pruneMovedBoxes(racks){
-          (racks || []).forEach(function(r){
-            r.boxes = (r.boxes || []).filter(function(b){ return !allMovedBoxIds[b.id]; });
-            if (r.racks && r.racks.length) pruneMovedBoxes(r.racks);
-          });
-        }
-        function pruneEmptyRacks(racks){
-          return (racks || []).filter(function(r){
-            if (r.racks && r.racks.length) r.racks = pruneEmptyRacks(r.racks);
-            return (r.boxes && r.boxes.length) || (r.racks && r.racks.length);
-          });
-        }
-        (sourceState.storage.units || []).forEach(function(u){
-          pruneMovedBoxes(u.racks);
-          u.racks = pruneEmptyRacks(u.racks);
-        });
-        sourceState.storage.units = (sourceState.storage.units || []).filter(function(u){ return (u.racks || []).length; });
-        sourceState.vials = sourceState.vials.filter(function(v){ return !(v.location && allMovedBoxIds[v.location.boxId]); });
-        var sourceErrors = E.errorsOnly(E.validate(sourceState));
-        if (sourceErrors.length) throw new Error("Every target was updated, but " + user + "'s own remaining inventory would be invalid: " + sourceErrors[0].message);
-        await adminCommit(user, sourceState, "Handoff: gave away boxes to " + targetNames.join(", "));
-        clear(msg).appendChild(el("div", "note", "Handed off " + Object.keys(allMovedBoxIds).length + " box(es) from " + user + " to " + targetNames.join(", ") + "."));
+        await workerFetch("/admin/users/" + encodeURIComponent(user), { method:"DELETE", headers: adminAuth() });
+        adminUsersCache = null;
+        labCache.members = null; labCache.data = {};
+        structureView.expanded = null;
+
+        clear(msg).appendChild(el("div", "note",
+          "Handed " + (myBoxes.length - discarding.length) + " box(es) over to " +
+          (targetNames.length ? targetNames.join(", ") : "nobody") +
+          (discarding.length ? ", discarded " + discarding.length : "") +
+          ", and deleted " + user + "'s account."));
         leaving.checked = false; clear(boxesWrap); applyBtn.hidden = true; hoState = null; hoAssignments = {};
+        renderAdminHandoff();
       } catch(err){ clear(msg).appendChild(el("div", "note", err.message)); }
       applyBtn.disabled = false;
     };
   }
 
-  // =====================================================================
-  // Shell
-  // =====================================================================
-
-  var screen = "find";
   function go(name){
     screen = name;
     Array.prototype.forEach.call(document.querySelectorAll(".screen"), function(s){

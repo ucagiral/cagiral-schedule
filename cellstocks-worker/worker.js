@@ -267,6 +267,11 @@ async function deleteUserFiles(env, name) {
 // user, named after their account -- this is the ownership boundary the commit endpoint
 // enforces.
 const DATA_PREFIX = "cellstocks/data/";
+// The lab's shared freezer structure. Deliberately outside DATA_PREFIX: a member could
+// legally be named "_storage" (the name rule allows an underscore), and their own file
+// must never be able to collide with the lab's.
+const LAB_STORAGE_PATH = "cellstocks/lab-storage.json";
+const ICON_PREFIX = "cellstocks/icons/";
 
 function dataPathFor(name) {
   return `${DATA_PREFIX}${name.toLowerCase()}.json`;
@@ -281,11 +286,29 @@ function xlsxPathFor(name) {
 // cellstocks/data/** is ever writable through this endpoint -- it is not a
 // general-purpose GitHub proxy.
 function canWrite(user, path) {
+  // A PI reads the whole lab and writes none of it -- no inventory of their own, and no
+  // structural edits either.
+  if (user.role === "pi") return false;
+
+  // The lab's shared storage structure: one freezer tree the whole lab reads. Admin owns
+  // it (the Structure screen), but an ordinary member still has to be able to add a box
+  // for themselves -- Umut asked for exactly that, and it is the one everyday action that
+  // now touches this file. So it is writable by any logged-in member, and the app only
+  // ever offers them the additive part of it. The honest trade-off: nothing here stops a
+  // member's client from writing something else into that file, and two people saving it
+  // at the same moment is last-write-wins like every other file in this repo. Tightening
+  // that means the Worker diffing the incoming tree against the committed one to prove
+  // the change is additive -- worth doing if this lab ever outgrows trusting each other.
+  if (path === LAB_STORAGE_PATH) return true;
+
+  // Folder icons for that structure. Admin-only, since only the Structure screen
+  // uploads one, and images only: no SVG, which is markup, in a public repository.
+  if (path.startsWith(ICON_PREFIX)) {
+    return user.role === "admin" && /^[a-zA-Z0-9._-]+\.(png|jpe?g|webp)$/.test(path.slice(ICON_PREFIX.length));
+  }
+
   if (!path.startsWith(DATA_PREFIX) || !/\.(json|xlsx)$/.test(path)) return false;
   if (user.role === "admin") return true;
-  // A PI reads the whole lab and writes none of it -- they have no inventory of their
-  // own, so there is no path here that could be "theirs" to write.
-  if (user.role === "pi") return false;
   return path === dataPathFor(user.name) || path === xlsxPathFor(user.name);
 }
 
@@ -778,6 +801,8 @@ export {
   userKey,
   sessionKey,
   ROLES,
+  LAB_STORAGE_PATH,
+  ICON_PREFIX,
   base64ToUtf8,
   TYPES_CONFIG_KEY,
   DEFAULT_TYPE_NAMES

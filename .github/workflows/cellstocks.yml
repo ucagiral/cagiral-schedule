@@ -83,7 +83,12 @@ jobs:
             new Function(fs.readFileSync("cellstocks/xlsx.js", "utf8"))();
             new Function(fs.readFileSync("cellstocks/engine.js", "utf8"))();
             const E = globalThis.CellStocksEngine, X = globalThis.XlsxLite;
-            const state = E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/data/umut.json", "utf8")));
+            // The freezer belongs to the whole lab now rather than to one account: a
+            // member file holds only vials, so it is hydrated with the shared
+            // cellstocks/lab-storage.json exactly the way the app does before anything
+            // reads a location out of it.
+            const lab = E.mergeStorageDefaults(JSON.parse(fs.readFileSync("cellstocks/lab-storage.json", "utf8")));
+            const state = E.hydrateStorage(E.mergeDefaults(JSON.parse(fs.readFileSync("cellstocks/data/umut.json", "utf8"))), lab, "umut");
             const flatten = (wb) => wb.sheets.map((s) => [s.name, s.rows.map((r) => r.map((c) => (c ? c.value : null)))]);
             Promise.all([
               X.writeWorkbookAsync(E.vialsToSheets(state)).then(X.readWorkbook),

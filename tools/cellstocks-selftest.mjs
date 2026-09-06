@@ -1330,11 +1330,9 @@ check("setBoxCount refuses to add boxes under a rack that already holds subdivis
 
 // ---- storage: moving a box between siblings (Structure screen's drag-and-drop) ----
 
-check("moveBoxToSibling moves a box between two racks under the same parent", () => {
+check("moveBox moves a box between two racks under the same parent", () => {
   const s = nestedFixture();
-  // rack-1 and rack-2 are both direct children of shelf-1 -- true siblings, and
-  // rack-2 already starts empty in the fixture.
-  const r = E.moveBoxToSibling(s, "b-d1", "rack-2");
+  const r = E.moveBox(s, "b-d1", "rack-2");
   if (!r.ok) return `refused: ${r.reason}`;
   const f = E.findBox(r.state, "b-d1");
   if (f.rack.id !== "rack-2") return `box is in ${f.rack.id}, not rack-2`;
@@ -1343,28 +1341,37 @@ check("moveBoxToSibling moves a box between two racks under the same parent", ()
   return null;
 });
 
-check("moveBoxToSibling refuses a target that isn't an actual sibling (different parent)", () => {
+check("moveBox reaches across shelves and freezers, not only siblings", () => {
+  // The whole tree is on screen at once now, so a box can be dragged anywhere a leaf
+  // rack is visible -- the sibling-only limit existed because the old one-level-at-a-
+  // time screen could never show source and target together.
   const s = nestedFixture();
-  // b-d1 lives in rack-1, whose parent is shelf-1. shelf-2 sits at the unit's own
-  // top level (its parent is the unit, not shelf-1) -- not a sibling, even though
-  // shelf-2 itself is a leaf (holds Box D2 directly).
-  const r = E.moveBoxToSibling(s, "b-d1", "shelf-2");
-  if (r.ok) return "should have refused -- shelf-2 is not a sibling of rack-1";
+  const across = E.moveBox(s, "b-d1", "shelf-2");   // a different top-level branch
+  if (!across.ok) return `refused a cross-branch move: ${across.reason}`;
+  if (E.findBox(across.state, "b-d1").rack.id !== "shelf-2") return "the box did not land in shelf-2";
+
+  const two = E.mergeDefaults({
+    storage: { units: [
+      { id: "u-a", name: "Freezer A", childLabel: "Rack",
+        racks: [{ id: "rack-a", name: "Rack 1", boxes: [box("b-a1", "Box A1", 9, 9)] }] },
+      { id: "u-b", name: "Freezer B", childLabel: "Rack",
+        racks: [{ id: "rack-b", name: "Rack 1", boxes: [] }] }
+    ] },
+    vials: [vial("v-a1", "HEK293T", "b-a1", "A1")]
+  });
+  const cross = E.moveBox(two, "b-a1", "rack-b");
+  if (!cross.ok) return `refused a cross-freezer move: ${cross.reason}`;
+  const moved = cross.state.vials[0];
+  if (moved.location.unitId !== "u-b" || moved.location.rackId !== "rack-b") {
+    return `the vial's own unit/rack were not refreshed: ${json(moved.location)}`;
+  }
   return null;
 });
 
-check("moveBoxToSibling refuses moving across a different freezer entirely", () => {
-  const s = E.mergeDefaults({
-    storage: { units: [
-      { id: "u-deep", name: "Deep Freezer", childLabel: "Rack",
-        racks: [{ id: "rack-1", name: "Rack 1", boxes: [box("b-d1", "Box D1", 9, 9)] }] },
-      { id: "u-flat", name: "Flat Freezer", childLabel: "Rack",
-        racks: [{ id: "rack-flat", name: "Rack 1", boxes: [] }] }
-    ] },
-    vials: [vial("v-d1", "HEK293T", "b-d1", "A1")]
-  });
-  const r = E.moveBoxToSibling(s, "b-d1", "rack-flat");
-  if (r.ok) return "should have refused -- rack-flat is under a completely different unit";
+check("moveBox still refuses a rack that holds subdivisions rather than boxes", () => {
+  const s = nestedFixture();
+  const r = E.moveBox(s, "b-d1", "shelf-1");   // shelf-1 is a group, not a leaf
+  if (r.ok) return "should have refused -- shelf-1 holds child racks";
   return null;
 });
 
@@ -1623,6 +1630,82 @@ check("a blank Add-screen date defaults to today, never to Review", () => {
   return null;
 });
 
+// ---- storage: one shared lab structure, hydrated onto each member ----
+//
+// The freezer belongs to the lab (cellstocks/lab-storage.json), the vials belong to
+// whoever froze them (cellstocks/data/<name>.json). state.storage is hydrated from the
+// first at load so every existing function still reads it exactly where it always did,
+// and slim() takes it back off before a member's own file is written -- if it did not,
+// the two copies would drift the first time an admin renamed a rack.
+
+check("a member's own file is written without the lab's storage in it", () => {
+  const lab = { labName: "CAA Lab Stocks", units: [
+    { id: "u-1", name: "-80", childLabel: "Rack",
+      racks: [{ id: "r-1", name: "Rack 1", boxes: [box("b-1", "Box 1", 9, 9)] }] }
+  ] };
+  const own = E.mergeDefaults({ vials: [vial("v-1", "HEK293T", "b-1", "A1")] });
+  const hydrated = E.hydrateStorage(own, lab, "umut");
+  if (!E.findBox(hydrated, "b-1")) return "hydration did not put the lab's boxes on the state";
+  const written = JSON.parse(E.serialise(hydrated));
+  if (written.storage !== undefined) return `storage was written into the member file: ${json(written.storage)}`;
+  if (written._owner !== undefined) return "the runtime owner marker leaked into the member file";
+  if ((written.vials || []).length !== 1) return "the member's own vials went missing";
+  return null;
+});
+
+check("the lab's own file keeps the structure, its name and every box's owner", () => {
+  const lab = E.mergeStorageDefaults({ units: [
+    { id: "u-1", name: "-80", childLabel: "Rack",
+      racks: [{ id: "r-1", name: "Rack 1", boxes: [Object.assign(box("b-1", "Box 1", 9, 9), { owner: "umut", note: "" })] }] }
+  ] });
+  const written = JSON.parse(E.serialiseStorage(lab));
+  if (written.labName !== "CAA Lab Stocks") return `expected a default lab name, got ${json(written.labName)}`;
+  const b = written.units[0].racks[0].boxes[0];
+  if (b.owner !== "umut") return `the owner was dropped: ${json(b)}`;
+  if (b.note !== undefined) return "an empty note should still be stripped from a box";
+  return null;
+});
+
+check("hydration is a round trip: the same lab, the same member file, byte for byte", () => {
+  const lab = E.mergeStorageDefaults({ units: [
+    { id: "u-1", name: "-80", childLabel: "Rack",
+      racks: [{ id: "r-1", name: "Rack 1", boxes: [Object.assign(box("b-1", "Box 1", 9, 9), { owner: "umut" })] }] }
+  ] });
+  const own = E.mergeDefaults({ vials: [vial("v-1", "HEK293T", "b-1", "A1")] });
+  const once = E.serialise(E.hydrateStorage(own, lab, "umut"));
+  const twice = E.serialise(E.hydrateStorage(E.mergeDefaults(JSON.parse(once)), lab, "umut"));
+  if (once !== twice) return "a second save of an untouched state would churn the file";
+  return null;
+});
+
+check("placement only ever offers a member their own boxes", () => {
+  const lab = { units: [{ id: "u-1", name: "-80", childLabel: "Rack", racks: [{ id: "r-1", name: "Rack 1", boxes: [
+    Object.assign(box("b-mine", "Mine", 9, 9), { owner: "umut" }),
+    Object.assign(box("b-theirs", "Theirs", 9, 9), { owner: "caa" }),
+    box("b-nobodys", "Unowned", 9, 9)
+  ] }] }] };
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "umut");
+
+  const mine = E.boxesFor(state, null, "umut").map((e) => e.box.id).sort();
+  if (json(mine) !== json(["b-mine", "b-nobodys"])) return `expected mine + the unowned one, got ${json(mine)}`;
+  if (E.boxesFor(state, null).length !== 3) return "without an owner every box should still be listed";
+
+  // A plan for this member must never propose a box belonging to someone else.
+  const plan = E.suggestPlacement(state, { name: "HEK293T", count: 1, owner: "umut" });
+  if (!plan.ok) return `no plan at all: ${plan.reason}`;
+  if (plan.segments.some((seg) => seg.boxId === "b-theirs")) return "a plan proposed another member's box";
+  return null;
+});
+
+check("iconKind tells an uploaded image from an emoji, and blank from both", () => {
+  const cases = [["freezer.png", "image"], ["a.JPEG", "image"], ["x.webp", "image"],
+                 ["\u{1F9CA}", "emoji"], ["\u{1F4C1}", "emoji"], ["", null], ["   ", null]];
+  for (const [value, want] of cases) {
+    if (E.iconKind(value) !== want) return `iconKind(${json(value)}) was ${json(E.iconKind(value))}, expected ${json(want)}`;
+  }
+  return null;
+});
+
 // ============================================================== real inventory
 //
 // Everything above runs on a fixture. These run on cellstocks/data/umut.json --
@@ -1634,7 +1717,14 @@ check("a blank Add-screen date defaults to today, never to Review", () => {
 // ever since), so it necessarily drifted out of date and was retired.
 
 const REAL_PATH = join(ROOT, "cellstocks", "data", "umut.json");
-const real = existsSync(REAL_PATH) ? E.mergeDefaults(JSON.parse(readFileSync(REAL_PATH, "utf8"))) : null;
+const LAB_STORAGE_PATH = join(ROOT, "cellstocks", "lab-storage.json");
+// The freezer is the lab's, in its own file; a member's file holds only their vials.
+// The app hydrates the two together at load (see loadState in index.html) and these
+// checks have to run against the same thing the app renders, so they hydrate too.
+const labStorage = existsSync(LAB_STORAGE_PATH)
+  ? E.mergeStorageDefaults(JSON.parse(readFileSync(LAB_STORAGE_PATH, "utf8"))) : E.blankStorage();
+const realOwnFile = existsSync(REAL_PATH) ? E.mergeDefaults(JSON.parse(readFileSync(REAL_PATH, "utf8"))) : null;
+const real = realOwnFile ? E.hydrateStorage(realOwnFile, labStorage, "umut") : null;
 
 // Umut edits this file from his phone -- takes vials out, confirms dates in bulk,
 // fixes a passage -- and this suite runs on every one of those saves. A check here

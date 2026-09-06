@@ -95,10 +95,6 @@
     ],
     "guide": [
       {
-        "extract": "(DS)?g\\d+(\\.\\d+)?|gNT|g[PC]\\d+",
-        "longest": true
-      },
-      {
         "value": "-"
       }
     ]
@@ -116,6 +112,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T17:52:15.305Z"
+    "savedAt": "2026-09-06T17:52:34.129Z"
   }
 }

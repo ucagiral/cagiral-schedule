@@ -410,7 +410,8 @@ rather than as intent. It needs playwright; without it, it says so and exits wit
 
 ## Cell Stocks
 
-- **App:** `https://<account>.github.io/cagiral-schedule/cellstocks/`
+- **App:** `https://cellstocks-worker.caalab.workers.dev`
+- Also still at `https://<account>.github.io/cagiral-schedule/cellstocks/`, for old links
 
 A third app, sharing this repository and nothing else — not the data, not the rules, not even the
 browser storage. It knows what is in the −80 °C freezer: type a few words and it says which box and

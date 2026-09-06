@@ -246,13 +246,17 @@ worker handles by sweeping only its own prefix.
   pinned by hand and so do not move) — `ruleImpact()` in the app, over `E.classifyAll`. Deleting an
   attribute name only stops it being *suggested*; a value already recorded under it is never
   touched.
-- **The app is served by its own Worker, not from GitHub Pages.** `cellstocks-worker` has an
+- **The app is at `https://cellstocks-worker.caalab.workers.dev`, served by its own Worker,
+  not from GitHub Pages.** `cellstocks-worker` has an
   `[assets]` binding over `cellstocks/`, so the page and the API are one origin: the address
   carries no GitHub username, and the app's own calls are same-origin, so CORS never applies
   to them. `ALLOWED_ORIGIN` still names the Pages address, which keeps working for old links.
   `resolveConfig()` reads owner/repo out of an `*.github.io` address and falls back to
   `DEFAULT_REPO` anywhere else; `sw.js` derives its scope from `registration.scope` rather
-  than testing for a literal `/cellstocks/`, which silently disabled it off Pages.
+  than testing for a literal `/cellstocks/`, which silently disabled it off Pages. The
+  login gate offers the address the page came from ahead of whatever this device saved,
+  because the `workers.dev` subdomain is an account setting that can change and would
+  otherwise strand every saved copy of the old one.
   **The repository is still public, so the data still is** — this changed the address, not
   that. The real fix is a private repo with every read going through the Worker; Umut knows
   and chose the address for now.

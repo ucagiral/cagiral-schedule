@@ -102,7 +102,8 @@ than trusting it to.
 
 ## Serving the app
 
-The Worker also serves the app itself. `wrangler.toml` binds `../cellstocks` as `[assets]`,
+**The app lives at `https://cellstocks-worker.caalab.workers.dev`.** The Worker also serves
+the app itself. `wrangler.toml` binds `../cellstocks` as `[assets]`,
 so a request that matches one of the API's routes is handled by `worker.js` and everything
 else falls through to those files (see the end of `handleRequest`). Two things follow:
 
@@ -110,6 +111,14 @@ else falls through to those files (see the end of `handleRequest`). Two things f
 - the page and the API are one origin, so the app's own calls are same-origin and CORS
   never applies to them. `ALLOWED_ORIGIN` is still set, for the GitHub Pages copy, which
   keeps working for anyone holding the old link.
+
+The host is `<worker name>.<the account's workers.dev subdomain>`. That subdomain is an
+account-level setting in the Cloudflare dashboard (Workers & Pages → Subdomain) and is not
+in this repository — it was changed from the default, which was the account's own name, to
+`caalab`, because the point of moving off GitHub Pages was to stop the address naming a
+person. **Changing it again changes this host**, and any device with the old address saved
+would be logging in against a name that no longer resolves. That is why the login gate
+offers the address the page was served from, in preference to whatever is saved.
 
 A deploy that fails — an older `wrangler` that does not understand `[assets]`, say — leaves
 the previously deployed Worker running, so this cannot take the backend down. With no

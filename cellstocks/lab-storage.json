@@ -1,5 +1,22 @@
 {
   "labName": "CAA Lab Stocks",
   "labIcon": "",
-  "units": []
+  "units": [
+    {
+      "id": "u-ln2",
+      "name": "Freezer 1",
+      "type": "-80°C",
+      "note": "269 Middle Door",
+      "childLabel": "Tower",
+      "racks": [
+        {
+          "id": "t-1",
+          "name": "Tower 1",
+          "boxes": [],
+          "racks": []
+        }
+      ],
+      "icon": "🧊"
+    }
+  ]
 }

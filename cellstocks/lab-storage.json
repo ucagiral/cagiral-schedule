@@ -18,6 +18,22 @@
         }
       ],
       "icon": "🧊"
+    },
+    {
+      "id": "u-freezer-2",
+      "name": "Freezer 2",
+      "type": "",
+      "note": "",
+      "childLabel": "Rack",
+      "racks": []
+    },
+    {
+      "id": "u-freezer-3",
+      "name": "Freezer 3",
+      "type": "",
+      "note": "",
+      "childLabel": "Rack",
+      "racks": []
     }
   ]
 }

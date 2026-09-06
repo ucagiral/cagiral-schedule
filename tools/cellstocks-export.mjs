@@ -61,11 +61,17 @@ for (const name of members) {
 const lab = E.hydrateStorage(E.mergeDefaults({ vials: allVials }), storage, null);
 
 // Every box in the lab, with the path down to it, in tree order.
+//
+// The tree has no fixed depth any more, so a box is described by its whole chain rather
+// than by a unit/rack pair. Two things are pulled out of that chain because a flat file
+// needs somewhere to put them: `area` is the top layer it sits under -- the freezer, in
+// this lab -- and `path` is the full route. A box nobody has placed yet has neither.
 const boxes = [];
 E.eachBox(lab, (box, rack, unit, chain) => {
   boxes.push({
-    box, rack, unit,
-    path: [unit.name].concat(chain.map((r) => r.name)).join(" → "),
+    box, chain,
+    area: chain.length ? chain[0].name : "Not placed yet",
+    path: chain.length ? chain.map((n) => n.name).join(" → ") : "Not placed yet",
     occ: E.occupancy(lab, box.id)
   });
 });
@@ -77,9 +83,9 @@ const labName = storage.labName || "Cell stocks";
 function gridSheets() {
   const sheets = [{
     name: "boxes",
-    rows: [["unit", "rack", "box", "owner", "rows", "cols", "used", "capacity", "free"]].concat(
+    rows: [["area", "location", "box", "owner", "rows", "cols", "used", "capacity", "free"]].concat(
       boxes.map((b) => [
-        b.unit.name, b.rack.name, b.box.name, b.box.owner || "",
+        b.area, b.path, b.box.name, b.box.owner || "",
         b.box.rows, b.box.cols, b.occ.used, b.occ.capacity, b.occ.capacity - b.occ.used
       ])
     )
@@ -121,25 +127,36 @@ function buildPdf() {
 
   // The tree first: what is where, at a glance, before any grid.
   doc.text("Where everything is", { size: 13, bold: true });
-  storage.units.forEach((unit) => {
-    doc.text(unit.name + (unit.type ? "  (" + unit.type + ")" : ""), { size: 11, bold: true, indent: 6 });
-    (function walk(racks, depth) {
-      (racks || []).forEach((rack) => {
-        const kids = (rack.racks || []).length;
-        const inside = (rack.boxes || []).length;
-        doc.text(rack.name + "  —  " + (kids ? kids + " inside" : inside + " box" + (inside === 1 ? "" : "es")),
+  // One kind of node, drawn one way, however deep it goes.
+  (function walk(list, depth) {
+    (list || []).forEach((node) => {
+      if (node.isBox) {
+        const b = boxes.filter((x) => x.box.id === node.id)[0];
+        doc.text(node.name + "  ·  " + (node.owner || "unassigned") +
+                 "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity : "?") + " full",
                  { size: 9.5, indent: 6 + depth * 14 });
-        (rack.boxes || []).forEach((box) => {
-          const b = boxes.filter((x) => x.box.id === box.id)[0];
-          doc.text(box.name + "  ·  " + (box.owner || "unassigned") +
-                   "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity : "?") + " full",
-                   { size: 9.5, indent: 6 + (depth + 1) * 14 });
-        });
-        walk(rack.racks, depth + 1);
-      });
-    })(unit.racks, 1);
-    doc.gap(6);
-  });
+        return;
+      }
+      const kids = (node.children || []).length;
+      doc.text(node.name + (node.note ? "  (" + node.note + ")" : "") +
+               "  —  " + (kids ? kids + " inside" : "empty"),
+               { size: depth === 0 ? 11 : 9.5, bold: depth === 0, indent: 6 + depth * 14 });
+      walk(node.children, depth + 1);
+      if (depth === 0) doc.gap(6);
+    });
+  })(storage.children, 0);
+
+  const loose = storage.unplaced || [];
+  if (loose.length) {
+    doc.gap(4);
+    doc.text("Not placed yet", { size: 11, bold: true, indent: 6 });
+    loose.forEach((box) => {
+      const b = boxes.filter((x) => x.box.id === box.id)[0];
+      doc.text(box.name + "  ·  " + (box.owner || "unassigned") +
+               "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity : "?") + " full",
+               { size: 9.5, indent: 20 });
+    });
+  }
 
   // Then a page per box, drawn as the grid it actually is.
   boxes.forEach((b) => {
@@ -188,9 +205,9 @@ function buildCsv() {
     const s = String(v === null || v === undefined ? "" : v);
     return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   };
-  const rows = [["unit", "type", "rack", "box", "owner", "rows", "cols", "used", "capacity", "free"]];
+  const rows = [["area", "location", "box", "owner", "rows", "cols", "used", "capacity", "free"]];
   boxes.forEach((b) => rows.push([
-    b.unit.name, b.unit.type || "", b.rack.name, b.box.name, b.box.owner || "",
+    b.area, b.path, b.box.name, b.box.owner || "",
     b.box.rows, b.box.cols, b.occ.used, b.occ.capacity, b.occ.capacity - b.occ.used
   ]));
   // A leading BOM, so Excel opens it as UTF-8 rather than mangling the first column.
@@ -205,6 +222,6 @@ writeFileSync(join(OUT_DIR, "layout.pdf"), Buffer.from(buildPdf()));
 writeFileSync(join(OUT_DIR, "layout.csv"), buildCsv());
 
 const filled = boxes.filter((b) => b.occ.used).length;
-console.log(`${labName}: ${storage.units.length} unit(s), ${boxes.length} box(es) (${filled} holding vials), ` +
+console.log(`${labName}: ${storage.children.length} top layer(s), ${boxes.length} box(es) (${filled} holding vials), ` +
             `${allVials.length} stored vial(s) across ${members.length} account(s)`);
 console.log(`wrote layout.xlsx, layout.pdf and layout.csv to ${OUT_DIR}`);

@@ -119,500 +119,345 @@
     return out;
   }
 
-  // A unit's racks are a tree, not a fixed two levels -- Umut's real -80 is unit ->
-  // rack -> box, but a freezer -> shelf -> rack -> box is the same shape one level
-  // deeper. A rack is a LEAF (holds boxes) or a GROUP (holds child racks), never
-  // both -- addSubdivision()/leafRacks() below are what keep it that way; this walk
-  // just visits whatever is actually there, so a hand-edited file that breaks the
-  // rule still loads. `fn` is called with (box, rack, unit, chain), where rack is
-  // always the immediate (leaf) rack the box lives in -- same as before this was a
-  // tree -- and chain is every rack from the unit's root down to that leaf, for
-  // anything that needs the whole path (locationPath, segmentFor).
-  function walkRackList(racks, chain, fn) {
-    (racks || []).forEach(function (rack) {
-      var nextChain = chain.concat([rack]);
-      (rack.boxes || []).forEach(function (box) { fn(box, nextChain); });
-      if (rack.racks && rack.racks.length) walkRackList(rack.racks, nextChain, fn);
-    });
+  // =====================================================================
+  // Storage -- one recursive kind of node, and nothing else
+  // =====================================================================
+  //
+  // This was three fixed levels (unit -> rack -> box) for six rounds, and it kept being
+  // wrong, because a real lab is not three levels: it is Freezer 1 > Shelf 1 > Metal
+  // Rack 1 > a box, or a fridge with two shelves, or a tank with towers and canes. Umut
+  // drew the answer as a folder tree and it is the simplest thing here:
+  //
+  //   a LAYER has a name, a note, an icon, and children
+  //   a LAYER marked isBox stops: it gets a grid and an owner, and holds vials
+  //
+  // That is the whole model. A layer's children may be layers, boxes, or both. There is
+  // no depth limit and no "leaf or group, never both" rule any more -- both existed only
+  // to prop up the fixed levels.
+  //
+  // `unplaced` is the one thing beside the tree: a box a member has made but nobody has
+  // said where it goes yet. Umut's flow -- fill the box, then choose the cabinet -- and
+  // his rule that only an admin decides where it lands.
+  //
+  // Shapes this has to walk: a member's hydrated state (state.storage), and the bare lab
+  // file ({ labName, children, unplaced }). One accessor, not two copies of every walker.
+  function rootOf(root) {
+    if (!root) return { children: [], unplaced: [] };
+    if (root.storage) return root.storage;
+    return root;
   }
+  function childrenOfRoot(root) { return rootOf(root).children || []; }
+  function unplacedOf(root) { return rootOf(root).unplaced || []; }
 
-  // Storage is shared by the whole lab, in its own file, while vials stay in each
-  // member's own -- so the same traversal has to work over two shapes: a member's
-  // hydrated state (state.storage.units, what every screen renders against) and the
-  // bare lab-storage object ({ labName, units }, what the Structure screen edits and
-  // what cellstocks/lab-storage.json holds). One accessor rather than two copies of
-  // every walker.
-  function unitsOf(root) {
-    if (!root) return [];
-    if (root.storage && root.storage.units) return root.storage.units;
-    return root.units || [];
-  }
+  function isBoxNode(node) { return !!(node && node.isBox); }
 
-  function eachBox(state, fn) {
-    var units = unitsOf(state);
-    units.forEach(function (unit) {
-      walkRackList(unit.racks || [], [], function (box, chain) {
-        fn(box, chain[chain.length - 1], unit, chain);
+  // Every node in the tree, deepest-last, with the chain of ancestors above it. The
+  // chain never includes the node itself, and never includes the lab root, which is not
+  // a node -- it is the file.
+  function eachNode(root, fn) {
+    (function walk(list, chain) {
+      (list || []).forEach(function (node) {
+        fn(node, chain);
+        if (!isBoxNode(node)) walk(node.children, chain.concat([node]));
       });
-    });
+    })(childrenOfRoot(root), []);
   }
 
-  function findBox(state, boxId) {
+  function findNode(root, id) {
     var found = null;
-    eachBox(state, function (box, rack, unit, chain) {
+    eachNode(root, function (node, chain) {
+      if (!found && node.id === id) found = { node: node, chain: chain, parent: chain[chain.length - 1] || null };
+    });
+    if (found) return found;
+    // An unplaced box is a real node with a real id; it simply has no chain.
+    var loose = unplacedOf(root).filter(function (b) { return b.id === id; })[0];
+    return loose ? { node: loose, chain: [], parent: null, unplaced: true } : null;
+  }
+
+  // The list a node actually lives in, which is what add/remove/move have to splice.
+  function siblingsOf(root, id) {
+    var f = findNode(root, id);
+    if (!f) return null;
+    if (f.unplaced) return unplacedOf(root);
+    return f.parent ? (f.parent.children = f.parent.children || []) : childrenOfRoot(root);
+  }
+
+  // ---- the old three-level names, kept as a view over the tree ---------------------
+  //
+  // Everything above is the model; everything here is so that the screens, the exports
+  // and the sheet writer -- which only ever wanted "which box, and what is the path to
+  // it" -- did not all have to be rewritten at once. `unit` is the top-level ancestor
+  // and `rack` the immediate parent, which is exactly what they meant before.
+  var UNPLACED = { id: "_unplaced", name: "Not placed yet", icon: "📥", unplaced: true };
+
+  function eachBox(root, fn) {
+    eachNode(root, function (node, chain) {
+      if (isBoxNode(node)) fn(node, chain[chain.length - 1] || UNPLACED, chain[0] || UNPLACED, chain);
+    });
+    unplacedOf(root).forEach(function (box) { fn(box, UNPLACED, UNPLACED, []); });
+  }
+
+  function findBox(root, boxId) {
+    var found = null;
+    eachBox(root, function (box, rack, unit, chain) {
       if (!found && box.id === boxId) found = { box: box, rack: rack, unit: unit, chain: chain };
     });
     return found;
   }
 
-  // Every rack node from a unit's root down to its leaves, whether or not it holds
-  // boxes yet -- what the admin structure editor (addSubdivision/renameSubdivision/
-  // removeSubdivision) walks to find a node by id.
-  function findRackNode(state, rackId) {
-    var found = null;
-    unitsOf(state).forEach(function (unit) {
-      if (found) return;
-      (function walk(racks, parent, chain) {
-        (racks || []).forEach(function (rack) {
-          if (found) return;
-          var nextChain = chain.concat([rack]);
-          if (rack.id === rackId) { found = { rack: rack, unit: unit, parent: parent, chain: nextChain }; return; }
-          walk(rack.racks, rack, nextChain);
-        });
-      })(unit.racks, null, []);
-    });
-    return found;
-  }
-
-  // Every rack node that can hold a box directly today -- it has no child
-  // subdivisions of its own. This is what "Add a box" and the Boxes tab's picker
-  // offer as a destination, so a box only ever lands at an actual bottom level.
-  function leafRacks(state, unitId) {
+  // Every layer that could hold something -- which, now that a layer takes any child, is
+  // every layer there is. This is what "where should this go?" pickers offer.
+  function layers(root) {
     var out = [];
-    unitsOf(state).forEach(function (unit) {
-      if (unitId && unit.id !== unitId) return;
-      (function walk(racks, chain) {
-        (racks || []).forEach(function (rack) {
-          var nextChain = chain.concat([rack]);
-          if (rack.racks && rack.racks.length) walk(rack.racks, nextChain);
-          else out.push({ unit: unit, rack: rack, chain: nextChain });
-        });
-      })(unit.racks, []);
+    eachNode(root, function (node, chain) {
+      if (!isBoxNode(node)) out.push({ node: node, chain: chain, depth: chain.length });
     });
     return out;
   }
 
-  // Adds a new subdivision (a named rack node) either at a unit's top level
-  // (parentRackId null) or nested one level inside an existing, currently-empty-of-
-  // boxes rack -- never inside one that already holds boxes directly, so a rack
-  // stays either a leaf or a group and never both.
-  function addSubdivision(state, unitId, parentRackId, name) {
-    var trimmed = String(name || "").trim();
-    if (!trimmed) return { ok: false, reason: "A name is required." };
-    var next = clone(state);
-    var id = "r-" + trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-    if (!id || id === "r-") id = "r-" + Date.now().toString(36);
-    if (findRackNode(next, id)) id += "-" + Date.now().toString(36).slice(-4);
-    var rack = { id: id, name: trimmed, boxes: [], racks: [] };
-
-    if (!parentRackId) {
-      var unit = findUnit(next, unitId);
-      if (!unit) return { ok: false, reason: "No such unit." };
-      unit.racks = unit.racks || [];
-      unit.racks.push(rack);
-      return { ok: true, state: next, rack: rack };
-    }
-
-    var found = findRackNode(next, parentRackId);
-    if (!found) return { ok: false, reason: "No such subdivision." };
-    if ((found.rack.boxes || []).length) {
-      return { ok: false, reason: found.rack.name + " already holds boxes directly -- a subdivision can't be added under it." };
-    }
-    found.rack.racks = found.rack.racks || [];
-    found.rack.racks.push(rack);
-    return { ok: true, state: next, rack: rack };
+  // Kept under its old name because a dozen call sites ask for "somewhere a box can go".
+  function leafRacks(root, unitId) {
+    return layers(root)
+      .filter(function (l) { return !unitId || (l.chain[0] || l.node).id === unitId; })
+      .map(function (l) { return { unit: l.chain[0] || l.node, rack: l.node, chain: l.chain.concat([l.node]) }; });
   }
 
-  function renameSubdivision(state, rackId, name) {
-    var trimmed = String(name || "").trim();
-    if (!trimmed) return { ok: false, reason: "A name is required." };
-    var next = clone(state);
-    var found = findRackNode(next, rackId);
-    if (!found) return { ok: false, reason: "No such subdivision." };
-    found.rack.name = trimmed;
-    return { ok: true, state: next };
+  function findRackNode(root, id) {
+    var f = findNode(root, id);
+    if (!f || isBoxNode(f.node)) return null;
+    return { rack: f.node, unit: f.chain[0] || f.node, parent: f.parent, chain: f.chain.concat([f.node]) };
   }
 
-  // Refuses to remove a subdivision that still has boxes anywhere underneath it --
-  // a structural edit must never be how a box (and whatever it holds) disappears.
-  function removeSubdivision(state, rackId) {
-    var found = findRackNode(state, rackId);
-    if (!found) return { ok: false, reason: "No such subdivision." };
-    var hasBoxes = leafRacks(state).some(function (lr) {
-      return lr.chain.indexOf(found.rack) !== -1 && (lr.rack.boxes || []).length;
-    });
-    if (hasBoxes) {
-      return { ok: false, reason: found.rack.name + " still has boxes in it -- move or remove those first." };
-    }
-    var next = clone(state);
-    var f2 = findRackNode(next, rackId);
-    var list = f2.parent ? (f2.parent.racks || []) : (f2.unit.racks || []);
-    var idx = list.indexOf(f2.rack);
-    if (idx !== -1) list.splice(idx, 1);
-    return { ok: true, state: next };
+  function findUnit(root, id) {
+    return childrenOfRoot(root).filter(function (n) { return n.id === id; })[0] || null;
   }
 
-  function findUnit(state, unitId) {
-    var units = unitsOf(state);
-    for (var i = 0; i < units.length; i++) if (units[i].id === unitId) return units[i];
-    return null;
-  }
-
-  // Every box anywhere underneath a given rack node (itself or any descendant),
-  // with the chain to each -- what a shrinking count needs in order to name every
-  // box that would be stranded, rather than a generic refusal.
-  function boxesUnderRack(state, rackId) {
-    var node = findRackNode(state, rackId);
-    if (!node) return [];
+  function boxesUnderRack(root, id) {
+    var f = findNode(root, id);
+    if (!f || isBoxNode(f.node)) return [];
     var out = [];
-    leafRacks(state).forEach(function (lr) {
-      if (lr.chain.indexOf(node.rack) === -1) return;
-      (lr.rack.boxes || []).forEach(function (box) { out.push({ box: box, rack: lr.rack, chain: lr.chain }); });
-    });
+    (function walk(list, chain) {
+      (list || []).forEach(function (n) {
+        if (isBoxNode(n)) out.push({ box: n, rack: chain[chain.length - 1] || f.node, chain: chain });
+        else walk(n.children, chain.concat([n]));
+      });
+    })(f.node.children, f.chain.concat([f.node]));
     return out;
   }
 
-  // The child-rack list a count field is editing: a unit's own top-level racks
-  // (parentRackId null) or a rack's own nested racks.
-  function childrenOf(state, unitId, parentRackId) {
-    if (!parentRackId) {
-      var unit = findUnit(state, unitId);
-      return (unit && unit.racks) || [];
-    }
-    var found = findRackNode(state, parentRackId);
-    return (found && found.rack.racks) || [];
+  // ---- editing the tree ------------------------------------------------------------
+
+  function nodeId(prefix, taken) {
+    var base = (prefix || "n").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "n";
+    var id = base, n = 2;
+    while (taken.indexOf(id) !== -1) { id = base + "-" + n; n++; }
+    return id;
   }
 
-  // Grows or shrinks a parent's child-rack list to exactly `count`, auto-naming new
-  // ones "<childLabel> N" -- renameable afterward with renameSubdivision, the same
-  // way typing a number into a spreadsheet cell just starts a row someone edits
-  // later. A shrink that would strand a box anywhere underneath a removed rack is
-  // refused outright, naming every one of them and why -- never a partial or silent
-  // deletion.
-  function setSubdivisionCount(state, unitId, parentRackId, count, childLabel) {
-    var n = Math.max(0, Math.floor(Number(count) || 0));
-    var current = childrenOf(state, unitId, parentRackId);
-    var label = childLabel || "Level";
-
-    // A rack that already holds boxes directly can't also grow child subdivisions
-    // -- the same leaf-or-group rule addSubdivision() enforces one at a time.
-    if (parentRackId && n > current.length) {
-      var parentNode = findRackNode(state, parentRackId);
-      if (parentNode && (parentNode.rack.boxes || []).length) {
-        return { ok: false, reason: parentNode.rack.name +
-          " already holds boxes directly -- a subdivision can't be added under it." };
-      }
-    }
-
-    if (n < current.length) {
-      var removed = current.slice(n);
-      var affected = [];
-      removed.forEach(function (rack) {
-        boxesUnderRack(state, rack.id).forEach(function (b) { affected.push({ box: b.box, rack: rack }); });
-      });
-      if (affected.length) {
-        var msgs = affected.map(function (a) {
-          return a.box.name + " needs a new location because " + a.rack.name + " is being removed";
-        });
-        return { ok: false, reason: msgs.join("; ") + "." };
-      }
-    }
-
-    var next = clone(state);
-    var list;
-    if (parentRackId) {
-      var found = findRackNode(next, parentRackId);
-      if (!found) return { ok: false, reason: "No such subdivision." };
-      found.rack.racks = found.rack.racks || [];
-      list = found.rack.racks;
-    } else {
-      var unit = findUnit(next, unitId);
-      if (!unit) return { ok: false, reason: "No such unit." };
-      unit.racks = unit.racks || [];
-      list = unit.racks;
-    }
-    if (n < list.length) {
-      list.length = n;
-    } else {
-      for (var i = list.length; i < n; i++) {
-        var name = label + " " + (i + 1);
-        var id = "r-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-        if (findRackNode(next, id)) id += "-" + Date.now().toString(36).slice(-4) + "-" + i;
-        list.push({ id: id, name: name, boxes: [], racks: [] });
-      }
-    }
-    return { ok: true, state: next };
+  function allIds(root) {
+    var ids = [];
+    eachNode(root, function (n) { ids.push(n.id); });
+    unplacedOf(root).forEach(function (b) { ids.push(b.id); });
+    return ids;
   }
 
-  // Same grow/shrink contract, one level up: a lab's freezer/tank count is just
-  // another flexible level of the same tree, not a special case.
-  function setUnitCount(state, count) {
-    var n = Math.max(0, Math.floor(Number(count) || 0));
-    var current = unitsOf(state);
-    if (n < current.length) {
-      var removed = current.slice(n);
-      var affected = [];
-      removed.forEach(function (unit) {
-        leafRacks(state, unit.id).forEach(function (lr) {
-          (lr.rack.boxes || []).forEach(function (box) { affected.push({ box: box, unit: unit }); });
-        });
-      });
-      if (affected.length) {
-        var msgs = affected.map(function (a) {
-          return a.box.name + " needs a new location because " + a.unit.name + " is being removed";
-        });
-        return { ok: false, reason: msgs.join("; ") + "." };
-      }
-    }
-    var next = clone(state);
-    // Either shape: a member's hydrated state, or the bare lab-storage object.
-    if (next.storage) next.storage.units = next.storage.units || [];
-    else next.units = next.units || [];
-    var units = unitsOf(next);
-    if (n < units.length) {
-      units.length = n;
-    } else {
-      for (var i = units.length; i < n; i++) {
-        var name = "Freezer " + (i + 1);
-        var id = "u-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-        if (findUnit(next, id)) id += "-" + Date.now().toString(36).slice(-4) + "-" + i;
-        units.push({ id: id, name: name, type: "", note: "", childLabel: "Rack", racks: [] });
-      }
-    }
-    return { ok: true, state: next };
-  }
-
-  // Rename plus the two unit-only fields (temperature/type, a free note) -- deeper
-  // levels keep using renameSubdivision, which is name-only on purpose.
-  function setUnitDetails(state, unitId, details) {
+  // Adds a layer or a box. `parentId` null means the top level; for a box it may also be
+  // the string "unplaced", which is where a member's own new box goes -- they may make
+  // one, but where it lives is an admin's call.
+  function addNode(root, parentId, details) {
     var d = details || {};
-    var next = clone(state);
-    var unit = findUnit(next, unitId);
-    if (!unit) return { ok: false, reason: "No such unit." };
+    var name = String(d.name || "").trim();
+    if (!name) return { ok: false, reason: "A name is required." };
+    if (d.isBox && !d.owner) return { ok: false, reason: "A box has to belong to somebody." };
+
+    var next = clone(root);
+    var node = {
+      id: nodeId(d.id || name, allIds(next)),
+      name: name,
+      icon: d.icon || "",
+      note: String(d.note || "")
+    };
+    if (d.isBox) {
+      node.isBox = true;
+      node.owner = String(d.owner).toLowerCase();
+      node.rows = Math.max(1, Math.floor(Number(d.rows) || 9));
+      node.cols = Math.max(1, Math.floor(Number(d.cols) || 9));
+      node.scheme = d.scheme || "grid";
+      node.archived = false;
+    } else {
+      node.children = [];
+    }
+
+    if (parentId === "unplaced") {
+      if (!d.isBox) return { ok: false, reason: "Only a box can be left unplaced." };
+      rootOf(next).unplaced = unplacedOf(next).concat([node]);
+      return { ok: true, state: next, node: node };
+    }
+    if (!parentId) {
+      rootOf(next).children = childrenOfRoot(next).concat([node]);
+      return { ok: true, state: next, node: node };
+    }
+    var parent = findNode(next, parentId);
+    if (!parent) return { ok: false, reason: "No such layer." };
+    if (isBoxNode(parent.node)) return { ok: false, reason: parent.node.name + " is a box, so nothing goes inside it." };
+    parent.node.children = (parent.node.children || []).concat([node]);
+    return { ok: true, state: next, node: node };
+  }
+
+  // Name, note and icon for any node; a box also takes its owner and its grid. Nothing
+  // here can turn a layer into a box or back: that would silently orphan either the
+  // children or the vials, and is a delete-and-make-again decision.
+  function editNode(root, id, details) {
+    var d = details || {};
+    var next = clone(root);
+    var f = findNode(next, id);
+    if (!f) return { ok: false, reason: "No such layer." };
     if (d.name !== undefined) {
-      var trimmed = String(d.name).trim();
-      if (!trimmed) return { ok: false, reason: "A name is required." };
-      unit.name = trimmed;
+      if (!String(d.name).trim()) return { ok: false, reason: "A name is required." };
+      f.node.name = String(d.name).trim();
     }
-    if (d.type !== undefined) unit.type = String(d.type).trim();
-    if (d.note !== undefined) unit.note = String(d.note).trim();
-    return { ok: true, state: next };
-  }
-
-  // Moves a box to any leaf rack anywhere in the tree. It was siblings-only while the
-  // Structure screen showed one level at a time and could not put source and target on
-  // screen together; the folder tree shows the whole lab at once, so a box can be
-  // dragged into another shelf or another freezer entirely -- which is what Umut asked
-  // for in the first place.
-  //
-  // The box keeps its id and every vial keeps its position label: physically nothing
-  // moves inside the box, only which rack it hangs off. Vials live in their owner's own
-  // file, not here, so when this runs against the shared lab storage there are none to
-  // touch; when it runs against a member's hydrated state, their location.unitId/rackId
-  // (what validate() cross-checks) are refreshed to match.
-  function moveBox(state, boxId, targetRackId) {
-    var found = findBox(state, boxId);
-    if (!found) return { ok: false, reason: "No such box." };
-    var target = findRackNode(state, targetRackId);
-    if (!target) return { ok: false, reason: "No such destination." };
-    if (target.rack.id === found.rack.id) return { ok: false, reason: "That box is already there." };
-    if ((target.rack.racks || []).length) {
-      return { ok: false, reason: target.rack.name + " holds subdivisions, so it can't take a box directly." };
-    }
-
-    var next = clone(state);
-    var f2 = findBox(next, boxId);
-    var t2 = findRackNode(next, targetRackId);
-    var srcList = f2.rack.boxes || [];
-    var idx = srcList.indexOf(f2.box);
-    if (idx === -1) return { ok: false, reason: "That box wasn't found where expected." };
-    srcList.splice(idx, 1);
-    t2.rack.boxes = t2.rack.boxes || [];
-    t2.rack.boxes.push(f2.box);
-
-    (next.vials || []).forEach(function (v) {
-      if (v.location && v.location.boxId === boxId) {
-        v.location.unitId = t2.unit.id;
-        v.location.rackId = t2.rack.id;
+    if (d.note !== undefined) f.node.note = String(d.note);
+    if (d.icon !== undefined) f.node.icon = d.icon;
+    if (isBoxNode(f.node)) {
+      if (d.owner !== undefined) {
+        if (!d.owner) return { ok: false, reason: "A box has to belong to somebody." };
+        f.node.owner = String(d.owner).toLowerCase();
       }
-    });
-    return { ok: true, state: next, movedTo: { unitId: t2.unit.id, rackId: t2.rack.id } };
-  }
-
-  // ---- removing one named thing -------------------------------------------------
-  //
-  // The count fields could only ever trim from the END of a list, so there was no way to
-  // delete the middle shelf, or one particular box. These delete exactly the node asked
-  // for and leave its siblings alone.
-  //
-  // removeSubdivision (above) already had the house rule for this: a structural edit is
-  // never how a box disappears, so a rack with any box under it -- empty or not -- is
-  // refused until those boxes are dealt with one at a time. removeUnit keeps that rule,
-  // and setUnitCount's shrink has always refused on the same grounds.
-  function removeUnit(state, unitId) {
-    var units = unitsOf(state);
-    var unit = units.filter(function (u) { return u.id === unitId; })[0];
-    if (!unit) return { ok: false, reason: "No such freezer or tank." };
-    var boxes = [];
-    leafRacks(state, unitId).forEach(function (lr) {
-      (lr.rack.boxes || []).forEach(function (box) { boxes.push(box); });
-    });
-    if (boxes.length) {
-      return { ok: false, reason: unit.name + " still holds " + boxes.length + " box" +
-        (boxes.length === 1 ? "" : "es") + " (" + boxes.slice(0, 4).map(function (b) { return b.name; }).join(", ") +
-        (boxes.length > 4 ? ", and more" : "") + ") -- move or remove those first." };
-    }
-    var next = clone(state);
-    var list = unitsOf(next);
-    list.splice(list.map(function (u) { return u.id; }).indexOf(unitId), 1);
-    return { ok: true, state: next, removed: unit.name };
-  }
-
-  // A box is the one level where "empty" can be checked directly, so this refuses only
-  // for a box that still holds a stored vial. `counts` is optional and is how the app
-  // passes the whole lab's vial counts: a box in the shared tree is usually full of
-  // somebody else's vials, which live in their file and are not in this state at all.
-  function removeBox(state, boxId, counts) {
-    var found = findBox(state, boxId);
-    if (!found) return { ok: false, reason: "No such box." };
-    var used = counts ? (counts[boxId] || 0) : occupancy(state, boxId).used;
-    if (used) {
-      return { ok: false, reason: found.box.name + " still holds " + used + " vial" +
-        (used === 1 ? "" : "s") + " and needs a new location before it can go." };
-    }
-    var next = clone(state);
-    var f2 = findBox(next, boxId);
-    f2.rack.boxes.splice(f2.rack.boxes.indexOf(f2.box), 1);
-    return { ok: true, state: next, removed: found.box.name };
-  }
-
-  // Moving a rack -- a shelf, a tower -- the way moveBox moves a box. The destination is
-  // either a unit (it becomes a top-level rack there) or another rack (it becomes a child
-  // of it). Everything underneath comes along, so the vials inside those boxes get their
-  // unitId refreshed; rackId is untouched, because their own leaf rack has not changed.
-  //
-  // Three things it refuses, all of them ways to lose a subtree rather than move it:
-  // dropping a rack into itself or into its own descendant, and dropping it onto a rack
-  // that holds boxes directly -- the same leaf-or-group rule as everywhere else.
-  function moveRack(state, rackId, targetId) {
-    var node = findRackNode(state, rackId);
-    if (!node) return { ok: false, reason: "No such rack." };
-    if (rackId === targetId) return { ok: false, reason: "That's where it already is." };
-
-    var targetUnit = findUnit(state, targetId);
-    var targetRack = targetUnit ? null : findRackNode(state, targetId);
-    if (!targetUnit && !targetRack) return { ok: false, reason: "No such destination." };
-    if (targetRack) {
-      if ((targetRack.rack.boxes || []).length) {
-        return { ok: false, reason: targetRack.rack.name + " holds boxes directly, so it can't take a rack as well." };
-      }
-      if (targetRack.chain.filter(function (r) { return r.id === rackId; }).length) {
-        return { ok: false, reason: "A rack can't be moved inside itself." };
-      }
-      if (targetRack.rack.id === (node.parent ? node.parent.id : null)) {
-        return { ok: false, reason: "That's where it already is." };
-      }
-    } else if (!node.parent && node.unit.id === targetId) {
-      return { ok: false, reason: "That's where it already is." };
-    }
-
-    var next = clone(state);
-    var n2 = findRackNode(next, rackId);
-    var fromList = n2.parent ? (n2.parent.racks || []) : (findUnit(next, n2.unit.id).racks || []);
-    fromList.splice(fromList.indexOf(n2.rack), 1);
-
-    var intoUnit = findUnit(next, targetId);
-    var into, newUnitId;
-    if (intoUnit) {
-      intoUnit.racks = intoUnit.racks || [];
-      into = intoUnit.racks;
-      newUnitId = intoUnit.id;
-    } else {
-      var t2 = findRackNode(next, targetId);
-      t2.rack.racks = t2.rack.racks || [];
-      into = t2.rack.racks;
-      newUnitId = t2.unit.id;
-    }
-    into.push(n2.rack);
-
-    var movedBoxIds = {};
-    boxesUnderRack(next, rackId).forEach(function (b) { movedBoxIds[b.box.id] = true; });
-    (next.vials || []).forEach(function (v) {
-      if (v.location && movedBoxIds[v.location.boxId]) v.location.unitId = newUnitId;
-    });
-    return { ok: true, state: next, movedTo: { unitId: newUnitId } };
-  }
-
-  // Grows or shrinks a leaf rack's own box count to exactly `count`, same contract
-  // as setSubdivisionCount one level up: auto-names new ones "Box N" at a default
-  // 9x9 (Resize handles changing that after), and refuses a shrink outright if any
-  // box being removed still holds a stored vial, naming it and why. A rack that
-  // already holds child subdivisions can't take boxes directly either -- the same
-  // leaf-or-group rule setSubdivisionCount enforces the other way around.
-  function setBoxCount(state, rackId, count) {
-    var n = Math.max(0, Math.floor(Number(count) || 0));
-    var node = findRackNode(state, rackId);
-    if (!node) return { ok: false, reason: "No such subdivision." };
-    var current = node.rack.boxes || [];
-
-    if (n > current.length && (node.rack.racks || []).length) {
-      return { ok: false, reason: node.rack.name + " already holds subdivisions -- it can't take boxes directly." };
-    }
-
-    if (n < current.length) {
-      var removed = current.slice(n);
-      var affected = [];
-      removed.forEach(function (b) {
-        var stored = (state.vials || []).some(function (v) {
-          return v.status !== "withdrawn" && v.location && v.location.boxId === b.id;
-        });
-        if (stored) affected.push(b.name);
-      });
-      if (affected.length) {
-        var msgs = affected.map(function (name) { return name + " needs a new location because it is being removed"; });
-        return { ok: false, reason: msgs.join("; ") + "." };
-      }
-    }
-
-    var next = clone(state);
-    var n2 = findRackNode(next, rackId);
-    n2.rack.boxes = n2.rack.boxes || [];
-    var list = n2.rack.boxes;
-    if (n < list.length) {
-      list.length = n;
-    } else {
-      for (var i = list.length; i < n; i++) {
-        var name = "Box " + (i + 1);
-        var id = "b-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-        if (findBox(next, id)) id += "-" + Date.now().toString(36).slice(-4) + "-" + i;
-        list.push({ id: id, name: name, rows: 9, cols: 9, scheme: "grid", note: "", archived: false });
-      }
+      if (d.rows !== undefined) f.node.rows = Math.max(1, Math.floor(Number(d.rows) || 1));
+      if (d.cols !== undefined) f.node.cols = Math.max(1, Math.floor(Number(d.cols) || 1));
     }
     return { ok: true, state: next };
   }
 
-  // "-80 Freezer -> Rack 1 -> ONGOING -> C4", and the very same code prints "Tower"
-  // for the nitrogen tank, because that word is data (unit.childLabel) too. Prints
-  // every level of the chain, so a unit with more than one subdivision deep (a
-  // shelf above its racks, say) reads out in full rather than skipping straight
-  // from the unit to the box's immediate rack.
-  function locationPath(state, loc) {
+  // Moving anything, anywhere -- a box into a layer, a whole shelf into another freezer,
+  // a box back out to "not placed yet". Refuses the two moves that would lose a subtree
+  // rather than move it: into itself, and into its own descendant.
+  function moveNode(root, id, targetId) {
+    var f = findNode(root, id);
+    if (!f) return { ok: false, reason: "No such layer." };
+    if (id === targetId) return { ok: false, reason: "That is where it already is." };
+
+    if (targetId === "unplaced" && !isBoxNode(f.node)) {
+      return { ok: false, reason: "Only a box can be left unplaced." };
+    }
+    if (targetId && targetId !== "unplaced") {
+      var t = findNode(root, targetId);
+      if (!t) return { ok: false, reason: "No such destination." };
+      if (isBoxNode(t.node)) return { ok: false, reason: t.node.name + " is a box, so nothing goes inside it." };
+      if (t.chain.filter(function (n) { return n.id === id; }).length) {
+        return { ok: false, reason: "A layer cannot be moved inside itself." };
+      }
+      if ((f.parent && f.parent.id === targetId) && !f.unplaced) {
+        return { ok: false, reason: "That is where it already is." };
+      }
+    }
+
+    var next = clone(root);
+    var moving = findNode(next, id);
+    var from = siblingsOf(next, id);
+    from.splice(from.indexOf(moving.node), 1);
+
+    if (targetId === "unplaced") {
+      rootOf(next).unplaced = unplacedOf(next).concat([moving.node]);
+      return { ok: true, state: next, movedTo: { unplaced: true } };
+    }
+    if (!targetId) {
+      rootOf(next).children = childrenOfRoot(next).concat([moving.node]);
+      return { ok: true, state: next, movedTo: { chain: [] } };
+    }
+    var target = findNode(next, targetId);
+    target.node.children = (target.node.children || []).concat([moving.node]);
+    return { ok: true, state: next, movedTo: { chain: target.chain.concat([target.node]) } };
+  }
+
+  // Deleting is the caller's decision, not this function's: it says what would go, and
+  // refuses only what it cannot describe. Emptying the boxes first is the app's job (it
+  // withdraws the vials, in their owners' files, and says so before it does).
+  function nodeContents(root, id) {
+    var f = findNode(root, id);
+    if (!f) return null;
+    if (isBoxNode(f.node)) return { layers: 0, boxes: [f.node] };
+    var under = boxesUnderRack(root, id);
+    var count = 0;
+    (function walk(list) { (list || []).forEach(function (n) { if (!isBoxNode(n)) { count++; walk(n.children); } }); })(f.node.children);
+    return { layers: count, boxes: under.map(function (b) { return b.box; }) };
+  }
+
+  function removeNode(root, id, counts) {
+    var f = findNode(root, id);
+    if (!f) return { ok: false, reason: "No such layer." };
+    var contents = nodeContents(root, id);
+    var holding = contents.boxes.filter(function (b) {
+      return counts ? (counts[b.id] || 0) : (occupancy(root, b.id) || { used: 0 }).used;
+    });
+    if (holding.length) {
+      return { ok: false, reason: holding.map(function (b) {
+        var n = counts ? counts[b.id] : occupancy(root, b.id).used;
+        return b.name + " still holds " + n + " vial" + (n === 1 ? "" : "s");
+      }).join("; ") + " -- take those out first." };
+    }
+    var next = clone(root);
+    var list = siblingsOf(next, id);
+    var target = findNode(next, id);
+    list.splice(list.indexOf(target.node), 1);
+    return { ok: true, state: next, removed: f.node.name, boxes: contents.boxes.length, layers: contents.layers };
+  }
+
+  // ---- locations -------------------------------------------------------------------
+  //
+  // A vial stores the whole path -- Umut's call, asked and answered -- so it still knows
+  // where it was even if the tree file is lost. The tree stays the source of truth for
+  // what is drawn: pathOf() derives it, and a stored path that disagrees is reported by
+  // validate() rather than silently believed or silently overwritten.
+  function pathOf(root, boxId) {
+    var f = findBox(root, boxId);
+    if (!f) return null;
+    return f.chain.map(function (n) { return n.id; });
+  }
+
+  function locationFor(root, boxId, position) {
+    return { path: pathOf(root, boxId) || [], boxId: boxId, position: position };
+  }
+
+  function locationPath(root, loc) {
     if (!loc || !loc.boxId) return "";
-    var f = findBox(state, loc.boxId);
-    if (!f) return loc.position ? "(unknown box) -> " + loc.position : "(unknown box)";
-    var parts = [f.unit.name].concat(f.chain.map(function (r) { return r.name; })).concat([f.box.name]);
+    var f = findBox(root, loc.boxId);
+    if (!f) return loc.position ? "(unknown box) → " + loc.position : "(unknown box)";
+    var parts = f.chain.map(function (n) { return n.name; }).concat([f.box.name]);
+    if (!f.chain.length && !isPlaced(root, loc.boxId)) parts.unshift(UNPLACED.name);
     if (loc.position) parts.push(loc.position);
     return parts.filter(Boolean).join(" → ");
+  }
+
+  function isPlaced(root, boxId) {
+    return unplacedOf(root).filter(function (b) { return b.id === boxId; }).length === 0;
+  }
+
+  // After anything moves, every vial under it remembers a route that no longer exists.
+  // Storing the path was Umut's call and this is its price: the paths have to be rewritten,
+  // in each owner's own file, or validate() starts reporting stale-path on vials nobody
+  // touched. Returns the state and how many it changed, so a caller can skip the commit
+  // when the answer is none.
+  function refreshPaths(state) {
+    var next = clone(state);
+    var touched = 0;
+    (next.vials || []).forEach(function (v) {
+      if (!v.location || !v.location.boxId) return;
+      var path = pathOf(next, v.location.boxId);
+      if (!path) return;                      // the box is gone; unknown-box says so
+      if ((v.location.path || []).join("/") === path.join("/")) return;
+      v.location.path = path;
+      touched++;
+    });
+    (next.withdrawals || []).forEach(function (w) {
+      if (!w.from || !w.from.boxId) return;
+      var path = pathOf(next, w.from.boxId);
+      // A withdrawal is a record of where the vial WAS. If its box still exists the path
+      // is refreshed with it; if the box is gone the snapshot is left exactly as taken,
+      // because that is the only remaining record of where the vial came from.
+      if (path) w.from.path = path;
+    });
+    return { state: next, touched: touched };
   }
 
   function storedVials(state) {
@@ -634,7 +479,8 @@
       if (!slots[p.index].vial) slots[p.index].vial = v;
     });
     var used = slots.filter(function (s) { return !!s.vial; }).length;
-    return { boxId: boxId, box: box, rack: f.rack, unit: f.unit, capacity: cap, used: used, free: cap - used, slots: slots };
+    return { boxId: boxId, box: box, rack: f.rack, unit: f.unit, chain: f.chain,
+             capacity: cap, used: used, free: cap - used, slots: slots };
   }
 
   // Contiguous free runs in row-major order, longest first. Freezing five vials at
@@ -656,7 +502,7 @@
     if (!unit) return null;
     var cap = 0, used = 0, boxes = [];
     eachBox(state, function (box, rack, u) {
-      if (u.id !== unitId) return;
+      if (!u || u.id !== unitId) return;
       var occ = occupancy(state, box.id);
       if (!occ) return;
       cap += occ.capacity; used += occ.used;
@@ -1271,6 +1117,10 @@
     var out = [];
     eachBox(state, function (box, rack, unit, chain) {
       if (box.archived) return;
+      // A box nobody has placed yet is not somewhere to put a vial: it is not in the
+      // freezer. It shows on its owner's Boxes tab so they can fill it, but a placement
+      // proposal that named it would be sending someone to a shelf that does not exist.
+      if (!chain.length) return;
       if (unitId && unit.id !== unitId) return;
       if (owner && box.owner && box.owner.toLowerCase() !== String(owner).toLowerCase()) return;
       out.push({ box: box, rack: rack, unit: unit, chain: chain });
@@ -1333,10 +1183,12 @@
     });
     return {
       unitId: entry.unit.id, rackId: entry.rack.id, boxId: entry.box.id,
+      // The path a vial stores, as ids: Umut asked for the whole route to be recorded
+      // on the vial, not just its box.
+      boxPath: (entry.chain || []).map(function (n) { return n.id; }),
       boxName: entry.box.name, positions: positions, runs: runs,
       contiguous: runs.length === 1 && runs[0].contiguous,
-      path: [entry.unit.name].concat((entry.chain || [entry.rack]).map(function (r) { return r.name; }))
-        .concat([entry.box.name]).join(" → ")
+      path: (entry.chain || []).map(function (n) { return n.name; }).concat([entry.box.name]).join(" → ")
     };
   }
 
@@ -1594,7 +1446,7 @@
           frozenOn: date.iso,
           notes: template.notes || "",
           flags: flagsFrom(template.notes || "", customFlags),
-          location: { unitId: seg.unitId, rackId: seg.rackId, boxId: seg.boxId, position: position },
+          location: { path: (seg.boxPath || []).slice(), boxId: seg.boxId, position: position },
           status: "stored",
           addedAt: c.now || null,
           addedBy: c.by || null
@@ -1724,12 +1576,12 @@
     function err(code, message, ref) { problems.push({ level: "error", code: code, message: message, ref: ref || null }); }
     function warn(code, message, ref) { problems.push({ level: "warning", code: code, message: message, ref: ref || null }); }
 
-    var boxIds = {}, unitIds = {}, rackIds = {};
-    eachBox(state, function (box, rack, unit) {
+    var boxIds = {};
+    eachBox(state, function (box, rack, unit, chain) {
       if (boxIds[box.id]) err("duplicate-box", "Two boxes share the id " + box.id + ".", box.id);
-      boxIds[box.id] = { box: box, rack: rack, unit: unit };
-      unitIds[unit.id] = true; rackIds[rack.id] = true;
+      boxIds[box.id] = { box: box, rack: rack, unit: unit, chain: chain };
       if (capacity(box) <= 0) err("bad-grid", box.name + " has no rows or columns set.", box.id);
+      if (!box.owner) warn("box-unowned", box.name + " does not say whose it is.", box.id);
     });
 
     var vialIds = {};
@@ -1752,8 +1604,19 @@
 
       var entry = boxIds[v.location.boxId];
       if (!entry) { err("unknown-box", v.name + " points at a box that does not exist (" + v.location.boxId + ").", v.id); return; }
-      if (v.location.unitId && v.location.unitId !== entry.unit.id) {
-        err("unit-mismatch", v.name + " names a unit its box does not belong to.", v.id);
+
+      // A vial records the whole route to its box, not just the box -- Umut's call, so
+      // that a vial still says where it was even if the tree file were lost. The tree
+      // remains what everything is drawn from, so a stored path that no longer matches
+      // is reported here rather than silently believed or silently overwritten. It is a
+      // warning: the box is real and the vial is in it, so nothing is lost -- the path
+      // is just stale, which is what it looks like after a move that half-finished.
+      if (Array.isArray(v.location.path)) {
+        var actual = entry.chain.map(function (n) { return n.id; }).join("/");
+        if (v.location.path.join("/") !== actual) {
+          warn("stale-path", v.name + " remembers a different route to " + entry.box.name +
+               " than the freezer now has.", v.id);
+        }
       }
 
       var p = parsePosition(entry.box, v.location.position);
@@ -2123,7 +1986,7 @@
             frozenOn: date.iso,
             notes: notes,
             flags: flagsFrom(notes, customFlags),
-            location: { unitId: unit.id, rackId: rackId, boxId: boxId, position: p.label },
+            location: { path: [unit.id, rackId], boxId: boxId, position: p.label },
             status: "stored",
             importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
           };
@@ -2159,14 +2022,22 @@
       });
     });
 
+    // An import builds two layers -- the unit the sheet names, and one rack under it --
+    // and hangs the boxes off that. Two levels because that is all a spreadsheet says;
+    // the tree takes any depth afterwards, and the Structure screen is where it grows.
     var units = Object.keys(unitsByName).map(function (key) {
       var u = unitsByName[key];
-      return { id: u.id, name: u.name, type: o.unitType || "freezer", childLabel: o.childLabel || "Rack",
-               racks: [{ id: rackId, name: o.rackName || "Rack 1", boxes: u.boxes }] };
+      return {
+        id: u.id, name: u.name, icon: "", note: o.unitType || "",
+        children: [{
+          id: rackId, name: o.rackName || "Rack 1", icon: "", note: "",
+          children: u.boxes.map(function (box) { return Object.assign({}, box, { isBox: true }); })
+        }]
+      };
     });
 
     var state = {
-      storage: { units: units },
+      storage: { labName: "CAA Lab Stocks", labIcon: "🏛️", children: units, unplaced: [] },
       lines: lines, vials: vials, withdrawals: [],
       rules: clone(rules),
       settings: { defaultUnitId: units[0] ? units[0].id : defaultUnitId, placement: { allowSplit: true }, aliases: {} },
@@ -2279,8 +2150,11 @@
   // same shape they always had plus `owner`; any node may carry an `icon`.
   function slimStorage(storage) {
     var copy = clone(storage || {});
-    copy.units = copy.units || [];
-    eachBox(copy, function (box) { stripEmpties(box, ["id", "name", "rows", "cols", "owner"]); });
+    copy.children = copy.children || [];
+    copy.unplaced = copy.unplaced || [];
+    eachBox(copy, function (box) { stripEmpties(box, ["id", "name", "rows", "cols", "owner", "isBox"]); });
+    eachNode(copy, function (node) { if (!isBoxNode(node)) stripEmpties(node, ["id", "name", "children"]); });
+    if (!copy.unplaced.length) delete copy.unplaced;
     return copy;
   }
 
@@ -2289,14 +2163,39 @@
   }
 
   function blankStorage() {
-    return { labName: "CAA Lab Stocks", labIcon: "", units: [] };
+    return { labName: "CAA Lab Stocks", labIcon: "🏛️", children: [], unplaced: [] };
   }
 
+  // Also the one place that understands the file this replaced: three fixed levels of
+  // units -> racks -> boxes. Reading one of those in and folding it into the tree costs
+  // twenty lines and means an old file, or a copy someone kept, still opens.
   function mergeStorageDefaults(storage) {
     var s = storage && typeof storage === "object" ? clone(storage) : {};
-    if (!Array.isArray(s.units)) s.units = [];
+    if (Array.isArray(s.units) && !Array.isArray(s.children)) {
+      s.children = s.units.map(function convertUnit(unit) {
+        return {
+          id: unit.id, name: unit.name, icon: unit.icon || "",
+          // The old `type` ("-80°C") and `note` were two fields; they are one free note
+          // now, so they are joined rather than one of them being dropped.
+          note: [unit.type, unit.note].filter(Boolean).join(" · "),
+          children: (function racks(list) {
+            return (list || []).map(function (rack) {
+              return {
+                id: rack.id, name: rack.name, icon: rack.icon || "", note: rack.note || "",
+                children: racks(rack.racks).concat((rack.boxes || []).map(function (box) {
+                  return Object.assign({}, box, { isBox: true, icon: box.icon || "" });
+                }))
+              };
+            });
+          })(unit.racks)
+        };
+      });
+      delete s.units;
+    }
+    if (!Array.isArray(s.children)) s.children = [];
+    if (!Array.isArray(s.unplaced)) s.unplaced = [];
     if (typeof s.labName !== "string" || !s.labName.trim()) s.labName = blankStorage().labName;
-    if (typeof s.labIcon !== "string") s.labIcon = "";
+    if (typeof s.labIcon !== "string") s.labIcon = blankStorage().labIcon;
     return s;
   }
 
@@ -2307,7 +2206,9 @@
   // back off before the member's own file is written.
   function hydrateStorage(state, storage, owner) {
     var next = clone(state);
-    next.storage = { units: clone(mergeStorageDefaults(storage).units) };
+    var lab = mergeStorageDefaults(storage);
+    next.storage = { labName: lab.labName, labIcon: lab.labIcon,
+                     children: clone(lab.children), unplaced: clone(lab.unplaced) };
     if (owner) next._owner = owner;
     return next;
   }
@@ -2352,7 +2253,7 @@
 
   function blankState() {
     return {
-      storage: { units: [] },
+      storage: { labName: "CAA Lab Stocks", labIcon: "🏛️", children: [], unplaced: [] },
       lines: [], vials: [], withdrawals: [],
       rules: clone(DEFAULT_RULES),
       settings: { defaultUnitId: null, defaultOperator: "", placement: { allowSplit: true }, aliases: {}, columnMap: {}, customFlags: [] },
@@ -2366,7 +2267,7 @@
     var base = blankState();
     var s = state && typeof state === "object" ? clone(state) : {};
     if (!s.storage || typeof s.storage !== "object") s.storage = base.storage;
-    if (!Array.isArray(s.storage.units)) s.storage.units = [];
+    s.storage = mergeStorageDefaults(s.storage);
     ["lines", "vials", "withdrawals"].forEach(function (k) { if (!Array.isArray(s[k])) s[k] = []; });
     if (!s.rules || typeof s.rules !== "object") s.rules = base.rules;
     FACETS.forEach(function (f) { if (!Array.isArray(s.rules[f])) s.rules[f] = clone(DEFAULT_RULES[f]); });
@@ -2376,7 +2277,9 @@
     if (!s.settings.columnMap) s.settings.columnMap = {};
     if (!Array.isArray(s.settings.customFlags)) s.settings.customFlags = [];
     if (!s._meta) s._meta = base._meta;
-    if (!s.settings.defaultUnitId && s.storage.units.length) s.settings.defaultUnitId = s.storage.units[0].id;
+    if (!s.settings.defaultUnitId && (s.storage.children || []).length) {
+      s.settings.defaultUnitId = s.storage.children[0].id;
+    }
     return s;
   }
 
@@ -2461,7 +2364,7 @@
     next.lines = ensureLine(next, name, lineId, rules);
     v.name = name;
     v.lineId = lineId;
-    v.location = { unitId: found.unit.id, rackId: found.rack.id, boxId: fields.boxId, position: p.label };
+    v.location = locationFor(next, fields.boxId, p.label);
     delete v.importAmbiguous;
     delete v.importRaw;
     return { ok: true, state: next, vial: v };
@@ -2474,13 +2377,14 @@
     splitPositions: splitPositions,
     eachBox: eachBox, findBox: findBox, findUnit: findUnit, locationPath: locationPath,
     occupancy: occupancy, freeRuns: freeRuns, unitSummary: unitSummary,
-    // subdivisions (a unit's rack tree, arbitrarily deep -- see the eachBox comment)
-    findRackNode: findRackNode, leafRacks: leafRacks, addSubdivision: addSubdivision,
-    renameSubdivision: renameSubdivision, removeSubdivision: removeSubdivision,
-    boxesUnderRack: boxesUnderRack, childrenOf: childrenOf,
-    setSubdivisionCount: setSubdivisionCount, setUnitCount: setUnitCount,
-    setUnitDetails: setUnitDetails, setBoxCount: setBoxCount, moveBox: moveBox,
-    moveRack: moveRack, removeUnit: removeUnit, removeBox: removeBox,
+    // the tree: one recursive kind of node, marked isBox where it stops
+    eachNode: eachNode, findNode: findNode, layers: layers, isBoxNode: isBoxNode,
+    addNode: addNode, editNode: editNode, moveNode: moveNode, removeNode: removeNode,
+    nodeContents: nodeContents, pathOf: pathOf, locationFor: locationFor, isPlaced: isPlaced,
+    refreshPaths: refreshPaths,
+    childrenOfRoot: childrenOfRoot, unplacedOf: unplacedOf, UNPLACED: UNPLACED,
+    // the three-level names, kept as a view over that tree (see the comment there)
+    findRackNode: findRackNode, leafRacks: leafRacks, boxesUnderRack: boxesUnderRack,
     // classification
     FACETS: FACETS, DEFAULT_RULES: DEFAULT_RULES, classify: classify, facetsFor: facetsFor,
     classifyAll: classifyAll, parsePassage: parsePassage, passageLabel: passageLabel,

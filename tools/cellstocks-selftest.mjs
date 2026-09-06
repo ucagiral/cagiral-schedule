@@ -55,7 +55,9 @@ const json = (x) => JSON.stringify(x);
 // than asserted. One box is linear-numbered, because real racks mix the two.
 
 function box(id, name, rows, cols, scheme) {
-  return { id, name, rows, cols, scheme: scheme || "grid", note: "", archived: false };
+  // Every box belongs to somebody now -- an unowned one is a validate() warning, because
+  // "whose is this?" is a question a freezer always has an answer to.
+  return { id, name, rows, cols, scheme: scheme || "grid", note: "", archived: false, owner: "umut" };
 }
 
 function vial(id, name, boxId, position, extra) {
@@ -1135,11 +1137,11 @@ check("eachBox descends through nested subdivisions, not just one level", () => 
   return null;
 });
 
-check("findBox's chain lists every subdivision from the unit's root to the box's own rack", () => {
+check("findBox's chain lists every layer from the top down to the box's own parent", () => {
   const s = nestedFixture();
   const f = E.findBox(s, "b-d1");
   if (!f) return "b-d1 was not found";
-  if (json(f.chain.map((r) => r.id)) !== json(["shelf-1", "rack-1"])) return `chain was ${json(f.chain.map((r) => r.id))}`;
+  if (json(f.chain.map((r) => r.id)) !== json(["u-deep", "shelf-1", "rack-1"])) return `chain was ${json(f.chain.map((r) => r.id))}`;
   if (f.rack.id !== "rack-1") return `rack should still be the immediate (leaf) one, got ${f.rack.id}`;
   return null;
 });
@@ -1158,361 +1160,259 @@ check("a 2-level unit (today's real shape) is completely unaffected by chain sup
   return null;
 });
 
-check("leafRacks lists only racks with no child subdivisions, each with its full chain", () => {
+check("every layer is somewhere a box can go -- there are no leaf-only destinations now", () => {
   const s = nestedFixture();
+  // A layer takes any child now, so "where could a box go?" is every layer there is --
+  // one that already holds boxes included, and the top level included.
   const leaves = E.leafRacks(s).map((l) => l.rack.id).sort();
-  if (json(leaves) !== json(["rack-1", "rack-2", "shelf-2"])) return `got ${json(leaves)}`;
+  if (json(leaves) !== json(["rack-1", "rack-2", "shelf-1", "shelf-2", "u-deep"])) return `got ${json(leaves)}`;
   const rack2 = E.leafRacks(s).filter((l) => l.rack.id === "rack-2")[0];
-  if (json(rack2.chain.map((r) => r.id)) !== json(["shelf-1", "rack-2"])) return `rack-2 chain was ${json(rack2.chain.map((r) => r.id))}`;
+  if (json(rack2.chain.map((r) => r.id)) !== json(["u-deep", "shelf-1", "rack-2"])) return `rack-2 chain was ${json(rack2.chain.map((r) => r.id))}`;
   return null;
 });
 
-check("addSubdivision nests a new rack under an empty (boxless) leaf, and mints a fresh id", () => {
-  const s = nestedFixture();
-  const r1 = E.addSubdivision(s, null, "rack-2", "Rack 2a");
-  if (!r1.ok) return `refused: ${r1.reason}`;
-  if (!E.findRackNode(r1.state, r1.rack.id)) return "the new rack isn't findable in the returned state";
-  if (E.findRackNode(r1.state, r1.rack.id).parent.id !== "rack-2") return "the new rack's parent is wrong";
-
-  const r2 = E.addSubdivision(s, "u-deep", null, "Shelf 3");
-  if (!r2.ok) return `refused a top-level add: ${r2.reason}`;
-  if (E.findRackNode(r2.state, r2.rack.id).parent !== null) return "a top-level subdivision should have no parent";
-  return null;
-});
-
-check("addSubdivision refuses to nest under a rack that already holds boxes directly", () => {
-  const s = nestedFixture();
-  const r = E.addSubdivision(s, null, "rack-1", "Rack 1a");
-  if (r.ok) return "should have refused -- rack-1 already has Box D1 in it";
-  return null;
-});
-
-check("renameSubdivision renames a subdivision by id", () => {
-  const s = nestedFixture();
-  const r = E.renameSubdivision(s, "shelf-2", "Top Shelf");
-  if (!r.ok) return `refused: ${r.reason}`;
-  if (E.findRackNode(r.state, "shelf-2").rack.name !== "Top Shelf") return "name didn't change";
-  return null;
-});
-
-check("removeSubdivision refuses when boxes exist anywhere underneath, even nested deep", () => {
-  const s = nestedFixture();
-  const r = E.removeSubdivision(s, "shelf-1");
-  if (r.ok) return "should have refused -- shelf-1 contains Box D1 two levels down";
-  return null;
-});
-
-check("removeSubdivision removes an empty subdivision, including an empty nested one", () => {
-  const s = nestedFixture();
-  const r = E.removeSubdivision(s, "rack-2");
-  if (!r.ok) return `refused: ${r.reason}`;
-  if (E.findRackNode(r.state, "rack-2")) return "rack-2 is still there";
-  if (!E.findRackNode(r.state, "shelf-1")) return "shelf-1 itself should still be there -- only rack-2 was removed";
-  return null;
-});
-
-// ---- storage: the Structure screen's count-based bulk operations ----
+// ---- the tree: one recursive kind of node ----------------------------------------
 //
-// setSubdivisionCount/setUnitCount are what a "how many?" field on the Structure
-// screen actually calls -- grow auto-names new children, shrink refuses outright
-// (naming every stranded box) rather than ever discarding one silently.
+// This replaced three fixed levels (unit -> rack -> box) and the dozen count/subdivision
+// functions that propped them up. A layer holds anything; a layer marked isBox stops and
+// holds vials. Umut drew it as a folder tree, and these are its rules.
 
-check("setSubdivisionCount grows a parent's children, auto-naming the new ones by the given label", () => {
-  const s = nestedFixture();
-  // shelf-1 already has 2 children (rack-1, rack-2); growing to 4 appends two more
-  // rather than touching the two that already exist.
-  const r = E.setSubdivisionCount(s, "u-deep", "shelf-1", 4, "Rack");
+function treeFixture() {
+  let st = E.mergeDefaults({});
+  const add = (parent, details) => {
+    const r = E.addNode(st.storage, parent, details);
+    if (!r.ok) throw new Error(r.reason);
+    st = E.hydrateStorage(st, r.state, "umut");
+    return r.node.id;
+  };
+  const freezer = add(null, { name: "Freezer 1", note: "-80 °C" });
+  const shelf = add(freezer, { name: "Shelf 1" });
+  const rack = add(shelf, { name: "Metal Rack 1" });
+  const boxId = add(rack, { name: "Umut Box 1", isBox: true, owner: "umut", rows: 3, cols: 3 });
+  const tank = add(null, { name: "LN2 Tank", note: "-196" });
+  return { state: st, freezer, shelf, rack, boxId, tank };
+}
+
+check("a layer holds layers, boxes, or both -- there is no leaf-or-group rule any more", () => {
+  const f = treeFixture();
+  const r = E.addNode(f.state.storage, f.rack, { name: "Deeper", note: "" });
+  if (!r.ok) return `refused a layer beside a box: ${r.reason}`;
+  const rack = E.findNode(r.state, f.rack);
+  const kinds = rack.node.children.map((n) => (E.isBoxNode(n) ? "box" : "layer"));
+  if (json(kinds) !== json(["box", "layer"])) return `unexpected children: ${json(kinds)}`;
+  return null;
+});
+
+check("nothing goes inside a box", () => {
+  const f = treeFixture();
+  const r = E.addNode(f.state.storage, f.boxId, { name: "Nope" });
+  if (r.ok) return "a box accepted a child";
+  if (!/is a box/.test(r.reason)) return `unexpected reason: ${json(r.reason)}`;
+  return null;
+});
+
+check("a box has to belong to somebody, at both add and edit", () => {
+  const f = treeFixture();
+  const a = E.addNode(f.state.storage, f.rack, { name: "Orphan", isBox: true });
+  if (a.ok) return "a box was created with no owner";
+  if (!/belong to somebody/.test(a.reason)) return `unexpected reason: ${json(a.reason)}`;
+  const e = E.editNode(f.state.storage, f.boxId, { owner: "" });
+  if (e.ok) return "a box's owner was cleared";
+  return null;
+});
+
+check("names, notes and icons are editable on any node; what a node IS is not", () => {
+  const f = treeFixture();
+  const r = E.editNode(f.state.storage, f.shelf, { name: "Shelf One", note: "top", icon: "🧊" });
   if (!r.ok) return `refused: ${r.reason}`;
-  const kids = E.childrenOf(r.state, "u-deep", "shelf-1");
-  if (kids.length !== 4) return `expected 4 children, got ${json(kids.map((k) => k.name))}`;
-  if (kids[0].id !== "rack-1" || kids[1].id !== "rack-2") return "the two existing racks must be untouched";
-  if (kids[2].name !== "Rack 3" || kids[3].name !== "Rack 4") return `new ones named wrong: ${json(kids.slice(2).map((k) => k.name))}`;
+  const n = E.findNode(r.state, f.shelf).node;
+  if (n.name !== "Shelf One" || n.note !== "top" || n.icon !== "🧊") return `not applied: ${json(n)}`;
+  // isBox is deliberately not in editNode's vocabulary: flipping it would orphan either
+  // the children or the vials, so it is a delete-and-make-again decision.
+  const b = E.editNode(r.state, f.shelf, { isBox: true });
+  if (E.isBoxNode(E.findNode(b.state, f.shelf).node)) return "a layer was turned into a box by an edit";
   return null;
 });
 
-check("setSubdivisionCount refuses to grow under a rack that already holds boxes directly", () => {
-  const s = nestedFixture();
-  // shelf-2 holds Box D2 directly (no racks) -- it can't also become a group.
-  const r = E.setSubdivisionCount(s, "u-deep", "shelf-2", 2, "Rack");
-  if (r.ok) return "should have refused -- shelf-2 already holds Box D2 directly";
-  return null;
-});
-
-check("setSubdivisionCount shrinks an all-empty tail without refusing", () => {
-  const s = nestedFixture();
-  const grown = E.setSubdivisionCount(s, "u-deep", "shelf-1", 3, "Rack").state;
-  const r = E.setSubdivisionCount(grown, "u-deep", "shelf-1", 1, "Rack");
-  if (!r.ok) return `refused: ${r.reason}`;
-  // rack-1 (index 0, holds Box D1) must survive; the two empty ones grown above go.
-  if (E.childrenOf(r.state, "u-deep", "shelf-1").length !== 1) return "expected exactly 1 child left";
-  if (!E.findRackNode(r.state, "rack-1")) return "rack-1 (not empty) should have survived a shrink to 1";
-  return null;
-});
-
-check("setSubdivisionCount refuses a shrink that would strand a box, naming it and why", () => {
-  const s = nestedFixture();
-  const r = E.setSubdivisionCount(s, "u-deep", "shelf-1", 0, "Rack");
-  if (r.ok) return "should have refused -- rack-1 (under shelf-1) holds Box D1";
-  if (!/Box D1/.test(r.reason) || !/Rack 1/.test(r.reason)) return `reason didn't name the box or rack: ${json(r.reason)}`;
-  if (E.findRackNode(s, "rack-1") === null) return "the original state must be untouched on refusal";
-  return null;
-});
-
-check("setSubdivisionCount at the unit's own top level (parentRackId null) works the same way", () => {
-  const s = nestedFixture();
-  const r = E.setSubdivisionCount(s, "u-deep", null, 4, "Shelf");
-  if (!r.ok) return `refused: ${r.reason}`;
-  if (E.childrenOf(r.state, "u-deep", null).length !== 4) return "expected 4 top-level shelves";
-  return null;
-});
-
-check("setUnitCount grows the lab's own freezer/tank list, auto-naming and minting fresh ids", () => {
-  const s = nestedFixture();
-  const r = E.setUnitCount(s, 3);
-  if (!r.ok) return `refused: ${r.reason}`;
-  if (r.state.storage.units.length !== 3) return `expected 3 units, got ${r.state.storage.units.length}`;
-  const ids = r.state.storage.units.map((u) => u.id);
-  if (new Set(ids).size !== ids.length) return `duplicate unit ids: ${json(ids)}`;
-  return null;
-});
-
-check("setUnitCount refuses a shrink that would strand a box, naming it and which freezer", () => {
-  const s = nestedFixture();
-  const r = E.setUnitCount(s, 0);
-  if (r.ok) return "should have refused -- Deep Freezer holds two boxes";
-  if (!/Deep Freezer/.test(r.reason)) return `reason didn't name the freezer: ${json(r.reason)}`;
-  return null;
-});
-
-check("setUnitDetails renames a unit and sets its type/note, both unit-only fields", () => {
-  const s = nestedFixture();
-  const r = E.setUnitDetails(s, "u-deep", { name: "Deep -80", type: "-80", note: "back corner" });
-  if (!r.ok) return `refused: ${r.reason}`;
-  const u = E.findUnit(r.state, "u-deep");
-  if (u.name !== "Deep -80" || u.type !== "-80" || u.note !== "back corner") return `got ${json(u)}`;
-  return null;
-});
-
-check("setBoxCount grows a leaf rack's boxes, auto-naming and defaulting to 9x9", () => {
-  const s = nestedFixture();
-  const r = E.setBoxCount(s, "rack-2", 2); // rack-2 starts with zero boxes
-  if (!r.ok) return `refused: ${r.reason}`;
-  const kids = E.findRackNode(r.state, "rack-2").rack.boxes;
-  if (kids.length !== 2) return `expected 2 boxes, got ${json(kids.map((b) => b.name))}`;
-  if (kids[0].name !== "Box 1" || kids[1].name !== "Box 2") return `named wrong: ${json(kids.map((b) => b.name))}`;
-  if (kids[0].rows !== 9 || kids[0].cols !== 9) return `expected a default 9x9 box, got ${json(kids[0])}`;
-  return null;
-});
-
-check("setBoxCount shrinks an empty tail without refusing", () => {
-  const s = nestedFixture();
-  const grown = E.setBoxCount(s, "rack-2", 3).state;
-  const r = E.setBoxCount(grown, "rack-2", 1);
-  if (!r.ok) return `refused: ${r.reason}`;
-  if (E.findRackNode(r.state, "rack-2").rack.boxes.length !== 1) return "expected exactly 1 box left";
-  return null;
-});
-
-check("setBoxCount refuses to shrink past a box that still holds a stored vial", () => {
-  const s = nestedFixture();
-  const r = E.setBoxCount(s, "rack-1", 0); // rack-1's one box (Box D1) holds vial v-d1
-  if (r.ok) return "should have refused -- Box D1 holds v-d1";
-  if (!/Box D1/.test(r.reason)) return `reason didn't name the box: ${json(r.reason)}`;
-  return null;
-});
-
-check("setBoxCount refuses to add boxes under a rack that already holds subdivisions", () => {
-  const s = nestedFixture();
-  const r = E.setBoxCount(s, "shelf-1", 1); // shelf-1 already has child racks (rack-1, rack-2)
-  if (r.ok) return "should have refused -- shelf-1 already holds subdivisions";
-  return null;
-});
-
-// ---- storage: moving a box between siblings (Structure screen's drag-and-drop) ----
-
-check("moveBox moves a box between two racks under the same parent", () => {
-  const s = nestedFixture();
-  const r = E.moveBox(s, "b-d1", "rack-2");
-  if (!r.ok) return `refused: ${r.reason}`;
-  const f = E.findBox(r.state, "b-d1");
-  if (f.rack.id !== "rack-2") return `box is in ${f.rack.id}, not rack-2`;
-  const v = r.state.vials.filter((v) => v.id === "v-d1")[0];
-  if (v.location.rackId !== "rack-2" || v.location.unitId !== "u-deep") return `vial location wasn't updated: ${json(v.location)}`;
-  return null;
-});
-
-check("moveBox reaches across shelves and freezers, not only siblings", () => {
-  // The whole tree is on screen at once now, so a box can be dragged anywhere a leaf
-  // rack is visible -- the sibling-only limit existed because the old one-level-at-a-
-  // time screen could never show source and target together.
-  const s = nestedFixture();
-  const across = E.moveBox(s, "b-d1", "shelf-2");   // a different top-level branch
-  if (!across.ok) return `refused a cross-branch move: ${across.reason}`;
-  if (E.findBox(across.state, "b-d1").rack.id !== "shelf-2") return "the box did not land in shelf-2";
-
-  const two = E.mergeDefaults({
-    storage: { units: [
-      { id: "u-a", name: "Freezer A", childLabel: "Rack",
-        racks: [{ id: "rack-a", name: "Rack 1", boxes: [box("b-a1", "Box A1", 9, 9)] }] },
-      { id: "u-b", name: "Freezer B", childLabel: "Rack",
-        racks: [{ id: "rack-b", name: "Rack 1", boxes: [] }] }
-    ] },
-    vials: [vial("v-a1", "HEK293T", "b-a1", "A1")]
+check("depth is unlimited, and findBox reports the whole chain", () => {
+  let st = E.mergeDefaults({});
+  let parent = null;
+  const names = ["A", "B", "C", "D", "E", "F"];
+  names.forEach((n) => {
+    const r = E.addNode(st.storage, parent, { name: n });
+    st = E.hydrateStorage(st, r.state, "umut");
+    parent = r.node.id;
   });
-  const cross = E.moveBox(two, "b-a1", "rack-b");
-  if (!cross.ok) return `refused a cross-freezer move: ${cross.reason}`;
-  const moved = cross.state.vials[0];
-  if (moved.location.unitId !== "u-b" || moved.location.rackId !== "rack-b") {
-    return `the vial's own unit/rack were not refreshed: ${json(moved.location)}`;
+  const r = E.addNode(st.storage, parent, { name: "Deep box", isBox: true, owner: "umut", rows: 1, cols: 1 });
+  st = E.hydrateStorage(st, r.state, "umut");
+  const f = E.findBox(st, r.node.id);
+  if (json(f.chain.map((n) => n.name)) !== json(names)) return `chain was ${json(f.chain.map((n) => n.name))}`;
+  if (f.unit.name !== "A") return `unit should be the top-level ancestor, got ${f.unit.name}`;
+  if (f.rack.name !== "F") return `rack should be the immediate parent, got ${f.rack.name}`;
+  return null;
+});
+
+check("moveNode takes a whole branch anywhere, and refuses the two moves that lose one", () => {
+  const f = treeFixture();
+  const moved = E.moveNode(f.state.storage, f.shelf, f.tank);
+  if (!moved.ok) return `refused a real move: ${moved.reason}`;
+  if (E.findNode(moved.state, f.shelf).chain[0].id !== f.tank) return "the shelf did not land in the tank";
+  if (!E.findBox(moved.state, f.boxId)) return "the box under it did not come along";
+
+  const itself = E.moveNode(f.state.storage, f.shelf, f.shelf);
+  if (itself.ok) return "a layer was moved into itself";
+  const inside = E.moveNode(f.state.storage, f.shelf, f.rack);
+  if (inside.ok) return "a layer was moved into its own descendant";
+  if (!/inside itself/.test(inside.reason)) return `unexpected reason: ${json(inside.reason)}`;
+  const intoBox = E.moveNode(f.state.storage, f.shelf, f.boxId);
+  if (intoBox.ok) return "a layer was moved into a box";
+  return null;
+});
+
+check("a box can be taken out of the freezer without being deleted, and put back", () => {
+  const f = treeFixture();
+  const out = E.moveNode(f.state.storage, f.boxId, "unplaced");
+  if (!out.ok) return `refused: ${out.reason}`;
+  if (E.isPlaced(out.state, f.boxId)) return "the box still counts as placed";
+  if (!E.findBox(out.state, f.boxId)) return "the box vanished instead of moving";
+  if (E.unplacedOf(out.state).length !== 1) return "it is not in the unplaced list";
+
+  const back = E.moveNode(out.state, f.boxId, f.rack);
+  if (!back.ok) return `refused putting it back: ${back.reason}`;
+  if (!E.isPlaced(back.state, f.boxId)) return "it did not come back into the tree";
+  // Only a box can be homeless: a layer with no place in the tree is just lost.
+  const layer = E.moveNode(f.state.storage, f.shelf, "unplaced");
+  if (layer.ok) return "a layer was allowed to become unplaced";
+  return null;
+});
+
+check("an unplaced box is never offered as a place to put a vial", () => {
+  const f = treeFixture();
+  const out = E.moveNode(f.state.storage, f.boxId, "unplaced");
+  const st = E.hydrateStorage(f.state, out.state, "umut");
+  const offered = E.boxesFor(st, null, "umut").map((b) => b.box.id);
+  if (offered.indexOf(f.boxId) !== -1) return "a box with no place in the freezer was offered as one";
+  // It is still the owner's box and still shows on their own screens.
+  let seen = false;
+  E.eachBox(st, (b) => { if (b.id === f.boxId) seen = true; });
+  if (!seen) return "the unplaced box disappeared from the owner's view entirely";
+  return null;
+});
+
+check("removeNode refuses while a vial is inside, and says which box and how many", () => {
+  const f = treeFixture();
+  let st = f.state;
+  st.vials = [Object.assign(vial("v-x", "HEK293T", f.boxId, "A1"), { location: E.locationFor(st, f.boxId, "A1") })];
+  const r = E.removeNode(st, f.shelf);
+  if (r.ok) return "a shelf holding a full box was deleted";
+  if (!/Umut Box 1 still holds 1 vial/.test(r.reason)) return `unexpected reason: ${json(r.reason)}`;
+
+  // Lab-wide counts, because a box in the shared tree is usually full of somebody
+  // else's vials, which are in their file and not in this state at all.
+  const other = E.removeNode(f.state.storage, f.shelf, { [f.boxId]: 4 });
+  if (other.ok) return "counts passed in were ignored";
+  if (!/4 vials/.test(other.reason)) return `did not count them: ${json(other.reason)}`;
+  return null;
+});
+
+check("removeNode takes the whole branch, and says what it would take first", () => {
+  const f = treeFixture();
+  const what = E.nodeContents(f.state.storage, f.freezer);
+  if (what.layers !== 2 || what.boxes.length !== 1) return `nodeContents said ${json(what.layers)} layers, ${what.boxes.length} boxes`;
+  const r = E.removeNode(f.state.storage, f.freezer);
+  if (!r.ok) return `refused an empty branch: ${r.reason}`;
+  if (E.findNode(r.state, f.rack)) return "a nested layer survived its parent being deleted";
+  if (E.childrenOfRoot(r.state).length !== 1) return "the wrong number of top-level layers remain";
+  return null;
+});
+
+check("a vial stores the whole route, and refreshPaths rewrites it after a move", () => {
+  const f = treeFixture();
+  let st = f.state;
+  st.vials = [Object.assign(vial("v-x", "HEK293T", f.boxId, "A1"), { location: E.locationFor(st, f.boxId, "A1") })];
+  if (json(st.vials[0].location.path) !== json([f.freezer, f.shelf, f.rack])) {
+    return `the stored path is wrong: ${json(st.vials[0].location.path)}`;
+  }
+  if (E.errorsOnly(E.validate(st)).length) return `a fresh state does not validate: ${json(E.validate(st))}`;
+
+  // Move the box; the stored path is now stale, and validate says so rather than
+  // silently believing it or silently rewriting it.
+  const moved = E.moveNode(st, f.boxId, f.tank);
+  const stale = E.validate(moved.state).filter((p) => p.code === "stale-path");
+  if (!stale.length) return "a stale path went unreported";
+  if (E.errorsOnly(E.validate(moved.state)).length) return "a stale path was treated as an error, not a warning";
+
+  const fixed = E.refreshPaths(moved.state);
+  if (fixed.touched !== 1) return `refreshPaths touched ${fixed.touched}`;
+  if (E.validate(fixed.state).filter((p) => p.code === "stale-path").length) return "the path was not fixed";
+  if (json(fixed.state.vials[0].location.path) !== json([f.tank])) {
+    return `the new path is wrong: ${json(fixed.state.vials[0].location.path)}`;
   }
   return null;
 });
 
-check("moveBox still refuses a rack that holds subdivisions rather than boxes", () => {
-  const s = nestedFixture();
-  const r = E.moveBox(s, "b-d1", "shelf-1");   // shelf-1 is a group, not a leaf
-  if (r.ok) return "should have refused -- shelf-1 holds child racks";
-  return null;
-});
-
-// ---- storage: deleting one named thing, and moving a whole rack -----------------
-//
-// The count fields could only ever trim from the end of a list, so there was no way to
-// delete the middle shelf or one particular box. Umut asked for real deletes as admin,
-// and for shelves and towers to move the way boxes already do.
-
-check("removeBox deletes exactly that box and leaves its siblings alone", () => {
-  const s = nestedFixture();
-  const grown = E.setBoxCount(s, "rack-2", 3);          // Box 1, Box 2, Box 3
-  if (!grown.ok) return `setup failed: ${grown.reason}`;
-  const names = () => E.findRackNode(state, "rack-2").rack.boxes.map((b) => b.name);
-  let state = grown.state;
-  const middle = E.findRackNode(state, "rack-2").rack.boxes[1];
-  const r = E.removeBox(state, middle.id);
-  if (!r.ok) return `refused: ${r.reason}`;
-  state = r.state;
-  const left = E.findRackNode(state, "rack-2").rack.boxes.map((b) => b.name);
-  if (left.length !== 2 || left.indexOf(middle.name) !== -1) {
-    return `expected the middle box gone and two left, got ${json(left)}`;
+check("locationPath reads out the whole route, and says when a box has no place yet", () => {
+  const f = treeFixture();
+  const st = f.state;
+  const loc = E.locationFor(st, f.boxId, "B2");
+  if (E.locationPath(st, loc) !== "Freezer 1 → Shelf 1 → Metal Rack 1 → Umut Box 1 → B2") {
+    return `path read: ${E.locationPath(st, loc)}`;
+  }
+  const out = E.moveNode(st, f.boxId, "unplaced");
+  if (!/Not placed yet/.test(E.locationPath(out.state, loc))) {
+    return `an unplaced box does not say so: ${E.locationPath(out.state, loc)}`;
   }
   return null;
 });
 
-check("removeBox refuses a box that still holds a vial, and names it", () => {
-  const s = nestedFixture();
-  const r = E.removeBox(s, "b-d1");     // holds v-d1
-  if (r.ok) return "should have refused -- Box D1 holds v-d1";
-  if (!/Box D1/.test(r.reason)) return `reason didn't name the box: ${json(r.reason)}`;
-  return null;
-});
-
-check("removeBox counts the whole lab's vials when it is given them", () => {
-  // A box in the shared tree is usually full of somebody else's vials, which live in
-  // their own file and are not in this state at all -- so an unqualified "is it empty?"
-  // on one member's state would happily delete a full box.
-  const s = nestedFixture();
-  const r = E.removeBox(s, "b-d2", { "b-d2": 4 });   // empty here, four vials lab-wide
-  if (r.ok) return "should have refused -- four vials lab-wide are in Box D2";
-  if (!/4 vials/.test(r.reason)) return `reason didn't count them: ${json(r.reason)}`;
-  return null;
-});
-
-check("removeUnit deletes a named freezer, and refuses one that still holds boxes", () => {
-  const s = E.mergeDefaults({
-    storage: { units: [
-      { id: "u-a", name: "Freezer A", childLabel: "Rack",
-        racks: [{ id: "rack-a", name: "Rack 1", boxes: [box("b-a1", "Box A1", 9, 9)] }] },
-      { id: "u-b", name: "Freezer B", childLabel: "Rack", racks: [{ id: "rack-b", name: "Rack 1", boxes: [] }] }
-    ] }
+check("the old three-level file still opens, folded into the tree", () => {
+  // Somebody's saved copy, or the file as it was before this change: units with a type,
+  // racks nested inside them, boxes at the bottom. The type and the note become one note
+  // rather than either being dropped.
+  const old = E.mergeStorageDefaults({
+    labName: "CAA Lab Stocks",
+    units: [{ id: "u-f80", name: "-80 Freezer", type: "-80 °C", note: "back corner", childLabel: "Rack",
+              racks: [{ id: "r-1", name: "Rack 1", racks: [
+                { id: "r-1-1", name: "Shelf 1", boxes: [box("b-a", "Box A", 9, 9)] }
+              ] }] }]
   });
-  const refused = E.removeUnit(s, "u-a");
-  if (refused.ok) return "should have refused -- Freezer A still holds Box A1";
-  if (!/Box A1/.test(refused.reason)) return `reason didn't name the box: ${json(refused.reason)}`;
-
-  const r = E.removeUnit(s, "u-b");
-  if (!r.ok) return `refused an empty freezer: ${r.reason}`;
-  const left = r.state.storage.units.map((u) => u.id);
-  if (json(left) !== json(["u-a"])) return `expected only u-a left, got ${json(left)}`;
-  return null;
-});
-
-check("moveRack moves a shelf into another freezer, bringing its boxes and vials", () => {
-  const s = E.mergeDefaults({
-    storage: { units: [
-      { id: "u-a", name: "Freezer A", childLabel: "Shelf",
-        racks: [{ id: "shelf-a", name: "Shelf 1", racks: [
-          { id: "rack-a", name: "Rack 1", boxes: [box("b-a1", "Box A1", 9, 9)] }
-        ] }] },
-      { id: "u-b", name: "Freezer B", childLabel: "Shelf", racks: [] }
-    ] },
-    vials: [(function(){
-      // vial() defaults to the standard fixture's unit/rack ids; this tree is its own,
-      // so point it at the real leaf rack -- moveRack must leave that rackId alone.
-      const v = vial("v-a1", "HEK293T", "b-a1", "A1");
-      v.location.unitId = "u-a"; v.location.rackId = "rack-a";
-      return v;
-    })()]
-  });
-  const r = E.moveRack(s, "shelf-a", "u-b");
-  if (!r.ok) return `refused: ${r.reason}`;
-  if (r.state.storage.units[0].racks.length !== 0) return "the shelf was left behind in Freezer A";
-  if (E.findRackNode(r.state, "shelf-a").unit.id !== "u-b") return "the shelf did not land in Freezer B";
-  if (!E.findBox(r.state, "b-a1")) return "the box under it did not come along";
-  const v = r.state.vials[0];
-  // Its own leaf rack has not changed, so only the unit is refreshed.
-  if (v.location.unitId !== "u-b" || v.location.rackId !== "rack-a") {
-    return `the vial's location was not refreshed correctly: ${json(v.location)}`;
+  if (old.units) return "the old units array was left behind";
+  if (old.children.length !== 1) return `expected one top layer, got ${old.children.length}`;
+  if (old.children[0].note !== "-80 °C · back corner") return `the note reads: ${json(old.children[0].note)}`;
+  const found = E.findBox(old, "b-a");
+  if (!found) return "the box did not survive the fold";
+  if (json(found.chain.map((n) => n.name)) !== json(["-80 Freezer", "Rack 1", "Shelf 1"])) {
+    return `chain: ${json(found.chain.map((n) => n.name))}`;
   }
+  if (!E.isBoxNode(found.box)) return "the box was not marked as one";
   return null;
 });
 
-check("moveRack refuses to drop a rack inside itself or its own descendant", () => {
-  const s = nestedFixture();
-  const itself = E.moveRack(s, "shelf-1", "shelf-1");
-  if (itself.ok) return "should have refused -- a rack cannot be moved into itself";
-  const child = E.moveRack(s, "shelf-1", "rack-2");   // rack-2 is shelf-1's own child
-  if (child.ok) return "should have refused -- rack-2 is inside shelf-1";
-  if (!/inside itself/.test(child.reason)) return `unexpected reason: ${json(child.reason)}`;
-  return null;
-});
 
-check("moveRack refuses a destination that holds boxes directly", () => {
-  // The leaf-or-group rule, the same one moveBox and setBoxCount already enforce:
-  // shelf-2 holds Box D2 itself, so it cannot also become a parent of racks.
+check("removing a box leaves the layers above it alone -- pruning is a decision, not a side effect", () => {
+  // The handoff used to walk the structure by hand and prune every layer it emptied,
+  // because a rack with no boxes meant nothing in a fixed three-level tree. In a tree of
+  // layers an empty layer is a perfectly good shelf that somebody labelled, so removing
+  // a box removes the box. Anything more is a separate, deliberate delete.
   const s = nestedFixture();
-  const r = E.moveRack(s, "rack-2", "shelf-2");
-  if (r.ok) return "should have refused -- shelf-2 holds a box directly";
-  if (!/holds boxes directly/.test(r.reason)) return `unexpected reason: ${json(r.reason)}`;
-  return null;
-});
+  // Box D1 holds v-d1, and a box holding a vial is never deleted out from under it --
+  // the app takes those out (as withdrawals, in their owner's file) and says so first.
+  const held = E.removeNode(s, "b-d1");
+  if (held.ok) return "a box holding a vial was deleted";
+  if (!/still holds 1 vial/.test(held.reason)) return `unexpected reason: ${json(held.reason)}`;
 
-check("a handoff-style box move recurses into nested subdivisions, not just the top level", () => {
-  // Mirrors the admin handoff's own prune step (index.html) on a deeper tree, since
-  // that code walks the same structure by hand rather than through an engine call.
-  // Emptied-out structure is pruned all the way up, same as the existing flat
-  // (2-level) handoff code already does for a rack left with zero boxes.
-  const s = nestedFixture();
-  const movedBoxIds = { "b-d1": true };
-  function pruneBoxes(racks) {
-    (racks || []).forEach((r) => {
-      r.boxes = (r.boxes || []).filter((b) => !movedBoxIds[b.id]);
-      if (r.racks && r.racks.length) pruneBoxes(r.racks);
-    });
-  }
-  function pruneEmpty(racks) {
-    return (racks || []).filter((r) => {
-      if (r.racks && r.racks.length) r.racks = pruneEmpty(r.racks);
-      return (r.boxes && r.boxes.length) || (r.racks && r.racks.length);
-    });
-  }
-  pruneBoxes(s.storage.units[0].racks);
-  s.storage.units[0].racks = pruneEmpty(s.storage.units[0].racks);
+  const emptied = Object.assign({}, s, { vials: [] });
+  const r = E.removeNode(emptied, "b-d1");
+  if (!r.ok) return `refused an empty box: ${r.reason}`;
   const remaining = [];
-  E.eachBox(s, (b) => remaining.push(b.id));
+  E.eachBox(r.state, (b) => remaining.push(b.id));
   if (json(remaining) !== json(["b-d2"])) return `remaining boxes: ${json(remaining)}`;
-  if (E.findRackNode(s, "rack-1")) return "rack-1 (now boxless) should have been pruned away";
-  if (E.findRackNode(s, "shelf-1")) return "shelf-1 (now childless too -- rack-2 was already empty) should have been pruned away";
-  if (!E.findRackNode(s, "shelf-2")) return "shelf-2 still has Box D2 -- it must survive";
+  if (!E.findRackNode(r.state, "rack-1")) return "the layer the box was in was deleted with it";
+  if (!E.findRackNode(r.state, "shelf-1")) return "a layer further up was deleted too";
+  // And deleting that now-empty layer is one call, when somebody actually asks for it.
+  const gone = E.removeNode(r.state, "shelf-1");
+  if (!gone.ok) return `an empty branch would not delete: ${gone.reason}`;
+  if (E.findRackNode(gone.state, "rack-1")) return "deleting the branch left its children behind";
   return null;
 });
 
@@ -1524,8 +1424,11 @@ check("a handoff-style box move recurses into nested subdivisions, not just the 
 
 check("applyPlacement writes a non-default kind and customFacets, but never the default kind", () => {
   const box = { id: "b1", name: "Box 1", rows: 9, cols: 9, scheme: "grid" };
-  const state = { storage: { units: [{ id: "u1", name: "Freezer", racks: [{ id: "r1", name: "Rack 1", boxes: [box] }] }] },
-                  lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
+  const state = E.mergeDefaults({ storage: { children: [
+    { id: "u1", name: "Freezer", children: [
+      { id: "r1", name: "Rack 1", children: [Object.assign({ isBox: true, owner: "umut" }, box)] }
+    ] }
+  ] } });
 
   const cellPlan = E.suggestPlacement(state, { name: "HEK293T p12", count: 1 });
   const cellOut = E.applyPlacement(state, cellPlan, { name: "HEK293T p12", passage: "p12" },
@@ -1603,8 +1506,8 @@ check("a Unit column fans rows out into separate storage units", () => {
   if (byIndex[2] !== "box") return `"box name" guessed as ${json(byIndex[2])}`;
 
   const out = E.importSheet(sheet, { columns: { unit: 0, position: 1, box: 2, name: 3 }, headerRow: 1 });
-  if (out.state.storage.units.length !== 2) return `expected 2 units, got ${out.state.storage.units.length}`;
-  const names = out.state.storage.units.map((u) => u.name).sort();
+  if (out.state.storage.children.length !== 2) return `expected 2 layers, got ${out.state.storage.children.length}`;
+  const names = out.state.storage.children.map((u) => u.name).sort();
   if (json(names) !== json(["-80 freezer", "Liquid nitrogen"])) return `unexpected unit names: ${json(names)}`;
   return null;
 });
@@ -1673,7 +1576,7 @@ check("resolveImportRow fills in a name and position, and clears the review flag
   const sheet = { name: "Sheet1", rows, merges: [] };
   const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
   const vialId = imported.vials[0].id;
-  const boxId = imported.storage.units[0].racks[0].boxes[0].id;
+  const boxId = imported.storage.children[0].children[0].children[0].id;
   const res = E.resolveImportRow(imported, vialId, { name: "HEK293T p12", boxId: boxId, position: "A1" });
   if (!res.ok) return `resolveImportRow failed: ${res.reason}`;
   if (res.vial.importAmbiguous) return "importAmbiguous should be cleared";
@@ -1692,7 +1595,7 @@ check("resolveImportRow refuses a slot that is already taken", () => {
   const sheet = { name: "Sheet1", rows, merges: [] };
   const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
   const ambiguous = imported.vials.find((v) => v.importAmbiguous);
-  const boxId = imported.storage.units[0].racks[0].boxes[0].id;
+  const boxId = imported.storage.children[0].children[0].children[0].id;
   const res = E.resolveImportRow(imported, ambiguous.id, { name: "Another Line", boxId: boxId, position: "A1" });
   if (res.ok) return "expected the already-taken slot to be refused";
   return null;
@@ -1729,8 +1632,11 @@ check("confirmDate clears a prior Unknown mark", () => {
 
 check("a blank Add-screen date defaults to today, never to Review", () => {
   const box = { id: "b1", name: "Box 1", rows: 9, cols: 9, scheme: "grid" };
-  const state = { storage: { units: [{ id: "u1", name: "Freezer", racks: [{ id: "r1", name: "Rack 1", boxes: [box] }] }] },
-                  lines: [], vials: [], withdrawals: [], rules: {}, settings: {} };
+  const state = E.mergeDefaults({ storage: { children: [
+    { id: "u1", name: "Freezer", children: [
+      { id: "r1", name: "Rack 1", children: [Object.assign({ isBox: true, owner: "umut" }, box)] }
+    ] }
+  ] } });
   const plan = E.suggestPlacement(state, { name: "HEK293T p12", count: 1 });
   if (!plan.ok) return "expected a plan into an empty box";
   const out = E.applyPlacement(state, plan, { name: "HEK293T p12", passage: "p12", frozenOn: "" },
@@ -1764,15 +1670,20 @@ check("a member's own file is written without the lab's storage in it", () => {
   return null;
 });
 
-check("the lab's own file keeps the structure, its name and every box's owner", () => {
-  const lab = E.mergeStorageDefaults({ units: [
-    { id: "u-1", name: "-80", childLabel: "Rack",
-      racks: [{ id: "r-1", name: "Rack 1", boxes: [Object.assign(box("b-1", "Box 1", 9, 9), { owner: "umut", note: "" })] }] }
+check("the lab's own file keeps the tree, its name and every box's owner", () => {
+  const lab = E.mergeStorageDefaults({ children: [
+    { id: "u-1", name: "-80", children: [
+      { id: "r-1", name: "Rack 1", children: [
+        Object.assign({ isBox: true }, box("b-1", "Box 1", 9, 9), { owner: "umut", note: "" })
+      ] }
+    ] }
   ] });
   const written = JSON.parse(E.serialiseStorage(lab));
   if (written.labName !== "CAA Lab Stocks") return `expected a default lab name, got ${json(written.labName)}`;
-  const b = written.units[0].racks[0].boxes[0];
+  if (written.units) return "the old units array should not be written back";
+  const b = written.children[0].children[0].children[0];
   if (b.owner !== "umut") return `the owner was dropped: ${json(b)}`;
+  if (!b.isBox) return "a box has to say it is one -- it is the only thing that marks it";
   if (b.note !== undefined) return "an empty note should still be stripped from a box";
   return null;
 });
@@ -1872,26 +1783,30 @@ check("the real inventory validates with no errors", () => {
   return errs.length ? `${errs.length} errors, first: ${errs[0].message}` : null;
 });
 
-check("the real inventory is eight 9x9 boxes with nothing double-booked", () => {
+// This used to assert the freezer's exact contents -- eight 9x9 boxes, a 162-slot
+// nitrogen tank, a named cell line that was definitely in there. Every one of those
+// numbers was a photograph of one afternoon in 2025, and the whole set went red the
+// morning the freezer was rebuilt and the boxes were emptied. Which is what the
+// preamble above already says not to do.
+//
+// What is left is what stays true of ANY inventory: an empty one on the day the tree
+// is first drawn, and a full one a year later. Nothing here counts anything.
+check("the real inventory holds nothing that is double-booked or shapeless", () => {
   if (!real) return null;
   const boxes = [];
   E.eachBox(real, (b) => boxes.push(b));
-  // Six in the -80 freezer, two in the nitrogen tank -- the tank is set up but
-  // deliberately still empty.
-  if (boxes.length !== 8) return `found ${boxes.length} boxes`;
-  for (const b of boxes) if (b.rows !== 9 || b.cols !== 9) return `${b.name} is ${b.rows}x${b.cols}`;
+  for (const b of boxes) {
+    if (!(b.rows >= 1 && b.cols >= 1)) return `${b.name} is ${b.rows}x${b.cols}`;
+    // A box belongs to somebody -- that is the rule addNode enforces, and a box that
+    // slipped in without an owner appears on nobody's Boxes screen.
+    if (!b.owner) return `${b.name} belongs to nobody`;
+  }
+  // Every stored (non-withdrawn) vial occupies exactly one slot, no more, no fewer.
+  // Withdrawals change how many that is; they must never change whether occupancy and
+  // vial status agree with each other.
   const total = boxes.reduce((n, b) => n + E.occupancy(real, b.id).used, 0);
-  // Not a fixed head-count: every stored (non-withdrawn) vial occupies exactly one
-  // slot, no more, no fewer. Withdrawals change how many that is; they must never
-  // change whether occupancy and vial status agree with each other.
   const stored = real.vials.filter((v) => v.status !== "withdrawn").length;
   if (total !== stored) return `${total} slots are occupied but ${stored} vials are marked stored`;
-  const tank = E.unitSummary(real, "u-ln2");
-  if (!tank) return "the nitrogen tank is missing";
-  // Not "must be empty": the tank exists to be frozen into, and the moment it holds
-  // its first vial is the moment this app is fully doing its job. total === stored
-  // above already covers the tank's occupancy along with everything else's.
-  if (tank.capacity !== 162) return `the tank has ${tank.capacity} slots, expected 162`;
   return null;
 });
 
@@ -1926,16 +1841,31 @@ check("no row is left mixed only because an origin rule is missing", () => {
     : null;
 });
 
-check("the nitrogen tank is modelled but empty, and can be placed into", () => {
+// Asking for one particular area by id -- it used to be the nitrogen tank -- is a plan
+// that must stay inside it and must describe the route down to the slot. Which area
+// that is stopped being something to hardcode the moment the tree became the admin's to
+// draw, so this asks it of every area that has room.
+check("a plan aimed at one area stays in it, and says the whole way down", () => {
   if (!real) return null;
-  const tank = E.unitSummary(real, "u-ln2");
-  if (!tank) return "no nitrogen tank";
-  if (tank.boxes.length !== 2) return `${tank.boxes.length} boxes, expected 2`;
-  const plan = E.suggestPlacement(real, { name: "LnCap Canada", count: 5, unitId: "u-ln2" });
-  if (!plan.ok) return `nothing can be placed into it: ${plan.reason}`;
-  if (plan.segments[0].unitId !== "u-ln2") return "the plan left the tank";
-  // A tower is a rack with a different word, and the path has to say so.
-  if (!/Tower/.test(plan.segments[0].path)) return `path did not name a Tower: ${json(plan.segments[0].path)}`;
+  const areas = (real.storage.children || []).filter((u) => {
+    return E.leafRacks(real, u.id).length && E.unitSummary(real, u.id).capacity;
+  });
+  if (!areas.length) return null;                 // nowhere to put anything yet
+  for (const area of areas) {
+    const summary = E.unitSummary(real, area.id);
+    if (summary.capacity - summary.used < 5) continue;   // full, which is a fair answer
+    const plan = E.suggestPlacement(real, { name: "LnCap Canada", count: 5, unitId: area.id });
+    if (!plan.ok) return `nothing can be placed into ${area.name}: ${plan.reason}`;
+    for (const seg of plan.segments) {
+      if (seg.unitId !== area.id) return `a plan for ${area.name} wandered into ${seg.unitId}`;
+      // The path is how a person finds the slot with the door open, so it has to name
+      // every layer between the area and the box, however many that is.
+      const chain = E.findBox(real, seg.boxId).chain;
+      for (const node of chain) {
+        if (seg.path.indexOf(node.name) === -1) return `path ${json(seg.path)} skips ${node.name}`;
+      }
+    }
+  }
   return null;
 });
 
@@ -1993,20 +1923,30 @@ check("every real vial keeps its passage on the right scale", () => {
   return wrong.length ? `${wrong.length} p+N vials are not marked relative` : null;
 });
 
-check("a real search finds a real vial in a real box", () => {
+// The query used to be a cell line that was definitely in the freezer, by name. It is
+// not there any more, and naming another one only moves the problem. A vial taken out
+// of the file itself is in the freezer by construction.
+check("a real search finds a real vial, and says where it is", () => {
   if (!real) return null;
-  const hits = E.search(real, { query: "dudtxr caspex g5.1" });
-  if (!hits.length) return "a line that is definitely in the freezer was not found";
-  const paths = new Set(hits.map((h) => h.path));
-  if (!paths.size) return "results came back with no location";
-  for (const h of hits) if (!/→/.test(h.path)) return `a result had no location path: ${json(h.path)}`;
+  const anyVial = real.vials.filter((v) => v.status !== "withdrawn" && v.location && v.name)[0];
+  if (!anyVial) return null;                      // nothing stored yet
+  const hits = E.search(real, { query: anyVial.name.toLowerCase() });
+  if (!hits.some((h) => h.vial.id === anyVial.id)) {
+    return `${json(anyVial.name)} is in the freezer but searching for it does not find it`;
+  }
+  for (const h of hits) {
+    // A box the admin has not placed yet is honestly pathless; anything in the tree
+    // has a route, and a route reads with arrows.
+    const placed = E.isPlaced(real, h.vial.location.boxId);
+    if (placed && !/→/.test(h.path)) return `a result had no location path: ${json(h.path)}`;
+  }
   return null;
 });
 
-check("freezing into the real freezer avoids the two full boxes", () => {
+check("freezing into the real freezer never offers a slot that is taken", () => {
   if (!real) return null;
   const plan = E.suggestPlacement(real, { name: "Huh7", count: 3 });
-  if (!plan.ok) return `no plan: ${plan.reason}`;
+  if (!plan.ok) return null;                      // no boxes yet, or no room -- both fair
   for (const seg of plan.segments) {
     const occ = E.occupancy(real, seg.boxId);
     if (occ.free < seg.positions.length) return `${occ.box.name} was offered ${seg.positions.length} slots but has ${occ.free}`;

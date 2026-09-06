@@ -264,30 +264,57 @@ await check("the recipients list: empty, absent and unreadable are three differe
 });
 
 await check("the summary counts what is in the freezer, and names a nearly full box", () => {
-  const csv = "﻿unit,type,rack,box,owner,rows,cols,used,capacity,free\r\n" +
-              "-80 Freezer,-80,Rack 1,BOX ONE,umut,9,9,80,81,1\r\n" +
-              "-80 Freezer,-80,Rack 1,BOX TWO,busra,3,3,2,9,7\r\n" +
-              "LN2 Tank,LN2,Tower 1,BOX THREE,umut,2,2,0,4,4\r\n";
+  const csv = "﻿area,location,box,owner,rows,cols,used,capacity,free\r\n" +
+              "-80 Freezer,-80 Freezer → Shelf 1 → Rack 1,BOX ONE,umut,9,9,80,81,1\r\n" +
+              "-80 Freezer,-80 Freezer → Shelf 1 → Rack 1,BOX TWO,busra,3,3,2,9,7\r\n" +
+              "LN2 Tank,LN2 Tank → Tower 1,BOX THREE,umut,2,2,0,4,4\r\n";
   const out = summarise(csv, 2);
-  if (!/3 boxes across 2 freezer\/tanks/.test(out)) return `wrong totals: ${out}`;
+  if (!/3 boxes across 2 storage areas/.test(out)) return `wrong totals: ${out}`;
   if (!/82 vials stored, in 2 of those boxes/.test(out)) return `wrong vial count: ${out}`;
   if (!/Nearly full: BOX ONE \(80\/81\)/.test(out)) return `the full box was not named: ${out}`;
   if (/BOX TWO \(/.test(out)) return `a box at 22% was called nearly full: ${out}`;
+  if (/not been placed/.test(out)) return `every box has a home, but one was called homeless: ${out}`;
 
   // A lab with freezers but no boxes in them yet is not a lab with no freezers -- and
   // that is the state this one was in on the morning the export was first set up.
-  const empty = summarise("﻿unit,type,rack,box,owner,rows,cols,used,capacity,free\r\n", 3);
-  if (!/3 freezer\/tanks, with no boxes set up in them yet\./.test(empty)) {
+  const empty = summarise("﻿area,location,box,owner,rows,cols,used,capacity,free\r\n", 3);
+  if (!/3 storage areas, with no boxes set up in them yet\./.test(empty)) {
     return `an empty freezer reads wrong: ${empty}`;
   }
-  if (/0 freezer/.test(empty)) return `three freezers were reported as none: ${empty}`;
+  if (/0 storage area/.test(empty)) return `three freezers were reported as none: ${empty}`;
+  return null;
+});
+
+await check("a location holding a comma does not shift every column after it", () => {
+  const csv = '﻿area,location,box,owner,rows,cols,used,capacity,free\r\n' +
+              '"Freezer 1, middle door","Freezer 1, middle door → Shelf 1",BOX ONE,umut,9,9,80,81,1\r\n';
+  const out = summarise(csv);
+  // Split naively on commas and "BOX ONE" lands in the owner column, the counts read as
+  // NaN, and the mail quietly says nothing is in the freezer.
+  if (!/1 box across 1 storage area/.test(out)) return `the quoted path broke the columns: ${out}`;
+  if (!/80 vials stored/.test(out)) return `the counts shifted: ${out}`;
+  if (!/Nearly full: BOX ONE \(80\/81\)/.test(out)) return `the box name shifted: ${out}`;
+  return null;
+});
+
+await check("a box with no home yet is named rather than hidden in the total", () => {
+  const csv = "﻿area,location,box,owner,rows,cols,used,capacity,free\r\n" +
+              "-80 Freezer,-80 Freezer → Shelf 1,BOX ONE,umut,3,3,2,9,7\r\n" +
+              "Not placed yet,Not placed yet,BOX THREE,umut,2,2,1,4,3\r\n";
+  const out = summarise(csv, 1);
+  if (!/2 boxes across 1 storage area/.test(out)) return `wrong totals: ${out}`;
+  if (!/1 box has not been placed in the tree yet: BOX THREE\./.test(out)) {
+    return `the unplaced box was not called out: ${out}`;
+  }
+  // Its vial is still in the lab, so it still counts.
+  if (!/3 vials stored, in 2 of those boxes/.test(out)) return `wrong vial count: ${out}`;
   return null;
 });
 
 console.log("");
 if (failures) {
-  console.log(`${failures} of 10 cell stocks mail checks failed:\n`);
+  console.log(`${failures} of 12 cell stocks mail checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 10 cell stocks mail checks passed.");
+console.log("All 12 cell stocks mail checks passed.");

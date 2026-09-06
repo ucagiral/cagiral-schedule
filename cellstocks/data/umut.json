@@ -63,6 +63,10 @@
     ],
     "resistance": [
       {
+        "match": "UCX",
+        "value": "CR"
+      },
+      {
         "match": "50CR",
         "value": "50CR"
       },
@@ -123,6 +127,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T19:54:01.296Z"
+    "savedAt": "2026-09-06T19:54:17.433Z"
   }
 }

@@ -161,18 +161,42 @@ worker handles by sweeping only its own prefix.
   the deleted freezers came back on screen and the next delete wrote one of them back.
   There are five rounds of that in `lab-storage.json`'s history. A commit is the freshest
   copy there is: after one, never re-read.
+- **There is one kind of node, and it recurses. That is the whole storage model.** A **layer**
+  has a name, a note, an icon and children; a layer marked `isBox` **stops** — it takes an
+  `owner` and an A×B grid, and nothing goes inside it. There is no depth limit and no fixed
+  unit → rack → box triple: a real lab is `Freezer 1 → Shelf 1 → Metal Rack 1 → a box`, or a
+  fridge with two shelves, or a tank with towers and canes. Umut drew this himself, twice,
+  after three rounds of fixed levels being wrong. Never reintroduce a level count, a
+  `childLabel`, or a "leaf or group, never both" rule — both existed only to prop the fixed
+  levels up. `eachNode`/`findNode`/`addNode`/`editNode`/`moveNode`/`removeNode` are the whole
+  API; `eachBox`/`findBox` are a thin view over it that still hand back `{box, rack, unit,
+  chain}` so old call sites kept working.
+- **`unplaced` is the one thing beside the tree.** A member may make a box before anybody has
+  said where it lives — his flow is fill it first, then choose the cabinet — so it waits in
+  `storage.unplaced` and shows as *"Not placed yet"* on the Boxes tab, in Structure, and in
+  the daily export. It is real inventory with no location, never hidden and never given a
+  fake one. Only an admin moves it into the tree.
 - **There is one freezer, so there is one structure file.** `cellstocks/lab-storage.json` holds the
-  whole lab's tree — `labName`, `labIcon`, freezers/tanks → racks → boxes — and every box carries an
+  whole lab's tree — `labName`, `labIcon`, `children`, `unplaced` — and every box carries an
   `owner`. Storing a copy of it inside each member's file was wrong three rounds running: it made
   the one physical −80 exist as several unrelated records, and it put a person level in a tree whose
   spec (his own picture) has none. `slim()` strips `storage` before a member file is saved and
   `hydrateStorage()` puts it back at load, so every engine function still reads `state.storage`
   exactly where it always did. Do not put the tree back into a member file.
-- **The Structure screen is a folder tree, all of it on screen at once.** Root, freezers, racks,
-  boxes, expand/collapse, ✎ on every row including the root, drag a box onto any rack in the lab.
-  It is admin-only, and it is the third attempt — do not "simplify" it back into one level at a
-  time or a per-member picker. A shrink that would strand a box is refused by name: *"X kutusu Y
-  rafı silindiğinden dolayı yeni lokasyona yerleştirilmeli"*.
+- **A vial stores its whole route, as `{id, name}` per step.** Umut's call, asked and answered:
+  the file says where a vial is even without the tree. An id alone survives a rename but reads
+  as nothing to a person; a name alone goes stale the moment a shelf is renamed — so both.
+  The tree stays the source of truth for what is drawn; a stored path that disagrees is a
+  `stale-path` **warning** from `validate()`, never silently believed and never silently
+  overwritten. `refreshPaths()` is the fix, and `commitLabStorage` runs it in the **same
+  commit** as the move or rename that caused it: a follow-up commit means a failure in
+  between leaves exactly the half-finished state the warning describes.
+- **The Structure screen is a folder tree, all of it on screen at once, open by default.**
+  Root, every layer, every box, ✎ on every row including the root, **+** on every row that is
+  not a box, drag any row onto any layer. A node is open unless it has been collapsed by
+  hand — which is also why a layer added inside a folder is visible the moment it is saved.
+  It is admin-only, and it is the third attempt — do not "simplify" it back into one level at
+  a time or a per-member picker.
 - **Admin deletes a freezer, rack or box outright — but a vial is never erased.** The count
   fields could only trim from the end, so every row's ✎ has a Delete. Umut asked for it to
   need no Handoff and no emptying by hand, so it does not refuse: any vial still inside is
@@ -181,10 +205,14 @@ worker handles by sweeping only its own prefix.
   confirm says how many vials and whose before anything runs, and the owners' files are
   written **before** the tree, so a failure mid-way leaves the boxes still named rather than
   the vials stranded. Deleting a *user* is the opposite and still refuses — that needs Handoff.
-- **A rack moves like a box does.** `moveRack` takes a shelf or a tower into another
-  freezer or rack with everything under it; the boxes keep their own leaf rack, so only
-  `location.unitId` is refreshed, in each owner's own file. It refuses a rack into itself
-  or its own descendant, and a destination that already holds boxes directly.
+- **Everything moves the same way, because everything is a node.** `moveNode` takes a box, a
+  shelf or a whole freezer into any layer, to the top level, or back out to `unplaced`, with
+  everything under it. The drag payload is the bare node id — no kind prefix to keep in step.
+  It refuses a node into itself or its own descendant (that would cut the subtree off the
+  tree, taking every vial in it out of the world) and anything into a box.
+- **Nothing turns a layer into a box or back.** `editNode` deliberately cannot flip `isBox`:
+  one direction orphans the children, the other orphans the vials. It is a
+  delete-and-make-again decision, and the tick is disabled once the node exists.
 - **A member adds a box; only admin adds a freezer.** The quick-add row on the Boxes tab offers
   a box and nothing else — the "Add a freezer or tank" button was removed at Umut's word, not
   disabled, because a member adding a unit was adding it to everybody's tree. With no freezer
@@ -218,9 +246,11 @@ worker handles by sweeping only its own prefix.
 - **Withdrawal does not delete a vial.** It sets `status:"withdrawn"`, clears the location and logs
   a snapshot of where it was. History is not optional in a lab inventory. Undo restores the vial
   only if its slot is still free.
-- **Freezer geometry is data, not code.** Never hardcode 9×9, a rack count or a position format. A
-  nitrogen tank and a freezer share one model and differ only by `type` and `childLabel`; the
-  positions in a box come from its own `rows`, `cols` and `scheme`.
+- **Freezer geometry is data, not code.** Never hardcode 9×9, a level count or a position format.
+  A nitrogen tank, a freezer and a fridge are the same thing — layers — and differ only in what
+  the admin typed in their name and note; the positions in a box come from its own `rows`,
+  `cols` and `scheme`. There is no machine-readable `type` any more: Umut asked for one free
+  note field ("sadece serbest açıklama metni"), so nothing branches on what a layer *is*.
 - **The placement proposal is a proposal.** The override path stays — but even an override may not
   mix two cells in one row, and a plan never part-fills silently. If it cannot describe a run
   honestly it lists the slots instead.
@@ -248,6 +278,24 @@ worker handles by sweeping only its own prefix.
   tools. **A PI has no inventory of their own at all** — they read and search everyone else's and
   change nothing, which the worker enforces in `canWrite()` rather than trusting the app to hide
   the buttons. An unknown role is refused, never quietly demoted to member.
+- **The classification rules are the lab's, not an account's.** Every account started from the
+  same defaults and then edited its own private copy, so the same cell name read differently
+  depending on whose screen you were on — admin read `Du145 TOX4 KO` as a knockout, umut's copy
+  as an overexpression. Umut asked for them merged and shared. They live in
+  `cellstocks/lab-rules.json`; `slim()` strips `rules` from a member file and `hydrateRules()`
+  puts them back at load, exactly as the tree does. Any member may edit them — adding the label
+  for a cell everybody works with is the everyday action this replaced — and every change is
+  committed with the affected workbooks in one commit. Do not put a copy back in a member file.
+- **Merging rule sets is not concatenation.** A facet's rules are ordered and first-match-wins,
+  so `mergeRuleSets` keeps a matcher's **first** position, reports a matcher that two accounts
+  gave **different values** rather than settling it, and always sorts a catch-all (a bare
+  `value`) **last** — anything after one is dead code. `tools/cellstocks-merge-rules.mjs` is the
+  one-off that ran it, dry by default, and it prints every disagreement and every vial facet
+  that would read differently. The one real conflict it found: `50CR` reads as `CisR` (admin's),
+  not `50CR` (umut's) — flip it from Settings → Rules if that is the wrong way round.
+- **A rule preview counts the whole lab, and waits until it can.** The rules are shared, so
+  "this changes 0 vials" measured against your own inventory alone is a lie. Settings → Rules
+  loads the lab first and the Add/Edit/Delete buttons stay disabled until it has.
 - **A rule or an attribute name can be edited and deleted, not only added.** Both previews what it
   would do to the real inventory first (how many vials read differently, how many of those are
   pinned by hand and so do not move) — `ruleImpact()` in the app, over `E.classifyAll`. Deleting an

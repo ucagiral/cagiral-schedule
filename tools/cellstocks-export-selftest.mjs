@@ -27,19 +27,32 @@ async function check(name, fn) {
 const root = mkdtempSync(join(tmpdir(), "cellstocks-export-"));
 mkdirSync(join(root, "cellstocks", "data"), { recursive: true });
 
+// Layers all the way down, as deep as the admin cared to go, until a node says it is a
+// box. This fixture goes four deep on one branch and one deep on another, on purpose:
+// nothing in the export may assume the old unit/rack/box triple.
 writeFileSync(join(root, "cellstocks", "lab-storage.json"), JSON.stringify({
   labName: "Fixture Lab",
-  labIcon: "",
-  units: [
-    { id: "u-80", name: "-80 Freezer", type: "-80", childLabel: "Rack", racks: [
-      { id: "r-1", name: "Rack 1", boxes: [
-        { id: "b-1", name: "BOX ONE", rows: 3, cols: 3, scheme: "grid", archived: false, owner: "umut" },
-        { id: "b-2", name: "BOX TWO", rows: 2, cols: 2, scheme: "grid", archived: false, owner: "busra" }
+  labIcon: "🏛️",
+  children: [
+    { id: "u-80", name: "-80 Freezer", icon: "🧊", note: "-80 · 269 Middle Door", children: [
+      { id: "s-1", name: "Shelf 1", icon: "📁", note: "", children: [
+        { id: "r-1", name: "Rack 1", icon: "📁", note: "", children: [
+          { id: "b-1", name: "BOX ONE", icon: "📦", note: "", isBox: true,
+            owner: "umut", rows: 3, cols: 3, scheme: "grid", archived: false },
+          { id: "b-2", name: "BOX TWO", icon: "📦", note: "", isBox: true,
+            owner: "busra", rows: 2, cols: 2, scheme: "grid", archived: false }
+        ] }
       ] }
     ] },
-    { id: "u-ln2", name: "LN2 Tank", type: "LN2", childLabel: "Tower", racks: [
-      { id: "t-1", name: "Tower 1", boxes: [] }
+    { id: "u-ln2", name: "LN2 Tank", icon: "🥶", note: "-196", children: [
+      { id: "t-1", name: "Tower 1", icon: "📁", note: "", children: [] }
     ] }
+  ],
+  // A box a member has added and filled, that the admin has not yet given a home to. It
+  // is real inventory and has to appear in all three files.
+  unplaced: [
+    { id: "b-3", name: "BOX THREE", icon: "📦", note: "", isBox: true,
+      owner: "umut", rows: 2, cols: 2, scheme: "grid", archived: false }
   ]
 }, null, 2));
 
@@ -47,7 +60,7 @@ const vial = (id, name, boxId, position, passage) => ({
   id, name, lineId: name.toLowerCase().replace(/\s+/g, "-"),
   passage, passageNumber: Number(String(passage).replace(/\D/g, "")) || null, passageKind: "absolute",
   frozenOn: "2025-06-01", frozenRaw: "01-06-25", notes: "", flags: [],
-  location: { unitId: "u-80", rackId: "r-1", boxId, position }, status: "stored"
+  location: { boxId, position, path: [] }, status: "stored"
 });
 
 writeFileSync(join(root, "cellstocks", "data", "umut.json"), JSON.stringify({
@@ -55,6 +68,7 @@ writeFileSync(join(root, "cellstocks", "data", "umut.json"), JSON.stringify({
   vials: [
     vial("v-1", "HEK293T ATP7B KO", "b-1", "A1", "p12"),
     vial("v-2", "Du145 CASPEX g5.1", "b-1", "B2", "p7"),
+    vial("v-4", "Homeless Line", "b-3", "A1", "p2"),
     // A withdrawn vial must not appear anywhere in the export: it is not in the freezer.
     { id: "v-3", name: "Already Taken Out", status: "withdrawn", location: null, flags: [] }
   ]
@@ -80,7 +94,7 @@ await check("the workbook opens, and has a sheet per box plus the index", async 
   const wb = await X.readWorkbook(readFileSync(join(outDir, "layout.xlsx")));
   const names = wb.sheets.map((s) => s.name);
   if (names[0] !== "boxes") return `first sheet is ${names[0]}, not the index`;
-  for (const want of ["BOX ONE", "BOX TWO"]) {
+  for (const want of ["BOX ONE", "BOX TWO", "BOX THREE"]) {
     if (!names.includes(want)) return `no sheet for ${want}: ${JSON.stringify(names)}`;
   }
   return null;
@@ -113,6 +127,21 @@ await check("the index counts each box, including the empty ones", async () => {
   if (!two || two[3] !== "busra" || two[6] !== "1" || two[7] !== "4") {
     return `BOX TWO row wrong: ${JSON.stringify(two)}`;
   }
+  // The whole route, not just the layer above it -- the tree is four deep on this branch.
+  if (one[1] !== "-80 Freezer → Shelf 1 → Rack 1") return `BOX ONE's location is wrong: ${one[1]}`;
+  if (one[0] !== "-80 Freezer") return `BOX ONE's area is wrong: ${one[0]}`;
+  return null;
+});
+
+await check("a box nobody has placed yet is still in the index, said so", async () => {
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "layout.xlsx")));
+  const rows = wb.sheets[0].rows.map((r) => r.map((c) => (c ? String(c.value) : "")));
+  const three = rows.filter((r) => r[2] === "BOX THREE")[0];
+  if (!three) return `BOX THREE is missing from the index: ${JSON.stringify(rows)}`;
+  if (three[0] !== "Not placed yet" || three[1] !== "Not placed yet") {
+    return `an unplaced box claims a location: ${JSON.stringify(three)}`;
+  }
+  if (three[3] !== "umut" || three[6] !== "1") return `BOX THREE row wrong: ${JSON.stringify(three)}`;
   return null;
 });
 
@@ -129,12 +158,19 @@ await check("the summary is one row per box, with a BOM so Excel reads it as UTF
   const csv = readFileSync(join(outDir, "layout.csv"), "utf8");
   if (csv.charCodeAt(0) !== 0xfeff) return "no BOM -- Excel will mangle the first column";
   const lines = csv.replace(/^﻿/, "").trim().split("\r\n");
-  // A header and the fixture's two boxes. Tower 1 holds none, so it contributes no row:
-  // this is a list of boxes, not of racks.
-  if (lines.length !== 3) return `expected a header and two boxes, got ${lines.length}: ${JSON.stringify(lines)}`;
-  if (!lines[0].startsWith("unit,type,rack,box,owner")) return `unexpected header: ${lines[0]}`;
-  if (!lines.some((l) => l.includes("BOX ONE") && l.endsWith(",2,9,7"))) {
+  // A header and the fixture's three boxes. Tower 1 holds none, so it contributes no row:
+  // this is a list of boxes, not of layers.
+  if (lines.length !== 4) return `expected a header and three boxes, got ${lines.length}: ${JSON.stringify(lines)}`;
+  if (!lines[0].startsWith("area,location,box,owner")) return `unexpected header: ${lines[0]}`;
+  if (!lines.some((l) => l.includes("BOX ONE") && l.endsWith(",3,3,2,9,7"))) {
     return `BOX ONE's counts are wrong: ${JSON.stringify(lines)}`;
+  }
+  // The full route travels as one cell, quoted where it needs to be, not flattened.
+  if (!lines.some((l) => l.includes("-80 Freezer → Shelf 1 → Rack 1"))) {
+    return `the path never reaches the summary: ${JSON.stringify(lines)}`;
+  }
+  if (!lines.some((l) => l.startsWith("Not placed yet,Not placed yet,BOX THREE"))) {
+    return `the unplaced box is missing from the summary: ${JSON.stringify(lines)}`;
   }
   return null;
 });
@@ -168,14 +204,32 @@ await check("the PDF is a real PDF: every xref offset lands on its object", () =
 await check("the map names the freezer, the boxes and what is in them", () => {
   const text = readFileSync(join(outDir, "layout.pdf")).toString("latin1");
   // Text is written as PDF string literals, so the words are readable in the raw file.
-  for (const want of ["Fixture Lab", "-80 Freezer", "LN2 Tank", "BOX ONE", "BOX TWO", "umut", "busra"]) {
+  for (const want of ["Fixture Lab", "-80 Freezer", "Shelf 1", "Rack 1", "LN2 Tank",
+                      "BOX ONE", "BOX TWO", "BOX THREE", "Not placed yet", "umut", "busra"]) {
     if (!text.includes("(" + want)) return `the map never mentions ${want}`;
   }
   if (!/HEK293T/.test(text)) return "no vial made it into a printed grid";
   if (/Already Taken Out/.test(text)) return "a withdrawn vial was printed into the map";
   // One page for the tree, then one per box.
   const pages = (text.match(/\/Type \/Page[^s]/g) || []).length;
-  if (pages !== 1 + 2) return `expected the tree page plus one per box, got ${pages}`;
+  if (pages !== 1 + 3) return `expected the tree page plus one per box, got ${pages}`;
+  return null;
+});
+
+await check("the map indents each layer under the one above it, however deep", () => {
+  const text = readFileSync(join(outDir, "layout.pdf")).toString("latin1");
+  // Every line is drawn as "x y Td (text) Tj", so the x it was drawn at is recoverable.
+  const at = (label) => {
+    const m = text.match(new RegExp("([\\d.]+) [\\d.]+ Td\\n?[^\\n]*\\(" + label));
+    return m ? Number(m[1]) : null;
+  };
+  const freezer = at("-80 Freezer"), shelf = at("Shelf 1"), rack = at("Rack 1"), box = at("BOX ONE");
+  if ([freezer, shelf, rack, box].some((x) => x === null)) {
+    return `a layer is missing from the tree page: ${JSON.stringify({ freezer, shelf, rack, box })}`;
+  }
+  if (!(freezer < shelf && shelf < rack && rack < box)) {
+    return `the tree is not indented by depth: ${JSON.stringify({ freezer, shelf, rack, box })}`;
+  }
   return null;
 });
 
@@ -189,8 +243,8 @@ await check("a Turkish name survives into the PDF, folded rather than dropped", 
 
 console.log("");
 if (failures) {
-  console.log(`${failures} of 9 cell stocks export checks failed:\n`);
+  console.log(`${failures} of 11 cell stocks export checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 9 cell stocks export checks passed.");
+console.log("All 11 cell stocks export checks passed.");

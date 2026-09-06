@@ -434,8 +434,9 @@ to a separate URL. See `cellstocks-worker/README.md` for the backend.
 
 | Piece | What it does |
 |---|---|
-| `cellstocks/data/<name>.json` | **The source of truth for one person's vials, one file per account.** Every vial, the classifier rules, the withdrawal log — Umut's own is `cellstocks/data/umut.json`. It no longer holds the freezer; see the row below. |
-| `cellstocks/lab-storage.json` | **The freezer, once, for the whole lab.** There is one physical −80 in that room, so there is one file describing it: `labName`, `labIcon` and the tree of freezers/tanks → racks → boxes. Each box carries an `owner`, which is how a member's own Boxes tab knows which of them are theirs. Edited from the Admin tab's Structure screen, as a folder tree — tap to open or close, ✎ to rename, give an icon or set how many it holds, drag a box onto any rack in the lab. |
+| `cellstocks/data/<name>.json` | **The source of truth for one person's vials, one file per account.** Every vial and the withdrawal log — Umut's own is `cellstocks/data/umut.json`. It holds neither the freezer nor the rules any more; both are the lab's, in the two files below. |
+| `cellstocks/lab-storage.json` | **The freezer, once, for the whole lab.** There is one physical −80 in that room, so there is one file describing it: `labName`, `labIcon`, `children` and `unplaced`. The tree is **layers all the way down** — a layer has a name, a note, an icon and children, until one is marked a **box**, which takes an owner and an A×B grid and holds vials. No depth limit and no fixed levels. Each box carries an `owner`, which is how a member's own Boxes tab knows which are theirs. Edited from the Admin tab's Structure screen, as a folder tree — tap to open or close, ✎ to edit or delete, **+** to put a layer or a box inside, drag any row onto any layer. |
+| `cellstocks/lab-rules.json` | **The classification rules, once, for the whole lab.** The five formulas that read a cell name — origin, KO/OX, resistance, CASPEX, guide. These used to live in each account's own file and had drifted apart, so the same name read differently depending on whose screen you were on; `tools/cellstocks-merge-rules.mjs` merged them into this. Any member may edit them from Settings → Rules, and a change is the whole lab's. |
 | `cellstocks/icons/` | Uploaded folder icons (PNG/JPG/WEBP, admin-only). A node stores just the filename; an emoji is stored as the character itself and needs no file at all. |
 | `cellstocks/engine.js` | Every rule the app has, as pure functions. The browser loads it with a `<script>` tag and `tools/cellstocks-selftest.mjs` runs the same file in node — one copy of the rules, tested where it runs. |
 | `cellstocks/xlsx.js` | Reads and writes `.xlsx` with no dependencies. A spreadsheet is a zip of XML, so reading is a zip walk plus the browser's own `DecompressionStream`, and writing is the same XML zipped back up. |
@@ -553,15 +554,22 @@ passage, date, notes, and the five derived facets. Each facet shows what the rul
 over one pins it by hand, and from then on `classify()` leaves it alone. Changing the name
 re-derives everything that isn't pinned.
 
-### Setting up your freezer and tank
+### Setting up the freezer
 
-Settings → **Storage**. A freezer and a nitrogen tank are the same shape here — a unit, its racks
-or towers, and boxes with a grid — differing only in what their children are called. Nothing about
-9×9 is built in. Boxes can be renamed and resized; shrinking one that holds vials is refused, and
-the refusal names the vials in the way.
+Admin → **Structure**, as a folder tree. There is one kind of thing in it: a **layer**, with a
+name, a free note, an icon and children. Add layers inside layers as deep as the room actually is
+— `Freezer 1 → Shelf 1 → Metal Rack 1` — until you tick **"this is a box"**, at which point it
+takes an owner and an A×B grid and nothing goes inside it. A freezer, a nitrogen tank and a fridge
+are all just layers; nothing in the app branches on which is which, and nothing about 9×9 is built
+in.
 
-The **−80 °C freezer** holds six 9×9 boxes, 350 vials. The **LN2 tank** is set up — one tower, two
-9×9 boxes — and deliberately still empty.
+A member adds their own **box** from the Boxes tab and can start filling it straight away; where it
+lives is an admin's call, so until then it sits under **"Not placed yet"** rather than being given
+a location it does not have. Boxes can be renamed and resized from Settings → Storage; shrinking
+one that holds vials is refused, and the refusal names the vials in the way.
+
+A vial remembers its whole route as well as its box, so moving or renaming anything above it
+rewrites those vials — in each owner's own file, in the same commit as the change itself.
 
 ### Checking it
 
@@ -569,11 +577,24 @@ The **−80 °C freezer** holds six 9×9 boxes, 350 vials. The **LN2 tank** is s
 node tools/cellstocks-selftest.mjs
 ```
 
-Eighty-six checks over a synthetic freezer and then over the real inventory: an explicit list of
-the rows the corrected rules are *supposed* to change, so a later rule edit that reclassifies a
-sixth thing fails here rather than in front of an open freezer door — and a sweep that proposes
-placements for nine different cells at four different counts against the real freezer and fails if
-any of them would put two kinds of cell in one row.
+A hundred and forty-one checks over a synthetic freezer and then over the real inventory — plus
+separate suites for the worker, the app in a real browser, the daily export and the mailer:
+
+```
+node tools/cellstocks-selftest.mjs           # 141 checks on the engine
+node tools/cellstocks-worker-selftest.mjs    #  65 on the worker
+node tools/cellstocks-browser-test.mjs       # 116 driving the real app
+node tools/cellstocks-export-selftest.mjs    #  11 on the three daily files
+node tools/cellstocks-mail-selftest.mjs      #  12 on the mailer, against a fake SMTP server
+```
+
+The checks against the real inventory assert only what stays true of *any* inventory — an empty
+one on the day the tree is first drawn and a full one a year later. They used to name eight boxes,
+a 162-slot tank and a cell line that was definitely in the freezer, and every one of those went red
+the morning the freezer was rebuilt. What is left: nothing double-booked, occupancy agreeing with
+vial status, every box owned, a plan that stays in the area it was asked for and describes the
+whole way down, and a sweep that proposes placements for nine different cells at four different
+counts and fails if any of them would put two kinds of cell in one row.
 
 The same suite runs in CI on every change to `cellstocks/` or the suite itself
 (`.github/workflows/cellstocks.yml`), along with a check that the committed `.xlsx` still matches

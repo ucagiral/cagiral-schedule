@@ -271,6 +271,7 @@ const DATA_PREFIX = "cellstocks/data/";
 // legally be named "_storage" (the name rule allows an underscore), and their own file
 // must never be able to collide with the lab's.
 const LAB_STORAGE_PATH = "cellstocks/lab-storage.json";
+const LAB_RULES_PATH = "cellstocks/lab-rules.json";
 const RECIPIENTS_PATH = "cellstocks/exports/recipients.json";
 const ICON_PREFIX = "cellstocks/icons/";
 
@@ -305,6 +306,14 @@ function canWrite(user, path) {
   // reading the committed tree and proving the incoming one changes only box lists --
   // worth doing if this lab ever outgrows trusting each other.
   if (path === LAB_STORAGE_PATH) return true;
+
+  // The lab's shared classification rules. Every account used to keep its own copy and
+  // they drifted, so the same cell name read differently depending on whose screen you
+  // were on; Umut asked for one merged set, shared from then on. Writable by any
+  // logged-in member for the same reason the tree is: adding the label for a cell
+  // everybody works with is an everyday action, and keeping it in one person's private
+  // copy is exactly the problem this replaced.
+  if (path === LAB_RULES_PATH) return true;
 
   // Who the nightly layout export is mailed to. Admin-only, and one exact path: the
   // scheduled job that sends the mail reads the repository rather than logging in, so

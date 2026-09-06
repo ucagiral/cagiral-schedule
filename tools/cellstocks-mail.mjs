@@ -179,26 +179,60 @@ export function readRecipients(dir) {
   }
 }
 
-// `unitCount` is passed in rather than counted from the rows: the summary is per box, so
+// A box's location is a whole path now, and a path can contain a comma the same way a box
+// name always could, so the summary reads the rows properly rather than splitting on every
+// comma it finds. A quoted cell doubles its own quotes; that is the whole grammar.
+export function parseCsvRow(line) {
+  const cells = [];
+  let cell = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch !== '"') { cell += ch; continue; }
+      if (line[i + 1] === '"') { cell += '"'; i++; continue; }
+      quoted = false;
+      continue;
+    }
+    if (ch === '"') { quoted = true; continue; }
+    if (ch === ",") { cells.push(cell); cell = ""; continue; }
+    cell += ch;
+  }
+  cells.push(cell);
+  return cells;
+}
+
+// `areaCount` is passed in rather than counted from the rows: the summary is per box, so
 // a lab whose freezers hold no boxes yet would otherwise be reported as having no
 // freezers, which is not the same thing and is exactly the state this lab was in the
 // morning it was first set up.
-export function summarise(csvText, unitCount) {
+//
+// "Storage area" rather than "freezer": the top layer of the tree is whatever the admin
+// named it, and in this lab that is already a freezer, a fridge and a nitrogen tank.
+export function summarise(csvText, areaCount) {
   const lines = csvText.replace(/^﻿/, "").trim().split(/\r?\n/).slice(1).filter(Boolean);
   const boxes = lines.map((line) => {
-    const cells = line.split(",");
-    return { unit: cells[0], box: cells[3], owner: cells[4], used: Number(cells[7]), capacity: Number(cells[8]) };
+    const cells = parseCsvRow(line);
+    return { area: cells[0], box: cells[2], owner: cells[3], used: Number(cells[6]), capacity: Number(cells[7]) };
   });
-  const units = unitCount === undefined ? new Set(boxes.map((b) => b.unit)).size : unitCount;
-  const unitText = `${units} freezer/tank${units === 1 ? "" : "s"}`;
-  if (!boxes.length) return `${unitText}, with no boxes set up in them yet.`;
+  const placed = boxes.filter((b) => b.area && b.area !== "Not placed yet");
+  const areas = areaCount === undefined ? new Set(placed.map((b) => b.area)).size : areaCount;
+  const areaText = `${areas} storage area${areas === 1 ? "" : "s"}`;
+  if (!boxes.length) return `${areaText}, with no boxes set up in them yet.`;
 
   const used = boxes.reduce((n, b) => n + (b.used || 0), 0);
   const full = boxes.filter((b) => b.capacity && b.used / b.capacity > 0.9);
+  const homeless = boxes.length - placed.length;
   const out = [
-    `${boxes.length} box${boxes.length === 1 ? "" : "es"} across ${unitText}.`,
+    `${boxes.length} box${boxes.length === 1 ? "" : "es"} across ${areaText}.`,
     `${used} vial${used === 1 ? "" : "s"} stored, in ${boxes.filter((b) => b.used).length} of those boxes.`
   ];
+  // Boxes with no home are the one thing in here that is somebody's to act on, so they
+  // are named rather than folded into the total.
+  if (homeless) {
+    out.push(`${homeless} box${homeless === 1 ? " has" : "es have"} not been placed in the ` +
+             `tree yet: ` + boxes.filter((b) => !placed.includes(b)).map((b) => b.box).join(", ") + ".");
+  }
   if (full.length) {
     out.push("Nearly full: " + full.map((b) => `${b.box} (${b.used}/${b.capacity})`).join(", ") + ".");
   }
@@ -224,10 +258,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     { filename: "layout.csv", mimeType: "text/csv; charset=UTF-8" }
   ].map((a) => Object.assign({}, a, { content: readFileSync(join(EXPORTS, a.filename)) }));
 
-  const unitCount = () => {
+  const areaCount = () => {
     try {
       const lab = JSON.parse(readFileSync(join(ROOT, "cellstocks", "lab-storage.json"), "utf8"));
-      return (lab.units || []).length;
+      return (lab.children || []).length;
     } catch (err) { return undefined; }
   };
   const today = new Date().toISOString().slice(0, 10);
@@ -238,7 +272,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     "  layout.pdf   the printable map for the freezer door",
     "  layout.csv   one row per box: where it is, whose, how full",
     "",
-    summarise(readFileSync(join(EXPORTS, "layout.csv"), "utf8"), unitCount()),
+    summarise(readFileSync(join(EXPORTS, "layout.csv"), "utf8"), areaCount()),
     "",
     "Rebuilt from the inventory this morning."
   ].join("\n");

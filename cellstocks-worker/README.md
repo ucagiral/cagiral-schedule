@@ -171,6 +171,10 @@ A member may only commit their own `cellstocks/data/<name>.json` and `cellstocks
 An admin may commit any file under `cellstocks/data/`. Two paths sit outside that prefix and are
 writable on purpose:
 
+- `cellstocks/lab-rules.json` — the lab's one shared set of classification rules. Writable by
+  any signed-in member, for the same reason the tree is: adding the label for a cell everybody
+  works with is an everyday action, and keeping it in one person's private copy is exactly the
+  drift this file replaced. PI still writes nothing.
 - `cellstocks/lab-storage.json` — the lab's one shared storage tree. **Any signed-in member may
   write it**, because adding a box to the freezer is everyday work and there is no per-node
   permission model here to express "this branch is mine". What a member is *offered* is

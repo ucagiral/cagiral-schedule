@@ -1,79 +1,65 @@
 {
   "labName": "CAA Lab Stocks",
   "labIcon": "",
-  "units": [
+  "children": [
     {
       "id": "u-ln2",
       "name": "Freezer 1",
-      "type": "-80°C",
-      "note": "269 Middle Door",
-      "childLabel": "Tower",
-      "racks": [
+      "icon": "🧊",
+      "note": "-80°C · 269 Middle Door",
+      "children": [
         {
           "id": "t-1",
           "name": "Shelf 1",
-          "boxes": [],
-          "racks": [],
-          "icon": ""
+          "children": []
         }
-      ],
-      "icon": "🧊"
+      ]
     },
     {
       "id": "u-freezer-2",
       "name": "Liquid Nitrogen",
-      "type": "-196",
-      "note": "",
-      "childLabel": "Rack",
-      "racks": [
+      "icon": "🥶",
+      "note": "-196",
+      "children": [
         {
           "id": "r-rack-1",
           "name": "Rack 1",
-          "boxes": [],
-          "racks": []
+          "children": []
         },
         {
           "id": "r-rack-2",
           "name": "Rack 2",
-          "boxes": [],
-          "racks": []
+          "children": []
         }
-      ],
-      "icon": "🥶"
+      ]
     },
     {
       "id": "u-freezer-3",
       "name": "Fridge 1",
-      "type": "-20",
-      "note": "",
-      "childLabel": "Rack",
-      "racks": [
+      "icon": "❄️",
+      "note": "-20",
+      "children": [
         {
           "id": "r-rack-1-vjgl-0",
           "name": "Rack 1",
-          "boxes": [],
-          "racks": []
+          "children": []
         },
         {
           "id": "r-rack-2-vjgl-1",
           "name": "Rack 2",
-          "boxes": [],
-          "racks": []
+          "children": []
         },
         {
           "id": "r-rack-3",
           "name": "Rack 3",
-          "boxes": [],
-          "racks": []
+          "children": []
         },
         {
           "id": "r-rack-4",
           "name": "Rack 4",
-          "boxes": [],
-          "racks": []
+          "children": []
         }
-      ],
-      "icon": "❄️"
+      ]
     }
   ]
 }

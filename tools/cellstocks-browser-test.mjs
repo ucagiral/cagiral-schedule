@@ -617,20 +617,22 @@ try {
 
     // One lab freezer holding both people's boxes -- the handoff only changes who owns
     // the box, so caa's box must already be sitting in the shared tree beside umut's.
-    const caaBox = { id: "b-caa-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "caa" };
-    const umutBox = { id: "b-umut-1", name: "Box 2", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const caaBox = { id: "b-caa-1", name: "Box 1", isBox: true, rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "caa" };
+    const umutBox = { id: "b-umut-1", name: "Box 2", isBox: true, rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
     const labStorage = {
       labName: "CAA Lab Stocks", labIcon: "",
-      units: [{ id: "u-1", name: "-80 Freezer", type: "freezer", childLabel: "Rack",
-                racks: [{ id: "r-1", name: "Rack 1", boxes: [caaBox, umutBox] }] }]
+      children: [{ id: "u-1", name: "-80 Freezer", icon: "", note: "freezer",
+                   children: [{ id: "r-1", name: "Rack 1", icon: "", note: "",
+                                children: [caaBox, umutBox] }] }],
+      unplaced: []
     };
     const caaState = {
       lines: [], withdrawals: [], rules: {}, settings: {},
-      vials: [{ id: "v-2", name: "CAA Line", location: { unitId: "u-1", rackId: "r-1", boxId: "b-caa-1", position: "A1" }, status: "stored" }]
+      vials: [{ id: "v-2", name: "CAA Line", location: { boxId: "b-caa-1", position: "A1" }, status: "stored" }]
     };
     const umutState = {
       lines: [], withdrawals: [], rules: {}, settings: {},
-      vials: [{ id: "v-2", name: "Umut's Own Line", location: { unitId: "u-1", rackId: "r-1", boxId: "b-umut-1", position: "A1" }, status: "stored" }]
+      vials: [{ id: "v-2", name: "Umut's Own Line", location: { boxId: "b-umut-1", position: "A1" }, status: "stored" }]
     };
     let committedUmutState = null;
     let committedStorage = null;
@@ -702,9 +704,10 @@ try {
       JSON.stringify(committedUmutState && committedUmutState.vials));
     // Nothing physically moves in a handoff: the box keeps its id, its rack and its
     // slot, and only the name on it changes.
-    const handedBox = committedStorage && committedStorage.units[0].racks[0].boxes.find((b) => b.id === "b-caa-1");
+    const rackAfter = committedStorage && committedStorage.children[0].children[0];
+    const handedBox = rackAfter && rackAfter.children.find((b) => b.id === "b-caa-1");
     check("the handed-over box stays exactly where it was and only changes owner",
-      !!handedBox && handedBox.owner === "umut" && committedStorage.units[0].racks[0].boxes.length === 2,
+      !!handedBox && handedBox.owner === "umut" && rackAfter.children.length === 2,
       JSON.stringify(handedBox));
     check("the vial arrives in umut's file still in b-caa-1 / A1",
       committedUmutState && committedUmutState.vials.some((v) =>
@@ -719,13 +722,13 @@ try {
   }
 }
 
-// ---- the Boxes tab drills down through a nested subdivision tree ----
+// ---- the Boxes tab reaches a box however deep in the tree it sits ----
 //
-// Umut's real -80 is unit -> rack -> box; this proves a deeper unit -> shelf -> rack
-// -> box unit gets an extra picker automatically, that switching a shelf re-populates
-// the rack (and box) pickers underneath it, and that a 2-level unit right alongside it
-// still shows just the one rack picker it always has -- nothing here migrates or
-// flattens the existing shape.
+// This used to assert one <select> per level: a four-deep branch drew four dropdowns.
+// The tree takes any depth now, so that design would have put six taps between a
+// person and a grid. It is two controls instead -- which area, then which box -- and
+// the route down to the box travels in the option group and in the line underneath.
+// What this proves is that neither of those loses a box, however deep it is.
 {
   const server4 = await serve(8801);
   const browser4 = await chromium.launch();
@@ -736,26 +739,26 @@ try {
     });
     const page = await context.newPage();
 
-    const boxD1 = { id: "b-d1", name: "Box D1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
-    const boxD2 = { id: "b-d2", name: "Box D2", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
-    const flatBox = { id: "b-flat-1", name: "Flat Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const boxD1 = { id: "b-d1", name: "Box D1", isBox: true, rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const boxD2 = { id: "b-d2", name: "Box D2", isBox: true, rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const flatBox = { id: "b-flat-1", name: "Flat Box 1", isBox: true, rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const layer = (id, name, children) => ({ id, name, icon: "", note: "", children });
     const nestedStorage = {
       labName: "CAA Lab Stocks", labIcon: "",
-      units: [
-        { id: "u-deep", name: "Deep Freezer", type: "freezer", childLabel: "Shelf",
-          racks: [
-            { id: "shelf-1", name: "Shelf 1", racks: [{ id: "rack-1", name: "Rack 1", boxes: [boxD1] }] },
-            { id: "shelf-2", name: "Shelf 2", racks: [{ id: "rack-2", name: "Rack 2", boxes: [boxD2] }] }
-          ] },
-        { id: "u-flat", name: "Flat Freezer", type: "freezer", childLabel: "Rack",
-          racks: [{ id: "rack-flat", name: "Rack 1", boxes: [flatBox] }] }
-      ]
+      children: [
+        layer("u-deep", "Deep Freezer", [
+          layer("shelf-1", "Shelf 1", [layer("rack-1", "Rack 1", [boxD1])]),
+          layer("shelf-2", "Shelf 2", [layer("rack-2", "Rack 2", [boxD2])])
+        ]),
+        layer("u-flat", "Flat Freezer", [layer("rack-flat", "Rack 1", [flatBox])])
+      ],
+      unplaced: []
     };
     const nestedState = {
       lines: [], withdrawals: [], rules: {}, settings: {},
       vials: [
-        { id: "v-d1", name: "Deep Line 1", location: { unitId: "u-deep", rackId: "rack-1", boxId: "b-d1", position: "A1" }, status: "stored" },
-        { id: "v-d2", name: "Deep Line 2", location: { unitId: "u-deep", rackId: "rack-2", boxId: "b-d2", position: "A1" }, status: "stored" }
+        { id: "v-d1", name: "Deep Line 1", location: { boxId: "b-d1", position: "A1" }, status: "stored" },
+        { id: "v-d2", name: "Deep Line 2", location: { boxId: "b-d2", position: "A1" }, status: "stored" }
       ]
     };
     await page.route("https://raw.githubusercontent.com/**", (route) => {
@@ -803,30 +806,39 @@ try {
       quickAdd.length === 1 && quickAdd[0].text === "Add a box" && quickAdd[0].disabled === false,
       JSON.stringify(quickAdd));
 
+    // One picker, whatever the depth. Six layers deep would still be one.
     const deepSelectCount = await page.$$eval("#bxPath select", (els) => els.length);
-    check("a unit -> shelf -> rack -> box unit shows three pickers under the breadcrumb (shelf, rack, box)",
-      deepSelectCount === 3, `saw ${deepSelectCount}`);
+    check("a box picker, and only a box picker, however deep the branch is",
+      deepSelectCount === 1, `saw ${deepSelectCount}`);
 
-    const boxNameOnShelf1 = await page.$$eval("#bxPath select",
-      (els) => els[els.length - 1].selectedOptions[0].textContent);
-    check("Shelf 1's default drill-down lands on Box D1", /Box D1/.test(boxNameOnShelf1), boxNameOnShelf1);
+    // Both of the deep freezer's boxes are reachable, and each says which shelf and
+    // rack it is on -- that is what replaces the per-level dropdowns.
+    const deepGroups = await page.$$eval("#bxPath select optgroup",
+      (gs) => gs.map((g) => ({ label: g.label, options: [...g.children].map((o) => o.textContent.trim()) })));
+    check("each box is grouped under the whole route down to it",
+      deepGroups.length === 2 &&
+      deepGroups.some((g) => g.label === "Shelf 1 → Rack 1" && /Box D1/.test(g.options[0])) &&
+      deepGroups.some((g) => g.label === "Shelf 2 → Rack 2" && /Box D2/.test(g.options[0])),
+      JSON.stringify(deepGroups));
 
-    const shelfSelect = await page.$("#bxPath select");
-    await shelfSelect.selectOption("shelf-2");
-    await page.waitForFunction(() => {
-      const last = document.querySelectorAll("#bxPath select");
-      const box = last[last.length - 1];
-      return box && box.selectedOptions[0] && /Box D2/.test(box.selectedOptions[0].textContent);
-    });
-    check("switching to Shelf 2 re-populates the rack and box pickers underneath it", true);
+    const whereLine = await page.evaluate(() => document.getElementById("bxWhere").textContent);
+    check("the full path is written out under the picker",
+      whereLine === "Deep Freezer → Shelf 1 → Rack 1 → Box D1", whereLine);
+
+    // Picking the box on the other shelf is one action now, not three.
+    await page.selectOption("#bxPath select", "b-d2");
+    await page.waitForFunction(() =>
+      document.getElementById("bxWhere").textContent === "Deep Freezer → Shelf 2 → Rack 2 → Box D2");
+    check("picking a box on another shelf takes one tap, and the path follows it", true);
 
     await page.selectOption("#bxUnit", "u-flat");
-    await page.waitForFunction(() => document.querySelectorAll("#bxPath select").length === 2);
-    const flatSelectCount = await page.$$eval("#bxPath select", (els) => els.length);
-    check("a plain unit -> rack -> box unit alongside it still shows just one rack picker plus the box picker",
-      flatSelectCount === 2, `saw ${flatSelectCount}`);
+    await page.waitForFunction(() =>
+      /Flat Box 1/.test(document.getElementById("bxWhere").textContent));
+    const flatGroups = await page.$$eval("#bxPath select optgroup", (gs) => gs.map((g) => g.label));
+    check("a one-layer freezer alongside it reads just as simply",
+      flatGroups.length === 1 && flatGroups[0] === "Rack 1", JSON.stringify(flatGroups));
   } catch (err) {
-    check("the Boxes tab drills down through a nested subdivision tree", false, String(err));
+    check("the Boxes tab reaches a box however deep in the tree it sits", false, String(err));
   } finally {
     await browser4.close();
     server4.close();
@@ -850,24 +862,30 @@ try {
     });
     const page = await context.newPage();
 
-    const boxD1 = { id: "b-d1", name: "Box D1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const boxD1 = { id: "b-d1", name: "Box D1", isBox: true, rows: 9, cols: 9, scheme: "grid", note: "", archived: false, owner: "umut" };
+    const layer = (id, name, children, note) => ({ id, name, icon: "", note: note || "", children });
     let labStorage = {
       labName: "CAA Lab Stocks", labIcon: "",
-      units: [
-        { id: "u-deep", name: "Deep Freezer", type: "-80", childLabel: "Rack",
-          racks: [
-            { id: "shelf-1", name: "Shelf 1", racks: [
-              { id: "rack-1", name: "Rack 1", boxes: [boxD1] },
-              { id: "rack-2", name: "Rack 2", boxes: [] }
-            ] }
-          ] },
-        { id: "u-ln2", name: "LN2 Tank", type: "LN2", childLabel: "Tower",
-          racks: [{ id: "tower-1", name: "Tower 1", boxes: [] }] }
-      ]
+      children: [
+        layer("u-deep", "Deep Freezer", [
+          layer("shelf-1", "Shelf 1", [
+            layer("rack-1", "Rack 1", [boxD1]),
+            layer("rack-2", "Rack 2", [])
+          ])
+        ], "-80"),
+        layer("u-ln2", "LN2 Tank", [layer("tower-1", "Tower 1", [])], "LN2")
+      ],
+      // A box a member made that nobody has placed yet -- its own region below the tree.
+      unplaced: [{ id: "b-loose", name: "Homeless Box", isBox: true, rows: 2, cols: 2,
+                   scheme: "grid", note: "", archived: false, owner: "umut" }]
     };
     let umutState = {
       lines: [], withdrawals: [], rules: {}, settings: {},
-      vials: [{ id: "v-d1", name: "Deep Line 1", location: { unitId: "u-deep", rackId: "rack-1", boxId: "b-d1", position: "A1" }, status: "stored" }]
+      vials: [{ id: "v-d1", name: "Deep Line 1",
+                location: { boxId: "b-d1", position: "A1",
+                            path: [{ id: "u-deep", name: "Deep Freezer" },
+                                   { id: "shelf-1", name: "Shelf 1" },
+                                   { id: "rack-1", name: "Rack 1" }] }, status: "stored" }]
     };
     let lastStorageCommit = null;
     let lastMemberCommit = null;
@@ -902,11 +920,12 @@ try {
       if (path === "/commit" && req.method() === "POST") {
         const body = JSON.parse(req.postData());
         lastCommitPaths = body.files.map((f) => f.path);
-        const file = body.files.find((f) => f.path.endsWith(".json"));
-        // The tree and a member's vials are two separate files now, and the screen
-        // writes whichever one the change actually belongs to.
-        if (file.path.includes("lab-storage")) { lastStorageCommit = JSON.parse(file.content); labStorage = lastStorageCommit; }
-        else { lastMemberCommit = JSON.parse(file.content); umutState = lastMemberCommit; }
+        // A change to the tree can invalidate a member's own file too -- a vial stores
+        // its whole route -- and both travel in one commit, so read every file in it.
+        body.files.filter((f) => f.path.endsWith(".json")).forEach((f) => {
+          if (f.path.includes("lab-storage")) { lastStorageCommit = JSON.parse(f.content); labStorage = lastStorageCommit; }
+          else { lastMemberCommit = JSON.parse(f.content); umutState = lastMemberCommit; }
+        });
         return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
       }
       return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
@@ -925,12 +944,24 @@ try {
     await page.click("#adminTabs button[data-admintab=structure]");
     await page.waitForFunction(() => !!document.querySelector('#admin-structure .treeBody[data-title="Box D1"]'));
 
-    function editRow(title){
-      return page.evaluate((t) => {
-        const body = document.querySelector(`#admin-structure .treeBody[data-title="${t}"]`);
-        const btn = body && body.parentElement.querySelector(".structRowEdit");
-        if (btn) btn.click();
-      }, title);
+    // A row carries two buttons now -- "+" to add a child and "✎" to edit -- so pick the
+    // one by its label rather than by position.
+    //
+    // A save is async and ends with $("dlg").close(); opening the next dialog before that
+    // lands would see it closed under it. So: wait for no dialog, click, wait for one.
+    // (Sleeping instead is what made this block fail one run in three.)
+    const clickRowButton = (title, label) => page.evaluate(([t, l]) => {
+      const body = document.querySelector(`#admin-structure .treeBody[data-title="${t}"]`);
+      const btn = body && [...body.parentElement.querySelectorAll(".structRowEdit")]
+        .filter((b) => b.textContent === l)[0];
+      if (btn) btn.click();
+    }, [title, label]);
+    const noDialog = () => page.waitForFunction(() => !document.getElementById("dlg").open);
+    const dialogOpen = () => page.waitForFunction(() => document.getElementById("dlg").open);
+    async function editRow(title){
+      await noDialog();
+      await clickRowButton(title, "✎");
+      await dialogOpen();
     }
     const titles = () => page.evaluate(() =>
       Array.from(document.querySelectorAll("#admin-structure .treeBody")).map((b) => b.dataset.title));
@@ -942,6 +973,10 @@ try {
         .every((t) => shown.includes(t)), JSON.stringify(shown));
     check("there is no person level anywhere in the tree",
       !shown.includes("umut") && !(await page.$("#structureUser")), JSON.stringify(shown));
+    // A box nobody has placed yet is not in the freezer, and the screen says so rather
+    // than hiding it or pretending it sits somewhere.
+    check("boxes waiting for a home get their own region under the tree",
+      shown.includes("Not placed yet") && shown.includes("Homeless Box"), JSON.stringify(shown));
 
     // Collapsing a folder hides its whole subtree and nothing else.
     await page.click('#admin-structure .treeBody[data-title="Deep Freezer"]');
@@ -967,28 +1002,72 @@ try {
       lastStorageCommit && !!lastStorageCommit.labIcon,
       JSON.stringify(lastStorageCommit && lastStorageCommit.labIcon));
 
-    // A rack's ✎ carries its name, its icon and how many children it holds.
-    await editRow("Shelf 1");
-    await page.waitForSelector("#structureCountInput");
-    await page.fill("#dlgBody input", "Shelf One");
-    await page.fill("#structureCountInput", "3");
+    // ---- one node type, added the same way at every depth ---------------------------
+    //
+    // The old screen had a "how many children" number per level, which could only ever
+    // grow or trim from the end -- so there was no way to add one named thing, and no
+    // way to delete anything but the last. + adds exactly one, wherever you are.
+    async function addUnder(title){
+      await noDialog();
+      await clickRowButton(title, "+");
+      await dialogOpen();
+    }
+
+    await addUnder("Shelf 1");
+    await page.waitForSelector("#dlgBody input");
+    await page.fill("#dlgBody input", "Rack 3");
     await page.click("#dlgFoot button.primary");
     await page.waitForFunction(() => !!document.querySelector('.treeBody[data-title="Rack 3"]'));
-    check("one dialog renames a folder and grows its children in the same save",
-      lastStorageCommit && lastStorageCommit.units[0].racks[0].name === "Shelf One" &&
-      lastStorageCommit.units[0].racks[0].racks.length === 3,
-      JSON.stringify(lastStorageCommit && lastStorageCommit.units[0].racks[0]));
+    const shelfOf = (st) => st && st.children.find((u) => u.id === "u-deep").children[0];
+    check("+ on a layer adds exactly one child, by name, at that depth",
+      shelfOf(lastStorageCommit) &&
+      shelfOf(lastStorageCommit).children.map((r) => r.name).join(",") === "Rack 1,Rack 2,Rack 3",
+      JSON.stringify(shelfOf(lastStorageCommit)));
     // Renaming a level that no workbook mentions writes the tree and nothing else --
-    // the sheets name the unit, the leaf rack and the box, never the shelf between them.
-    check("a rename no workbook mentions does not drag anybody's .xlsx into the commit",
+    // the sheets name the path down to a box, and this one holds none.
+    check("adding a layer no workbook mentions does not drag anybody's .xlsx into the commit",
       lastCommitPaths.length === 1 && lastCommitPaths[0] === "cellstocks/lab-storage.json",
       JSON.stringify(lastCommitPaths));
 
-    // A workbook spells its locations out by name -- unit, rack, box -- and carries a
-    // whole `storage` sheet besides, so renaming a freezer makes every member's .xlsx
-    // wrong while not one vial has moved. It has to be regenerated in the SAME commit,
-    // or the repo is left inconsistent: exactly what CI caught the first time Umut
-    // renamed a freezer from his phone.
+    // There is no depth limit, and nothing in the screen assumes one.
+    await addUnder("Rack 3");
+    await page.waitForSelector("#dlgBody input");
+    await page.fill("#dlgBody input", "Drawer A");
+    await page.click("#dlgFoot button.primary");
+    await page.waitForFunction(() => !!document.querySelector('.treeBody[data-title="Drawer A"]'));
+    check("a fifth level goes in as easily as the second -- the depth is not capped",
+      shelfOf(lastStorageCommit).children[2].children[0].name === "Drawer A",
+      JSON.stringify(shelfOf(lastStorageCommit).children[2]));
+
+    // A box is a layer that stopped: tick the box, and it takes an owner and a grid.
+    await addUnder("Rack 2");
+    await page.waitForSelector("#dlgBody input");
+    await page.fill("#dlgBody input", "Box D2");
+    await page.click("#dlgBody input[type=checkbox]");
+    await page.waitForSelector("#dlgBody select");
+    // A box with nobody's name on it is refused rather than saved as nobody's -- it
+    // would then show on no member's Boxes screen at all.
+    await page.click("#dlgFoot button.primary");
+    await page.waitForFunction(() => /belong to somebody/.test(document.querySelector("#dlgBody .note").textContent));
+    check("a box with no owner is refused, and says why", true);
+    await page.selectOption("#dlgBody select", "umut");
+    await page.click("#dlgFoot button.primary");
+    await page.waitForFunction(() => !!document.querySelector('.treeBody[data-title="Box D2"]'));
+    const newBox = shelfOf(lastStorageCommit).children[1].children[0];
+    check("ticking 'this is a box' gives it a grid and an owner, and stops the tree there",
+      newBox && newBox.isBox === true && !!newBox.owner && newBox.rows >= 1 && newBox.cols >= 1 &&
+      newBox.children === undefined, JSON.stringify(newBox));
+    const boxAddButton = await page.evaluate(() => {
+      const body = document.querySelector('.treeBody[data-title="Box D2"]');
+      return [...body.parentElement.querySelectorAll(".structRowEdit")].map((b) => b.textContent);
+    });
+    check("a box has no + at all -- nothing goes inside one",
+      !boxAddButton.includes("+"), JSON.stringify(boxAddButton));
+
+    // A workbook spells its locations out by name and carries a whole `storage` sheet
+    // besides, so renaming a freezer makes every member's .xlsx wrong while not one vial
+    // has moved. It has to be regenerated in the SAME commit, or the repo is left
+    // inconsistent: exactly what CI caught the first time Umut renamed a freezer.
     await editRow("Deep Freezer");
     await page.waitForSelector("#dlgBody input");
     await page.fill("#dlgBody input", "Deep -80");
@@ -999,104 +1078,114 @@ try {
       lastCommitPaths.includes("cellstocks/data/umut.xlsx"),
       JSON.stringify(lastCommitPaths));
 
-    // Shrinking to nothing would strand Box D1's vial -- and that vial is in umut's
-    // file, not admin's, so the refusal has to have read the whole lab to see it.
-    await editRow("Shelf One");
-    await page.waitForSelector("#structureCountInput");
-    await page.fill("#structureCountInput", "0");
-    await page.click("#dlgFoot button.primary");
-    await page.waitForFunction(() => /Box D1/.test(document.querySelector("#dlgBody .note")?.textContent || ""));
-    const refusal = await page.evaluate(() => document.querySelector("#dlgBody .note").textContent);
-    check("a shrink that would strand a box is refused, naming the box and its new-location duty",
-      /Box D1/.test(refusal) && /location/.test(refusal), refusal);
-    await page.click("#dlgFoot button:not(.primary), #dlg button.ghost").catch(() => {});
-    await page.evaluate(() => document.getElementById("dlg").close());
-
     // Drag Box D1 out of Deep Freezer entirely and into the LN2 tank -- impossible
     // before, when only siblings were on screen. Playwright's mouse API doesn't emit
     // native HTML5 drag events, so the row's own handlers are invoked directly with a
     // stand-in DataTransfer, which is what a real drag does.
     const isDesktop = await page.evaluate(() => !("ontouchstart" in window));
     check("the structure tree runs in a desktop (non-touch) context for this test", isDesktop);
-    const dragResult = await page.evaluate(() => {
-      const boxRow = document.querySelector('.treeBody[data-title="Box D1"]')?.closest(".treeRow");
-      const targetRow = document.querySelector('.treeBody[data-title="Tower 1"]')?.closest(".treeRow");
-      if (!boxRow) return { ok: false, reason: "Box D1 row not found" };
-      if (!targetRow) return { ok: false, reason: "Tower 1 drop target not found" };
-      if (!boxRow.ondragstart) return { ok: false, reason: "Box D1 row isn't draggable" };
-      if (!targetRow.ondrop) return { ok: false, reason: "Tower 1 has no drop handler" };
+    const drag = (fromTitle, toTitle) => page.evaluate(([f, t]) => {
+      const fromRow = document.querySelector(`.treeBody[data-title="${f}"]`)?.closest(".treeRow");
+      const toRow = document.querySelector(`.treeBody[data-title="${t}"]`)?.closest(".treeRow");
+      if (!fromRow) return { ok: false, reason: `${f} row not found` };
+      if (!toRow) return { ok: false, reason: `${t} drop target not found` };
+      if (!fromRow.ondragstart) return { ok: false, reason: `${f} isn't draggable` };
+      if (!toRow.ondrop) return { ok: false, reason: `${t} has no drop handler` };
       const store = {};
       const dataTransfer = { setData: (k, v) => { store[k] = v; }, getData: (k) => store[k] };
-      boxRow.ondragstart({ dataTransfer });
-      targetRow.ondrop({ dataTransfer, preventDefault: () => {} });
-      return { ok: true };
-    });
+      fromRow.ondragstart({ dataTransfer });
+      toRow.ondrop({ dataTransfer, preventDefault: () => {} });
+      return { ok: true, payload: store["text/plain"] };
+    }, [fromTitle, toTitle]);
+
+    // A drag is fire-and-forget in the page: the commit and the redraw happen after the
+    // handler returns. Sleeping a fixed 500ms for that is what made this block fail one
+    // run in three -- the commit landed late and closed the dialog the next step had
+    // just opened. Wait for the committed tree to actually say what the drag asked for.
+    const until = async (fn) => {
+      for (let i = 0; i < 200; i++) { if (fn()) return true; await page.waitForTimeout(50); }
+      return false;
+    };
+
+    const dragResult = await drag("Box D1", "Tower 1");
     check("the drag simulation found both rows and their handlers", dragResult.ok, JSON.stringify(dragResult));
-    await page.waitForFunction(
-      () => !!document.querySelector('.treeBody[data-title="Tower 1"]'), { timeout: 5000 }).catch(() => {});
-    await page.waitForTimeout(400);
+    // One kind of node means one payload: an id, with no kind prefix to keep in step.
+    check("the drag payload is just the node's id", dragResult.payload === "b-d1", JSON.stringify(dragResult.payload));
+    const towerOf = (st) => st && st.children.find((u) => u.id === "u-ln2").children[0];
+    await until(() => towerOf(lastStorageCommit) && towerOf(lastStorageCommit).children.some((b) => b.id === "b-d1"));
     check("a box drags into a different freezer, not just a sibling rack",
-      lastStorageCommit && lastStorageCommit.units[1].racks[0].boxes.some((b) => b.id === "b-d1"),
-      JSON.stringify(lastStorageCommit && lastStorageCommit.units.map((u) => u.name)));
-    check("the box's vial follows it in its owner's own file",
-      lastMemberCommit && lastMemberCommit.vials[0].location.unitId === "u-ln2" &&
-      lastMemberCommit.vials[0].location.rackId === "tower-1",
-      JSON.stringify(lastMemberCommit && lastMemberCommit.vials));
+      towerOf(lastStorageCommit) && towerOf(lastStorageCommit).children.some((b) => b.id === "b-d1"),
+      JSON.stringify(lastStorageCommit && lastStorageCommit.children.map((u) => u.name)));
+    // Umut chose to store the whole path on the vial rather than just the box id, so a
+    // move has to rewrite it -- in the owner's own file, not admin's.
+    check("the vial's stored path is rewritten to the route it actually has now",
+      lastMemberCommit &&
+      JSON.stringify((lastMemberCommit.vials[0].location.path || []).map((p) => p.name)) ===
+        JSON.stringify(["LN2 Tank", "Tower 1"]),
+      JSON.stringify(lastMemberCommit && lastMemberCommit.vials[0].location));
     check("moving a box never writes the structure into a member's file",
       lastMemberCommit && !lastMemberCommit.storage,
       JSON.stringify(lastMemberCommit && Object.keys(lastMemberCommit)));
 
     // ---- dragging a whole shelf ---------------------------------------------------
     //
-    // Boxes have always been draggable; a shelf or a tower had to be rebuilt by hand at
-    // the destination. It carries everything underneath it, so the vials in those boxes
-    // get their unit refreshed in their owner's own file.
-    const rackDrag = await page.evaluate(() => {
-      const shelfRow = document.querySelector('.treeBody[data-title="Shelf One"]')?.closest(".treeRow");
-      const targetRow = document.querySelector('.treeBody[data-title="LN2 Tank"]')?.closest(".treeRow");
-      if (!shelfRow) return { ok: false, reason: "Shelf One row not found" };
-      if (!targetRow) return { ok: false, reason: "LN2 Tank drop target not found" };
-      if (!shelfRow.draggable) return { ok: false, reason: "a rack row is not draggable" };
-      if (!targetRow.ondrop) return { ok: false, reason: "a freezer row has no drop handler" };
-      const store = {};
-      const dataTransfer = { setData: (k, v) => { store[k] = v; }, getData: (k) => store[k] };
-      shelfRow.ondragstart({ dataTransfer });
-      targetRow.ondrop({ dataTransfer, preventDefault: () => {} });
-      return { ok: true, payload: store["text/plain"] };
-    });
-    check("a rack row is draggable and a freezer row accepts it", rackDrag.ok, JSON.stringify(rackDrag));
-    check("the drag payload says what kind of thing is moving",
-      rackDrag.payload === "rack:shelf-1", JSON.stringify(rackDrag.payload));
-    await page.waitForTimeout(500);
+    // A shelf is a node like any other, so it moves the same way and carries everything
+    // underneath it. Nothing here knows the word "rack".
+    const rackDrag = await drag("Shelf 1", "LN2 Tank");
+    check("a layer row is draggable and another layer accepts it", rackDrag.ok, JSON.stringify(rackDrag));
+    await until(() => lastStorageCommit &&
+      lastStorageCommit.children.find((u) => u.id === "u-ln2").children.some((r) => r.id === "shelf-1"));
     check("a whole shelf moves into another freezer, bringing its racks and boxes",
-      lastStorageCommit && lastStorageCommit.units[1].racks.some((r) => r.id === "shelf-1") &&
-      lastStorageCommit.units[0].racks.length === 0,
-      JSON.stringify(lastStorageCommit && lastStorageCommit.units.map((u) => ({ name: u.name, racks: (u.racks || []).map((r) => r.id) }))));
-    check("the vial under the moved shelf has its unit refreshed, its own rack untouched",
-      lastMemberCommit && lastMemberCommit.vials[0].location.unitId === "u-ln2" &&
-      lastMemberCommit.vials[0].location.rackId === "tower-1",
-      JSON.stringify(lastMemberCommit && lastMemberCommit.vials));
+      lastStorageCommit &&
+      lastStorageCommit.children.find((u) => u.id === "u-ln2").children.some((r) => r.id === "shelf-1") &&
+      lastStorageCommit.children.find((u) => u.id === "u-deep").children.length === 0,
+      JSON.stringify(lastStorageCommit && lastStorageCommit.children.map(
+        (u) => ({ name: u.name, children: (u.children || []).map((r) => r.id) }))));
+
+    // A layer cannot be dropped inside itself or anything under it -- that would cut the
+    // subtree off the tree entirely, taking every vial in it out of the world.
+    const intoOwnChild = await drag("Shelf 1", "Rack 1");
+    check("dragging a layer into its own descendant is refused, not silently applied",
+      intoOwnChild.ok, JSON.stringify(intoOwnChild));
+    await page.waitForTimeout(300);
+    check("and the tree still has the shelf where it was",
+      lastStorageCommit &&
+      lastStorageCommit.children.find((u) => u.id === "u-ln2").children.some((r) => r.id === "shelf-1"),
+      JSON.stringify(lastStorageCommit && lastStorageCommit.children.map((u) => u.name)));
+
+    // A box can be pulled back out of the freezer without being deleted: it lands in
+    // the same holding pen a member's new box starts in.
+    await drag("Box D1", "Not placed yet");
+    await until(() => lastStorageCommit && (lastStorageCommit.unplaced || []).some((b) => b.id === "b-d1"));
+    check("a box dragged onto 'Not placed yet' leaves the tree without being deleted",
+      lastStorageCommit && (lastStorageCommit.unplaced || []).some((b) => b.id === "b-d1") &&
+      !JSON.stringify(lastStorageCommit.children).includes("b-d1"),
+      JSON.stringify(lastStorageCommit && lastStorageCommit.unplaced));
+    check("its vial's path says so rather than naming a shelf it is not on",
+      lastMemberCommit && (lastMemberCommit.vials[0].location.path || []).length === 0,
+      JSON.stringify(lastMemberCommit && lastMemberCommit.vials[0].location));
+    // Put it back for the delete checks below.
+    await drag("Box D1", "Tower 1");
+    await until(() => lastStorageCommit && !(lastStorageCommit.unplaced || []).some((b) => b.id === "b-d1"));
+
     // ---- deleting one named thing -------------------------------------------------
     //
     // The count fields could only ever trim from the END of a list, so there was no way
     // to delete the middle shelf or one particular box. Delete lives in the row's own
     // edit dialog, not on the row: the row is what you tap to open a folder.
-    await editRow("Rack 3");                       // empty, added by the grow step above
+    await editRow("Drawer A");
     await page.waitForSelector("#dlgFoot button.danger");
     page.once("dialog", (d) => d.accept());
     await page.click("#dlgFoot button.danger");
-    await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Rack 3"]'));
-    // Shelf One has been dragged into the LN2 tank by now, so find it in the tree rather
-    // than assuming which freezer it hangs under.
+    await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Drawer A"]'));
     const shelfOne = (st) => {
       let hit = null;
-      (function walk(racks){ (racks || []).forEach((r) => { if (r.id === "shelf-1") hit = r; walk(r.racks); }); })
-        ((st.units || []).reduce((acc, u) => acc.concat(u.racks || []), []));
+      (function walk(list){ (list || []).forEach((n) => { if (n.id === "shelf-1") hit = n; walk(n.children); }); })(st.children);
       return hit;
     };
-    check("an empty rack can be deleted by name, leaving its siblings alone",
+    check("an empty layer can be deleted by name, leaving its siblings alone",
       lastStorageCommit && shelfOne(lastStorageCommit) &&
-      shelfOne(lastStorageCommit).racks.map((r) => r.name).join(",") === "Rack 1,Rack 2",
+      shelfOne(lastStorageCommit).children.map((r) => r.name).join(",") === "Rack 1,Rack 2,Rack 3",
       JSON.stringify(lastStorageCommit && shelfOne(lastStorageCommit)));
 
     // Box D1 still holds umut's vial, and that vial is in umut's file, not admin's. Admin
@@ -1112,7 +1201,7 @@ try {
       /1 vial/.test(confirmText) && /umut/.test(confirmText) && /logged/.test(confirmText), confirmText);
     check("a box that still holds a vial can be deleted by admin, with no Handoff",
       lastStorageCommit && !JSON.stringify(lastStorageCommit).includes("b-d1"),
-      JSON.stringify(lastStorageCommit && lastStorageCommit.units));
+      JSON.stringify(lastStorageCommit && lastStorageCommit.children));
     // The oldest rule in this app: nothing deletes a vial. It leaves the active
     // inventory as a withdrawal, with a snapshot of where it was.
     const gone = lastMemberCommit && (lastMemberCommit.vials || []).filter((v) => v.id === "v-d1")[0];
@@ -1130,9 +1219,10 @@ try {
     await page.waitForSelector("#dlgFoot button.danger");
     await page.click("#dlgFoot button.danger");
     await page.waitForFunction(() => !document.querySelector('.treeBody[data-title="Tower 1"]'));
-    check("a rack goes too, taking its (now empty) boxes with it",
-      lastStorageCommit && !(lastStorageCommit.units[1].racks || []).some((r) => r.id === "tower-1"),
-      JSON.stringify(lastStorageCommit && lastStorageCommit.units[1]));
+    check("a layer goes too, taking its (now empty) boxes with it",
+      lastStorageCommit &&
+      !(lastStorageCommit.children.find((u) => u.id === "u-ln2").children || []).some((r) => r.id === "tower-1"),
+      JSON.stringify(lastStorageCommit && lastStorageCommit.children.find((u) => u.id === "u-ln2")));
 
     // ---- an empty tree is an answer, not a missing one -----------------------------
     //
@@ -1140,8 +1230,8 @@ try {
     // as "not loaded yet" and re-read the file -- and raw.githubusercontent serves the
     // previous version for a while after a commit, so the deleted freezers reappeared and
     // the next delete wrote one of them back. Five rounds of that are in the real
-    // lab-storage.json's history. Here the raw route is frozen at the original two-freezer
-    // tree from this point on, which is exactly that stale copy.
+    // lab-storage.json's history. Here the raw route is frozen at the tree as it stands
+    // now, which is exactly that stale copy.
     staleTree = JSON.parse(JSON.stringify(labStorage));
     for (const unit of ["Deep -80", "LN2 Tank"]) {
       page.once("dialog", (d) => d.accept());
@@ -1153,10 +1243,11 @@ try {
     await page.waitForTimeout(600);
     const leftOnScreen = await titles();
     check("deleting the last freezer leaves the tree empty instead of reviving the others",
-      leftOnScreen.length === 1 && leftOnScreen[0] === "CAA LAB", JSON.stringify(leftOnScreen));
+      !leftOnScreen.includes("Deep -80") && !leftOnScreen.includes("LN2 Tank") &&
+      leftOnScreen.includes("CAA LAB"), JSON.stringify(leftOnScreen));
     check("and the emptied tree is what was committed",
-      lastStorageCommit && (lastStorageCommit.units || []).length === 0,
-      JSON.stringify(lastStorageCommit && lastStorageCommit.units));
+      lastStorageCommit && (lastStorageCommit.children || []).length === 0,
+      JSON.stringify(lastStorageCommit && lastStorageCommit.children));
 
   } catch (err) {
     check("Admin's Structure screen is one folder tree for the whole lab", false, String(err));
@@ -1271,16 +1362,26 @@ try {
       units: [{ id: "u-1", name: "Freezer", type: "freezer", childLabel: "Rack",
                 racks: [{ id: "r-1", name: "Rack 1", boxes: [{ id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", archived: false, owner: "umut" }] }] }]
     };
+    // The rules are the whole lab's now, in their own file -- a member's own file has
+    // carried none since they were merged.
+    const labRules = { origin: [{ match: "HEK", value: "HEK293T" }], koox: [], resistance: [], caspex: [], guide: [] };
     const umutState = {
       lines: [], withdrawals: [], settings: {},
-      rules: { origin: [{ match: "HEK", value: "HEK293T" }], koox: [], resistance: [], caspex: [], guide: [] },
-      vials: [{ id: "v-1", name: "HEK ATP7B KO g3", location: { unitId: "u-1", rackId: "r-1", boxId: "b-1", position: "A1" }, status: "stored" }]
+      vials: [{ id: "v-1", name: "HEK ATP7B KO g3", location: { boxId: "b-1", position: "A1" }, status: "stored" }]
     };
     let renameCall = null;
+    let lastCommit = null;
     await page.route("https://raw.githubusercontent.com/**", (route) => {
-      if (route.request().url().includes("cellstocks/lab-storage.json")) {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
         return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
       }
+      if (url.includes("cellstocks/lab-rules.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labRules) });
+      }
+      // Admin has no inventory of its own; the vial being counted is umut's, which is
+      // the whole point of the lab-wide impact number below.
+      if (url.includes("cellstocks/data/admin.json")) return route.fulfill({ status: 404, body: "" });
       return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) });
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
@@ -1300,6 +1401,10 @@ try {
         renameCall = { path, body: JSON.parse(req.postData() || "{}") };
         return route.fulfill({ status: 200, contentType: "application/json",
           body: JSON.stringify({ user: { name: "ayse", role: "member", hidden: false } }) });
+      }
+      if (path === "/commit" && req.method() === "POST") {
+        lastCommit = JSON.parse(req.postData());
+        return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
       }
       return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
     });
@@ -1372,11 +1477,36 @@ try {
     await page.waitForSelector("dialog[open]");
     const deleteBody = await page.evaluate(() => document.getElementById("dlgBody").textContent);
     check("deleting a rule says what it would do to the real inventory first",
-      /This changes 1 of 1 vials/.test(deleteBody), deleteBody);
+      /This changes 1 of/.test(deleteBody), deleteBody);
     await page.click("#dlgFoot button");
     await page.waitForFunction(() => !document.querySelector("dialog[open]"));
     const rulesAfter = await page.evaluate(() => document.getElementById("rulesCard").textContent);
     check("and the rule is actually gone afterwards", !/HEK → HEK293T/.test(rulesAfter), rulesAfter);
+
+    // Where it went is the point of the change Umut asked for: one shared file, never a
+    // private copy in whoever happened to be logged in.
+    const rulePaths = (lastCommit && lastCommit.files.map((f) => f.path)) || [];
+    check("a rule edit is committed to the lab's shared rules file",
+      rulePaths.includes("cellstocks/lab-rules.json"), JSON.stringify(rulePaths));
+    // A member's file may still be rewritten by the same commit -- a vial stores the
+    // route to its box -- but it must never carry a second copy of the rules again.
+    const memberFile = lastCommit && lastCommit.files.find((f) => f.path === "cellstocks/data/umut.json");
+    check("and never back into a member's own file as a second copy",
+      !memberFile || JSON.parse(memberFile.content).rules === undefined,
+      memberFile && JSON.stringify(Object.keys(JSON.parse(memberFile.content))));
+    const committedRules = lastCommit &&
+      JSON.parse(lastCommit.files.find((f) => f.path === "cellstocks/lab-rules.json").content);
+    check("the committed file is the whole rule set, with the deleted rule gone from it",
+      committedRules && Array.isArray(committedRules.origin) &&
+      !committedRules.origin.some((r) => r.match === "HEK"), JSON.stringify(committedRules && committedRules.origin));
+    // The vials sheet spells every facet out, so re-reading a name rewrites the workbook
+    // -- and it has to travel in the same commit, exactly as a rename of a freezer does.
+    check("the member's workbook is regenerated in that same commit",
+      rulePaths.includes("cellstocks/data/umut.xlsx"), JSON.stringify(rulePaths));
+
+    // The rules are shared, so "how many vials does this change?" is the lab's number.
+    check("the impact preview counts the lab's vials, not just your own",
+      /the lab's 1 vials/.test(deleteBody), deleteBody);
   } catch (err) {
     check("admin can rename a user, and rules can be edited and deleted", false, String(err));
   } finally {

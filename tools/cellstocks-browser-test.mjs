@@ -842,6 +842,179 @@ try {
   }
 }
 
+// ---- Admin's Structure screen: drill-down, rename, count fields, sibling drag ----
+//
+// Separate from the everyday Boxes tab's dropdown breadcrumb (tested above) --
+// admin-only, one level of a member's storage tree on screen at a time, a "How
+// many?" field that grows/shrinks children in bulk, and drag-and-drop between
+// sibling racks (see engine.js's setSubdivisionCount/setBoxCount/moveBoxToSibling).
+{
+  const server5 = await serve(8802);
+  const browser5 = await chromium.launch();
+  try {
+    const context = await browser5.newContext();
+    await context.addInitScript(() => {
+      localStorage.setItem("cst_cfg", JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" }));
+    });
+    const page = await context.newPage();
+
+    const boxD1 = { id: "b-d1", name: "Box D1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+    let umutState = {
+      storage: { units: [
+        { id: "u-deep", name: "Deep Freezer", type: "-80", childLabel: "Rack",
+          racks: [
+            { id: "shelf-1", name: "Shelf 1", racks: [
+              { id: "rack-1", name: "Rack 1", boxes: [boxD1] },
+              { id: "rack-2", name: "Rack 2", boxes: [] }
+            ] }
+          ] }
+      ] },
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-d1", name: "Deep Line 1", location: { unitId: "u-deep", rackId: "rack-1", boxId: "b-d1", position: "A1" }, status: "stored" }]
+    };
+    let lastCommit = null;
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) }));
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
+      }
+      if (path === "/messages") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ messages: {} }) });
+      if (path === "/admin/users" && req.method() === "GET") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ users: [{ name: "umut", role: "member", hidden: false }] }) });
+      }
+      if (path === "/commit" && req.method() === "POST") {
+        const body = JSON.parse(req.postData());
+        const jsonFile = body.files.find((f) => f.path.endsWith(".json"));
+        lastCommit = JSON.parse(jsonFile.content);
+        umutState = lastCommit; // the next raw.githubusercontent fetch (adminFetchState) sees the new state
+        return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto(`http://localhost:8802/cellstocks/`);
+    await page.waitForSelector("#gateBody input");
+    const li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("admin");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+
+    await page.click("nav button[data-screen=admin]");
+    await page.click("#adminTabs button[data-admintab=structure]");
+    await page.waitForSelector("#structureUser");
+    await page.selectOption("#structureUser", "umut");
+
+    // Clicks the row whose title matches exactly, via the stable data-title hook
+    // structureRow() sets -- avoids any ambiguity with Playwright's text engine
+    // over partial/nested text matches.
+    function clickRow(title){
+      return page.click(`#admin-structure .structRowBody[data-title="${title}"]`);
+    }
+    function editRow(title){
+      return page.evaluate((t) => {
+        const body = document.querySelector(`#admin-structure .structRowBody[data-title="${t}"]`);
+        const btn = body && body.parentElement.querySelector(".structRowEdit");
+        if (btn) btn.click();
+      }, title);
+    }
+
+    await page.waitForFunction(() => /Deep Freezer/.test(document.getElementById("admin-structure").textContent));
+    check("the units level shows the member's freezer", true);
+
+    // Drill Deep Freezer -> Shelf 1 -> its two racks.
+    await clickRow("Deep Freezer");
+    await page.waitForFunction(() => /Shelf 1/.test(document.getElementById("admin-structure").textContent));
+    await clickRow("Shelf 1");
+    await page.waitForFunction(() => document.querySelector('[data-title="Rack 1"]') && document.querySelector('[data-title="Rack 2"]'));
+    check("drilling in two levels reaches Shelf 1's two racks", true);
+
+    // Grow the rack count from 2 to 3 -- a third, auto-named rack should appear.
+    // (Every level of this unit shares its one childLabel, "Rack" -- so both the
+    // top-level racks and this nested level auto-name new children the same way.)
+    await page.fill("#structureCountInput", "3");
+    await page.click("#structureCountSet");
+    await page.waitForFunction(() => !!document.querySelector('[data-title="Rack 3"]'));
+    check("setting the count to 3 grows a third, auto-named rack", true);
+    check("the growth was actually committed to the member's file",
+      lastCommit && lastCommit.storage.units[0].racks[0].racks.length === 3,
+      JSON.stringify(lastCommit && lastCommit.storage.units[0].racks[0].racks));
+
+    // Renaming rack-1 through its Edit button.
+    await editRow("Rack 1");
+    await page.waitForSelector("#dlgBody input");
+    await page.fill("#dlgBody input", "Rack One");
+    await page.click("#dlgFoot button.primary");
+    await page.waitForFunction(() => !!document.querySelector('[data-title="Rack One"]'));
+    check("renaming through the Edit dialog is committed and reflected immediately", true);
+
+    // Shrinking the count to 0 must be refused -- Rack One (renamed rack-1, first
+    // in the list) still holds Box D1's vial -- and the refusal must name the box.
+    await page.fill("#structureCountInput", "0");
+    await page.click("#structureCountSet");
+    await page.waitForFunction(() => /Box D1/.test(document.querySelector(".banner")?.textContent || ""));
+    const banner = await page.evaluate(() => document.querySelector(".banner").textContent);
+    check("a shrink that would strand a box is refused, naming the box", /Box D1/.test(banner), banner);
+    check("the refused shrink did not actually change the committed state",
+      lastCommit && lastCommit.storage.units[0].racks[0].racks.length === 3,
+      JSON.stringify(lastCommit && lastCommit.storage.units[0].racks[0].racks.length));
+
+    // Drag Box D1 from Rack One onto its sibling Rack 2. Playwright's mouse API
+    // doesn't emit native HTML5 drag events on its own, so this invokes the row's
+    // own ondragstart/ondrop handlers directly with a stand-in DataTransfer --
+    // exactly what a real drag does, without fighting the browser's drag internals.
+    await clickRow("Rack One");
+    await page.waitForFunction(() => !!document.querySelector('[data-title="Box D1"]'));
+    const isDesktop = await page.evaluate(() => !("ontouchstart" in window));
+    check("the box-list level runs in a desktop (non-touch) context for this test", isDesktop);
+
+    const dragResult = await page.evaluate(() => {
+      const boxBody = document.querySelector('[data-title="Box D1"]');
+      const sibBody = document.querySelector('[data-title="Rack 2"]');
+      const boxRow = boxBody && boxBody.closest(".item");
+      const sibRow = sibBody && sibBody.closest(".item");
+      if (!boxRow) return { ok: false, reason: "Box D1 row not found" };
+      if (!sibRow) return { ok: false, reason: "Rack 2 sibling drop target not found" };
+      if (!boxRow.ondragstart) return { ok: false, reason: "Box D1 row isn't draggable" };
+      if (!sibRow.ondrop) return { ok: false, reason: "Rack 2 chip has no drop handler" };
+      const store = {};
+      const dataTransfer = { setData: (k, v) => { store[k] = v; }, getData: (k) => store[k] };
+      boxRow.ondragstart({ dataTransfer });
+      sibRow.ondrop({ dataTransfer, preventDefault: () => {} });
+      return { ok: true };
+    });
+    check("the drag simulation found both rows and their handlers", dragResult.ok, JSON.stringify(dragResult));
+    await page.waitForFunction(
+      () => !document.querySelector('[data-title="Box D1"]'),
+      { timeout: 5000 }
+    ).catch(() => {});
+    check("dragging Box D1 onto Rack 2 moved it there",
+      lastCommit && lastCommit.storage.units[0].racks[0].racks[1].boxes.some((b) => b.id === "b-d1"),
+      JSON.stringify(lastCommit && lastCommit.storage.units[0].racks[0].racks.map((r) => ({ id: r.id, boxes: (r.boxes || []).map((b) => b.id) }))));
+    check("the moved vial's rackId was updated to the new parent",
+      lastCommit && lastCommit.vials.find((v) => v.id === "v-d1").location.rackId === "rack-2",
+      JSON.stringify(lastCommit && lastCommit.vials));
+  } catch (err) {
+    check("Admin's Structure screen supports drill-down, rename, counts and sibling drag", false, String(err));
+  } finally {
+    await browser5.close();
+    server5.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

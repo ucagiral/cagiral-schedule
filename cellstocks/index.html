@@ -372,6 +372,7 @@
     <h2>Admin</h2>
     <div class="seg" id="adminTabs">
       <button data-admintab="manage" class="on">Manage a box</button>
+      <button data-admintab="structure">Structure</button>
       <button data-admintab="users">Users</button>
       <button data-admintab="requests">Requests</button>
       <button data-admintab="messages">Messages</button>
@@ -380,6 +381,7 @@
       <button data-admintab="handoff">Handoff</button>
     </div>
     <div id="admin-manage" class="card"></div>
+    <div id="admin-structure" class="card" hidden></div>
     <div id="admin-users" class="card" hidden></div>
     <div id="admin-requests" class="card" hidden></div>
     <div id="admin-messages" class="card" hidden></div>
@@ -3400,10 +3402,11 @@
     Array.prototype.forEach.call(document.querySelectorAll("#adminTabs button"), function(b){
       b.classList.toggle("on", b.getAttribute("data-admintab") === adminTab);
     });
-    ["manage", "users", "requests", "messages", "types", "history", "handoff"].forEach(function(t){
+    ["manage", "structure", "users", "requests", "messages", "types", "history", "handoff"].forEach(function(t){
       $("admin-" + t).hidden = t !== adminTab;
     });
     if (adminTab === "manage") renderAdminManage();
+    else if (adminTab === "structure") renderAdminStructure();
     else if (adminTab === "users") renderAdminUsers();
     else if (adminTab === "requests") renderAdminRequests();
     else if (adminTab === "messages") renderAdminMessages();
@@ -3462,8 +3465,6 @@
       var uf = el("div", "field"); uf.appendChild(el("label", null, "Unit")); uf.appendChild(unitSel);
       c.appendChild(uf);
 
-      renderAdminSubdivisions(c, s, E.findUnit(s, manageView.unitId));
-
       var boxSel = document.createElement("select");
       var first = null;
       E.eachBox(s, function(box, rack, unit){
@@ -3491,121 +3492,315 @@
     c.appendChild(addBox);
   }
 
-  // The shelves/racks/towers between a unit and its boxes -- a simple tree, as deep
-  // as the real freezer actually is (Umut's -80 is unit -> rack -> box; a freezer ->
-  // shelf -> rack -> box is the same shape one level deeper). Structural changes here
-  // are admin-only -- everyday box-adding (any user, or admin for a member, above)
-  // stays at whatever leaf level already exists.
-  function renderAdminSubdivisions(c, s, unit){
-    if (!unit) return;
-    var box = el("div", "card");
-    box.appendChild(el("h4", null, "Subdivisions of " + unit.name));
-    box.appendChild(el("p", "note",
-      "The levels between the freezer and its boxes. A level that already holds boxes " +
-      "directly can't also hold a nested subdivision -- move or remove those boxes first."));
+  // ---- Structure: a member's storage tree, one level at a time. ----
+  //
+  // Admin-only, separate from the everyday Boxes tab (which keeps its dropdown
+  // breadcrumb exactly as it was). Tapping/clicking a row's body drills into it;
+  // a separate Edit button renames it (plus type/note, freezer level only). A
+  // "How many?" field at the top of every level grows or shrinks that level's
+  // children in bulk, auto-naming new ones -- see engine.js's setUnitCount/
+  // setSubdivisionCount/setBoxCount, all of which refuse a shrink outright (naming
+  // every box that would be stranded) rather than ever discarding one silently.
+  // `path` is every id drilled into so far, root to current: [] is the member's own
+  // list of freezers/tanks, [unitId] is that unit's own top-level racks, and every
+  // id after that is a rack (or, at the very end, a box) one level deeper.
+  var structureView = { user:null, state:null, path:[] };
 
-    function nodeRow(rack, depth){
-      var row = el("div", "item");
-      var grow = el("div", "grow");
-      grow.appendChild(el("div", null, "　".repeat(depth) + rack.name));
-      var boxCount = (rack.boxes || []).length;
-      var childCount = (rack.racks || []).length;
-      grow.appendChild(el("div", "sub", boxCount ? (boxCount + " box" + (boxCount === 1 ? "" : "es"))
-        : childCount ? (childCount + " subdivision" + (childCount === 1 ? "" : "s"))
-        : "empty"));
-      row.appendChild(grow);
-      var ren = el("button", null, "Rename");
-      ren.onclick = function(){ adminRenameSubdivisionDialog(unit, rack); };
-      row.appendChild(ren);
-      var rm = el("button", "danger", "Remove");
-      rm.onclick = function(){ adminRemoveSubdivision(unit, rack); };
-      row.appendChild(rm);
-      box.appendChild(row);
-      (rack.racks || []).forEach(function(child){ nodeRow(child, depth + 1); });
+  // Desktop-only, per Umut's own answer -- dragging a box onto a sibling rack
+  // (see moveBoxToSibling) is a mouse gesture, not something offered on a phone.
+  function isDesktopPointer(){ return !("ontouchstart" in window); }
+
+  async function renderAdminStructure(){
+    var c = clear($("admin-structure"));
+    var users = await adminUsers().catch(function(err){ c.appendChild(el("p", "note", err.message)); return []; });
+    var visible = users.filter(function(u){ return !u.hidden; });
+
+    var userSel = document.createElement("select");
+    userSel.id = "structureUser";
+    userSel.appendChild(el("option", null, "Choose a member…"));
+    visible.forEach(function(u){
+      var o = document.createElement("option"); o.value = u.name; o.textContent = u.name;
+      if (u.name === structureView.user) o.selected = true;
+      userSel.appendChild(o);
+    });
+    userSel.onchange = function(){
+      structureView.user = userSel.value || null;
+      structureView.state = null; structureView.path = [];
+      renderAdminStructure();
+    };
+    var f = el("div", "field"); f.appendChild(el("label", null, "Member")); f.appendChild(userSel);
+    c.appendChild(f);
+
+    if (!structureView.user) return;
+    if (!structureView.state){
+      c.appendChild(el("p", "note", "Loading " + structureView.user + "'s storage…"));
+      structureView.state = await adminFetchState(structureView.user);
+      renderAdminStructure();
+      return;
     }
-    (unit.racks || []).forEach(function(rack){ nodeRow(rack, 0); });
-    if (!(unit.racks || []).length) box.appendChild(el("p", "note", "No subdivisions yet."));
 
-    var add = el("button", "primary", "Add a subdivision");
-    add.style.marginTop = "8px";
-    add.onclick = function(){ adminAddSubdivisionDialog(unit); };
-    box.appendChild(add);
-    c.appendChild(box);
+    renderStructureLevel(c);
   }
 
-  function adminAddSubdivisionDialog(unit){
-    $("dlgTitle").textContent = "Add a subdivision to " + unit.name;
-    var body = clear($("dlgBody"));
-    var parentSel = document.createElement("select");
-    var rootOpt = document.createElement("option");
-    rootOpt.value = ""; rootOpt.textContent = "(top level, directly under " + unit.name + ")";
-    parentSel.appendChild(rootOpt);
-    // Only a rack with no boxes of its own directly can take a nested subdivision --
-    // a level is either a leaf (boxes) or a group (child subdivisions), never both.
-    (function collect(racks, chain){
-      (racks || []).forEach(function(rack){
-        if (!(rack.boxes || []).length){
-          var o = document.createElement("option");
-          o.value = rack.id;
-          o.textContent = chain.concat([rack]).map(function(r){ return r.name; }).join(" → ");
-          parentSel.appendChild(o);
-        }
-        collect(rack.racks, chain.concat([rack]));
+  async function structureCommit(next, message){
+    try {
+      await adminCommit(structureView.user, next, message);
+      structureView.state = next;
+      renderAdmin();
+    } catch(err){ showBanner("Couldn't save: " + esc(err.message)); }
+  }
+
+  function structureBreadcrumb(){
+    var s = structureView.state, path = structureView.path;
+    var parts = ["CAA Lab Stocks", structureView.user];
+    if (path.length){
+      var unit = E.findUnit(s, path[0]);
+      parts.push(unit ? unit.name : "?");
+      for (var i = 1; i < path.length; i++){
+        var rackNode = E.findRackNode(s, path[i]);
+        if (rackNode){ parts.push(rackNode.rack.name); continue; }
+        var boxNode = E.findBox(s, path[i]);
+        parts.push(boxNode ? boxNode.box.name : "?");
+      }
+    }
+    return parts.join(" › ");
+  }
+
+  // A single row: click/tap the body to drill in, a separate Edit button for
+  // rename/details -- one consistent interaction on both desktop and phone.
+  function structureRow(title, subtitle){
+    var row = el("div", "item structRow");
+    var body = el("div", "grow structRowBody");
+    body.style.cursor = "pointer";
+    body.dataset.title = title;
+    body.appendChild(el("div", null, title));
+    if (subtitle) body.appendChild(el("div", "sub", subtitle));
+    row.appendChild(body);
+    var editBtn = el("button", "structRowEdit", "Edit");
+    row.appendChild(editBtn);
+    return { el: row, body: body, editBtn: editBtn };
+  }
+
+  function appendCountField(c, label, current, onSet, idSuffix){
+    var wrap = el("div", "two");
+    var f = el("div", "field");
+    f.appendChild(el("label", null, label));
+    var inp = document.createElement("input");
+    inp.type = "number"; inp.min = 0; inp.value = current; inp.autocomplete = "off";
+    inp.id = "structureCountInput" + (idSuffix || "");
+    f.appendChild(inp);
+    wrap.appendChild(f);
+    var btn = el("button", "primary", "Set");
+    btn.id = "structureCountSet" + (idSuffix || "");
+    btn.onclick = function(){
+      var r = onSet(Number(inp.value));
+      if (!r.ok){ showBanner(r.reason); return; }
+      structureCommit(r.state, "Admin: set a count for " + structureView.user);
+    };
+    wrap.appendChild(btn);
+    c.appendChild(wrap);
+  }
+
+  function renderStructureLevel(c){
+    var s = structureView.state, path = structureView.path;
+    c.appendChild(el("p", "note", structureBreadcrumb()));
+    if (path.length){
+      var back = el("button", null, "← Up one level");
+      back.onclick = function(){ structureView.path.pop(); renderAdmin(); };
+      c.appendChild(back);
+    }
+
+    if (!path.length){ renderUnitsLevel(c); return; }
+
+    var unitId = path[0];
+    if (path.length === 1){ renderRacksLevel(c, unitId, null); return; }
+
+    var lastId = path[path.length - 1];
+    var boxFound = E.findBox(s, lastId);
+    if (boxFound){ renderBoxLevel(c, boxFound.box); return; }
+
+    var node = E.findRackNode(s, lastId);
+    if (!node){
+      c.appendChild(el("p", "note", "That no longer exists."));
+      structureView.path.pop();
+      return;
+    }
+    if (node.rack.racks && node.rack.racks.length) renderRacksLevel(c, unitId, lastId);
+    else if (node.rack.boxes && node.rack.boxes.length) renderBoxesLevel(c, unitId, lastId);
+    else {
+      c.appendChild(el("p", "note", "Nothing here yet -- set a count below for whichever this actually is."));
+      renderRacksLevel(c, unitId, lastId);
+      renderBoxesLevel(c, unitId, lastId);
+    }
+  }
+
+  function renderUnitsLevel(c){
+    var s = structureView.state;
+    var units = s.storage.units || [];
+    appendCountField(c, "How many freezers/tanks?", units.length, function(n){ return E.setUnitCount(s, n); });
+    units.forEach(function(unit){
+      var childLabel = unit.childLabel || "Rack";
+      var count = (unit.racks || []).length;
+      var sub = (unit.type ? unit.type + " · " : "") + count + " " + childLabel.toLowerCase() + (count === 1 ? "" : "s");
+      var row = structureRow(unit.name, sub);
+      row.body.onclick = function(){ structureView.path = [unit.id]; renderAdmin(); };
+      row.editBtn.onclick = function(){ editUnitDialog(unit); };
+      c.appendChild(row.el);
+    });
+    if (!units.length) c.appendChild(el("p", "note", "Nothing here yet -- set a count above."));
+  }
+
+  function renderRacksLevel(c, unitId, parentRackId){
+    var s = structureView.state;
+    var childLabel = E.findUnit(s, unitId).childLabel || "Rack";
+    var kids = E.childrenOf(s, unitId, parentRackId);
+    appendCountField(c, "How many " + childLabel.toLowerCase() + "s?", kids.length, function(n){
+      return E.setSubdivisionCount(s, unitId, parentRackId, n, childLabel);
+    });
+    kids.forEach(function(rack){
+      var boxCount = (rack.boxes || []).length, childCount = (rack.racks || []).length;
+      var sub = boxCount ? (boxCount + " box" + (boxCount === 1 ? "" : "es"))
+        : childCount ? (childCount + " subdivision" + (childCount === 1 ? "" : "s"))
+        : "empty";
+      var row = structureRow(rack.name, sub);
+      row.body.onclick = function(){ structureView.path = structureView.path.concat([rack.id]); renderAdmin(); };
+      row.editBtn.onclick = function(){ renameSubdivisionDialog(rack); };
+      c.appendChild(row.el);
+    });
+    if (!kids.length) c.appendChild(el("p", "note", "Nothing here yet -- set a count above."));
+  }
+
+  function renderBoxesLevel(c, unitId, rackId){
+    var s = structureView.state;
+    var node = E.findRackNode(s, rackId);
+    var boxes = node.rack.boxes || [];
+    appendCountField(c, "How many boxes?", boxes.length, function(n){ return E.setBoxCount(s, rackId, n); }, "Boxes");
+
+    boxes.forEach(function(box){
+      var occ = E.occupancy(s, box.id);
+      var row = structureRow(box.name, occ.used + "/" + occ.capacity + " slots full");
+      row.body.onclick = function(){ structureView.path = structureView.path.concat([box.id]); renderAdmin(); };
+      row.editBtn.onclick = function(){ editBoxDialog(box); };
+      if (isDesktopPointer()){
+        row.el.draggable = true;
+        row.el.ondragstart = function(ev){ ev.dataTransfer.setData("text/plain", box.id); };
+      }
+      c.appendChild(row.el);
+    });
+    if (!boxes.length) c.appendChild(el("p", "note", "Nothing here yet -- set a count above."));
+
+    // Sibling drop targets (see engine.js's moveBoxToSibling): dragging a box onto
+    // another rack under the exact same parent moves it there. Moving to a
+    // different freezer/shelf isn't reachable this way -- deliberately, per Umut.
+    var siblings = (node.parent ? (node.parent.racks || []) : (E.findUnit(s, unitId).racks || []))
+      .filter(function(r){ return r.id !== rackId; });
+    if (siblings.length && isDesktopPointer() && boxes.length){
+      var dropWrap = el("div", "card");
+      dropWrap.appendChild(el("p", "note", "Drag a box here to move it to a sibling " +
+        (E.findUnit(s, unitId).childLabel || "rack").toLowerCase() + ":"));
+      siblings.forEach(function(sib){
+        var chip = el("div", "item");
+        var chipBody = el("div", "grow", sib.name);
+        chipBody.dataset.title = sib.name;
+        chip.appendChild(chipBody);
+        chip.ondragover = function(ev){ ev.preventDefault(); };
+        chip.ondrop = function(ev){
+          ev.preventDefault();
+          var boxId = ev.dataTransfer.getData("text/plain");
+          var r = E.moveBoxToSibling(s, boxId, sib.id);
+          if (!r.ok){ showBanner(r.reason); return; }
+          structureCommit(r.state, "Admin: moved a box for " + structureView.user);
+        };
+        dropWrap.appendChild(chip);
       });
-    })(unit.racks, []);
-    var name = document.createElement("input"); name.placeholder = "Shelf 1"; name.autocomplete = "off";
-    [["Under", parentSel], ["Name", name]].forEach(function(p){
+      c.appendChild(dropWrap);
+    }
+  }
+
+  // Reuses the app's own boxGrid() -- which reads the *global* `state` for rules
+  // and colours -- by swapping it for the member's fetched state for the length of
+  // the call, the same trick admin's merged Boxes/Find/Review/Log views already
+  // use (see ADMIN_MERGED and renderBoxes()'s admin branch).
+  function renderBoxLevel(c, box){
+    var real = state;
+    state = structureView.state;
+    try {
+      var occ = E.occupancy(state, box.id);
+      c.appendChild(el("p", "note", occ.used + "/" + occ.capacity + " slots full"));
+      c.appendChild(boxGrid(box.id, { static: true }));
+    } finally { state = real; }
+    var editBtn = el("button", "primary", "Edit (rename / resize)");
+    editBtn.style.marginTop = "8px";
+    editBtn.onclick = function(){ editBoxDialog(box); };
+    c.appendChild(editBtn);
+  }
+
+  function editUnitDialog(unit){
+    $("dlgTitle").textContent = "Edit " + unit.name;
+    var body = clear($("dlgBody"));
+    var name = document.createElement("input"); name.value = unit.name; name.autocomplete = "off";
+    var type = document.createElement("input"); type.value = unit.type || ""; type.placeholder = "-80, LN2…"; type.autocomplete = "off";
+    var note = document.createElement("input"); note.value = unit.note || ""; note.placeholder = "back corner"; note.autocomplete = "off";
+    [["Name", name], ["Type / temperature", type], ["Note", note]].forEach(function(p){
       var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); body.appendChild(f);
     });
     var msg = el("p", "note"); body.appendChild(msg);
     var foot = clear($("dlgFoot"));
-    var ok = el("button", "primary", "Add");
-    ok.onclick = async function(){
-      if (!name.value.trim()) return;
-      var r = E.addSubdivision(manageView.state, unit.id, parentSel.value || null, name.value.trim());
+    var ok = el("button", "primary", "Save");
+    ok.onclick = function(){
+      var r = E.setUnitDetails(structureView.state, unit.id, { name: name.value, type: type.value, note: note.value });
       if (!r.ok){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; return; }
-      try {
-        await adminCommit(manageView.user, r.state, "Admin: added a subdivision for " + manageView.user);
-        manageView.state = r.state;
-        $("dlg").close();
-        showBanner("Added " + name.value.trim() + ".");
-        renderAdmin();
-      } catch(err){ showBanner("Couldn't save: " + esc(err.message)); }
+      $("dlg").close();
+      structureCommit(r.state, "Admin: edited a freezer/tank for " + structureView.user);
     };
     foot.appendChild(ok);
     $("dlg").showModal();
   }
 
-  function adminRenameSubdivisionDialog(unit, rack){
+  function renameSubdivisionDialog(rack){
     $("dlgTitle").textContent = "Rename " + rack.name;
     var body = clear($("dlgBody"));
     var inp = document.createElement("input"); inp.value = rack.name; inp.autocomplete = "off";
     body.appendChild(inp);
     var foot = clear($("dlgFoot"));
     var ok = el("button", "primary", "Save");
-    ok.onclick = async function(){
+    ok.onclick = function(){
       if (!inp.value.trim()) return;
-      var r = E.renameSubdivision(manageView.state, rack.id, inp.value.trim());
+      var r = E.renameSubdivision(structureView.state, rack.id, inp.value.trim());
       if (!r.ok){ showBanner(r.reason); return; }
-      try {
-        await adminCommit(manageView.user, r.state, "Admin: renamed a subdivision for " + manageView.user);
-        manageView.state = r.state;
-        $("dlg").close();
-        renderAdmin();
-      } catch(err){ showBanner("Couldn't save: " + esc(err.message)); }
+      $("dlg").close();
+      structureCommit(r.state, "Admin: renamed a subdivision for " + structureView.user);
     };
     foot.appendChild(ok);
     $("dlg").showModal();
   }
 
-  function adminRemoveSubdivision(unit, rack){
-    var r = E.removeSubdivision(manageView.state, rack.id);
-    if (!r.ok){ showBanner(r.reason); return; }
-    adminCommit(manageView.user, r.state, "Admin: removed a subdivision for " + manageView.user).then(function(){
-      manageView.state = r.state;
-      showBanner("Removed " + rack.name + ".");
-      renderAdmin();
-    }).catch(function(err){ showBanner("Couldn't save: " + esc(err.message)); });
+  function editBoxDialog(box){
+    $("dlgTitle").textContent = "Edit " + box.name;
+    var body = clear($("dlgBody"));
+    var name = document.createElement("input"); name.value = box.name; name.autocomplete = "off";
+    var rows = document.createElement("input"); rows.type = "number"; rows.min = 1; rows.value = box.rows;
+    var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = box.cols;
+    [["Name", name], ["Rows", rows], ["Columns", cols]].forEach(function(p){
+      var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); body.appendChild(f);
+    });
+    var msg = el("p", "note"); body.appendChild(msg);
+    var foot = clear($("dlgFoot"));
+    var ok = el("button", "primary", "Save");
+    ok.onclick = function(){
+      if (!name.value.trim()) return;
+      var can = E.canResizeBox(structureView.state, box.id, Number(rows.value), Number(cols.value));
+      if (!can.ok){ msg.textContent = can.reason; msg.style.color = "var(--bad)"; return; }
+      var next = JSON.parse(JSON.stringify(structureView.state));
+      var found = E.findBox(next, box.id);
+      found.box.name = name.value.trim();
+      found.box.rows = Number(rows.value);
+      found.box.cols = Number(cols.value);
+      $("dlg").close();
+      structureCommit(next, "Admin: edited a box for " + structureView.user);
+    };
+    foot.appendChild(ok);
+    $("dlg").showModal();
   }
 
   function renderAdminManageBox(c, s){

@@ -51,6 +51,10 @@
     ],
     "koox": [
       {
+        "match": "KO",
+        "value": "KO"
+      },
+      {
         "extract": "(?<![A-Za-z])(?:KO|OX|3xFLAG)"
       },
       {
@@ -127,6 +131,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T19:54:43.969Z"
+    "savedAt": "2026-09-06T19:54:56.345Z"
   }
 }

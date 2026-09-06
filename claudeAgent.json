@@ -2405,6 +2405,17 @@
       "notes": "",
       "start": "09:55",
       "end": "10:25"
+    },
+    {
+      "id": "emtq6wv3h8r1t1",
+      "date": "2026-09-07",
+      "title": "TCA fixation",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "10:00",
+      "end": "10:30"
     }
   ],
   "_groups": {
@@ -2440,7 +2451,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-04T16:40:36.058Z",
-    "modifiedBy": "Umut iPhone 16 Plus"
+    "lastModified": "2026-09-06T19:13:50.338Z",
+    "modifiedBy": "Windows PC"
   }
 }

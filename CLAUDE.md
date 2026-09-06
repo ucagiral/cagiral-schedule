@@ -246,7 +246,7 @@ worker handles by sweeping only its own prefix.
   pinned by hand and so do not move) — `ruleImpact()` in the app, over `E.classifyAll`. Deleting an
   attribute name only stops it being *suggested*; a value already recorded under it is never
   touched.
-- **The app is at `https://cellstocks-worker.caalab.workers.dev`, served by its own Worker,
+- **The app is at `https://cellstocks-worker.caalabworkersdev.workers.dev`, served by its own Worker,
   not from GitHub Pages.** `cellstocks-worker` has an
   `[assets]` binding over `cellstocks/`, so the page and the API are one origin: the address
   carries no GitHub username, and the app's own calls are same-origin, so CORS never applies

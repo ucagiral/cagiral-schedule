@@ -827,6 +827,13 @@ async function handleRequest(request, env) {
     }
     else if (path === "/admin/history/commits" && request.method === "GET") response = await routeHistoryCommits(request, env);
     else if (path === "/admin/history/at" && request.method === "GET") response = await routeHistoryAt(request, env);
+    // Anything that is not one of this API's own paths is the app itself. Serving it
+    // from here rather than from GitHub Pages is the whole point of the ASSETS binding:
+    // the address stops carrying a GitHub username, and -- because the page and the API
+    // are then one origin -- every call it makes is same-origin, so CORS stops applying
+    // to the app at all. Without the binding (the Node selftest, an older wrangler) this
+    // is a plain 404, exactly as it was.
+    else if (env.ASSETS && request.method === "GET") return env.ASSETS.fetch(request);
     else response = json({ error: "not found" }, 404);
   } catch (err) {
     response = json({ error: err && err.message ? err.message : "internal error" }, 500);

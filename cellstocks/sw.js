@@ -1,7 +1,13 @@
-// Service worker for the cell stocks app, scoped to /cellstocks/.
+// Service worker for the cell stocks app.
 //
-// Scope is not the whole story: this host serves other apps from the same origin,
-// and one origin means one Cache Storage shared between all of them. That is why
+// Its scope is wherever it was registered from: /cagiral-schedule/cellstocks/ on the
+// GitHub Pages address, and / on the app's own Cloudflare address, where cellstocks is
+// the only thing being served. Nothing below may assume either -- an earlier version
+// tested for the literal "/cellstocks/" in the path and so did nothing at all, silently,
+// the moment the app was served from its own root.
+//
+// Scope is not the whole story: on Pages this host serves other apps from the same
+// origin, and one origin means one Cache Storage shared between all of them. That is why
 // the activate handler below sweeps only caches carrying this app's own prefix --
 // an unfiltered sweep would delete a neighbour's offline copy.
 //
@@ -12,7 +18,7 @@
 // that it is offline when it falls back to it.
 //
 // Bump CACHE when index.html / engine.js / xlsx.js / icons change.
-const CACHE = "cellstocks-v1";
+const CACHE = "cellstocks-v2";
 
 const SHELL = [
   ".",
@@ -58,7 +64,7 @@ self.addEventListener("fetch", (event) => {
 
   // The inventory and the workbook generated from it are always live. Anything
   // outside this app's own directory is none of this worker's business.
-  if (!url.pathname.includes("/cellstocks/")) return;
+  if (!url.pathname.startsWith(new URL(self.registration.scope).pathname)) return;
   if (/cellstocks\.json|cell-stocks\.xlsx/.test(url.pathname)) return;
 
   if (req.mode === "navigate") {

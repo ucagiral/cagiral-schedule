@@ -166,11 +166,14 @@ worker handles by sweeping only its own prefix.
   It is admin-only, and it is the third attempt — do not "simplify" it back into one level at a
   time or a per-member picker. A shrink that would strand a box is refused by name: *"X kutusu Y
   rafı silindiğinden dolayı yeni lokasyona yerleştirilmeli"*.
-- **Deleting a folder is never how a box disappears.** Every row's ✎ has a Delete now —
-  the count fields could only trim from the end — but a freezer or rack goes only when
-  nothing is left under it, and a box only when it holds no vial (counted **lab-wide**,
-  since its vials are in its owner's file, not admin's). Empty it out first; that is the
-  rule `removeSubdivision` has always had, and `removeUnit`/`removeBox` follow it.
+- **Admin deletes a freezer, rack or box outright — but a vial is never erased.** The count
+  fields could only trim from the end, so every row's ✎ has a Delete. Umut asked for it to
+  need no Handoff and no emptying by hand, so it does not refuse: any vial still inside is
+  **withdrawn first, in its own owner's file**, with the same `from` snapshot that taking one
+  out by hand writes, so it leaves the inventory but stays in the Log and in history. The
+  confirm says how many vials and whose before anything runs, and the owners' files are
+  written **before** the tree, so a failure mid-way leaves the boxes still named rather than
+  the vials stranded. Deleting a *user* is the opposite and still refuses — that needs Handoff.
 - **A rack moves like a box does.** `moveRack` takes a shelf or a tower into another
   freezer or rack with everything under it; the boxes keep their own leaf rack, so only
   `location.unitId` is refreshed, in each owner's own file. It refuses a rack into itself
@@ -243,6 +246,16 @@ worker handles by sweeping only its own prefix.
   pinned by hand and so do not move) — `ruleImpact()` in the app, over `E.classifyAll`. Deleting an
   attribute name only stops it being *suggested*; a value already recorded under it is never
   touched.
+- **The app is served by its own Worker, not from GitHub Pages.** `cellstocks-worker` has an
+  `[assets]` binding over `cellstocks/`, so the page and the API are one origin: the address
+  carries no GitHub username, and the app's own calls are same-origin, so CORS never applies
+  to them. `ALLOWED_ORIGIN` still names the Pages address, which keeps working for old links.
+  `resolveConfig()` reads owner/repo out of an `*.github.io` address and falls back to
+  `DEFAULT_REPO` anywhere else; `sw.js` derives its scope from `registration.scope` rather
+  than testing for a literal `/cellstocks/`, which silently disabled it off Pages.
+  **The repository is still public, so the data still is** — this changed the address, not
+  that. The real fix is a private repo with every read going through the Worker; Umut knows
+  and chose the address for now.
 - Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get

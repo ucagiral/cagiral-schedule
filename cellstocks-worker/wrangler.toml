@@ -13,8 +13,22 @@ kv_namespaces = [
   { binding = "CST_KV", id = "790f6073ce2748ac950649def52dcb88" }
 ]
 
+# The app itself, served from this same Worker. One origin for the page and the API
+# means the address no longer carries a GitHub username, and every call the page makes
+# is same-origin, so CORS never enters into it. Requests that match one of the API's own
+# routes are handled by worker.js; everything else falls through to these files (see the
+# end of handleRequest).
+#
+# A deploy that fails -- an older wrangler that does not understand this, say -- leaves
+# the previously deployed Worker running, so the backend cannot be taken down by it.
+[assets]
+directory = "../cellstocks"
+binding = "ASSETS"
+
 [vars]
 GITHUB_OWNER = "ucagiral"
 GITHUB_REPO = "cagiral-schedule"
 GITHUB_BRANCH = "main"
+# Kept for the GitHub Pages address, which still works and is still where anyone with
+# the old link lands. The Worker-hosted copy needs no entry here: it is same-origin.
 ALLOWED_ORIGIN = "https://ucagiral.github.io"

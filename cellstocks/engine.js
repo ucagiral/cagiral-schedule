@@ -449,6 +449,110 @@
     return { ok: true, state: next, movedTo: { unitId: t2.unit.id, rackId: t2.rack.id } };
   }
 
+  // ---- removing one named thing -------------------------------------------------
+  //
+  // The count fields could only ever trim from the END of a list, so there was no way to
+  // delete the middle shelf, or one particular box. These delete exactly the node asked
+  // for and leave its siblings alone.
+  //
+  // removeSubdivision (above) already had the house rule for this: a structural edit is
+  // never how a box disappears, so a rack with any box under it -- empty or not -- is
+  // refused until those boxes are dealt with one at a time. removeUnit keeps that rule,
+  // and setUnitCount's shrink has always refused on the same grounds.
+  function removeUnit(state, unitId) {
+    var units = unitsOf(state);
+    var unit = units.filter(function (u) { return u.id === unitId; })[0];
+    if (!unit) return { ok: false, reason: "No such freezer or tank." };
+    var boxes = [];
+    leafRacks(state, unitId).forEach(function (lr) {
+      (lr.rack.boxes || []).forEach(function (box) { boxes.push(box); });
+    });
+    if (boxes.length) {
+      return { ok: false, reason: unit.name + " still holds " + boxes.length + " box" +
+        (boxes.length === 1 ? "" : "es") + " (" + boxes.slice(0, 4).map(function (b) { return b.name; }).join(", ") +
+        (boxes.length > 4 ? ", and more" : "") + ") -- move or remove those first." };
+    }
+    var next = clone(state);
+    var list = unitsOf(next);
+    list.splice(list.map(function (u) { return u.id; }).indexOf(unitId), 1);
+    return { ok: true, state: next, removed: unit.name };
+  }
+
+  // A box is the one level where "empty" can be checked directly, so this refuses only
+  // for a box that still holds a stored vial. `counts` is optional and is how the app
+  // passes the whole lab's vial counts: a box in the shared tree is usually full of
+  // somebody else's vials, which live in their file and are not in this state at all.
+  function removeBox(state, boxId, counts) {
+    var found = findBox(state, boxId);
+    if (!found) return { ok: false, reason: "No such box." };
+    var used = counts ? (counts[boxId] || 0) : occupancy(state, boxId).used;
+    if (used) {
+      return { ok: false, reason: found.box.name + " still holds " + used + " vial" +
+        (used === 1 ? "" : "s") + " and needs a new location before it can go." };
+    }
+    var next = clone(state);
+    var f2 = findBox(next, boxId);
+    f2.rack.boxes.splice(f2.rack.boxes.indexOf(f2.box), 1);
+    return { ok: true, state: next, removed: found.box.name };
+  }
+
+  // Moving a rack -- a shelf, a tower -- the way moveBox moves a box. The destination is
+  // either a unit (it becomes a top-level rack there) or another rack (it becomes a child
+  // of it). Everything underneath comes along, so the vials inside those boxes get their
+  // unitId refreshed; rackId is untouched, because their own leaf rack has not changed.
+  //
+  // Three things it refuses, all of them ways to lose a subtree rather than move it:
+  // dropping a rack into itself or into its own descendant, and dropping it onto a rack
+  // that holds boxes directly -- the same leaf-or-group rule as everywhere else.
+  function moveRack(state, rackId, targetId) {
+    var node = findRackNode(state, rackId);
+    if (!node) return { ok: false, reason: "No such rack." };
+    if (rackId === targetId) return { ok: false, reason: "That's where it already is." };
+
+    var targetUnit = findUnit(state, targetId);
+    var targetRack = targetUnit ? null : findRackNode(state, targetId);
+    if (!targetUnit && !targetRack) return { ok: false, reason: "No such destination." };
+    if (targetRack) {
+      if ((targetRack.rack.boxes || []).length) {
+        return { ok: false, reason: targetRack.rack.name + " holds boxes directly, so it can't take a rack as well." };
+      }
+      if (targetRack.chain.filter(function (r) { return r.id === rackId; }).length) {
+        return { ok: false, reason: "A rack can't be moved inside itself." };
+      }
+      if (targetRack.rack.id === (node.parent ? node.parent.id : null)) {
+        return { ok: false, reason: "That's where it already is." };
+      }
+    } else if (!node.parent && node.unit.id === targetId) {
+      return { ok: false, reason: "That's where it already is." };
+    }
+
+    var next = clone(state);
+    var n2 = findRackNode(next, rackId);
+    var fromList = n2.parent ? (n2.parent.racks || []) : (findUnit(next, n2.unit.id).racks || []);
+    fromList.splice(fromList.indexOf(n2.rack), 1);
+
+    var intoUnit = findUnit(next, targetId);
+    var into, newUnitId;
+    if (intoUnit) {
+      intoUnit.racks = intoUnit.racks || [];
+      into = intoUnit.racks;
+      newUnitId = intoUnit.id;
+    } else {
+      var t2 = findRackNode(next, targetId);
+      t2.rack.racks = t2.rack.racks || [];
+      into = t2.rack.racks;
+      newUnitId = t2.unit.id;
+    }
+    into.push(n2.rack);
+
+    var movedBoxIds = {};
+    boxesUnderRack(next, rackId).forEach(function (b) { movedBoxIds[b.box.id] = true; });
+    (next.vials || []).forEach(function (v) {
+      if (v.location && movedBoxIds[v.location.boxId]) v.location.unitId = newUnitId;
+    });
+    return { ok: true, state: next, movedTo: { unitId: newUnitId } };
+  }
+
   // Grows or shrinks a leaf rack's own box count to exactly `count`, same contract
   // as setSubdivisionCount one level up: auto-names new ones "Box N" at a default
   // 9x9 (Resize handles changing that after), and refuses a shrink outright if any
@@ -2376,6 +2480,7 @@
     boxesUnderRack: boxesUnderRack, childrenOf: childrenOf,
     setSubdivisionCount: setSubdivisionCount, setUnitCount: setUnitCount,
     setUnitDetails: setUnitDetails, setBoxCount: setBoxCount, moveBox: moveBox,
+    moveRack: moveRack, removeUnit: removeUnit, removeBox: removeBox,
     // classification
     FACETS: FACETS, DEFAULT_RULES: DEFAULT_RULES, classify: classify, facetsFor: facetsFor,
     classifyAll: classifyAll, parsePassage: parsePassage, passageLabel: passageLabel,

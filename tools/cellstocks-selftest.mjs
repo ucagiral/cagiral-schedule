@@ -1375,6 +1375,117 @@ check("moveBox still refuses a rack that holds subdivisions rather than boxes", 
   return null;
 });
 
+// ---- storage: deleting one named thing, and moving a whole rack -----------------
+//
+// The count fields could only ever trim from the end of a list, so there was no way to
+// delete the middle shelf or one particular box. Umut asked for real deletes as admin,
+// and for shelves and towers to move the way boxes already do.
+
+check("removeBox deletes exactly that box and leaves its siblings alone", () => {
+  const s = nestedFixture();
+  const grown = E.setBoxCount(s, "rack-2", 3);          // Box 1, Box 2, Box 3
+  if (!grown.ok) return `setup failed: ${grown.reason}`;
+  const names = () => E.findRackNode(state, "rack-2").rack.boxes.map((b) => b.name);
+  let state = grown.state;
+  const middle = E.findRackNode(state, "rack-2").rack.boxes[1];
+  const r = E.removeBox(state, middle.id);
+  if (!r.ok) return `refused: ${r.reason}`;
+  state = r.state;
+  const left = E.findRackNode(state, "rack-2").rack.boxes.map((b) => b.name);
+  if (left.length !== 2 || left.indexOf(middle.name) !== -1) {
+    return `expected the middle box gone and two left, got ${json(left)}`;
+  }
+  return null;
+});
+
+check("removeBox refuses a box that still holds a vial, and names it", () => {
+  const s = nestedFixture();
+  const r = E.removeBox(s, "b-d1");     // holds v-d1
+  if (r.ok) return "should have refused -- Box D1 holds v-d1";
+  if (!/Box D1/.test(r.reason)) return `reason didn't name the box: ${json(r.reason)}`;
+  return null;
+});
+
+check("removeBox counts the whole lab's vials when it is given them", () => {
+  // A box in the shared tree is usually full of somebody else's vials, which live in
+  // their own file and are not in this state at all -- so an unqualified "is it empty?"
+  // on one member's state would happily delete a full box.
+  const s = nestedFixture();
+  const r = E.removeBox(s, "b-d2", { "b-d2": 4 });   // empty here, four vials lab-wide
+  if (r.ok) return "should have refused -- four vials lab-wide are in Box D2";
+  if (!/4 vials/.test(r.reason)) return `reason didn't count them: ${json(r.reason)}`;
+  return null;
+});
+
+check("removeUnit deletes a named freezer, and refuses one that still holds boxes", () => {
+  const s = E.mergeDefaults({
+    storage: { units: [
+      { id: "u-a", name: "Freezer A", childLabel: "Rack",
+        racks: [{ id: "rack-a", name: "Rack 1", boxes: [box("b-a1", "Box A1", 9, 9)] }] },
+      { id: "u-b", name: "Freezer B", childLabel: "Rack", racks: [{ id: "rack-b", name: "Rack 1", boxes: [] }] }
+    ] }
+  });
+  const refused = E.removeUnit(s, "u-a");
+  if (refused.ok) return "should have refused -- Freezer A still holds Box A1";
+  if (!/Box A1/.test(refused.reason)) return `reason didn't name the box: ${json(refused.reason)}`;
+
+  const r = E.removeUnit(s, "u-b");
+  if (!r.ok) return `refused an empty freezer: ${r.reason}`;
+  const left = r.state.storage.units.map((u) => u.id);
+  if (json(left) !== json(["u-a"])) return `expected only u-a left, got ${json(left)}`;
+  return null;
+});
+
+check("moveRack moves a shelf into another freezer, bringing its boxes and vials", () => {
+  const s = E.mergeDefaults({
+    storage: { units: [
+      { id: "u-a", name: "Freezer A", childLabel: "Shelf",
+        racks: [{ id: "shelf-a", name: "Shelf 1", racks: [
+          { id: "rack-a", name: "Rack 1", boxes: [box("b-a1", "Box A1", 9, 9)] }
+        ] }] },
+      { id: "u-b", name: "Freezer B", childLabel: "Shelf", racks: [] }
+    ] },
+    vials: [(function(){
+      // vial() defaults to the standard fixture's unit/rack ids; this tree is its own,
+      // so point it at the real leaf rack -- moveRack must leave that rackId alone.
+      const v = vial("v-a1", "HEK293T", "b-a1", "A1");
+      v.location.unitId = "u-a"; v.location.rackId = "rack-a";
+      return v;
+    })()]
+  });
+  const r = E.moveRack(s, "shelf-a", "u-b");
+  if (!r.ok) return `refused: ${r.reason}`;
+  if (r.state.storage.units[0].racks.length !== 0) return "the shelf was left behind in Freezer A";
+  if (E.findRackNode(r.state, "shelf-a").unit.id !== "u-b") return "the shelf did not land in Freezer B";
+  if (!E.findBox(r.state, "b-a1")) return "the box under it did not come along";
+  const v = r.state.vials[0];
+  // Its own leaf rack has not changed, so only the unit is refreshed.
+  if (v.location.unitId !== "u-b" || v.location.rackId !== "rack-a") {
+    return `the vial's location was not refreshed correctly: ${json(v.location)}`;
+  }
+  return null;
+});
+
+check("moveRack refuses to drop a rack inside itself or its own descendant", () => {
+  const s = nestedFixture();
+  const itself = E.moveRack(s, "shelf-1", "shelf-1");
+  if (itself.ok) return "should have refused -- a rack cannot be moved into itself";
+  const child = E.moveRack(s, "shelf-1", "rack-2");   // rack-2 is shelf-1's own child
+  if (child.ok) return "should have refused -- rack-2 is inside shelf-1";
+  if (!/inside itself/.test(child.reason)) return `unexpected reason: ${json(child.reason)}`;
+  return null;
+});
+
+check("moveRack refuses a destination that holds boxes directly", () => {
+  // The leaf-or-group rule, the same one moveBox and setBoxCount already enforce:
+  // shelf-2 holds Box D2 itself, so it cannot also become a parent of racks.
+  const s = nestedFixture();
+  const r = E.moveRack(s, "rack-2", "shelf-2");
+  if (r.ok) return "should have refused -- shelf-2 holds a box directly";
+  if (!/holds boxes directly/.test(r.reason)) return `unexpected reason: ${json(r.reason)}`;
+  return null;
+});
+
 check("a handoff-style box move recurses into nested subdivisions, not just the top level", () => {
   // Mirrors the admin handoff's own prune step (index.html) on a deeper tree, since
   // that code walks the same structure by hand rather than through an engine call.

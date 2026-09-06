@@ -166,6 +166,15 @@ worker handles by sweeping only its own prefix.
   It is admin-only, and it is the third attempt — do not "simplify" it back into one level at a
   time or a per-member picker. A shrink that would strand a box is refused by name: *"X kutusu Y
   rafı silindiğinden dolayı yeni lokasyona yerleştirilmeli"*.
+- **Deleting a folder is never how a box disappears.** Every row's ✎ has a Delete now —
+  the count fields could only trim from the end — but a freezer or rack goes only when
+  nothing is left under it, and a box only when it holds no vial (counted **lab-wide**,
+  since its vials are in its owner's file, not admin's). Empty it out first; that is the
+  rule `removeSubdivision` has always had, and `removeUnit`/`removeBox` follow it.
+- **A rack moves like a box does.** `moveRack` takes a shelf or a tower into another
+  freezer or rack with everything under it; the boxes keep their own leaf rack, so only
+  `location.unitId` is refreshed, in each owner's own file. It refuses a rack into itself
+  or its own descendant, and a destination that already holds boxes directly.
 - **A member adds a box; only admin adds a freezer.** The quick-add row on the Boxes tab offers
   a box and nothing else — the "Add a freezer or tank" button was removed at Umut's word, not
   disabled, because a member adding a unit was adding it to everybody's tree. With no freezer
@@ -216,6 +225,10 @@ worker handles by sweeping only its own prefix.
   tick before it throws any row away. `#N/A` is not a value and is never imported as one.
 - **Absolute and relative passages are separate scales.** `p+2` must never be comparable with `p2`,
   and the 68 vials marked `p?` must never vanish from a search without the UI saying so.
+- **Light/dark is per device and lives in its own card.** `renderAppearance(target)` draws
+  it on the login gate *and* at the top of Settings — it was buried at the bottom of
+  Connect, under the worker URL, and nobody found it. It is `localStorage` only: how this
+  phone looks is not a fact about the lab, and is never committed.
 - **There is no messaging in this app, and that is deliberate.** Requests, notifications and
   editable message templates were all built and then removed at Umut's word ("toplu mesaj
   ozelligini tamamen kaldir", then all of it). A lab-mate's vial in a lab-wide search shows whose

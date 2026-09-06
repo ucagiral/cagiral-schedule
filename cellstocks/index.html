@@ -323,6 +323,7 @@
   <p class="note">CAApp is lab-wide now — nothing shows until you're identified, so no
     one sees anyone's boxes by just opening the page.</p>
   <div class="card" id="gateBody"></div>
+  <div class="card" id="gateAppearance"></div>
 </div>
 
 <main>
@@ -415,6 +416,7 @@
 
   <section class="screen" id="s-settings">
     <h2>Settings</h2>
+    <div class="card" id="appearanceCard"></div>
     <div class="card" id="connectCard"></div>
     <div class="card" id="storageCard"></div>
     <div class="card" id="rulesCard"></div>
@@ -2757,26 +2759,37 @@
       };
       c.appendChild(go2);
     }
-    var themeField = el("div", "field");
-    themeField.appendChild(el("label", null, "Appearance"));
-    var themeSeg = el("div", "seg");
-    var currentTheme = (function(){ try { return localStorage.getItem(LS.theme) || "system"; } catch(e){ return "system"; } })();
+  }
+
+  // Light and dark were always here, but buried at the bottom of Connect, under the
+  // worker URL and the GitHub token -- so nobody found them. Now its own card, first on
+  // the Settings screen, because it is the one setting somebody changes for no reason at
+  // all. It stays on the login gate too: choosing dark should not require logging in.
+  // Per-device on purpose: it is how this phone looks, not a fact about the lab, so it
+  // lives in localStorage and is never committed.
+  function renderAppearance(target){
+    var c = clear(target || $("appearanceCard"));
+    c.appendChild(el("h3", null, "Appearance"));
+    var seg = el("div", "seg");
+    var current = (function(){ try { return localStorage.getItem(LS.theme) || "system"; } catch(e){ return "system"; } })();
     [{ id:"system", name:"System" }, { id:"light", name:"Light" }, { id:"dark", name:"Dark" }].forEach(function(opt){
-      var b = el("button", currentTheme === opt.id ? "on" : null, opt.name);
+      var b = el("button", current === opt.id ? "on" : null, opt.name);
       b.onclick = function(){
-        if (opt.id === "system") {
+        if (opt.id === "system"){
           document.documentElement.removeAttribute("data-theme");
           try { localStorage.removeItem(LS.theme); } catch(e){}
         } else {
           document.documentElement.setAttribute("data-theme", opt.id);
           try { localStorage.setItem(LS.theme, opt.id); } catch(e){}
         }
-        renderConnect(container);
+        renderAppearance(target);
       };
-      themeSeg.appendChild(b);
+      seg.appendChild(b);
     });
-    themeField.appendChild(themeSeg);
-    c.appendChild(themeField);
+    c.appendChild(seg);
+    c.appendChild(el("p", "note", current === "system"
+      ? "Following this device — it turns dark when your phone or laptop does."
+      : "Fixed to " + current + " on this device, whatever the system is set to."));
   }
 
   // Nothing about anyone's inventory ever renders before someone is identified -- either
@@ -2800,6 +2813,8 @@
     updateNavForRole();
     if (!authed){
       renderConnect($("gateBody"));
+      // Appended, not replacing: renderConnect owns the rest of the gate.
+      renderAppearance($("gateAppearance"));
       setStatus("Read-only", "");
       return;
     }
@@ -2808,6 +2823,7 @@
   }
 
   function renderSettings(){
+    renderAppearance();
     renderConnect($("connectCard"));
 
     // The PI has no inventory of their own, so every card below this one -- storage,
@@ -3804,18 +3820,32 @@
     };
     row.appendChild(edit);
 
-    // A box is what gets dragged; any rack with no child racks is where it can land.
-    if (isBox && isDesktopPointer()){
+    // What can be dragged, and where it can land. A box goes into any rack that holds
+    // boxes rather than child racks; a rack -- a shelf, a tower -- goes into any freezer
+    // or any rack that is not already holding boxes directly. The engine refuses the
+    // rest (a rack into itself or its own descendant, the leaf-or-group rule), so this
+    // only has to say what is plausibly a target, not what is legal.
+    if (!isUnit && isDesktopPointer()){
       row.draggable = true;
-      row.ondragstart = function(ev){ ev.dataTransfer.setData("text/plain", node.id); };
+      row.ondragstart = function(ev){
+        ev.dataTransfer.setData("text/plain", (isBox ? "box:" : "rack:") + node.id);
+      };
     }
-    if (!isBox && !isUnit && !(node.racks || []).length){
+    var takesBox = !isBox && !isUnit && !(node.racks || []).length;
+    var takesRack = isUnit || (!isBox && !(node.boxes || []).length);
+    if (takesBox || takesRack){
+      // What is being dragged cannot be read during dragover -- the payload is only
+      // readable on drop -- so every plausible target highlights, and the drop handler
+      // (and the engine behind it) decides.
       row.ondragover = function(ev){ ev.preventDefault(); row.classList.add("dropTarget"); };
       row.ondragleave = function(){ row.classList.remove("dropTarget"); };
       row.ondrop = function(ev){
         ev.preventDefault();
         row.classList.remove("dropTarget");
-        moveBoxTo(ev.dataTransfer.getData("text/plain"), node.id);
+        var payload = String(ev.dataTransfer.getData("text/plain") || "");
+        var id = payload.replace(/^(box|rack):/, "");
+        if (payload.indexOf("rack:") === 0) moveRackTo(id, node.id);
+        else moveBoxTo(id, node.id);
       };
     }
     container.appendChild(row);
@@ -3855,6 +3885,44 @@
       showBanner("Moved <b>" + esc(box ? box.box.name : boxId) + "</b>.");
       renderAdmin();
     } catch(err){ showBanner("Couldn't save that: " + esc(err.message)); }
+  }
+
+  // A shelf or a tower moves the same way a box does, and takes everything under it.
+  // Its boxes keep their own leaf rack, so only the unit on each vial needs refreshing --
+  // and those vials are in their owners' files, which is where that has to be written.
+  async function moveRackTo(rackId, targetId){
+    if (!rackId) return;
+    var r = E.moveRack(labStorage, rackId, targetId);
+    if (!r.ok){ showBanner(r.reason); return; }
+    var moved = E.findRackNode(labStorage, rackId);
+    var boxes = E.boxesUnderRack(labStorage, rackId).map(function(b){ return b.box; });
+    try {
+      await commitLabStorage(r.state, "Move " + (moved ? moved.rack.name : "a rack"));
+      var byOwner = {};
+      boxes.forEach(function(b){ if (b.owner) (byOwner[b.owner] = byOwner[b.owner] || []).push(b.id); });
+      var owners = Object.keys(byOwner);
+      for (var i = 0; i < owners.length; i++){
+        await refreshVialUnits(owners[i], byOwner[owners[i]], r.movedTo.unitId);
+      }
+      showBanner("Moved <b>" + esc(moved ? moved.rack.name : rackId) + "</b>.");
+      renderAdmin();
+    } catch(err){ showBanner("Couldn't save that: " + esc(err.message)); }
+  }
+
+  async function refreshVialUnits(owner, boxIds, unitId){
+    var s = await adminFetchState(owner);
+    var ids = {};
+    boxIds.forEach(function(id){ ids[id] = true; });
+    var touched = 0;
+    (s.vials || []).forEach(function(v){
+      if (v.location && ids[v.location.boxId] && v.location.unitId !== unitId){
+        v.location.unitId = unitId;
+        touched++;
+      }
+    });
+    if (!touched) return;
+    await adminCommit(owner, s, "Follow a rack that moved");
+    labCache.members = null; labCache.data = {};
   }
 
   async function refreshVialLocations(owner, boxId, movedTo){
@@ -3942,7 +4010,11 @@
     });
   }
 
-  function structureDialog(title, build){
+  // `remove`, when given, adds a Delete to the dialog's footer: () => {ok, state, reason}
+  // exactly like the Save path, so a refusal is shown in the same place and in the same
+  // words. Deleting is deliberately in the edit dialog rather than on the row -- the row
+  // is what you tap to open a folder, and a delete one pixel away from that is a trap.
+  function structureDialog(title, build, remove){
     $("dlgTitle").textContent = title;
     var body = clear($("dlgBody"));
     var msg = el("p", "note");
@@ -3962,6 +4034,25 @@
       ok.disabled = false;
     };
     foot.appendChild(ok);
+
+    if (remove){
+      var del = el("button", "danger", "Delete");
+      del.style.marginRight = "auto";       // pushed away from Save, so neither is a slip
+      del.onclick = async function(){
+        var r = remove();
+        if (r && r.ok === false){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; return; }
+        if (!window.confirm(r.confirm)) return;
+        del.disabled = true; ok.disabled = true;
+        try {
+          await commitLabStorage(r.state, r.message);
+          $("dlg").close();
+          showBanner("Deleted <b>" + esc(r.removed) + "</b>.");
+          renderAdmin();
+        } catch(err){ msg.textContent = "Couldn't save that: " + err.message; msg.style.color = "var(--bad)"; }
+        del.disabled = false; ok.disabled = false;
+      };
+      foot.insertBefore(del, foot.firstChild);
+    }
     $("dlg").showModal();
   }
 
@@ -4065,6 +4156,21 @@
         }
         return { state: next, message: "Edit " + name.value.trim() };
       };
+    }, function(){
+      // A freezer or a rack goes only once nothing is left inside it. That is the house
+      // rule a structural edit has always followed here: deleting a folder is never how
+      // a box, and whatever is in it, disappears. Empty the boxes out one at a time --
+      // each has its own Delete now -- or drag them somewhere else first.
+      var r = level === "unit" ? E.removeUnit(labStorage, node.id)
+                               : E.removeSubdivision(labStorage, node.id);
+      if (!r.ok) return r;
+      return {
+        state: r.state,
+        removed: node.name,
+        message: "Delete " + node.name,
+        confirm: "Delete " + node.name + "? It is empty, so nothing is lost — but every member " +
+                 "sees the same freezer, so it goes for the whole lab."
+      };
     });
   }
 
@@ -4134,6 +4240,19 @@
         if (owner.value) found.box.owner = owner.value;
         else delete found.box.owner;
         return { state: next, message: "Edit " + name.value.trim() };
+      };
+    }, function(){
+      // Counted lab-wide, not from admin's own (empty) inventory: the vials in this box
+      // live in its owner's file. Withdrawing them is how a box is emptied; deleting one
+      // is never how a vial stops being recorded.
+      var r = E.removeBox(labStorage, box.id, labVialCounts());
+      if (!r.ok) return r;
+      return {
+        state: r.state,
+        removed: box.name,
+        message: "Delete " + box.name,
+        confirm: "Delete " + box.name + "? It is empty, so no vial is lost — but it disappears " +
+                 "from the freezer for everybody."
       };
     });
   }

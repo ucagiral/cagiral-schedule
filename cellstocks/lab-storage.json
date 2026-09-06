@@ -4,7 +4,7 @@
   "units": [
     {
       "id": "u-f80",
-      "name": "-80 °C Freezer",
+      "name": "-80°C Freezer 1",
       "type": "freezer",
       "note": "",
       "childLabel": "Rack",
@@ -70,7 +70,8 @@
           ],
           "racks": []
         }
-      ]
+      ],
+      "icon": ""
     },
     {
       "id": "u-ln2",

@@ -123,18 +123,6 @@ try {
     return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
   });
 
-  // POST /requests: the catch-all above would 404 it (only /login and /logout are
-  // handled there), so this is registered separately -- a later page.route()
-  // registration takes priority over an earlier, broader one for the same URL.
-  await page.route("https://fake-worker.example/requests", (route) => {
-    const req = route.request();
-    workerCalls.push({ path: "/requests", method: req.method(), auth: req.headers()["authorization"], body: req.postData() });
-    return route.fulfill({
-      status: 201, contentType: "application/json",
-      body: JSON.stringify({ request: { id: "req-1", status: "pending" } })
-    });
-  });
-
   await page.goto(`http://localhost:8797/cellstocks/`);
 
   // ---- mandatory login gate ----
@@ -224,13 +212,11 @@ try {
   check("the app leaves read-only mode once logged in", afterLogin.status === "Ready", `status was ${afterLogin.status}`);
   check("logging in drops the gate and reveals the app shell", !afterLogin.gated && afterLogin.navVisible, JSON.stringify(afterLogin));
 
-  // One failed + one successful login attempt so far, plus renderSettings() fetching
-  // notifications right after the successful one. The point of this check is that no
-  // *cellstocks data* read ever goes to the worker: only auth, saves, and the worker's
-  // own native bookkeeping (notifications, requests) are meant to talk to it -- a vial,
-  // a box, an inventory file never is.
-  check("cellstocks data reads never go through the worker -- only auth/notification calls happened",
-    workerCalls.every((c) => c.path === "/login" || c.path === "/notifications"), JSON.stringify(workerCalls));
+  // One failed + one successful login attempt so far. The point of this check is that no
+  // *cellstocks data* read ever goes to the worker: only auth and saves are meant to
+  // talk to it -- a vial, a box, an inventory file never is.
+  check("cellstocks data reads never go through the worker -- only auth calls happened",
+    workerCalls.every((c) => c.path === "/login"), JSON.stringify(workerCalls));
 
   // ---- onboarding banner for a fresh account ----
   // The stubbed cellstocks/data/umut.json is an empty inventory (no units, no vials),
@@ -271,58 +257,22 @@ try {
   check("the result is labeled with whose boxes it's in", /labmate/i.test(labResultText), labResultText);
 
   const labCardButtons = await page.$$eval(".res:has-text('Special Guest Line') button", (btns) => btns.map((b) => b.textContent.trim()));
-  check("a lab result offers only Request this -- no Took it / Edit / Show in box",
-    JSON.stringify(labCardButtons) === JSON.stringify(["Request this"]), JSON.stringify(labCardButtons));
-
-  // ---- requesting an item (Phase 4b-ii) ----
-  await page.click(".res:has-text('Special Guest Line') button:has-text('Request this')");
-  await page.waitForSelector("dialog[open]");
-  await page.fill("#dlgBody textarea", "need it for a rescue");
-  await page.click("#dlgFoot button:has-text('Send request')");
-  await page.waitForFunction(() => /Asked labmate about/.test(document.querySelector(".banner")?.textContent || ""));
-  const requestCall = workerCalls.find((c) => c.path === "/requests" && c.method === "POST");
-  check("sending a request posts to the worker's /requests", !!requestCall, JSON.stringify(workerCalls));
-  const requestBody = requestCall && JSON.parse(requestCall.body || "{}");
-  check("the request names the right owner, item and vial",
-    requestBody && requestBody.toUser === "labmate" && requestBody.itemName === "Special Guest Line" && requestBody.vialId === "v-lm-1",
-    JSON.stringify(requestBody));
-  check("the request carries the typed note", requestBody && requestBody.note === "need it for a rescue", JSON.stringify(requestBody));
-
-  await page.waitForFunction(() => /Request sent\./.test(document.querySelector(".res")?.textContent || ""));
-  const afterRequestButtons = await page.$$eval(".res:has-text('Special Guest Line') button", (btns) => btns.map((b) => b.textContent.trim()));
-  check("after sending, the button is replaced so it can't be sent twice", afterRequestButtons.length === 0, JSON.stringify(afterRequestButtons));
+  check("a lab-mate's vial is information only -- no buttons at all on the card",
+    labCardButtons.length === 0, JSON.stringify(labCardButtons));
+  const labCardText = await page.evaluate(() => {
+    const card = Array.from(document.querySelectorAll(".res")).find((c) => /Special Guest Line/.test(c.textContent));
+    return card ? card.textContent : "";
+  });
+  check("it still says whose it is and exactly where it sits",
+    /labmate/i.test(labCardText) && /Box 1/.test(labCardText), labCardText);
 
   await page.click("#filters .toggle input[type=checkbox]");
   await page.waitForFunction(() => !/Special Guest Line/.test(document.getElementById("results").textContent));
   check("turning search-in-lab back off hides the lab-mate's vial again", true);
 
-  // ---- notifications: approving a request (Phase 4b-ii) ----
-  // A pending request FOR Umut, from a fictitious lab-mate -- stubbed directly rather
-  // than driving a second logged-in session, the same way the worker's own request/
-  // approve/notify lifecycle is already proven end-to-end in
-  // cellstocks-worker-selftest.mjs. This is only about the app's side of acting on one.
-  // The GET /notifications stub is swapped in now (route.fulfill of the LATEST matching
-  // page.route() registration wins) -- notifications is cached client-side once fetched
-  // (see renderNotifications() in the app), and it was already fetched once, empty, the
-  // first time this session visited Settings via the onboarding banner earlier.
+  // The catch-all worker route is swapped for one that observes a real /logout --
+  // route.fulfill of the LATEST matching page.route() registration wins.
   await page.unroute("https://fake-worker.example/**");
-  await page.route("https://fake-worker.example/notifications", (route) =>
-    route.fulfill({
-      status: 200, contentType: "application/json",
-      body: JSON.stringify({ notifications: [{
-        id: "notif-1", type: "request", requestId: "req-1", fromUser: "Someone",
-        vialId: "v-does-not-exist", itemName: "Nonexistent Vial", text: "Someone is asking about Nonexistent Vial",
-        read: false, createdAt: "2026-01-01T00:00:00.000Z"
-      }] })
-    }));
-  await page.route("https://fake-worker.example/requests/req-1/approve", (route) => {
-    workerCalls.push({ path: "/requests/req-1/approve", method: route.request().method(), auth: route.request().headers()["authorization"] });
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ request: { id: "req-1", status: "approved" } }) });
-  });
-  await page.route("https://fake-worker.example/notifications/notif-1/read", (route) => {
-    workerCalls.push({ path: "/notifications/notif-1/read", method: route.request().method(), auth: route.request().headers()["authorization"] });
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ notification: { id: "notif-1", read: true } }) });
-  });
   await page.route("https://fake-worker.example/logout", (route) => {
     workerCalls.push({ path: "/logout", method: route.request().method(), auth: route.request().headers()["authorization"] });
     return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
@@ -331,19 +281,6 @@ try {
   await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "fake-session-token");
   await page.waitForSelector("nav button[data-screen=settings]");
   await page.click("nav button[data-screen=settings]");
-  await page.waitForFunction(() => /Someone is asking about Nonexistent Vial/.test(document.getElementById("notificationsCard").textContent));
-  const notifButtons = await page.$$eval("#notificationsCard .item button", (btns) => btns.map((b) => b.textContent.trim()));
-  check("a pending request notification offers Approve and Deny", JSON.stringify(notifButtons) === JSON.stringify(["Approve", "Deny"]), JSON.stringify(notifButtons));
-
-  await page.click("#notificationsCard button:has-text('Approve')");
-  await page.waitForFunction(() => {
-    const c = document.getElementById("notificationsCard");
-    return c && !/Approve/.test(c.textContent);
-  });
-  check("approving calls the worker's approve endpoint",
-    workerCalls.some((c) => c.path === "/requests/req-1/approve" && c.method === "POST"), JSON.stringify(workerCalls));
-  check("approving also marks the notification read",
-    workerCalls.some((c) => c.path === "/notifications/notif-1/read" && c.method === "POST"), JSON.stringify(workerCalls));
 
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
@@ -385,9 +322,6 @@ try {
         { name: "newbie", role: "member", hidden: false }
       ] })
     }));
-  await page.route("https://fake-worker.example/notifications", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ notifications: [] }) }));
-
   // The previous block ended logged out, so the mandatory-login gate is up again --
   // log the next account in straight through the gate, not through Settings.
   await page.waitForSelector("#gateBody input");
@@ -600,7 +534,6 @@ try {
         return route.fulfill({ status: 200, contentType: "application/json",
           body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
       }
-      if (path === "/messages") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ messages: {} }) });
       return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
     });
 
@@ -693,7 +626,6 @@ try {
         return route.fulfill({ status: 200, contentType: "application/json",
           body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
       }
-      if (path === "/messages") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ messages: {} }) });
       if (path === "/admin/users" && req.method() === "GET") {
         return route.fulfill({ status: 200, contentType: "application/json",
           body: JSON.stringify({ users: [{ name: "caa", role: "member", hidden: false }, { name: "umut", role: "member", hidden: false }] }) });
@@ -795,7 +727,6 @@ try {
         return route.fulfill({ status: 200, contentType: "application/json",
           body: JSON.stringify({ token: "fake-session-token", user: { name: "Umut", role: "member", hidden: false } }) });
       }
-      if (path === "/messages") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ messages: {} }) });
       return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
     });
 
@@ -889,7 +820,6 @@ try {
         return route.fulfill({ status: 200, contentType: "application/json",
           body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
       }
-      if (path === "/messages") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ messages: {} }) });
       if (path === "/admin/users" && req.method() === "GET") {
         return route.fulfill({ status: 200, contentType: "application/json",
           body: JSON.stringify({ users: [{ name: "umut", role: "member", hidden: false }] }) });
@@ -1012,6 +942,194 @@ try {
   } finally {
     await browser5.close();
     server5.close();
+  }
+}
+
+// ---- the PI role: sees the whole lab, owns nothing, changes nothing ----
+//
+// Umut's own words for what a PI is: "PI has no inventory of their own. They can just see
+// our inventories and search them. That's it." So: no Add tab, no Admin tab, no Settings
+// cards about a file they don't have -- but Find shows every member's vials without
+// anyone having to switch a toggle on.
+{
+  const server6 = await serve(8803);
+  const browser6 = await chromium.launch();
+  try {
+    const context = await browser6.newContext();
+    await context.addInitScript(() => {
+      localStorage.setItem("cst_cfg", JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" }));
+    });
+    const page = await context.newPage();
+
+    const memberBox = { id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", note: "", archived: false };
+    const memberState = {
+      storage: { units: [{ id: "u-1", name: "Umut's Freezer", type: "freezer", childLabel: "Rack",
+                           racks: [{ id: "r-1", name: "Rack 1", boxes: [memberBox] }] }] },
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-1", name: "Umut Only Line", location: { unitId: "u-1", rackId: "r-1", boxId: "b-1", position: "A1" }, status: "stored" }]
+    };
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(memberState) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "pi-token", user: { name: "Chief", role: "pi", hidden: false } }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto(`http://localhost:8803/cellstocks/`);
+    await page.waitForSelector("#gateBody input");
+    const li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("Chief");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "pi-token");
+
+    const nav = await page.evaluate(() => ({
+      freezeHidden: document.getElementById("navFreeze").hidden,
+      adminHidden: document.getElementById("navAdmin").hidden
+    }));
+    check("a PI gets no Add tab -- they have no inventory to add to", nav.freezeHidden, JSON.stringify(nav));
+    check("a PI gets no Admin tab either", nav.adminHidden, JSON.stringify(nav));
+
+    await page.click("nav button[data-screen=find]");
+    await page.waitForFunction(() => /Umut Only Line/.test(document.getElementById("results").textContent), { timeout: 15000 });
+    check("a PI sees every member's vials in Find without switching anything on", true);
+    const piResultButtons = await page.$$eval("#results .res button", (btns) => btns.map((b) => b.textContent.trim()));
+    check("and cannot act on any of them -- the merged view is read-only",
+      piResultButtons.length === 0, JSON.stringify(piResultButtons));
+    const searchToggle = await page.$("#filters .toggle input[type=checkbox]");
+    check("a PI is never offered the search-in-lab toggle -- the lab is all they ever see", !searchToggle);
+
+    await page.click("nav button[data-screen=settings]");
+    await page.waitForSelector("#connectCard");
+    const settingsCards = await page.evaluate(() => ["storageCard", "rulesCard", "keywordsCard", "importCard", "checkCard"]
+      .filter((id) => !document.getElementById(id).hidden));
+    check("a PI's Settings holds nothing about an inventory they don't have",
+      settingsCards.length === 0, JSON.stringify(settingsCards));
+  } catch (err) {
+    check("the PI role sees the whole lab and owns nothing", false, String(err));
+  } finally {
+    await browser6.close();
+    server6.close();
+  }
+}
+
+// ---- admin renames a user, and rules can be edited and deleted ----
+{
+  const server7 = await serve(8804);
+  const browser7 = await chromium.launch();
+  try {
+    const context = await browser7.newContext();
+    await context.addInitScript(() => {
+      localStorage.setItem("cst_cfg", JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" }));
+    });
+    const page = await context.newPage();
+
+    // One vial whose origin only a rule can decide, so deleting that rule has a real,
+    // countable effect to show in the preview.
+    const umutState = {
+      storage: { units: [{ id: "u-1", name: "Freezer", type: "freezer", childLabel: "Rack",
+                           racks: [{ id: "r-1", name: "Rack 1", boxes: [{ id: "b-1", name: "Box 1", rows: 9, cols: 9, scheme: "grid", archived: false }] }] }] },
+      lines: [], withdrawals: [], settings: {},
+      rules: { origin: [{ match: "HEK", value: "HEK293T" }], koox: [], resistance: [], caspex: [], guide: [] },
+      vials: [{ id: "v-1", name: "HEK ATP7B KO g3", location: { unitId: "u-1", rackId: "r-1", boxId: "b-1", position: "A1" }, status: "stored" }]
+    };
+    let renameCall = null;
+    await page.route("https://raw.githubusercontent.com/**", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutState) }));
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
+      }
+      if (path === "/admin/users" && req.method() === "GET") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ users: [{ name: "umut", role: "member", hidden: false }] }) });
+      }
+      if (/^\/admin\/users\/[^/]+\/rename$/.test(path) && req.method() === "POST") {
+        renameCall = { path, body: JSON.parse(req.postData() || "{}") };
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ user: { name: "ayse", role: "member", hidden: false } }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto(`http://localhost:8804/cellstocks/`);
+    await page.waitForSelector("#gateBody input");
+    const li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("admin");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+
+    // Rename, answering both the prompt and the confirm the button raises.
+    await page.click("nav button[data-screen=admin]");
+    await page.click("#adminTabs button[data-admintab=users]");
+    await page.waitForFunction(() => /umut/.test(document.getElementById("admin-users").textContent));
+    page.once("dialog", (d) => d.accept("ayse"));
+    await page.evaluate(() => {
+      const row = Array.from(document.querySelectorAll("#admin-users .item"))
+        .find((r) => /umut/.test(r.textContent));
+      const btn = Array.from(row.querySelectorAll("button")).find((b) => b.textContent.trim() === "Rename");
+      window.__confirmed = false;
+      const realConfirm = window.confirm;
+      window.confirm = (msg) => { window.__confirmMsg = msg; window.confirm = realConfirm; return true; };
+      btn.click();
+    });
+    await page.waitForFunction(() => window.__confirmMsg !== undefined, { timeout: 10000 }).catch(() => {});
+    await page.waitForFunction(() => !!document.querySelector(".banner")?.textContent.includes("Renamed"), { timeout: 10000 });
+    check("renaming a user posts the new name to the worker's rename route",
+      renameCall && renameCall.body.newName === "ayse", JSON.stringify(renameCall));
+    const confirmMsg = await page.evaluate(() => window.__confirmMsg || "");
+    check("the confirm warns that the person is signed out and logs back in under the new name",
+      /log back in as ayse/i.test(confirmMsg), confirmMsg);
+
+    // Rules: every rule now has its own Edit and Delete, and deleting previews the damage.
+    await page.click("nav button[data-screen=settings]");
+    await page.waitForSelector("#rulesCard");
+    const ruleRowButtons = await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll("#rulesCard .item"));
+      const row = rows.find((r) => /HEK → HEK293T/.test(r.textContent));
+      return row ? Array.from(row.querySelectorAll("button")).map((b) => b.textContent.trim()) : null;
+    });
+    check("each individual rule gets its own Edit and Delete",
+      JSON.stringify(ruleRowButtons) === JSON.stringify(["Edit", "Delete"]), JSON.stringify(ruleRowButtons));
+
+    await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll("#rulesCard .item"));
+      const row = rows.find((r) => /HEK → HEK293T/.test(r.textContent));
+      Array.from(row.querySelectorAll("button")).find((b) => b.textContent.trim() === "Delete").click();
+    });
+    await page.waitForSelector("dialog[open]");
+    const deleteBody = await page.evaluate(() => document.getElementById("dlgBody").textContent);
+    check("deleting a rule says what it would do to the real inventory first",
+      /This changes 1 of 1 vials/.test(deleteBody), deleteBody);
+    await page.click("#dlgFoot button");
+    await page.waitForFunction(() => !document.querySelector("dialog[open]"));
+    const rulesAfter = await page.evaluate(() => document.getElementById("rulesCard").textContent);
+    check("and the rule is actually gone afterwards", !/HEK → HEK293T/.test(rulesAfter), rulesAfter);
+  } catch (err) {
+    check("admin can rename a user, and rules can be edited and deleted", false, String(err));
+  } finally {
+    await browser7.close();
+    server7.close();
   }
 }
 

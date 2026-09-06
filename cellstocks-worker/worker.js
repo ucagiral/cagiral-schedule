@@ -79,23 +79,6 @@ function newToken() {
 
 const userKey = (name) => `user:${name.toLowerCase()}`;
 const sessionKey = (token) => `session:${token}`;
-const requestKey = (id) => `request:${id}`;
-const notificationKey = (user, id) => `notification:${user.toLowerCase()}:${id}`;
-
-function newId() {
-  return bytesToHex(crypto.getRandomValues(new Uint8Array(12)));
-}
-
-// One id, used both as the KV key's suffix and the stored value's own .id field -- so a
-// client that later addresses a notification by the id it was given (from GET
-// /notifications) actually finds the same record, rather than two independently
-// generated ids that happen to look alike.
-async function notify(env, user, fields) {
-  const id = newId();
-  const record = Object.assign({ id, user }, fields, { id });
-  await kvPutJson(env.CST_KV, notificationKey(user, id), record);
-  return record;
-}
 
 async function kvGetJson(kv, key) {
   const raw = await kv.get(key);
@@ -120,20 +103,6 @@ async function listUsers(kv) {
   return users;
 }
 
-async function listByPrefix(kv, prefix) {
-  const values = [];
-  let cursor;
-  do {
-    const page = await kv.list({ prefix, cursor });
-    for (const k of page.keys) {
-      const v = await kvGetJson(kv, k.name);
-      if (v) values.push(v);
-    }
-    cursor = page.list_complete ? undefined : page.cursor;
-  } while (cursor);
-  return values;
-}
-
 // ============================================================================ auth
 //
 // Sessions never expire on their own -- Umut asked for "log in once, stay logged in", the
@@ -152,6 +121,17 @@ async function requireSession(request, env) {
   if (!user) return null;
   return { user, token: m[1] };
 }
+
+// Three roles, and the list is a whitelist rather than "admin or else member" so a typo
+// in a role name is refused instead of silently demoting someone.
+//
+//   member  an ordinary account: its own inventory, its own boxes.
+//   admin   the lab's tools -- users, structure, handoff, everyone's boxes. No inventory
+//           of its own (see the Add tab, hidden for admin in the app).
+//   pi      the lab head: reads and searches everyone's inventory and nothing else. No
+//           inventory of its own either, which canWrite() below enforces rather than
+//           trusting the app to never offer it.
+const ROLES = ["member", "admin", "pi"];
 
 function publicUser(u) {
   return { name: u.name, role: u.role, hidden: !!u.hidden, createdAt: u.createdAt };
@@ -303,6 +283,9 @@ function xlsxPathFor(name) {
 function canWrite(user, path) {
   if (!path.startsWith(DATA_PREFIX) || !/\.(json|xlsx)$/.test(path)) return false;
   if (user.role === "admin") return true;
+  // A PI reads the whole lab and writes none of it -- they have no inventory of their
+  // own, so there is no path here that could be "theirs" to write.
+  if (user.role === "pi") return false;
   return path === dataPathFor(user.name) || path === xlsxPathFor(user.name);
 }
 
@@ -350,109 +333,6 @@ async function historyAt(env, path, atIso) {
   const sha = commits[0].sha;
   const file = await githubApi(env, "GET", `/contents/${path}?ref=${sha}`);
   return { sha, commitDate: commits[0].commit.author.date, content: base64ToUtf8(file.content) };
-}
-
-// ============================================================================ requests & notifications
-//
-// The physical vial never moves through any of this -- Umut's answer was explicit: an
-// approved request just marks the vial "reserved for" the requester on the owner's own
-// side, because physically it is still sitting in the owner's own freezer until someone
-// actually hands it over. That marking is an ordinary edit to the owner's own
-// cellstocks/data/<owner>.json, made through the normal /commit path above like any
-// other save -- this Worker has no idea what a "vial" is and never touches one. What it
-// *does* own is the bookkeeping neither side could otherwise see: the pending request
-// itself (a requester cannot write into someone else's file to leave a note there) and
-// the notification that tells the other side something happened.
-//
-// Every message this file ever sends is a named template, not an inline string --
-// Umut asked to be able to edit these ("X requests ABC vial from your box" and "many
-// more") from the admin panel. DEFAULT_MESSAGES is what ships; a lab can override any
-// subset of them via PUT /config/messages, stored once under a single KV key rather
-// than one key per template (there are only a handful, and they only ever change
-// together, from one editor screen).
-
-const MESSAGES_CONFIG_KEY = "config:messages";
-
-const DEFAULT_MESSAGES = {
-  request: "{fromUser} is asking about {itemName}{noteSuffix}",
-  "request-approved": "{toUser} approved your request for {itemName}.",
-  "request-denied": "{toUser} said no to your request for {itemName}."
-};
-
-function fillTemplate(template, vars) {
-  return template.replace(/\{(\w+)\}/g, (m, key) => (Object.prototype.hasOwnProperty.call(vars, key) ? String(vars[key]) : m));
-}
-
-async function renderMessage(env, key, vars) {
-  const overrides = (await kvGetJson(env.CST_KV, MESSAGES_CONFIG_KEY)) || {};
-  const template = (typeof overrides[key] === "string" && overrides[key]) || DEFAULT_MESSAGES[key];
-  return fillTemplate(template, vars);
-}
-
-async function createRequest(env, fromUser, body) {
-  if (!body || !body.toUser || !body.itemName) {
-    const err = new Error("toUser and itemName are required");
-    err.status = 400;
-    throw err;
-  }
-  if (body.toUser.toLowerCase() === fromUser.toLowerCase()) {
-    const err = new Error("cannot request your own item");
-    err.status = 400;
-    throw err;
-  }
-  const toUser = await kvGetJson(env.CST_KV, userKey(body.toUser));
-  if (!toUser) {
-    const err = new Error("no such user");
-    err.status = 404;
-    throw err;
-  }
-  const reqRecord = {
-    id: newId(), fromUser, toUser: toUser.name, vialId: body.vialId || null, itemName: body.itemName,
-    note: body.note || "", status: "pending", createdAt: new Date().toISOString(), resolvedAt: null
-  };
-  await kvPutJson(env.CST_KV, requestKey(reqRecord.id), reqRecord);
-  // vialId and itemName ride along on the notification itself, not just embedded in the
-  // text -- so acting on it (approve marks the app's own vial "reserved for" the
-  // requester) is one round-trip against GET /notifications, not a second fetch of the
-  // request record just to find out which vial it was about.
-  await notify(env, toUser.name, {
-    type: "request", requestId: reqRecord.id, fromUser, vialId: reqRecord.vialId, itemName: reqRecord.itemName,
-    text: await renderMessage(env, "request", {
-      fromUser, itemName: body.itemName, noteSuffix: body.note ? `: "${body.note}"` : ""
-    }),
-    read: false, createdAt: reqRecord.createdAt
-  });
-  return reqRecord;
-}
-
-async function resolveRequest(env, actingUser, id, decision) {
-  const reqRecord = await kvGetJson(env.CST_KV, requestKey(id));
-  if (!reqRecord) {
-    const err = new Error("no such request");
-    err.status = 404;
-    throw err;
-  }
-  if (actingUser.role !== "admin" && actingUser.name.toLowerCase() !== reqRecord.toUser.toLowerCase()) {
-    const err = new Error("only the item's owner may respond to this request");
-    err.status = 403;
-    throw err;
-  }
-  if (reqRecord.status !== "pending") {
-    const err = new Error(`this request was already ${reqRecord.status}`);
-    err.status = 409;
-    throw err;
-  }
-  reqRecord.status = decision;
-  reqRecord.resolvedAt = new Date().toISOString();
-  await kvPutJson(env.CST_KV, requestKey(id), reqRecord);
-  await notify(env, reqRecord.fromUser, {
-    type: "request-resolved", requestId: id, fromUser: reqRecord.toUser,
-    text: await renderMessage(env, decision === "approved" ? "request-approved" : "request-denied", {
-      toUser: reqRecord.toUser, itemName: reqRecord.itemName
-    }),
-    read: false, createdAt: reqRecord.resolvedAt
-  });
-  return reqRecord;
 }
 
 // ============================================================================ HTTP plumbing
@@ -533,12 +413,15 @@ async function routeCreateUser(request, env) {
   if (!/^[a-zA-Z0-9_-]+$/.test(body.name)) return json({ error: "name may only contain letters, digits, - and _" }, 400);
   const existing = await kvGetJson(env.CST_KV, userKey(body.name));
   if (existing) return json({ error: "that name is already taken" }, 409);
+  if (body.role !== undefined && ROLES.indexOf(body.role) === -1) {
+    return json({ error: `role must be one of: ${ROLES.join(", ")}` }, 400);
+  }
   const { hash, salt } = await hashPassword(body.password);
   const user = {
     name: body.name,
     hash,
     salt,
-    role: body.role === "admin" ? "admin" : "member",
+    role: body.role || "member",
     hidden: !!body.hidden,
     createdAt: new Date().toISOString()
   };
@@ -572,34 +455,6 @@ async function routeResetPassword(request, env, name) {
   return json({ ok: true });
 }
 
-// Renaming touches everywhere the old name was ever recorded, not just the account
-// itself -- Umut asked that a rename "update everything", so requests get their
-// fromUser/toUser fields rewritten and notifications (keyed by recipient name, so
-// this is a re-key, not a field edit) move under the new prefix. What is deliberately
-// NOT touched: the wording of a notification already sent -- "Umut is asking about X" is
-// what was actually said at the time, and rewriting it later would be inventing a history
-// that didn't happen, not correcting one.
-async function migrateUserReferences(env, oldName, newName) {
-  const oldLower = oldName.toLowerCase();
-
-  const requests = await listByPrefix(env.CST_KV, "request:");
-  await Promise.all(requests
-    .filter((r) => r.fromUser.toLowerCase() === oldLower || r.toUser.toLowerCase() === oldLower)
-    .map((r) => {
-      if (r.fromUser.toLowerCase() === oldLower) r.fromUser = newName;
-      if (r.toUser.toLowerCase() === oldLower) r.toUser = newName;
-      return kvPutJson(env.CST_KV, requestKey(r.id), r);
-    }));
-
-  const notifications = await listByPrefix(env.CST_KV, `notification:${oldLower}:`);
-  await Promise.all(notifications.map((n) => {
-    n.user = newName;
-    return kvPutJson(env.CST_KV, notificationKey(newName, n.id), n).then(() =>
-      env.CST_KV.delete(notificationKey(oldName, n.id))
-    );
-  }));
-}
-
 async function routeRenameUser(request, env, name) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -622,7 +477,6 @@ async function routeRenameUser(request, env, name) {
   existing.name = body.newName;
   await kvPutJson(env.CST_KV, userKey(existing.name), existing);
   await env.CST_KV.delete(oldKey);
-  await migrateUserReferences(env, name, body.newName);
   // Existing sessions are for the old KV key, which no longer resolves -- requireSession
   // already 401s the moment a session's user record is gone, so this is effectively an
   // immediate, if unannounced, forced logout. Renaming an account you're using right now
@@ -659,117 +513,14 @@ function requestErrorStatus(err) {
   return err.status && err.status >= 400 && err.status < 600 ? err.status : 500;
 }
 
-async function routeCreateRequest(request, env) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  const body = await request.json().catch(() => null);
-  try {
-    const reqRecord = await createRequest(env, session.user.name, body);
-    return json({ request: reqRecord }, 201);
-  } catch (err) {
-    return json({ error: err.message }, requestErrorStatus(err));
-  }
-}
-
-async function routeListRequests(request, env) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  const all = await listByPrefix(env.CST_KV, "request:");
-  // Admin sees every request lab-wide -- "see and intervene in all pending requests" is
-  // one of the admin panel's own listed jobs. Everyone else sees only the ones they're
-  // actually a party to, same as before.
-  const name = session.user.name.toLowerCase();
-  const mine = session.user.role === "admin"
-    ? all
-    : all.filter((r) => r.fromUser.toLowerCase() === name || r.toUser.toLowerCase() === name);
-  mine.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-  return json({ requests: mine });
-}
-
-async function routeResolveRequest(request, env, id, decision) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  try {
-    const reqRecord = await resolveRequest(env, session.user, id, decision);
-    return json({ request: reqRecord });
-  } catch (err) {
-    return json({ error: err.message }, requestErrorStatus(err));
-  }
-}
-
-async function routeListNotifications(request, env) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  const mine = await listByPrefix(env.CST_KV, `notification:${session.user.name.toLowerCase()}:`);
-  mine.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-  return json({ notifications: mine });
-}
-
-async function routeMarkNotificationRead(request, env, id) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  const key = notificationKey(session.user.name, id);
-  const n = await kvGetJson(env.CST_KV, key);
-  if (!n) return json({ error: "no such notification" }, 404);
-  n.read = true;
-  await kvPutJson(env.CST_KV, key, n);
-  return json({ notification: n });
-}
-
-// Any logged-in user, not just admin -- these are UI copy (a notification's wording, a
-// compose box's placeholder), not anything sensitive, and every screen that shows one of
-// them is shown to ordinary members, not just admin. Returns the text actually in effect
-// (an override where a lab has set one, the shipped default otherwise) since a caller here
-// only ever wants to display a message, never to know whether it's been customized -- that
-// distinction is what the admin-only /admin/messages below is for.
-async function routeGetMessages(request, env) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  const overrides = (await kvGetJson(env.CST_KV, MESSAGES_CONFIG_KEY)) || {};
-  return json({ messages: Object.assign({}, DEFAULT_MESSAGES, overrides) });
-}
-
-// Admin-only: the editor screen needs to see both what ships and what's overridden, so
-// it can show a lab's customized text alongside a "reset to default" per message rather
-// than only ever showing one or the other.
-async function routeGetMessagesConfig(request, env) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
-  const overrides = (await kvGetJson(env.CST_KV, MESSAGES_CONFIG_KEY)) || {};
-  return json({ defaults: DEFAULT_MESSAGES, overrides });
-}
-
-async function routeSetMessagesConfig(request, env) {
-  const session = await requireSession(request, env);
-  if (!session) return json({ error: "not logged in" }, 401);
-  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body.messages !== "object" || body.messages === null) {
-    return json({ error: "messages (an object) is required" }, 400);
-  }
-  const unknown = Object.keys(body.messages).filter((k) => !(k in DEFAULT_MESSAGES));
-  if (unknown.length) return json({ error: `unknown message key(s): ${unknown.join(", ")}` }, 400);
-  const existing = (await kvGetJson(env.CST_KV, MESSAGES_CONFIG_KEY)) || {};
-  const next = Object.assign({}, existing);
-  // A key set to an empty/non-string value resets that one message back to its
-  // default, rather than storing an override that just happens to look empty.
-  Object.keys(body.messages).forEach((k) => {
-    if (typeof body.messages[k] === "string" && body.messages[k].trim()) next[k] = body.messages[k];
-    else delete next[k];
-  });
-  await kvPutJson(env.CST_KV, MESSAGES_CONFIG_KEY, next);
-  return json({ defaults: DEFAULT_MESSAGES, overrides: next });
-}
-
 // ============================================================================ item types
 //
 // "Freeze" became "Add" because a box can hold a Plasmid, an RNA prep or a Protein just
 // as easily as a cell line -- same storage/grid model, different classification. The
 // type list, and the set of attribute NAMES each type has been given so far (a
-// Protein's "concentration"/"buffer", say), are lab-wide, shared across every account,
-// the same way DEFAULT_MESSAGES above is -- not per-account like cellstocks' own
-// state.rules, which only ever covers cells. One KV key, like MESSAGES_CONFIG_KEY.
+// Protein's "concentration"/"buffer", say), are lab-wide, shared across every account --
+// not per-account like cellstocks' own state.rules, which only ever covers cells. One
+// KV key holds the lot, since they only ever change together from one editor screen.
 //
 // There is deliberately no automatic classification here (no regex matching a name to
 // a value, the way the five cell facets work): Umut was explicit that a non-Cell
@@ -893,6 +644,46 @@ async function routeDeleteType(request, env, name) {
   return json(config);
 }
 
+// Admin only, both of these: adding an attribute name is open to everyone (that is what
+// typing one on the Add screen does), but cleaning the list up is not -- the same split
+// merge/delete above already uses. Neither touches a vial: a value already recorded
+// under this name stays exactly as it was typed, and only the suggestion list changes.
+async function routeRenameAttribute(request, env, typeName) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const body = await request.json().catch(() => null);
+  if (!body || !body.from || !body.to) return json({ error: "from and to are required" }, 400);
+  const to = String(body.to).trim();
+  if (!to) return json({ error: "to may not be blank" }, 400);
+
+  const config = await loadTypesConfig(env);
+  const type = config.types.find((t) => t.name.toLowerCase() === String(typeName).toLowerCase());
+  if (!type) return json({ error: "no such type" }, 404);
+  const at = type.attributes.indexOf(body.from);
+  if (at === -1) return json({ error: "no such attribute" }, 404);
+  // Renaming onto a name this type already has is a merge of the two, not a duplicate.
+  if (type.attributes.indexOf(to) === -1) type.attributes[at] = to;
+  else type.attributes.splice(at, 1);
+
+  await kvPutJson(env.CST_KV, TYPES_CONFIG_KEY, config);
+  return json(config);
+}
+
+async function routeDeleteAttribute(request, env, typeName, attrName) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin") return json({ error: "admin only" }, 403);
+  const config = await loadTypesConfig(env);
+  const type = config.types.find((t) => t.name.toLowerCase() === String(typeName).toLowerCase());
+  if (!type) return json({ error: "no such type" }, 404);
+  const before = type.attributes.length;
+  type.attributes = type.attributes.filter((a) => a !== attrName);
+  if (type.attributes.length === before) return json({ error: "no such attribute" }, 404);
+  await kvPutJson(env.CST_KV, TYPES_CONFIG_KEY, config);
+  return json(config);
+}
+
 async function routeHistoryCommits(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -948,21 +739,16 @@ async function handleRequest(request, env) {
     } else if (/^\/admin\/users\/[^/]+\/rename$/.test(path) && request.method === "POST") {
       response = await routeRenameUser(request, env, decodeURIComponent(path.split("/")[3]));
     } else if (path === "/commit" && request.method === "POST") response = await routeCommit(request, env);
-    else if (path === "/requests" && request.method === "POST") response = await routeCreateRequest(request, env);
-    else if (path === "/requests" && request.method === "GET") response = await routeListRequests(request, env);
-    else if (/^\/requests\/[^/]+\/approve$/.test(path) && request.method === "POST") {
-      response = await routeResolveRequest(request, env, decodeURIComponent(path.split("/")[2]), "approved");
-    } else if (/^\/requests\/[^/]+\/deny$/.test(path) && request.method === "POST") {
-      response = await routeResolveRequest(request, env, decodeURIComponent(path.split("/")[2]), "denied");
-    } else if (path === "/notifications" && request.method === "GET") response = await routeListNotifications(request, env);
-    else if (/^\/notifications\/[^/]+\/read$/.test(path) && request.method === "POST") {
-      response = await routeMarkNotificationRead(request, env, decodeURIComponent(path.split("/")[2]));
-    } else if (path === "/messages" && request.method === "GET") response = await routeGetMessages(request, env);
-    else if (path === "/admin/messages" && request.method === "GET") response = await routeGetMessagesConfig(request, env);
-    else if (path === "/admin/messages" && request.method === "PUT") response = await routeSetMessagesConfig(request, env);
     else if (path === "/types" && request.method === "GET") response = await routeGetTypes(request, env);
     else if (path === "/types" && request.method === "POST") response = await routeAddType(request, env);
     else if (path === "/admin/types/merge" && request.method === "POST") response = await routeMergeTypes(request, env);
+    else if (/^\/admin\/types\/[^/]+\/attributes\/rename$/.test(path) && request.method === "POST") {
+      response = await routeRenameAttribute(request, env, decodeURIComponent(path.split("/")[3]));
+    }
+    else if (/^\/admin\/types\/[^/]+\/attributes\/[^/]+$/.test(path) && request.method === "DELETE") {
+      response = await routeDeleteAttribute(request, env,
+        decodeURIComponent(path.split("/")[3]), decodeURIComponent(path.split("/")[5]));
+    }
     else if (/^\/admin\/types\/[^/]+$/.test(path) && request.method === "DELETE") {
       response = await routeDeleteType(request, env, decodeURIComponent(path.split("/")[3]));
     }
@@ -991,11 +777,7 @@ export {
   canWrite,
   userKey,
   sessionKey,
-  requestKey,
-  notificationKey,
-  DEFAULT_MESSAGES,
-  MESSAGES_CONFIG_KEY,
-  fillTemplate,
+  ROLES,
   base64ToUtf8,
   TYPES_CONFIG_KEY,
   DEFAULT_TYPE_NAMES

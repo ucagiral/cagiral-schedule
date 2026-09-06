@@ -2089,30 +2089,31 @@
 
   // The everyday version of "set up storage" -- just a name, a box defaulting to
   // 9×9 (Rename/Resize on Settings → Storage already handle changing that after).
-  // Available to any user, same permission level as everything else on this screen;
+  // Available to any member, same permission level as everything else on this screen;
   // hidden entirely for admin's read-only merged view, which has no inventory of its
   // own to add to.
+  //
+  // A box, and only a box. The freezer itself is the lab's: adding or removing one is
+  // admin's, from Admin → Structure. A member who could add a freezer here was adding
+  // it to everybody's tree, which is not theirs to do -- so the button is gone rather
+  // than merely disabled.
   function renderBoxesQuickAdd(readOnly){
     var c = $("bxQuickAdd");
     c.hidden = !!readOnly;
     if (readOnly) return;
     clear(c);
+    var hasUnits = !!(state.storage.units || []).length;
     var addBox = el("button", null, "Add a box");
-    addBox.disabled = !canWrite();
-    addBox.onclick = function(){
-      if (!(state.storage.units || []).length){
-        showBanner("Add a freezer or tank first — a box always lives inside one.");
-        addUnitDialog();
-        return;
-      }
-      addBoxDialog();
-    };
-    var addUnit = el("button", null, "Add a freezer or tank");
-    addUnit.disabled = !canWrite();
-    addUnit.onclick = function(){ addUnitDialog(); };
+    addBox.disabled = !canWrite() || !hasUnits;
+    addBox.onclick = function(){ addBoxDialog(); };
     var row = el("div", "row tight");
-    row.appendChild(addBox); row.appendChild(addUnit);
+    row.appendChild(addBox);
     c.appendChild(row);
+    if (!hasUnits){
+      c.appendChild(el("p", "note",
+        "There's no freezer or tank set up yet — a box always lives inside one. " +
+        "Ask an admin to add it from Admin → Structure."));
+    }
   }
 
   function renderBoxesBody(readOnly){
@@ -2120,7 +2121,7 @@
     var units = state.storage.units || [];
     if (!units.length){
       clear($("bxGrid")).appendChild(el("div", "empty",
-        readOnly ? "No freezer set up yet." : "No freezer set up yet — add one below."));
+        readOnly ? "No freezer set up yet." : "No freezer set up yet — ask an admin to add one."));
       clear($("bxLines"));
       return;
     }
@@ -3057,43 +3058,6 @@
         rk.rack.boxes.push({ id:id, name:name.value.trim(), rows:9, cols:9, scheme:"grid",
                              note:"", archived:false, owner: (effectiveIdentity() || "").toLowerCase() });
         await commitLabStorage(fresh, "Add a box");
-        $("dlg").close();
-        showBanner("Added <b>" + esc(name.value.trim()) + "</b>.");
-        renderAll();
-      } catch(err){
-        msg.textContent = "Couldn't save that: " + err.message;
-        msg.style.color = "var(--bad)";
-      }
-      ok.disabled = false;
-    };
-    foot.appendChild(ok);
-    $("dlg").showModal();
-  }
-
-  function addUnitDialog(){
-    $("dlgTitle").textContent = "Add a freezer or tank";
-    var body = clear($("dlgBody"));
-    var name = document.createElement("input"); name.placeholder = "-20 Freezer"; name.autocomplete = "off";
-    var f = el("div", "field");
-    f.appendChild(el("label", null, "Name"));
-    f.appendChild(name);
-    body.appendChild(f);
-    body.appendChild(el("p", "note", "Starts with one rack; boxes go in afterwards. This is a freezer for " +
-      "the whole lab, not just for you — admin can rename it, give it a temperature or add more " +
-      "levels from Admin → Structure."));
-    var msg = el("p", "note"); body.appendChild(msg);
-    var foot = clear($("dlgFoot"));
-    var ok = el("button", "primary", "Add");
-    ok.onclick = async function(){
-      if (!name.value.trim()) return;
-      ok.disabled = true;
-      try {
-        var fresh = await fetchLabStorage();
-        var id = "u-" + name.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-        if (E.findUnit(fresh, id)) id += "-" + Date.now().toString(36).slice(-4);
-        fresh.units.push({ id:id, name:name.value.trim(), type:"", note:"", childLabel:"Rack",
-                           racks:[{ id: id + "-r1", name: "Rack 1", boxes: [] }] });
-        await commitLabStorage(fresh, "Add a freezer or tank");
         $("dlg").close();
         showBanner("Added <b>" + esc(name.value.trim()) + "</b>.");
         renderAll();

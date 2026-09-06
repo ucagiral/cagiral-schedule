@@ -293,12 +293,16 @@ function canWrite(user, path) {
   // The lab's shared storage structure: one freezer tree the whole lab reads. Admin owns
   // it (the Structure screen), but an ordinary member still has to be able to add a box
   // for themselves -- Umut asked for exactly that, and it is the one everyday action that
-  // now touches this file. So it is writable by any logged-in member, and the app only
-  // ever offers them the additive part of it. The honest trade-off: nothing here stops a
-  // member's client from writing something else into that file, and two people saving it
-  // at the same moment is last-write-wins like every other file in this repo. Tightening
-  // that means the Worker diffing the incoming tree against the committed one to prove
-  // the change is additive -- worth doing if this lab ever outgrows trusting each other.
+  // now touches this file. So it is writable by any logged-in member.
+  //
+  // The app offers a member boxes and nothing else: adding or removing a freezer or tank
+  // is admin's alone ("kullanicilarin tank/freezer ekleme ozelligini kaldiralim"), and the
+  // button for it is gone rather than merely disabled. That rule lives in the app, not
+  // here: this check is path-based, so nothing stops a member's client from writing
+  // something else into that file, and two people saving it at the same moment is
+  // last-write-wins like every other file in this repo. Enforcing it here means the Worker
+  // reading the committed tree and proving the incoming one changes only box lists --
+  // worth doing if this lab ever outgrows trusting each other.
   if (path === LAB_STORAGE_PATH) return true;
 
   // Folder icons for that structure. Admin-only, since only the Structure screen

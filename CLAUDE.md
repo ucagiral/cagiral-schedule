@@ -166,6 +166,11 @@ worker handles by sweeping only its own prefix.
   It is admin-only, and it is the third attempt — do not "simplify" it back into one level at a
   time or a per-member picker. A shrink that would strand a box is refused by name: *"X kutusu Y
   rafı silindiğinden dolayı yeni lokasyona yerleştirilmeli"*.
+- **A member adds a box; only admin adds a freezer.** The quick-add row on the Boxes tab offers
+  a box and nothing else — the "Add a freezer or tank" button was removed at Umut's word, not
+  disabled, because a member adding a unit was adding it to everybody's tree. With no freezer
+  yet, "Add a box" is disabled and says to ask an admin. Do not put a unit-level control back on
+  a member's screen.
 - **Every folder carries its own icon, and both kinds are real.** An emoji is stored as the
   character; an uploaded image lands in `cellstocks/icons/` (admin only, PNG/JPG/WEBP, no SVG — it
   is markup and this repo is public) and the node stores only the filename. `iconKind()` decides

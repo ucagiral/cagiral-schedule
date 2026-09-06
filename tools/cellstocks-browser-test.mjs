@@ -787,6 +787,16 @@ try {
     await page.selectOption("#bxUnit", "u-deep");
     await page.waitForSelector("#bxPath select");
 
+    // The freezer belongs to the lab, so a member adds a box into it and nothing more:
+    // adding or removing a freezer or tank is admin's, from the Structure screen. The
+    // button for it used to sit right here, which meant any member could add a unit to
+    // everybody's tree.
+    const quickAdd = await page.$$eval("#bxQuickAdd button", (btns) =>
+      btns.map((b) => ({ text: b.textContent.trim(), disabled: b.disabled })));
+    check("a member's quick-add offers a box and only a box -- no freezer or tank button",
+      quickAdd.length === 1 && quickAdd[0].text === "Add a box" && quickAdd[0].disabled === false,
+      JSON.stringify(quickAdd));
+
     const deepSelectCount = await page.$$eval("#bxPath select", (els) => els.length);
     check("a unit -> shelf -> rack -> box unit shows three pickers under the breadcrumb (shelf, rack, box)",
       deepSelectCount === 3, `saw ${deepSelectCount}`);

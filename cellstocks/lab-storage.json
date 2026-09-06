@@ -11,9 +11,10 @@
       "racks": [
         {
           "id": "t-1",
-          "name": "Tower 1",
+          "name": "Shelf 1",
           "boxes": [],
-          "racks": []
+          "racks": [],
+          "icon": ""
         }
       ],
       "icon": "🧊"

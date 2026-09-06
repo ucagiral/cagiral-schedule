@@ -66,6 +66,15 @@
               "scheme": "grid",
               "archived": false,
               "owner": "umut"
+            },
+            {
+              "id": "b-ln2-1",
+              "name": "Box 1",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false,
+              "owner": "umut"
             }
           ],
           "racks": [],
@@ -85,15 +94,6 @@
           "id": "t-1",
           "name": "Tower 1",
           "boxes": [
-            {
-              "id": "b-ln2-1",
-              "name": "Box 1",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "archived": false,
-              "owner": "umut"
-            },
             {
               "id": "b-ln2-2",
               "name": "Box 2",

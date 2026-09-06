@@ -12,62 +12,7 @@
         {
           "id": "r-1",
           "name": "Shelf 1 - Umut",
-          "boxes": [
-            {
-              "id": "b-umut-caa-cells",
-              "name": "UMUT CAA CELLS",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "archived": false,
-              "owner": "umut"
-            },
-            {
-              "id": "b-umut-cells-80",
-              "name": "UMUT CELLS -80",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "archived": false,
-              "owner": "umut"
-            },
-            {
-              "id": "b-duzenle",
-              "name": "DUZENLE",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "archived": false,
-              "owner": "umut"
-            },
-            {
-              "id": "b-ongoing",
-              "name": "ONGOING",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "archived": false,
-              "owner": "umut"
-            },
-            {
-              "id": "b-umut-cells-4",
-              "name": "UMUT CELLS -4-",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "archived": false,
-              "owner": "umut"
-            },
-            {
-              "id": "b-box-6",
-              "name": "Box 6",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "archived": false,
-              "owner": "umut"
-            }
-          ],
+          "boxes": [],
           "racks": [],
           "icon": "❄️"
         },

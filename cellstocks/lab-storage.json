@@ -4,14 +4,14 @@
   "units": [
     {
       "id": "u-f80",
-      "name": "-80°C Freezer 1",
+      "name": "-80 °C Freezer",
       "type": "freezer",
       "note": "",
       "childLabel": "Rack",
       "racks": [
         {
           "id": "r-1",
-          "name": "Rack 1",
+          "name": "Shelf 1",
           "boxes": [
             {
               "id": "b-umut-caa-cells",
@@ -68,10 +68,10 @@
               "owner": "umut"
             }
           ],
-          "racks": []
+          "racks": [],
+          "icon": ""
         }
-      ],
-      "icon": ""
+      ]
     },
     {
       "id": "u-ln2",

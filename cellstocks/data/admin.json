@@ -114,11 +114,11 @@
     },
     "aliases": {},
     "columnMap": {},
-    "groupingStrategy": "random",
+    "groupingStrategy": "category-row",
     "customFlags": []
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-06T09:08:47.411Z"
+    "savedAt": "2026-09-06T09:08:53.435Z"
   }
 }

@@ -1939,6 +1939,309 @@ try {
   }
 }
 
+// ============================================================================
+// The same field-level merge applies to load()'s dirty-reopen branch too, once
+// it has a real ancestor to compare against
+// ============================================================================
+//
+// Extends the "work a device never managed to save" scenario: this time, instead of
+// brand-new vials, the device's own unsaved edit and the server's independent edit both
+// land on the SAME vial id, in different fields, while this device was offline. Before
+// load() was given priorSynced (this device's last-known-synced copy, captured before
+// it gets overwritten by the fresh fetch), the dirty-merge's whole-vial rule would have
+// let whichever side "won" discard the other's field entirely.
+{
+  const server13 = await serve(8810);
+  const browser13 = await chromium.launch();
+  try {
+    const labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "", unplaced: [],
+      children: [{ id: "u-1", name: "Freezer 1", children: [
+        { id: "r-1", name: "Rack 1", children: [
+          { id: "b-1", name: "Box 1", isBox: true, owner: "umut", rows: 9, cols: 9, scheme: "grid" }] }] }]
+    };
+    const synced = {
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-shared", name: "DuPar50CR NT KO", passage: "p5", passageNumber: 5, passageKind: "absolute",
+                notes: "", location: { boxId: "b-1", position: "A1", path: [] }, status: "stored" }]
+    };
+    // This device's own unsaved edit, made before it went offline: notes.
+    const unsaved = JSON.parse(JSON.stringify(synced));
+    unsaved.vials[0].notes = "mycoplasma checked, clean";
+    // The server's independent edit, landed while this device was offline: passage.
+    const committed = JSON.parse(JSON.stringify(synced));
+    committed.vials[0].passage = "p9"; committed.vials[0].passageNumber = 9;
+
+    const context = await browser13.newContext();
+    await context.addInitScript(([cache, cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "Umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+      localStorage.setItem("cst_cache:umut", cache);
+    }, [JSON.stringify({ at: Date.now(), state: unsaved, dirty: true, synced: synced }),
+        JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(committed) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json",
+                      body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    let committedFiles = null;
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        committedFiles = JSON.parse(req.postData());
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "abc" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8810/cellstocks/");
+
+    const noteInCache = async () => page.evaluate(() => {
+      try {
+        const c = JSON.parse(localStorage.getItem("cst_cache:umut") || "null");
+        const v = c && c.state && c.state.vials ? c.state.vials.find((x) => x.id === "v-shared") : null;
+        return v || null;
+      } catch (e) { return null; }
+    });
+    await page.waitForFunction(() => {
+      try {
+        const c = JSON.parse(localStorage.getItem("cst_cache:umut") || "null");
+        const v = c && c.state && c.state.vials ? c.state.vials.find((x) => x.id === "v-shared") : null;
+        return v && v.passage === "p9";   // the signal that the dirty-merge against the fresh copy ran
+      } catch (e) { return false; }
+    }, { timeout: 10000 }).catch(() => {});
+
+    const merged = await noteInCache();
+    check("this device's own unsaved edit to notes survives reopening",
+      !!merged && merged.notes === "mycoplasma checked, clean", JSON.stringify(merged));
+    check("the server's own independent edit to passage is not discarded",
+      !!merged && merged.passage === "p9", JSON.stringify(merged));
+
+    for (let i = 0; i < 40 && !committedFiles; i++) await page.waitForTimeout(100);
+    check("reopening retries the save, carrying both edits", !!committedFiles);
+    if (committedFiles) {
+      const written = JSON.parse(committedFiles.files[0].content).vials.find((v) => v.id === "v-shared");
+      check("what it saves has both edits on the one committed copy",
+        written && written.notes === "mycoplasma checked, clean" && written.passage === "p9", JSON.stringify(written));
+    }
+  } catch (err) {
+    check("load()'s dirty-reopen field-merges the same vial too", false, String(err));
+  } finally {
+    await browser13.close();
+    server13.close();
+  }
+}
+
+// ============================================================================
+// Two sessions editing the SAME vial, since their last sync, no longer cost
+// each other -- only a genuine same-field conflict does, and that is shown
+// ============================================================================
+//
+// The gap left open by the fix above: reconciling with the server before every commit
+// used a whole-vial tie-break -- if THIS session's edit and the server's own edit landed
+// on the same vial id, whichever side's copy was preferred took its ENTIRE object,
+// discarding the other side's edit even when it touched a completely different field.
+// mergeVialFields (engine.js) resolves per field instead. First case: different fields,
+// both survive, no conflict. Second case: the SAME field, edited two different ways --
+// mine wins the tie (same direction the old rule already took), but it's said out loud
+// rather than silently decided.
+{
+  const server11 = await serve(8808);
+  const browser11 = await chromium.launch();
+  try {
+    const labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "", unplaced: [],
+      children: [{ id: "u-1", name: "Freezer 1", children: [
+        { id: "r-1", name: "Rack 1", children: [
+          { id: "b-1", name: "Box 1", isBox: true, owner: "umut", rows: 9, cols: 9, scheme: "grid" }] }] }]
+    };
+    const synced = {
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-shared", name: "DuPar50CR NT KO", passage: "p5", passageNumber: 5, passageKind: "absolute",
+                notes: "", location: { boxId: "b-1", position: "A1", path: [] }, status: "stored" }]
+    };
+    // The server moves on independently, to a different field, before this session saves.
+    const movedOn = JSON.parse(JSON.stringify(synced));
+    movedOn.vials[0].passage = "p9"; movedOn.vials[0].passageNumber = 9;
+
+    let servedContent = synced;
+    const context = await browser11.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "Umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(servedContent) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json",
+                      body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    const commits = [];
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        commits.push(JSON.parse(req.postData()));
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "abc" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8808/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+    servedContent = movedOn;   // the server quietly moves on, on a different field
+
+    // Edit this session's own field -- notes -- through the real Edit dialog.
+    await page.click("nav button[data-screen=find]");
+    await page.fill("#q", "DuPar50CR");
+    await page.waitForSelector(".res");
+    await page.click(".res button:has-text('Edit')");
+    await page.waitForSelector("#dlgBody");
+    await page.evaluate((text) => {
+      const label = Array.from(document.querySelectorAll("#dlgBody label")).find((l) => l.textContent.trim() === "Notes");
+      label.closest(".field").querySelector("input").value = text;
+    }, "mycoplasma checked, clean");
+    await page.click("#dlgFoot button.primary");
+
+    for (let i = 0; i < 40 && !commits.length; i++) await page.waitForTimeout(100);
+    check("the notes edit was saved at all", commits.length === 1, commits.length);
+    if (commits.length) {
+      const written = JSON.parse(commits[0].files[0].content).vials.find((v) => v.id === "v-shared");
+      check("this session's own edit to notes went through",
+        written && written.notes === "mycoplasma checked, clean", JSON.stringify(written));
+      check("the server's own independent edit to passage was not discarded",
+        written && written.passage === "p9", JSON.stringify(written));
+    }
+    const conflictBannerShown = await page.evaluate(() => document.getElementById("banner").classList.contains("show"));
+    check("editing two different fields is not a conflict -- no banner about one", !conflictBannerShown);
+  } catch (err) {
+    check("field-level merge keeps edits to different fields on the same vial", false, String(err));
+  } finally {
+    await browser11.close();
+    server11.close();
+  }
+}
+
+{
+  const server12 = await serve(8809);
+  const browser12 = await chromium.launch();
+  try {
+    const labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "", unplaced: [],
+      children: [{ id: "u-1", name: "Freezer 1", children: [
+        { id: "r-1", name: "Rack 1", children: [
+          { id: "b-1", name: "Box 1", isBox: true, owner: "umut", rows: 9, cols: 9, scheme: "grid" }] }] }]
+    };
+    const synced = {
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-shared", name: "DuPar50CR NT KO", passage: "p5", passageNumber: 5, passageKind: "absolute",
+                notes: "original note", location: { boxId: "b-1", position: "A1", path: [] }, status: "stored" }]
+    };
+    // The server independently edits the SAME field this session is about to.
+    const movedOn = JSON.parse(JSON.stringify(synced));
+    movedOn.vials[0].notes = "quarantined pending recheck";
+
+    let servedContent = synced;
+    const context = await browser12.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "Umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(servedContent) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json",
+                      body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    const commits = [];
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        commits.push(JSON.parse(req.postData()));
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "abc" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8809/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+    servedContent = movedOn;   // the server edits the SAME field this session is about to
+
+    await page.click("nav button[data-screen=find]");
+    await page.fill("#q", "DuPar50CR");
+    await page.waitForSelector(".res");
+    await page.click(".res button:has-text('Edit')");
+    await page.waitForSelector("#dlgBody");
+    await page.evaluate((text) => {
+      const label = Array.from(document.querySelectorAll("#dlgBody label")).find((l) => l.textContent.trim() === "Notes");
+      label.closest(".field").querySelector("input").value = text;
+    }, "mycoplasma checked, clean");
+    await page.click("#dlgFoot button.primary");
+
+    for (let i = 0; i < 40 && !commits.length; i++) await page.waitForTimeout(100);
+    check("the notes edit was saved at all", commits.length === 1, commits.length);
+    if (commits.length) {
+      const written = JSON.parse(commits[0].files[0].content).vials.find((v) => v.id === "v-shared");
+      check("a genuine same-field conflict still keeps this session's own edit",
+        written && written.notes === "mycoplasma checked, clean", JSON.stringify(written));
+    }
+    await page.waitForFunction(() => document.getElementById("banner").classList.contains("show"),
+      { timeout: 5000 }).catch(() => {});
+    const bannerText = await page.evaluate(() => document.getElementById("banner").textContent);
+    check("a genuine conflict is shown, not silently decided",
+      /notes/.test(bannerText) && /kept yours/.test(bannerText), bannerText);
+  } catch (err) {
+    check("a genuine same-field conflict is kept mine but reported", false, String(err));
+  } finally {
+    await browser12.close();
+    server12.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

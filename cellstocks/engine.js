@@ -2639,6 +2639,40 @@
   // saved anything at all (a facet correction accepted on Review, reported fixed, then
   // reappearing, was exactly this). With an ancestor, a vial local hasn't changed since it
   // (mine equals synced) defers to whatever remote now has instead of overwriting it.
+  //
+  // Same tube, both sides touched it since the last sync, and the whole objects differ.
+  // Resolves per top-level field rather than picking one side's entire copy, so an edit to
+  // `notes` on one device and an edit to `passage` on another (or on the server) no longer
+  // cost each other -- the whole-vial version of this rule silently discarded whichever
+  // side didn't win, even when the two edits touched fields that had nothing to do with
+  // each other. Deliberately shallow: `location`, `custom`, `facetsFromSheet`, `flags` and
+  // the like are compared and taken whole, not merged key-by-key inside themselves. Two
+  // sides moving a vial to two different slots is exactly as real a disagreement as two
+  // sides editing the same note differently, not something a deeper merge could dissolve
+  // away -- and validate() already catches the resulting two-vials-one-slot case on its own.
+  function mergeVialFields(remoteVial, localVial, ancestorVial) {
+    var keys = {};
+    [remoteVial, localVial, ancestorVial].forEach(function (o) {
+      Object.keys(o || {}).forEach(function (k) { keys[k] = true; });
+    });
+    var merged = {};
+    var conflicts = [];
+    Object.keys(keys).forEach(function (k) {
+      var r = remoteVial[k], l = localVial[k], a = ancestorVial ? ancestorVial[k] : undefined;
+      var rStr = JSON.stringify(r), lStr = JSON.stringify(l), aStr = JSON.stringify(a);
+      var value;
+      if (lStr === aStr) value = r;                 // local never touched this field
+      else if (rStr === aStr) value = l;             // only local changed it
+      else if (lStr === rStr) value = l;             // both changed it to the same thing
+      else { value = l; conflicts.push({ field: k, mine: l, theirs: r }); }   // genuine conflict
+      // Lets a deletion propagate as an absent key instead of leaving `field: undefined`
+      // on the merged vial, which JSON.stringify would drop on the next save anyway but
+      // would confuse anything comparing the in-memory object before that.
+      if (value !== undefined) merged[k] = value;
+    });
+    return { vial: merged, conflicts: conflicts };
+  }
+
   function mergeInventories(remote, local, synced) {
     var base = mergeDefaults(remote);
     var mine = mergeDefaults(local);
@@ -2657,6 +2691,7 @@
     var byId = {};
     (next.vials || []).forEach(function (v, i) { byId[v.id] = i; });
     var kept = 0, added = 0;
+    var conflicts = [];
     (mine.vials || []).forEach(function (v) {
       if (removedIds[v.id]) return;   // tombstoned -- a stale cache must not resurrect it
       if (byId[v.id] === undefined) { next.vials.push(clone(v)); kept++; return; }
@@ -2669,6 +2704,22 @@
       var atAncestor = ancestor && ancestorById[v.id];
       var untouchedSinceSync = atAncestor && JSON.stringify(atAncestor) === JSON.stringify(v);
       if (untouchedSinceSync) return;
+      if (atAncestor) {
+        // Both sides may have touched this vial since the ancestor -- resolve field by
+        // field rather than letting one side's whole copy silently discard the other's.
+        var fieldMerge = mergeVialFields(next.vials[byId[v.id]], v, atAncestor);
+        if (JSON.stringify(next.vials[byId[v.id]]) === JSON.stringify(fieldMerge.vial)) return;
+        next.vials[byId[v.id]] = fieldMerge.vial;
+        if (fieldMerge.conflicts.length) {
+          conflicts.push({ vialId: v.id, name: fieldMerge.vial.name, fields: fieldMerge.conflicts });
+        }
+        kept++;
+        return;
+      }
+      // No ancestor at all, or no ancestor entry for this specific vial id (new to both
+      // since the ancestor was captured) -- there is no way to tell which fields either
+      // side actually touched, so fall back to exactly the original rule: local's whole
+      // copy wins. Unchanged behaviour for every caller that doesn't pass an ancestor.
       next.vials[byId[v.id]] = clone(v);
       kept++;
     });
@@ -2690,7 +2741,7 @@
     // Settings are this device's own view (column maps, custom columns); the local copy
     // is the one the person has been using, so it stands.
     next.settings = clone(mine.settings || base.settings || {});
-    return { state: next, kept: kept, added: added };
+    return { state: next, kept: kept, added: added, conflicts: conflicts };
   }
 
   function reviewQueue(state) {

@@ -705,6 +705,25 @@
   }
   function hideBanner(){ $("banner").classList.remove("show"); }
 
+  // Shared wording for a genuine field-level conflict mergeInventories reports (see
+  // engine.js): two sessions edited the SAME field of the SAME vial, to two different
+  // things, since they last agreed with the server. Local always wins that tie (same
+  // direction the whole-vial rule already took before field-level merging existed), so
+  // this is never a blocker -- just the one place it has to be said out loud rather than
+  // resolved silently. Shared by save() and load()'s dirty-reopen branch so the wording
+  // lives in exactly one place.
+  function describeConflicts(conflicts){
+    if (!conflicts || !conflicts.length) return null;
+    var first = conflicts[0];
+    var fieldNames = first.fields.map(function(f){ return f.field; }).join(" and ");
+    var verb = first.fields.length > 1 ? "were" : "was";
+    var html = esc(first.name) + ": " + fieldNames + " " + verb + " edited on both sides — kept yours, not theirs.";
+    if (conflicts.length > 1){
+      html += " (and " + (conflicts.length - 1) + " more vial(s) — see console)";
+    }
+    return { html: html };
+  }
+
   function utf8ToBase64(str){
     var bytes = new TextEncoder().encode(str), out = "", CH = 0x8000;
     for (var i = 0; i < bytes.length; i += CH) out += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
@@ -837,6 +856,13 @@
       // that must render as a blank inventory, never as whatever the previously-active account
       // (or a stale in-memory state left over from before a worker login/logout) happened to be.
       var own = (text !== null && text !== undefined) ? E.mergeDefaults(JSON.parse(text)) : E.blankState();
+      // The ancestor for the dirty-merge below, if this reopen turns out to be a dirty
+      // one: this device's last known-synced copy from BEFORE this app-open (set by
+      // cacheLoad() at boot, or by an earlier load()/save() in this same tab) -- captured
+      // here because the very next line overwrites syncedState with what was just
+      // fetched, which is the ancestor for the NEXT save, not for reconciling edits made
+      // before this fetch happened.
+      var priorSynced = syncedState;
       // This is now the last copy we know for a fact the server actually holds --
       // save()'s ancestor for the next reconciliation, whichever branch below runs.
       syncedState = own;
@@ -857,14 +883,19 @@
       // winning. The freezer tree and the rules always come from the shared files: they
       // are the lab's, not this device's, and they were never the unsaved part.
       if (dirty){
-        var merged = E.mergeInventories(own, state);
+        var merged = E.mergeInventories(own, state, priorSynced);
         state = hydrate(merged.state, effectiveIdentity());
         cacheSave();
         setStatus("Not saved yet", "error");
-        if (merged.kept){
-          showBanner(merged.kept + " change(s) on this device had not been saved. They are still here" +
-                     (merged.added ? ", alongside " + merged.added + " from elsewhere" : "") +
-                     " — saving again now.",
+        if (merged.conflicts && merged.conflicts.length){
+          console.warn("cell stocks: field-level merge conflicts", merged.conflicts);
+        }
+        if (merged.kept || (merged.conflicts && merged.conflicts.length)){
+          var cd = describeConflicts(merged.conflicts);
+          showBanner((merged.kept ? merged.kept + " change(s) on this device had not been saved. They are still here" +
+                       (merged.added ? ", alongside " + merged.added + " from elsewhere" : "") +
+                       " — saving again now." : "") +
+                     (cd ? (merged.kept ? " " : "") + cd.html : ""),
                      [{ label:"Save now", onClick: function(){ save("Save work this device had kept"); } }]);
         }
         // Retried on its own as well as offered, because the reason it failed the first
@@ -1138,6 +1169,15 @@
         // or not (a failed commit still means this read genuinely happened).
         syncedState = remote;
         cacheSave();
+        // A genuine same-field, same-vial conflict: never blocks the save (this session's
+        // edit always wins the tie, same direction the merge already took before it could
+        // tell fields apart), but never silent either. console.warn carries the full
+        // detail in case a later, unrelated banner overwrites this one before it's read.
+        if (reconciled.conflicts && reconciled.conflicts.length){
+          console.warn("cell stocks: field-level merge conflicts", reconciled.conflicts);
+          var cd = describeConflicts(reconciled.conflicts);
+          showBanner(cd.html, [{ label:"Got it", onClick: hideBanner }]);
+        }
       }
     } catch(e){ /* offline, or the read failed -- fall back to committing this session's own copy */ }
 

@@ -2533,6 +2533,105 @@ check("a vial this device genuinely edited since the last sync still wins", () =
   const out = E.mergeInventories(remote, mine, synced);
   const merged = out.state.vials.find((v) => v.id === id);
   if (merged.notes !== "mycoplasma checked, clean") return `the genuine local edit was lost: ${json(merged)}`;
+  // The whole-vial version of this rule took mine's ENTIRE copy, which silently threw
+  // away the server's own independent edit to a completely different field -- exactly
+  // the gap the field-level merge below closes.
+  if (merged.passage !== "p9") return `the server's own independent edit to a different field was lost: ${json(merged)}`;
+  if (out.conflicts.length) return `two edits to different fields must not be reported as a conflict: ${json(out.conflicts)}`;
+  return null;
+});
+
+// ------------------------------------------- field-level merge for the same vial, both sides
+//
+// The whole-vial tie-break above is right when only one side actually touched the vial. When
+// BOTH sides touched it since the last sync -- the case this section covers -- taking either
+// side's entire copy costs whatever the other side changed, even when the two edits have
+// nothing to do with each other. mergeVialFields resolves per field instead, and only reports
+// a conflict when the SAME field was set to two different things.
+
+check("two genuine edits to different fields of the same vial are both kept", () => {
+  const synced = fixture();
+  const id = synced.vials[0].id;
+  const mine = JSON.parse(JSON.stringify(synced));
+  mine.vials.find((v) => v.id === id).notes = "mycoplasma checked, clean";
+  const remote = JSON.parse(JSON.stringify(synced));
+  remote.vials.find((v) => v.id === id).passage = "p9";
+
+  const out = E.mergeInventories(remote, mine, synced);
+  const merged = out.state.vials.find((v) => v.id === id);
+  if (merged.notes !== "mycoplasma checked, clean") return `the local edit was lost: ${json(merged)}`;
+  if (merged.passage !== "p9") return `the remote edit was lost: ${json(merged)}`;
+  if (out.conflicts.length) return `no field was set to two different things -- there is no conflict here: ${json(out.conflicts)}`;
+  return null;
+});
+
+check("two edits to the SAME field of the same vial is a genuine conflict, kept mine, and reported", () => {
+  const synced = fixture();
+  const id = synced.vials[0].id;
+  synced.vials.find((v) => v.id === id).notes = "";
+  const mine = JSON.parse(JSON.stringify(synced));
+  mine.vials.find((v) => v.id === id).notes = "mycoplasma checked, clean";
+  const remote = JSON.parse(JSON.stringify(synced));
+  remote.vials.find((v) => v.id === id).notes = "quarantined pending recheck";
+
+  const out = E.mergeInventories(remote, mine, synced);
+  const merged = out.state.vials.find((v) => v.id === id);
+  if (merged.notes !== "mycoplasma checked, clean") return `expected mine to win a genuine conflict: ${json(merged)}`;
+  const c = out.conflicts.find((x) => x.vialId === id);
+  if (!c) return `the conflict was resolved silently -- never reported: ${json(out.conflicts)}`;
+  const f = c.fields.find((x) => x.field === "notes");
+  if (!f || f.mine !== "mycoplasma checked, clean" || f.theirs !== "quarantined pending recheck") {
+    return `the reported conflict does not carry both values: ${json(c)}`;
+  }
+  return null;
+});
+
+check("both sides changing a field to the same new value is not a conflict", () => {
+  const synced = fixture();
+  const id = synced.vials[0].id;
+  const mine = JSON.parse(JSON.stringify(synced));
+  mine.vials.find((v) => v.id === id).passage = "p9";
+  const remote = JSON.parse(JSON.stringify(synced));
+  remote.vials.find((v) => v.id === id).passage = "p9";   // coincidentally the same new value
+
+  const out = E.mergeInventories(remote, mine, synced);
+  const merged = out.state.vials.find((v) => v.id === id);
+  if (merged.passage !== "p9") return `expected the agreed-on value, got ${json(merged)}`;
+  if (out.conflicts.length) return `agreeing on a value is not a conflict: ${json(out.conflicts)}`;
+  return null;
+});
+
+check("a vial with no entry in the ancestor falls back to the old whole-vial rule", () => {
+  const synced = fixture();
+  const id = synced.vials[0].id;
+  const mine = JSON.parse(JSON.stringify(synced));
+  mine.vials.find((v) => v.id === id).notes = "mycoplasma checked, clean";
+  const remote = JSON.parse(JSON.stringify(synced));
+  remote.vials.find((v) => v.id === id).passage = "p9";
+  // The ancestor snapshot never actually saw this vial (an odd but possible shape --
+  // an id minted after the last sync but somehow already present on both other sides).
+  synced.vials = synced.vials.filter((v) => v.id !== id);
+
+  const out = E.mergeInventories(remote, mine, synced);
+  const merged = out.state.vials.find((v) => v.id === id);
+  if (merged.notes !== "mycoplasma checked, clean") return `expected the old whole-vial rule (local wins): ${json(merged)}`;
+  if (merged.passage === "p9") return "the whole-vial rule should not have picked up remote's field at all";
+  if (out.conflicts.length) return `cannot detect a conflict with no ancestor entry to compare against: ${json(out.conflicts)}`;
+  return null;
+});
+
+check("one side clearing a field the other left untouched is not a conflict", () => {
+  const synced = fixture();
+  const id = synced.vials[0].id;
+  synced.vials.find((v) => v.id === id).notes = "second aliquot";
+  const mine = JSON.parse(JSON.stringify(synced));
+  delete mine.vials.find((v) => v.id === id).notes;
+  const remote = JSON.parse(JSON.stringify(synced));   // untouched
+
+  const out = E.mergeInventories(remote, mine, synced);
+  const merged = out.state.vials.find((v) => v.id === id);
+  if ("notes" in merged) return `expected the field gone, not present as undefined: ${json(merged)}`;
+  if (out.conflicts.length) return `clearing a field nobody else touched is not a conflict: ${json(out.conflicts)}`;
   return null;
 });
 

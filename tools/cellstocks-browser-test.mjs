@@ -1818,6 +1818,127 @@ try {
   }
 }
 
+// ============================================================================
+// save() must not clobber a change that landed on the server after this
+// session's own last read, however unrelated the edit that triggers it
+// ============================================================================
+//
+// The other half of the same incident class as above, found from a real report: "Accept
+// all" on Review's facet-drift list reported success, but the same rows kept coming
+// back. dropEmptyImportRows/mergeInventories's tombstone (see engine.js) fixed the case
+// where a removal races its own debounced save -- but save() never re-read the server
+// before committing at all, for ANY edit. A tab that loaded once and is then left open
+// (backgrounded, suspended, or simply a second device) holds a `state` that can fall
+// behind whatever else gets committed in the meantime; the first time that tab saves
+// ANYTHING -- however unrelated -- it used to serialise its own stale snapshot whole,
+// silently re-committing everything the server had since moved past. Reproduced here
+// with a fully unrelated edit (marking a different vial's date Unknown) after the
+// server has already moved on from a facetsFromSheet this session's own view still has.
+{
+  const server10 = await serve(8807);
+  const browser10 = await chromium.launch();
+  try {
+    const labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "", unplaced: [],
+      children: [{ id: "u-1", name: "Freezer 1", children: [
+        { id: "r-1", name: "Rack 1", children: [
+          { id: "b-1", name: "Box 1", isBox: true, owner: "umut", rows: 9, cols: 9, scheme: "grid" }] }] }]
+    };
+    // What this session reads on its one and only load(): a vial still carrying the
+    // sheet's own (buggy) facet reading, waiting in Review.
+    const stale = {
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [
+        { id: "v-facet", name: "DuPar50CR NT KO", passage: "p5",
+          location: { boxId: "b-1", position: "A1", path: [] }, status: "stored",
+          facetsFromSheet: { resistance: "50CR" } },
+        { id: "v-nodate", name: "HEK293T", passage: "p3",
+          location: { boxId: "b-1", position: "A2", path: [] }, status: "stored" }
+      ]
+    };
+    // What is actually on the server by the time this session gets around to saving
+    // anything: someone else already accepted the facet correction.
+    const current = JSON.parse(JSON.stringify(stale));
+    delete current.vials[0].facetsFromSheet;
+
+    let servedContent = stale;
+    const context = await browser10.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "Umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+      // No pre-existing cache: this is a plain, ordinary first load, never marked dirty.
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    let getCount = 0;
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        getCount++;
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(servedContent) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json",
+                      body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    const commits = [];
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        commits.push(JSON.parse(req.postData()));
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "abc" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8807/cellstocks/");
+
+    // Wait for the one and only load() this session makes to land, then -- as far as
+    // this page is concerned -- the server quietly moves on without it, the same way
+    // another device's commit would.
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+    check("the initial load actually read the stale copy with the facet still on it", getCount >= 1, getCount);
+    servedContent = current;
+
+    // Now make a change with nothing to do with facets at all: confirm a different
+    // vial has no date to give and never will.
+    await page.click("nav button[data-screen=review]");
+    await page.waitForSelector("#reviewBody .item");
+    await page.evaluate(() => {
+      const row = Array.from(document.querySelectorAll("#reviewBody .item"))
+        .find((r) => r.textContent.includes("HEK293T"));
+      Array.from(row.querySelectorAll("button")).find((b) => b.textContent.trim() === "Unknown").click();
+    });
+
+    for (let i = 0; i < 40 && !commits.length; i++) await page.waitForTimeout(100);
+    check("the unrelated edit was saved at all", commits.length === 1, commits.length);
+    if (commits.length){
+      const written = JSON.parse(commits[0].files[0].content);
+      const facetVial = written.vials.find((v) => v.id === "v-facet");
+      check("saving an unrelated edit must not resurrect a facet correction the server already had",
+        facetVial && !facetVial.facetsFromSheet, JSON.stringify(facetVial));
+      const dateVial = written.vials.find((v) => v.id === "v-nodate");
+      check("and the edit this session actually made must still go through",
+        dateVial && dateVial.dateUnknown === true, JSON.stringify(dateVial));
+    }
+  } catch (err) {
+    check("save() reconciles with the server before committing", false, String(err));
+  } finally {
+    await browser10.close();
+    server10.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

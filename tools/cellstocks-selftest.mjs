@@ -2497,6 +2497,59 @@ check("an edit this device has not saved beats the older committed copy of the s
   return null;
 });
 
+// ------------------------------------------------- the three-way ancestor for save()
+//
+// The real incident: "Accept all" on Review's facet-drift list reported success, then
+// the same rows came back. dropEmptyImportRows's tombstone (above) fixed the case where
+// a *removal* races its own debounced save; this is the more general version, found
+// once save() started reconciling with the server before every commit (see index.html):
+// without an ancestor, "local differs from remote" always read as "this device edited
+// it", even for a vial the session never touched and was only carrying forward
+// unchanged. `synced` -- the last copy this session is actually known to have agreed
+// with the server on -- is what tells those two cases apart.
+
+check("a vial untouched since the last sync defers to what the server has now", () => {
+  const synced = fixture();
+  const id = synced.vials[0].id;
+  synced.vials[0].facetsFromSheet = { resistance: "50CR" };
+  const mine = JSON.parse(JSON.stringify(synced));           // this session never touched it
+  const remote = JSON.parse(JSON.stringify(synced));
+  delete remote.vials.find((v) => v.id === id).facetsFromSheet;   // corrected elsewhere, already committed
+
+  const out = E.mergeInventories(remote, mine, synced);
+  const merged = out.state.vials.find((v) => v.id === id);
+  if (merged.facetsFromSheet) return `the server's correction was overwritten by a copy this session never edited: ${json(merged)}`;
+  return null;
+});
+
+check("a vial this device genuinely edited since the last sync still wins", () => {
+  const synced = fixture();
+  const id = synced.vials[0].id;
+  const mine = JSON.parse(JSON.stringify(synced));
+  mine.vials.find((v) => v.id === id).notes = "mycoplasma checked, clean";   // the real edit
+  const remote = JSON.parse(JSON.stringify(synced));
+  remote.vials.find((v) => v.id === id).passage = "p9";       // something else changed it too, on the server
+
+  const out = E.mergeInventories(remote, mine, synced);
+  const merged = out.state.vials.find((v) => v.id === id);
+  if (merged.notes !== "mycoplasma checked, clean") return `the genuine local edit was lost: ${json(merged)}`;
+  return null;
+});
+
+check("without an ancestor, mergeInventories behaves exactly as it always did", () => {
+  const server = fixture();
+  const onPhone = fixture();
+  const id = onPhone.vials[0].id;
+  onPhone.vials[0].notes = "mycoplasma checked, clean";
+
+  const withNoAncestor = E.mergeInventories(server, onPhone);
+  const withUndefinedAncestor = E.mergeInventories(server, onPhone, undefined);
+  if (JSON.stringify(withNoAncestor.state) !== JSON.stringify(withUndefinedAncestor.state)) {
+    return "adding the optional third argument changed behaviour when it is not given";
+  }
+  return null;
+});
+
 check("a withdrawal recorded on each device keeps both, and the Log never shrinks", () => {
   const server = fixture();
   const onPhone = JSON.parse(JSON.stringify(server));

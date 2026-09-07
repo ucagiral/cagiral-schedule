@@ -728,6 +728,11 @@
 
   var state = E.blankState();
   var dirty = false;
+  // The last copy of this account's own file this device is actually known to have read
+  // from the server -- mergeInventories' three-way ancestor. Kept alongside `state` in the
+  // cache (see cacheSave/cacheLoad) so it survives a reload, and refreshed every time
+  // fetchOwnFileText() succeeds, in both load() and save().
+  var syncedState = null;
   var lastWithdrawal = null;     // for the 10-second undo in the status line
 
   // Set for the exact duration of building one member's section inside a merged,
@@ -784,14 +789,39 @@
   // Nothing said anything. A copy that has never been committed has to be recognisable as
   // one after the app has been closed, or it is not really kept on the device at all.
   function cacheSave(){
-    try { localStorage.setItem(cacheKey(), JSON.stringify({ at: Date.now(), state: state, dirty: dirty })); } catch(e){}
+    try { localStorage.setItem(cacheKey(), JSON.stringify({ at: Date.now(), state: state, dirty: dirty, synced: syncedState })); } catch(e){}
   }
   function cacheLoad(){
     try {
       var c = JSON.parse(localStorage.getItem(cacheKey()) || "null");
-      if (c && c.state){ state = E.mergeDefaults(c.state); dirty = !!c.dirty; return c.at; }
+      if (c && c.state){
+        state = E.mergeDefaults(c.state); dirty = !!c.dirty;
+        syncedState = c.synced ? E.mergeDefaults(c.synced) : null;
+        return c.at;
+      }
     } catch(e){}
     return null;
+  }
+
+  // The account's own file, straight from GitHub -- shared by load() (always) and save()
+  // (right before every commit, see below). Extracted so both read it the exact same way
+  // rather than save() growing a second, maybe-diverging copy of this branching.
+  async function fetchOwnFileText(){
+    var text = null;
+    // A worker login never needs the token-authenticated read below -- the repo is
+    // public, so an unauthenticated raw fetch of the account's own data path always
+    // works. Only save() ever talks to the worker.
+    if (getToken()){
+      var r = await fetch(API + "/contents/" + LEGACY_DATA_PATH + "?ref=" + encodeURIComponent(CFG.branch||"main"),
+                          { headers: ghHeaders(), cache:"no-store" });
+      if (r.status === 404) text = null;
+      else if (!r.ok) throw new Error("GitHub said " + r.status);
+      else { var j = await r.json(); text = base64ToUtf8(j.content || ""); }
+    } else {
+      var resp = await fetch(rawURL(dataPath()), { cache:"no-store" });
+      text = resp.ok ? await resp.text() : null;
+    }
+    return text;
   }
 
   async function load(){
@@ -802,24 +832,14 @@
       return;
     }
     try {
-      var text = null;
-      // A worker login never needs the token-authenticated read below -- the repo is
-      // public, so an unauthenticated raw fetch of the account's own data path always
-      // works. Only save() ever talks to the worker.
-      if (getToken()){
-        var r = await fetch(API + "/contents/" + LEGACY_DATA_PATH + "?ref=" + encodeURIComponent(CFG.branch||"main"),
-                            { headers: ghHeaders(), cache:"no-store" });
-        if (r.status === 404) text = null;
-        else if (!r.ok) throw new Error("GitHub said " + r.status);
-        else { var j = await r.json(); text = base64ToUtf8(j.content || ""); }
-      } else {
-        var resp = await fetch(rawURL(dataPath()), { cache:"no-store" });
-        text = resp.ok ? await resp.text() : null;
-      }
+      var text = await fetchOwnFileText();
       // A miss (404, or no token/legacy file yet) means this account has nothing saved yet --
       // that must render as a blank inventory, never as whatever the previously-active account
       // (or a stale in-memory state left over from before a worker login/logout) happened to be.
       var own = (text !== null && text !== undefined) ? E.mergeDefaults(JSON.parse(text)) : E.blankState();
+      // This is now the last copy we know for a fact the server actually holds --
+      // save()'s ancestor for the next reconciliation, whichever branch below runs.
+      syncedState = own;
       // Whether this account has a committed inventory file at all, which is not the
       // same question as whether it is supposed to have one: admin has no inventory by
       // role, yet cellstocks/data/admin.json exists from before that rule and carries a
@@ -1095,6 +1115,31 @@
   async function save(message){
     if (!canWrite()) return;
     clearTimeout(saveTimer);
+
+    // Reconcile with whatever is on the server right now before committing anything.
+    // Without this, save() just serialised whatever this session's `state` happened to
+    // hold -- fine for the tab that made the edit, but any tab/device whose own view
+    // predates a change committed elsewhere (a suspended background tab, a second phone,
+    // even the same tab between the visibilitychange refresh firing and it landing)
+    // would silently overwrite that change the next time IT saved anything, however
+    // unrelated -- an "Accept all" on Review's facet-drift list reported fixed, then
+    // reappearing, was exactly this. mergeInventories already does the union; what it
+    // needs here is syncedState as the three-way ancestor, or "local differs from
+    // remote" reads as "this device edited it" for every vial the session is merely
+    // carrying forward unchanged, not only the ones it actually touched.
+    try {
+      var remoteText = await fetchOwnFileText();
+      if (remoteText !== null && remoteText !== undefined){
+        var remote = E.mergeDefaults(JSON.parse(remoteText));
+        var reconciled = E.mergeInventories(remote, state, syncedState);
+        state = hydrate(reconciled.state, effectiveIdentity());
+        // What we just read is now the freshest thing this device knows the server to
+        // hold -- the ancestor for the next save, whether this one goes on to succeed
+        // or not (a failed commit still means this read genuinely happened).
+        syncedState = remote;
+        cacheSave();
+      }
+    } catch(e){ /* offline, or the read failed -- fall back to committing this session's own copy */ }
 
     // Never commit a state that would put two vials in one slot. This is the one
     // invariant the whole app exists to hold, so it blocks the save rather than

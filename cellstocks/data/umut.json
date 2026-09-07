@@ -5289,9 +5289,8 @@
       "id": "v-144",
       "name": "LnCapCASPEX no select E",
       "lineId": "l-lncapcaspex-e",
-      "passage": "p45769",
-      "passageNumber": 45769,
-      "passageKind": "absolute",
+      "passage": "p?",
+      "passageKind": "unknown",
       "location": {
         "path": [
           {
@@ -10630,7 +10629,7 @@
     },
     {
       "id": "v-mtrdz1vx-1",
-      "name": "HEK ATF3 OX rep3",
+      "name": "hek atf3 ox rep3",
       "lineId": "l-hek-atf3-ox-rep3",
       "passage": "p28",
       "passageNumber": 28,
@@ -10647,7 +10646,8 @@
       },
       "status": "stored",
       "addedAt": "2026-09-07T15:19:15.021Z",
-      "addedBy": "unknown device"
+      "addedBy": "unknown device",
+      "kind": "Cell"
     },
     {
       "id": "v-mtrdzpx7-0",
@@ -10850,7 +10850,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T21:28:48.719Z"
+    "savedAt": "2026-09-07T21:30:01.515Z"
   },
   "removedVialIds": [
     "v-205",

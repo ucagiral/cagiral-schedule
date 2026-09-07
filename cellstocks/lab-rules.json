@@ -39,10 +39,6 @@
     {
       "match": "HepG",
       "value": "HepG2"
-    },
-    {
-      "match": "MDA",
-      "value": "MDA-MB-231"
     }
   ],
   "koox": [

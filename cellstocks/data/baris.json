@@ -40,8 +40,14 @@
       "notes": "myco bilmiyorum",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "baro-box-deneme",
         "position": "A2"
@@ -63,8 +69,14 @@
       "notes": "myco bilmiyorum",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "baro-box-deneme",
         "position": "A3"
@@ -82,8 +94,14 @@
       "name": "HEK g1 KO",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "baro-box-deneme",
         "position": "A1"

@@ -1837,6 +1837,29 @@
     return { rows: maxRow, cols: maxCol, scheme: "grid" };
   }
 
+  // Does this spreadsheet row carry anything at all, outside the columns named in
+  // `ignore`? Used to tell an empty slot in a box grid from a row whose name failed to
+  // read. It looks at EVERY column, not only the mapped ones: a column nobody mapped
+  // still means somebody typed something on that line, and a line somebody typed on is
+  // never thrown away.
+  //
+  // An uncalculated formula counts as content. That is the whole point of the
+  // distinction -- a cell holding "=VLOOKUP(...)" with no cached result reads as empty
+  // text here, and treating it as an empty slot would silently drop a real vial whose
+  // only crime is that the workbook was never recalculated.
+  function rowHasContent(row, ignore) {
+    var skip = {};
+    (ignore || []).forEach(function (i) { if (i !== undefined && i !== null) skip[i] = true; });
+    for (var i = 0; i < (row || []).length; i++) {
+      if (skip[i]) continue;
+      var c = row[i];
+      if (!c) continue;
+      if (c.type === "uncalculated") return true;
+      if (c.text !== null && c.text !== undefined && String(c.text).trim() !== "") return true;
+    }
+    return false;
+  }
+
   function importSheet(sheet, options) {
     var o = options || {};
     var rules = o.rules || DEFAULT_RULES;
@@ -1845,7 +1868,7 @@
     var map = o.columns || {};             // role -> column index
     var rows = sheet.rows || [];
     var report = { rows: 0, imported: 0, skipped: [], dateQueue: 0, uncalculated: 0,
-                   facetDiffs: 0, gaps: [], boxes: [], collisions: [] };
+                   facetDiffs: 0, gaps: [], boxes: [], collisions: [], emptySlots: 0 };
 
     var boxCol = map.box !== undefined ? map.box : null;
     var blocks = boxCol === null ? [{ label: o.boxName || "Box 1", startRow: headerRow + 1, endRow: rows.length }]
@@ -1911,64 +1934,33 @@
           if (c2.type === "uncalculated") { report.uncalculated++; return ""; }
           return c2.text === null || c2.text === undefined ? "" : String(c2.text).trim();
         }
-        report.rows++;
         var name = cellText("name");
         var positionText = cellText("position");
-        // A row where neither the name nor the position could be read is not lost --
-        // dropping it silently is exactly the "guessed wrong" failure Umut asked this
-        // to never do. It comes in as a real vial with no location, flagged for
-        // Review, the same way an unparseable date keeps its raw text rather than
-        // vanishing (see the frozenRaw comment below).
-        if (!name) {
-          report.skipped.push({ row: rr, name: "", why: "no name found in this row" });
-          vials.push({
-            id: o.idPrefix ? (o.idPrefix + "-" + rr) : ("v-" + rr),
-            name: positionText ? ("Unreadable row (" + positionText + ")") : "Unreadable row",
-            status: "stored", location: null, importAmbiguous: true,
-            importRaw: { row: rr, name: name, position: positionText, box: label },
-            importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
-          });
-          report.imported++;
+
+        // An empty slot is not an unreadable row. Umut's sheet lists every position in
+        // a box and leaves the name blank where nothing is frozen there -- so a row
+        // carrying a slot label and nothing else describes an empty space, not a vial
+        // whose name failed to read. Imported as vials, those 144 blank slots became
+        // 144 permanent "Fix" entries in Review about rows where there was never
+        // anything to fix.
+        //
+        // The test is deliberately narrow, because the cost of being wrong here is a
+        // tube going missing: the row counts as empty only when the NAME is blank and
+        // every other cell in it is blank too. A date, a passage, a note, a facet, an
+        // unreadable formula, anything at all in any column -- and the row still comes
+        // in as ambiguous, exactly as before, because then something was recorded and
+        // losing it would lose a tube.
+        //
+        // The position and the box are excluded from that test on purpose. The position
+        // is the sheet's own grid scaffolding (every slot gets a line whether or not it
+        // holds anything), and the box name repeats down the block, so counting either
+        // as content would mean no row ever looked empty.
+        if (!name && !rowHasContent(row, [map.position, map.box])) {
+          report.emptySlots++;
           continue;
         }
 
-        // A row can name more than one slot ("A4 & A5") when a freeze-down landed in
-        // several physical vials at once -- that becomes one vial per slot, sharing
-        // everything else about the row. Fall back to today's single-position path
-        // (and its ambiguous/collision handling) unless every piece parses cleanly
-        // and none of them collide with each other or with an earlier row.
-        var pieces = splitPositions(positionText);
-        var parsed = null;
-        if (pieces.length > 1) {
-          var candidates = [], seenHere = {}, allOk = true;
-          pieces.forEach(function (piece) {
-            var pp = parsePosition(box, piece);
-            if (!pp || seenHere[pp.index] || takenHere[pp.index]) { allOk = false; return; }
-            seenHere[pp.index] = true;
-            candidates.push(pp);
-          });
-          if (allOk) parsed = candidates;
-        }
-        if (!parsed) {
-          var single = parsePosition(box, positionText);
-          if (!single) {
-            report.skipped.push({ row: rr, name: name, why: "position \"" + positionText + "\" is not inside " + label });
-            vials.push({
-              id: o.idPrefix ? (o.idPrefix + "-" + rr) : ("v-" + rr),
-              name: name, status: "stored", location: null, importAmbiguous: true,
-              importRaw: { row: rr, name: name, position: positionText, box: label },
-              importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
-            });
-            report.imported++;
-            continue;
-          }
-          if (takenHere[single.index]) {
-            report.collisions.push({ row: rr, name: name, position: single.label, box: label, alsoRow: takenHere[single.index] });
-            continue;
-          }
-          parsed = [single];
-        }
-        parsed.forEach(function (p) { takenHere[p.index] = rr; });
+        report.rows++;
 
         var passage = parsePassage(cellText("passage"));
         var dateRaw = cellText("date");
@@ -1999,6 +1991,71 @@
             }
           });
         }
+
+        // Whatever the row DID record is read before either ambiguous branch below, and
+        // travels with the vial. It used to be read only on the path where the row was
+        // fully understood, so a row carrying a date and no name came in holding neither
+        // -- "queued for Review" while the date it was queued about had already been
+        // thrown away. Nothing a person typed is dropped on the way into Review.
+        function ambiguousVial(vialName, suffix) {
+          var v = {
+            id: (o.idPrefix ? (o.idPrefix + "-" + rr) : ("v-" + rr)) + (suffix || ""),
+            name: vialName, status: "stored", location: null, importAmbiguous: true,
+            passage: passage.raw, passageNumber: passage.number, passageKind: passage.kind,
+            frozenRaw: dateRaw, frozenOn: date.iso, notes: notes,
+            flags: flagsFrom(notes, customFlags),
+            importRaw: { row: rr, name: name, position: positionText, box: label },
+            importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
+          };
+          if (Object.keys(fromSheet).length) v.facetsFromSheet = fromSheet;
+          if (custom) v.custom = clone(custom);
+          return v;
+        }
+
+        // A row where the name could not be read but something else was recorded is not
+        // lost -- dropping it silently is exactly the "guessed wrong" failure Umut asked
+        // this to never do. It comes in as a real vial with no location, flagged for
+        // Review, the same way an unparseable date keeps its raw text rather than
+        // vanishing (see the frozenRaw comment below).
+        if (!name) {
+          report.skipped.push({ row: rr, name: "", why: "no name found in this row" });
+          vials.push(ambiguousVial(positionText ? ("Unreadable row (" + positionText + ")") : "Unreadable row"));
+          report.imported++;
+          continue;
+        }
+
+        // A row can name more than one slot ("A4 & A5") when a freeze-down landed in
+        // several physical vials at once -- that becomes one vial per slot, sharing
+        // everything else about the row. Fall back to today's single-position path
+        // (and its ambiguous/collision handling) unless every piece parses cleanly
+        // and none of them collide with each other or with an earlier row.
+        var pieces = splitPositions(positionText);
+        var parsed = null;
+        if (pieces.length > 1) {
+          var candidates = [], seenHere = {}, allOk = true;
+          pieces.forEach(function (piece) {
+            var pp = parsePosition(box, piece);
+            if (!pp || seenHere[pp.index] || takenHere[pp.index]) { allOk = false; return; }
+            seenHere[pp.index] = true;
+            candidates.push(pp);
+          });
+          if (allOk) parsed = candidates;
+        }
+        if (!parsed) {
+          var single = parsePosition(box, positionText);
+          if (!single) {
+            report.skipped.push({ row: rr, name: name, why: "position \"" + positionText + "\" is not inside " + label });
+            vials.push(ambiguousVial(name));
+            report.imported++;
+            continue;
+          }
+          if (takenHere[single.index]) {
+            report.collisions.push({ row: rr, name: name, position: single.label, box: label, alsoRow: takenHere[single.index] });
+            continue;
+          }
+          parsed = [single];
+        }
+        parsed.forEach(function (p) { takenHere[p.index] = rr; });
 
         parsed.forEach(function (p, pi) {
           var vial = {
@@ -2466,12 +2523,63 @@
     });
   }
 
+  // The 144 that are already in the inventory from the first import, before importSheet
+  // learned to tell an empty slot from an unreadable row. They cannot be left sitting in
+  // Review forever -- they are not questions anybody can answer, because there was never
+  // anything on those lines -- and they cannot be deleted behind his back either, so
+  // Review offers to clear them and he decides.
+  //
+  // The test is as narrow as the import's own: a row that carried a slot label and
+  // NOTHING else. Any date, passage, note, facet, custom field, or location at all and
+  // it is a real record, stays put, and keeps its place in Review. A vial that was
+  // withdrawn is out of scope too -- it has history.
+  function isEmptyImportRow(v) {
+    if (!v || !v.importAmbiguous || v.status === "withdrawn") return false;
+    if (v.location) return false;
+    var raw = v.importRaw || {};
+    if (String(raw.name || "").trim()) return false;
+    // Everything a row could have recorded. Listed rather than inferred, so a field
+    // added later does not quietly start counting as "nothing".
+    var carries = ["frozenOn", "frozenRaw", "dateUnknown", "passage", "passageNumber",
+                   "passageKind", "notes", "facets", "facetsFromSheet", "custom",
+                   "customFacets", "flags", "lineId", "kind"];
+    for (var i = 0; i < carries.length; i++) {
+      var val = v[carries[i]];
+      if (val === undefined || val === null) continue;
+      if (typeof val === "string" && !val.trim()) continue;
+      if (Array.isArray(val) && !val.length) continue;
+      if (typeof val === "object" && !Array.isArray(val) && !Object.keys(val).length) continue;
+      return false;
+    }
+    return true;
+  }
+
+  function emptyImportRows(state) {
+    return (state.vials || []).filter(isEmptyImportRow);
+  }
+
+  // Removes exactly those, and nothing else. Not a withdrawal: a withdrawal records that
+  // a tube left a slot, and no tube was ever in these. Pure, and it says how many went.
+  function dropEmptyImportRows(state) {
+    var next = clone(state);
+    var doomed = {};
+    emptyImportRows(next).forEach(function (v) { doomed[v.id] = true; });
+    next.vials = (next.vials || []).filter(function (v) { return !doomed[v.id]; });
+    return { state: next, removed: Object.keys(doomed).length };
+  }
+
   function reviewQueue(state) {
     // A row import couldn't place at all (see importSheet()) is its own category below
     // -- it has neither a date nor a passage to speak of yet, so it is excluded from
     // every other category here rather than cluttering them with the same row twice.
+    // Split rather than lumped: an unreadable row is a question he can answer, an empty
+    // slot is not one, and putting them in one list of 145 "Fix" buttons is what buried
+    // the one real question under 144 non-questions.
+    var emptySlots = emptyImportRows(state);
+    var isEmpty = {};
+    emptySlots.forEach(function (v) { isEmpty[v.id] = true; });
     var ambiguousImport = (state.vials || []).filter(function (v) {
-      return v.status !== "withdrawn" && v.importAmbiguous;
+      return v.status !== "withdrawn" && v.importAmbiguous && !isEmpty[v.id];
     });
     var dates = (state.vials || []).filter(function (v) {
       // Anything without a confirmed date: the ambiguous ones, the unparseable one,
@@ -2498,9 +2606,10 @@
     var orphans = orphanedVials(state);
     return { dates: dates, facets: ca.diffs, gaps: ca.gaps, passages: passages, rows: rows,
              unknownPassage: unknownPassage, ambiguousImport: ambiguousImport, orphans: orphans,
+             emptySlots: emptySlots,
              total: dates.length + ca.diffs.length + ca.gaps.length + passages.length +
                     rows.length + unknownPassage.length + ambiguousImport.length +
-                    orphans.length };
+                    orphans.length + emptySlots.length };
   }
 
   function confirmDate(state, vialId, iso) {
@@ -2606,6 +2715,7 @@
     slimStorage: slimStorage, serialiseStorage: serialiseStorage, blankStorage: blankStorage,
     mergeStorageDefaults: mergeStorageDefaults, hydrateStorage: hydrateStorage, iconKind: iconKind,
     reviewQueue: reviewQueue, orphanedVials: orphanedVials,
+    emptyImportRows: emptyImportRows, dropEmptyImportRows: dropEmptyImportRows,
     confirmDate: confirmDate, markDateUnknown: markDateUnknown,
     resolveImportRow: resolveImportRow
   };

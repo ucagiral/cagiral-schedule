@@ -1545,23 +1545,111 @@ check("an unrecognized column mapped to \"New\" becomes a real field, not notes 
 
 // ---- import: a row nobody could place goes to Review, never guessed or dropped ----
 
-check("a row with no name is queued for review instead of dropped or guessed", () => {
+// This pair used to be one check asserting that ANY nameless row came in for Review.
+// The real sheet proved that reading wrong: Umut's workbook lists every slot in a box
+// and leaves the name blank where nothing is frozen there, so the first import turned
+// 144 empty slots into 144 permanent "Fix" entries about rows where there was nothing
+// to fix. An empty slot is not a vial. A nameless row that recorded anything else still
+// is -- and that half is the one a tube could go missing through, so it is checked
+// harder than before rather than softened.
+
+check("an empty slot in the sheet is not imported as a vial", () => {
   const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
   const rows = [
     [cell("Position"), cell("Cell Name")],
     [cell("A1"), cell("HEK293T p12")],
+    // The exact shape of all 144: a slot label, and nothing else on the line.
     [cell("A2"), cell("")]
   ];
-  const sheet = { name: "Sheet1", rows, merges: [] };
-  const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
-  if (out.state.vials.length !== 2) return `expected 2 vials (one real, one ambiguous), got ${out.state.vials.length}`;
+  const out = E.importSheet({ name: "Sheet1", rows, merges: [] },
+                            { columns: { position: 0, name: 1 }, headerRow: 1 });
+  if (out.state.vials.length !== 1) {
+    return `expected only the real vial, got ${out.state.vials.length}: ` +
+           json(out.state.vials.map((v) => v.name));
+  }
+  if (out.report.emptySlots !== 1) return `the skipped slot was not reported: ${json(out.report.emptySlots)}`;
+  if (out.report.skipped.length) return `an empty slot must not be listed as a skipped row: ${json(out.report.skipped)}`;
+  if (E.reviewQueue(out.state).ambiguousImport.length) return "an empty slot must not reach Review";
+  return null;
+});
+
+check("a nameless row that recorded ANYTHING else is still queued for review", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  // Four separate rows, each nameless but carrying one thing: a date, a passage, a note,
+  // and -- the one that matters most -- a formula the workbook never calculated, which
+  // reads as empty text and would otherwise be mistaken for an empty slot. Every one of
+  // them is a line somebody typed on, so every one of them has to survive the import.
+  const uncalc = { value: null, text: "", formula: "VLOOKUP(A1,X:Y,2,0)", isDate: false, iso: null, type: "uncalculated" };
+  const rows = [
+    [cell("Position"), cell("Cell Name"), cell("Date"), cell("Passage"), cell("Notes")],
+    [cell("A1"), cell("HEK293T p12"), cell(""), cell(""), cell("")],
+    [cell("A2"), cell(""), cell("01-06-25"), cell(""), cell("")],
+    [cell("A3"), cell(""), cell(""), cell("p7"), cell("")],
+    [cell("A4"), cell(""), cell(""), cell(""), cell("mycoplasma unknown")],
+    [cell("A5"), cell(""), cell(""), cell(""), uncalc]
+  ];
+  const out = E.importSheet({ name: "Sheet1", rows, merges: [] },
+                            { columns: { position: 0, name: 1, date: 2, passage: 3, notes: 4 }, headerRow: 1 });
+  if (out.report.emptySlots) return `nothing here is an empty slot, but ${out.report.emptySlots} were skipped`;
   const ambiguous = out.state.vials.filter((v) => v.importAmbiguous);
-  if (ambiguous.length !== 1) return `expected exactly 1 ambiguous vial, got ${ambiguous.length}`;
-  if (ambiguous[0].location) return "an ambiguous row must not get a fabricated location";
-  const q = E.reviewQueue(out.state);
-  if (q.ambiguousImport.length !== 1) return `reviewQueue did not surface it: ${json(q)}`;
+  if (ambiguous.length !== 4) {
+    return `expected all 4 nameless-but-not-empty rows to survive, got ${ambiguous.length}: ` +
+           json(ambiguous.map((v) => v.importRaw));
+  }
+  if (ambiguous.some((v) => v.location)) return "an ambiguous row must not get a fabricated location";
+  if (E.reviewQueue(out.state).ambiguousImport.length !== 4) return "Review did not surface all four";
   const hits = E.search(out.state, { query: "" });
   if (hits.some((h) => h.vial.importAmbiguous)) return "an ambiguous row showed up in ordinary search results";
+  return null;
+});
+
+check("a column nobody mapped still counts as content", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  // Column 2 is not in `columns` at all. Something is written on that line even so, and
+  // an unmapped column is not a reason to decide the line was blank.
+  const rows = [
+    [cell("Position"), cell("Cell Name"), cell("Something we never mapped")],
+    [cell("A1"), cell(""), cell("frozen by Baris?")]
+  ];
+  const out = E.importSheet({ name: "Sheet1", rows, merges: [] },
+                            { columns: { position: 0, name: 1 }, headerRow: 1 });
+  if (out.report.emptySlots) return "a line with writing on it was treated as an empty slot";
+  if (out.state.vials.length !== 1) return `expected the row to survive, got ${out.state.vials.length}`;
+  return null;
+});
+
+check("the box name repeating down a block does not make a row look full", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  // Some sheets merge the box cell; some repeat it on every line. Either way the box is
+  // a property of the block, not of the row, so it must not stop an empty slot being
+  // recognised -- otherwise nothing is ever skipped in the sheets that repeat it.
+  const rows = [
+    [cell("Box"), cell("Position"), cell("Cell Name")],
+    [cell("UMUT CELLS -4-"), cell("A1"), cell("HEK293T p12")],
+    [cell("UMUT CELLS -4-"), cell("A2"), cell("")]
+  ];
+  const out = E.importSheet({ name: "Sheet1", rows, merges: [] },
+                            { columns: { box: 0, position: 1, name: 2 }, headerRow: 1 });
+  if (out.report.emptySlots !== 1) return `expected the blank slot to be skipped, got ${out.report.emptySlots}`;
+  if (out.state.vials.length !== 1) return `expected only the real vial, got ${out.state.vials.length}`;
+  return null;
+});
+
+check("a wholly blank line is skipped too, and does not inflate the row count", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name")],
+    [cell("A1"), cell("HEK293T p12")],
+    [cell(""), cell("")],
+    [cell(""), cell("")]
+  ];
+  const out = E.importSheet({ name: "Sheet1", rows, merges: [] },
+                            { columns: { position: 0, name: 1 }, headerRow: 1 });
+  if (out.state.vials.length !== 1) return `expected only the real vial, got ${out.state.vials.length}`;
+  if (out.report.emptySlots !== 2) return `expected 2 empty lines reported, got ${out.report.emptySlots}`;
+  // "N vials out of M rows" is what the preview tells him; blank lines are not rows he
+  // wrote anything on, so counting them there would understate what came in.
+  if (out.report.rows !== 1) return `expected 1 row of content, got ${out.report.rows}`;
   return null;
 });
 
@@ -1578,7 +1666,11 @@ check("a row whose position doesn't parse is queued for review too, not silently
 
 check("validate() warns about an ambiguous import row rather than blocking the whole save", () => {
   const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
-  const rows = [[cell("Position"), cell("Cell Name")], [cell(""), cell("")]];
+  // Nameless but not empty: the third column holds something, so this is a row whose
+  // NAME failed to read, not a blank slot in the box grid. A truly empty row is not
+  // imported at all (see "an empty slot in the sheet is not a vial" below).
+  const rows = [[cell("Position"), cell("Cell Name"), cell("Notes")],
+                [cell(""), cell(""), cell("left over from the sheet")]];
   const sheet = { name: "Sheet1", rows, merges: [] };
   const out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
   const problems = E.validate(out.state);
@@ -1589,7 +1681,11 @@ check("validate() warns about an ambiguous import row rather than blocking the w
 
 check("resolveImportRow fills in a name and position, and clears the review flag", () => {
   const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
-  const rows = [[cell("Position"), cell("Cell Name")], [cell(""), cell("")]];
+  // Nameless but not empty: the third column holds something, so this is a row whose
+  // NAME failed to read, not a blank slot in the box grid. A truly empty row is not
+  // imported at all (see "an empty slot in the sheet is not a vial" below).
+  const rows = [[cell("Position"), cell("Cell Name"), cell("Notes")],
+                [cell(""), cell(""), cell("left over from the sheet")]];
   const sheet = { name: "Sheet1", rows, merges: [] };
   const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
   const vialId = imported.vials[0].id;
@@ -1605,9 +1701,11 @@ check("resolveImportRow fills in a name and position, and clears the review flag
 check("resolveImportRow refuses a slot that is already taken", () => {
   const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
   const rows = [
-    [cell("Position"), cell("Cell Name")],
-    [cell("A1"), cell("HEK293T p12")],
-    [cell(""), cell("")]
+    [cell("Position"), cell("Cell Name"), cell("Notes")],
+    [cell("A1"), cell("HEK293T p12"), cell("")],
+    // Nameless but not empty, so it still comes in for Review -- an entirely blank row
+    // is an empty slot and is not imported at all.
+    [cell(""), cell(""), cell("left over from the sheet")]
   ];
   const sheet = { name: "Sheet1", rows, merges: [] };
   const imported = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 }).state;
@@ -2199,6 +2297,78 @@ check("a vial already taken out is not dragged into that list", () => {
   state.vials[0].status = "withdrawn";
   state.vials[0].location = null;
   if (E.reviewQueue(state).orphans.length) return "a vial already taken out must not be listed";
+  return null;
+});
+
+// ------------------------------- clearing the empty slots already in a committed file
+//
+// New imports no longer create them, but 144 are already sitting in the real inventory
+// from the first import. They cannot stay in Review forever and they cannot be deleted
+// behind his back, so Review offers it and he clicks. What matters here is that the
+// offer is exactly as narrow as it claims: a line that held a slot label and nothing.
+
+function legacyEmptyRow(id, position) {
+  // The exact shape the old importer wrote -- no date, no passage, no notes, no lineId.
+  return { id, name: "Unreadable row (" + position + ")", status: "stored",
+           importAmbiguous: true, importRaw: { row: 205, name: "", position, box: "DUZENLE" },
+           importedFrom: "sheet.xlsx!UMUT -80!row 205" };
+}
+
+check("an empty space from the sheet is offered for removal, separately from real questions", () => {
+  const state = fixture();
+  const before = state.vials.length;
+  state.vials.push(legacyEmptyRow("v-empty", "E 6"));
+  // A real unreadable row: nameless, but the sheet recorded a date on that line.
+  state.vials.push(Object.assign(legacyEmptyRow("v-real", "E 7"), { frozenRaw: "01-06-25" }));
+
+  const q = E.reviewQueue(state);
+  if (q.emptySlots.length !== 1) return `expected 1 empty space, got ${json(q.emptySlots.map((v) => v.id))}`;
+  if (q.emptySlots[0].id !== "v-empty") return "picked the wrong one";
+  // The row that recorded something stays a question he can answer, in the other list.
+  if (!q.ambiguousImport.some((v) => v.id === "v-real")) return "a row carrying a date was treated as an empty space";
+  if (q.ambiguousImport.some((v) => v.id === "v-empty")) return "the empty space is listed twice";
+
+  const out = E.dropEmptyImportRows(state);
+  if (out.removed !== 1) return `removed ${out.removed}`;
+  if (out.state.vials.length !== before + 1) return "removed more than the one empty space";
+  if (!out.state.vials.some((v) => v.id === "v-real")) return "a row carrying a date was removed";
+  if (E.errorsOnly(E.validate(out.state)).length) return "the result does not validate";
+  return null;
+});
+
+check("nothing that holds a slot, or ever did, is offered for removal", () => {
+  const state = fixture();
+  const placed = state.vials.length;
+  // Every reason a vial must never be swept up by this: it is in a box, it was taken out
+  // and is in the Log, or it is nameless but carries something somebody typed.
+  state.vials.push(Object.assign(legacyEmptyRow("v-withdrawn", "E 8"),
+                                 { status: "withdrawn", location: null }));
+  state.vials.push(Object.assign(legacyEmptyRow("v-noted", "E 9"), { notes: "second aliquot" }));
+  state.vials.push(Object.assign(legacyEmptyRow("v-passaged", "F 1"), { passage: "p7" }));
+  state.vials.push(Object.assign(legacyEmptyRow("v-facets", "F 2"),
+                                 { facetsFromSheet: { origin: "HEK293T" } }));
+  state.vials.push(Object.assign(legacyEmptyRow("v-custom", "F 3"),
+                                 { custom: { "Frozen by": "Baris" } }));
+  state.vials.push(Object.assign(legacyEmptyRow("v-located", "F 4"),
+                                 { location: { boxId: "b-a", position: "C1", path: [] } }));
+
+  const out = E.dropEmptyImportRows(state);
+  if (out.removed !== 0) {
+    const gone = state.vials.filter((v) => !out.state.vials.some((w) => w.id === v.id));
+    return `removed ${out.removed} it should not have: ${json(gone.map((v) => v.id))}`;
+  }
+  if (out.state.vials.length !== placed + 6) return "the count moved";
+  return null;
+});
+
+check("removing empty spaces is not a withdrawal -- no phantom appears in the Log", () => {
+  const state = fixture();
+  state.vials.push(legacyEmptyRow("v-empty", "E 6"));
+  const before = (state.withdrawals || []).length;
+  const out = E.dropEmptyImportRows(state);
+  if ((out.state.withdrawals || []).length !== before) {
+    return "a space that never held a vial was written into the Log as if a vial had left it";
+  }
   return null;
 });
 

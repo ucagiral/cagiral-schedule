@@ -1485,6 +1485,18 @@ try {
     // Rules: every rule now has its own Edit and Delete, and deleting previews the damage.
     await page.click("nav button[data-screen=settings]");
     await page.waitForSelector("#rulesCard");
+    // The rules are the whole lab's, so Edit/Delete stay disabled until the lab has been
+    // read -- otherwise the impact preview would count only your own vials and say
+    // "changes 0" while re-reading everybody else's. Locally that load finishes before
+    // the next line runs; in CI it does not, and clicking a disabled button opened no
+    // dialog and timed out. Wait for the gate the app actually applies.
+    await page.waitForFunction(() => {
+      const rows = Array.from(document.querySelectorAll("#rulesCard .item"));
+      const row = rows.find((r) => /HEK → HEK293T/.test(r.textContent));
+      const del = row && Array.from(row.querySelectorAll("button"))
+        .find((b) => b.textContent.trim() === "Delete");
+      return !!del && !del.disabled;
+    }, null, { timeout: 20000 });
     const ruleRowButtons = await page.evaluate(() => {
       const rows = Array.from(document.querySelectorAll("#rulesCard .item"));
       const row = rows.find((r) => /HEK → HEK293T/.test(r.textContent));

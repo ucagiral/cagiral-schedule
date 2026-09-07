@@ -11,13 +11,7 @@
         {
           "id": "t-1",
           "name": "Rack 1",
-          "children": [
-            {
-              "id": "rack-2",
-              "name": "Rack 2",
-              "children": []
-            }
-          ],
+          "children": [],
           "icon": "📁"
         }
       ]

@@ -2427,6 +2427,17 @@
       "notes": "",
       "start": "10:40",
       "end": "11:10"
+    },
+    {
+      "id": "emtrflu0f3lnqv",
+      "date": "2026-09-07",
+      "title": "ATF3 Cells Freeze",
+      "category": "experiment",
+      "type": "active",
+      "status": "done",
+      "notes": "",
+      "start": "09:00",
+      "end": "09:30"
     }
   ],
   "_groups": {
@@ -2462,7 +2473,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-07T16:04:37.335Z",
+    "lastModified": "2026-09-07T16:04:58.423Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

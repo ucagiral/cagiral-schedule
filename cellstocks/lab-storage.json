@@ -22,6 +22,17 @@
               "archived": false,
               "isBox": true,
               "owner": "umut"
+            },
+            {
+              "id": "b-umut-cells-80",
+              "name": "UMUT CELLS -80",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "umut"
             }
           ],
           "icon": "📁"
@@ -91,17 +102,6 @@
       "cols": 9,
       "scheme": "grid",
       "archived": false
-    },
-    {
-      "id": "b-umut-cells-80",
-      "name": "UMUT CELLS -80",
-      "rows": 9,
-      "cols": 9,
-      "scheme": "grid",
-      "note": "from the sheet: -80 °C Freezer → Rack 1",
-      "archived": false,
-      "isBox": true,
-      "owner": "umut"
     },
     {
       "id": "b-duzenle",

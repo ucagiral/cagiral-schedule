@@ -4047,7 +4047,16 @@
       "frozenRaw": "31-12-25",
       "frozenOn": "2025-12-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A1"
       },
@@ -4071,7 +4080,16 @@
       "frozenRaw": "31-12-25",
       "frozenOn": "2025-12-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A2"
       },
@@ -4094,7 +4112,16 @@
       "frozenRaw": "23-12-25",
       "frozenOn": "2025-12-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A3"
       },
@@ -4118,7 +4145,16 @@
       "frozenRaw": "23-12-25",
       "frozenOn": "2025-12-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A4"
       },
@@ -4142,7 +4178,16 @@
       "frozenRaw": "23-12-25",
       "frozenOn": "2025-12-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A5"
       },
@@ -4166,7 +4211,16 @@
       "frozenRaw": "2/1/2026",
       "frozenOn": "2026-01-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A6"
       },
@@ -4190,7 +4244,16 @@
       "frozenRaw": "2/1/2026",
       "frozenOn": "2026-01-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A7"
       },
@@ -4214,7 +4277,16 @@
       "frozenRaw": "2/1/2026",
       "frozenOn": "2026-01-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A8"
       },
@@ -4238,7 +4310,16 @@
       "frozenRaw": "8/1/2026",
       "frozenOn": "2026-01-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "A9"
       },
@@ -4262,7 +4343,16 @@
       "frozenRaw": "29-12-25",
       "frozenOn": "2025-12-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B1"
       },
@@ -4284,7 +4374,16 @@
       "frozenRaw": "29-12-25",
       "frozenOn": "2025-12-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B2"
       },
@@ -4306,7 +4405,16 @@
       "frozenRaw": "29-12-25",
       "frozenOn": "2025-12-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B3"
       },
@@ -4328,7 +4436,16 @@
       "frozenRaw": "29-12-25",
       "frozenOn": "2025-12-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B4"
       },
@@ -4350,7 +4467,16 @@
       "frozenRaw": "18-12-25",
       "frozenOn": "2025-12-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B5"
       },
@@ -4372,7 +4498,16 @@
       "frozenRaw": "8/1/2026",
       "frozenOn": "2026-01-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B6"
       },
@@ -4394,7 +4529,16 @@
       "frozenRaw": "18-12-25",
       "frozenOn": "2025-12-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B7"
       },
@@ -4416,7 +4560,16 @@
       "frozenRaw": "18-12-25",
       "frozenOn": "2025-12-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B8"
       },
@@ -4438,7 +4591,16 @@
       "frozenRaw": "18-12-25",
       "frozenOn": "2025-12-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "B9"
       },
@@ -4458,7 +4620,16 @@
       "passageNumber": 14,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C1"
       },
@@ -4479,7 +4650,16 @@
       "frozenRaw": "18-12-25",
       "frozenOn": "2025-12-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C2"
       },
@@ -4500,7 +4680,16 @@
       "frozenRaw": "18-12-25",
       "frozenOn": "2025-12-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C3"
       },
@@ -4522,7 +4711,16 @@
       "frozenRaw": "5/1/2026",
       "frozenOn": "2026-01-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C4"
       },
@@ -4544,7 +4742,16 @@
       "frozenRaw": "14-01-26",
       "frozenOn": "2026-01-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C5"
       },
@@ -4566,7 +4773,16 @@
       "frozenRaw": "14-01-26",
       "frozenOn": "2026-01-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C6"
       },
@@ -4588,7 +4804,16 @@
       "frozenRaw": "14-01-26",
       "frozenOn": "2026-01-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C7"
       },
@@ -4610,7 +4835,16 @@
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C8"
       },
@@ -4631,7 +4865,16 @@
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "C9"
       },
@@ -4653,7 +4896,16 @@
       "frozenRaw": "8/1/2026",
       "frozenOn": "2026-01-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D1"
       },
@@ -4677,7 +4929,16 @@
       "frozenRaw": "8/1/2026",
       "frozenOn": "2026-01-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D2"
       },
@@ -4701,7 +4962,16 @@
       "frozenRaw": "8/1/2026",
       "frozenOn": "2026-01-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D3"
       },
@@ -4725,7 +4995,16 @@
       "frozenRaw": "8/1/2026",
       "frozenOn": "2026-01-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D4"
       },
@@ -4746,7 +5025,16 @@
       "frozenRaw": "8/1/2026",
       "frozenOn": "2026-01-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D5"
       },
@@ -4767,7 +5055,16 @@
       "frozenRaw": "16-01-26",
       "frozenOn": "2026-01-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D6"
       },
@@ -4791,7 +5088,16 @@
       "frozenRaw": "16-01-26",
       "frozenOn": "2026-01-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D7"
       },
@@ -4815,7 +5121,16 @@
       "frozenRaw": "24-04-25",
       "frozenOn": "2025-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D8"
       },
@@ -4839,7 +5154,16 @@
       "frozenRaw": "5/5/2025",
       "frozenOn": "2025-05-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "D9"
       },
@@ -4863,7 +5187,16 @@
       "frozenRaw": "1/6/2026",
       "frozenOn": "2026-06-01",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E1"
       },
@@ -4884,7 +5217,16 @@
       "frozenRaw": "1/6/2026",
       "frozenOn": "2026-06-01",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E2"
       },
@@ -4906,7 +5248,16 @@
       "frozenRaw": "1/6/2026",
       "frozenOn": "2026-06-01",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E3"
       },
@@ -4927,7 +5278,16 @@
       "frozenRaw": "1/6/2026",
       "frozenOn": "2026-06-01",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E4"
       },
@@ -4949,7 +5309,16 @@
       "frozenRaw": "24-04-25",
       "frozenOn": "2025-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E5"
       },
@@ -4970,7 +5339,16 @@
       "frozenRaw": "24-04-25",
       "frozenOn": "2025-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E6"
       },
@@ -4989,7 +5367,16 @@
       "passageKind": "unknown",
       "frozenRaw": "caNT read",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E7"
       },
@@ -5011,7 +5398,16 @@
       "frozenRaw": "21-04-25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E8"
       },
@@ -5032,7 +5428,16 @@
       "frozenRaw": "2/5/2025",
       "frozenOn": "2025-05-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "E9"
       },
@@ -5053,7 +5458,16 @@
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F1"
       },
@@ -5075,7 +5489,16 @@
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F2"
       },
@@ -5097,7 +5520,16 @@
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F3"
       },
@@ -5119,7 +5551,16 @@
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F4"
       },
@@ -5141,7 +5582,16 @@
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F5"
       },
@@ -5163,7 +5613,16 @@
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F6"
       },
@@ -5185,7 +5644,16 @@
       "frozenRaw": "24-04-25",
       "frozenOn": "2025-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F7"
       },
@@ -5207,7 +5675,16 @@
       "frozenRaw": "2/5/2025",
       "frozenOn": "2025-05-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F8"
       },
@@ -5229,7 +5706,16 @@
       "frozenRaw": "19-05-25",
       "frozenOn": "2025-05-19",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "F9"
       },
@@ -5254,7 +5740,16 @@
         "chip-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G1"
       },
@@ -5280,7 +5775,16 @@
         "chip-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G2"
       },
@@ -5302,7 +5806,16 @@
       "frozenRaw": "4/6/2026",
       "frozenOn": "2026-06-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G3"
       },
@@ -5324,7 +5837,16 @@
       "frozenRaw": "26-05-26",
       "frozenOn": "2026-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G4"
       },
@@ -5346,7 +5868,16 @@
       "frozenRaw": "19-05-25",
       "frozenOn": "2025-05-19",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G5"
       },
@@ -5367,7 +5898,16 @@
       "frozenRaw": "19-05-25",
       "frozenOn": "2025-05-19",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G6"
       },
@@ -5388,7 +5928,16 @@
       "frozenRaw": "19-05-25",
       "frozenOn": "2025-05-19",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G7"
       },
@@ -5407,7 +5956,16 @@
       "passageNumber": 45769,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G8"
       },
@@ -5428,7 +5986,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "G9"
       },
@@ -5450,7 +6017,16 @@
       "frozenRaw": "10/4/2026",
       "frozenOn": "2026-04-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H1"
       },
@@ -5472,7 +6048,16 @@
       "frozenRaw": "24-03-26",
       "frozenOn": "2026-03-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H2"
       },
@@ -5494,7 +6079,16 @@
       "frozenRaw": "10/4/2026",
       "frozenOn": "2026-04-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H3"
       },
@@ -5516,7 +6110,16 @@
       "frozenRaw": "10/4/2026",
       "frozenOn": "2026-04-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H4"
       },
@@ -5537,7 +6140,16 @@
       "frozenRaw": "10/4/2026",
       "frozenOn": "2026-04-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H5"
       },
@@ -5557,7 +6169,16 @@
       "frozenRaw": "10/2/2026",
       "frozenOn": "2026-02-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H6"
       },
@@ -5580,7 +6201,16 @@
       "frozenRaw": "24-03-26",
       "frozenOn": "2026-03-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H7"
       },
@@ -5602,7 +6232,16 @@
       "frozenRaw": "6/2/2026",
       "frozenOn": "2026-02-06",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H8"
       },
@@ -5623,7 +6262,16 @@
       "frozenRaw": "24-03-26",
       "frozenOn": "2026-03-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "H9"
       },
@@ -5644,7 +6292,16 @@
       "frozenRaw": "16-05-25",
       "frozenOn": "2025-05-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I1"
       },
@@ -5668,7 +6325,16 @@
       "frozenRaw": "14-05-25",
       "frozenOn": "2025-05-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I2"
       },
@@ -5692,7 +6358,16 @@
       "frozenRaw": "14-05-25",
       "frozenOn": "2025-05-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I3"
       },
@@ -5716,7 +6391,16 @@
       "frozenRaw": "14-05-25",
       "frozenOn": "2025-05-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I4"
       },
@@ -5740,7 +6424,16 @@
       "frozenRaw": "14-05-25",
       "frozenOn": "2025-05-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I5"
       },
@@ -5764,7 +6457,16 @@
       "frozenRaw": "14-05-25",
       "frozenOn": "2025-05-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I6"
       },
@@ -5787,7 +6489,16 @@
       "frozenRaw": "24-04-25",
       "frozenOn": "2025-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I7"
       },
@@ -5808,7 +6519,16 @@
       "frozenRaw": "24-04-25",
       "frozenOn": "2025-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I8"
       },
@@ -5830,7 +6550,16 @@
       "frozenRaw": "24-04-25",
       "frozenOn": "2025-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-cells-80",
         "position": "I9"
       },

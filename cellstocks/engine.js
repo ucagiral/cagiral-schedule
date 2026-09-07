@@ -2230,6 +2230,12 @@
     // answers for the same cell name.
     delete copy.rules;
     delete copy._owner;
+    // A tombstone for an id dropEmptyImportRows has already removed, so mergeInventories
+    // never resurrects it from a stale dirty cache or a server copy that has not caught up
+    // yet -- see mergeInventories. Kept (unlike storage/rules) because it is this member's
+    // own data, but omitted while empty so an account that never used empty-row removal
+    // does not gain a noisy field on its next unrelated save.
+    if (!(copy.removedVialIds || []).length) delete copy.removedVialIds;
     return copy;
   }
 
@@ -2486,7 +2492,7 @@
   function blankState() {
     return {
       storage: { labName: "CAA Lab Stocks", labIcon: "🏛️", children: [], unplaced: [] },
-      lines: [], vials: [], withdrawals: [],
+      lines: [], vials: [], withdrawals: [], removedVialIds: [],
       rules: clone(DEFAULT_RULES),
       settings: { defaultUnitId: null, defaultOperator: "", placement: { allowSplit: true }, aliases: {}, columnMap: {}, customFlags: [] },
       _meta: { savedBy: null, savedAt: null }
@@ -2500,7 +2506,7 @@
     var s = state && typeof state === "object" ? clone(state) : {};
     if (!s.storage || typeof s.storage !== "object") s.storage = base.storage;
     s.storage = mergeStorageDefaults(s.storage);
-    ["lines", "vials", "withdrawals"].forEach(function (k) { if (!Array.isArray(s[k])) s[k] = []; });
+    ["lines", "vials", "withdrawals", "removedVialIds"].forEach(function (k) { if (!Array.isArray(s[k])) s[k] = []; });
     if (!s.rules || typeof s.rules !== "object") s.rules = base.rules;
     FACETS.forEach(function (f) { if (!Array.isArray(s.rules[f])) s.rules[f] = clone(DEFAULT_RULES[f]); });
     if (!s.settings || typeof s.settings !== "object") s.settings = base.settings;
@@ -2574,11 +2580,23 @@
 
   // Removes exactly those, and nothing else. Not a withdrawal: a withdrawal records that
   // a tube left a slot, and no tube was ever in these. Pure, and it says how many went.
+  //
+  // Also tombstones the ids in removedVialIds, or the removal would not stick: this is the
+  // only place the app ever deletes a vial outright rather than changing its status, and
+  // mergeInventories' additive union has no other way to tell "this id was intentionally
+  // removed" apart from "this device just hasn't seen it yet" -- both look like an id on
+  // one side and not the other. Without the tombstone, a save that lands after a stale
+  // dirty cache (this device's own debounced save racing a reload, or a second device/tab)
+  // merges back in, and the removal silently undoes itself on the very next sync.
   function dropEmptyImportRows(state) {
     var next = clone(state);
     var doomed = {};
     emptyImportRows(next).forEach(function (v) { doomed[v.id] = true; });
     next.vials = (next.vials || []).filter(function (v) { return !doomed[v.id]; });
+    var already = {};
+    (next.removedVialIds || []).forEach(function (id) { already[id] = true; });
+    Object.keys(doomed).forEach(function (id) { already[id] = true; });
+    next.removedVialIds = Object.keys(already);
     return { state: next, removed: Object.keys(doomed).length };
   }
 
@@ -2600,15 +2618,31 @@
   //
   // Only the inventory is merged. The freezer tree and the classification rules are the
   // lab's, come from their own shared files, and are re-hydrated by the caller.
+  //
+  // An id missing on one side and present on the other is ambiguous by itself -- it means
+  // either "this device hasn't seen it yet" (keep it) or "this id was deliberately removed
+  // and the other side just hasn't caught up" (drop it), and those look identical. The
+  // removedVialIds tombstone (written by dropEmptyImportRows) resolves the ambiguity
+  // explicitly rather than the union guessing "keep" every time, which is how a removal
+  // undid itself the moment a stale dirty cache -- this device's own debounced save racing
+  // a reload, or a second device/tab -- merged back in afterwards.
   function mergeInventories(remote, local) {
     var base = mergeDefaults(remote);
     var mine = mergeDefaults(local);
+
+    var removedIds = {};
+    (base.removedVialIds || []).forEach(function (id) { removedIds[id] = true; });
+    (mine.removedVialIds || []).forEach(function (id) { removedIds[id] = true; });
+
     var next = clone(base);
+    next.vials = (next.vials || []).filter(function (v) { return !removedIds[v.id]; });
+    next.removedVialIds = Object.keys(removedIds);
 
     var byId = {};
     (next.vials || []).forEach(function (v, i) { byId[v.id] = i; });
     var kept = 0, added = 0;
     (mine.vials || []).forEach(function (v) {
+      if (removedIds[v.id]) return;   // tombstoned -- a stale cache must not resurrect it
       if (byId[v.id] === undefined) { next.vials.push(clone(v)); kept++; return; }
       // Same tube on both sides. Identical is not a change worth reporting; different
       // means this device edited it and has not saved that yet.
@@ -2619,9 +2653,10 @@
     });
     // Anything on the server this device had never seen. Counted so the person is told
     // their copy grew, rather than noticing later that the numbers moved on their own.
+    // Excludes tombstoned ids: catching up on a removal is not an arrival from elsewhere.
     var mineIds = {};
     (mine.vials || []).forEach(function (v) { mineIds[v.id] = true; });
-    (base.vials || []).forEach(function (v) { if (!mineIds[v.id]) added++; });
+    (base.vials || []).forEach(function (v) { if (!mineIds[v.id] && !removedIds[v.id]) added++; });
 
     // The Log is append-only on both sides, so the same union applies -- a withdrawal
     // recorded on a phone and one recorded on a laptop are both real events.

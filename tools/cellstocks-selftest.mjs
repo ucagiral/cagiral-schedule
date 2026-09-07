@@ -2403,6 +2403,23 @@ check("removing empty spaces is not a withdrawal -- no phantom appears in the Lo
   return null;
 });
 
+check("removing an empty space tombstones its id, so a stale copy cannot bring it back", () => {
+  const state = fixture();
+  state.vials.push(legacyEmptyRow("v-empty", "E 6"));
+  const out = E.dropEmptyImportRows(state);
+  if (!(out.state.removedVialIds || []).includes("v-empty")) {
+    return `expected v-empty tombstoned, got ${json(out.state.removedVialIds)}`;
+  }
+  // Running it again (nothing left to remove) must not lose the earlier tombstone or
+  // duplicate it -- the whole point is that this list only ever grows.
+  const again = E.dropEmptyImportRows(out.state);
+  if (again.removed !== 0) return `expected nothing left to remove, got ${again.removed}`;
+  if ((again.state.removedVialIds || []).filter((id) => id === "v-empty").length !== 1) {
+    return "the tombstone was duplicated or dropped on a second pass";
+  }
+  return null;
+});
+
 // ------------------------------------- work a device never managed to save is not lost
 //
 // Umut froze two vials, the save was refused ("someone else saved first" -- nobody had),
@@ -2505,6 +2522,56 @@ check("merging is a union, so doing it twice changes nothing", () => {
     return `merging twice changed the count: ${once.vials.length} then ${twice.vials.length}`;
   }
   if (twice.vials.filter((v) => v.id === "v-new").length !== 1) return "a vial was duplicated";
+  return null;
+});
+
+// ---------------------------- a removal must not undo itself the next time devices merge
+//
+// This is the actual incident: "Remove all 144" on Review reported success, but the same
+// rows kept coming back. dropEmptyImportRows worked -- the bug was in the merge, which
+// could only ever add or update, never remove, so an id missing on one side and present on
+// the other always came back as "keep it". Reproduced both directions a stale copy can
+// hold the id in.
+
+check("a removal this device made is not undone by a server copy that has not caught up yet", () => {
+  const server = fixture();
+  server.vials.push(legacyEmptyRow("v-empty", "E 6"));   // the debounced save hasn't landed
+  const onPhone = E.dropEmptyImportRows(server).state;    // ...but this device already removed it
+
+  const out = E.mergeInventories(server, onPhone);
+  if (out.state.vials.some((v) => v.id === "v-empty")) {
+    return "the removed row came back because the server side had not caught up yet";
+  }
+  if (!(out.state.removedVialIds || []).includes("v-empty")) {
+    return "the tombstone did not carry through the merge";
+  }
+  return null;
+});
+
+check("a removal already committed elsewhere is not undone by a stale dirty cache", () => {
+  const base = fixture();
+  base.vials.push(legacyEmptyRow("v-empty", "E 6"));
+  const removed = E.dropEmptyImportRows(base).state;       // committed to the server
+  const staleTab = base;                                   // a second tab/device, opened before the removal, still dirty
+
+  const out = E.mergeInventories(removed, staleTab);
+  if (out.state.vials.some((v) => v.id === "v-empty")) {
+    return "a stale dirty cache from a different session resurrected an already-removed row";
+  }
+  return null;
+});
+
+check("merging still changes nothing the second time once a tombstone is involved", () => {
+  const server = fixture();
+  server.vials.push(legacyEmptyRow("v-empty", "E 6"));
+  const onPhone = E.dropEmptyImportRows(server).state;
+
+  const once = E.mergeInventories(server, onPhone).state;
+  const twice = E.mergeInventories(once, once).state;
+  if (twice.vials.some((v) => v.id === "v-empty")) return "the tombstoned row reappeared on a second merge";
+  if (JSON.stringify((once.removedVialIds || []).sort()) !== JSON.stringify((twice.removedVialIds || []).sort())) {
+    return "the tombstone list changed on a second, no-op merge";
+  }
   return null;
 });
 

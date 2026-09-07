@@ -13,6 +13,11 @@
           "name": "Rack 1",
           "children": [],
           "icon": "📁"
+        },
+        {
+          "id": "rack-2",
+          "name": "Rack 2",
+          "children": []
         }
       ]
     },

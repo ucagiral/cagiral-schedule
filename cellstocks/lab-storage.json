@@ -44,6 +44,17 @@
               "archived": false,
               "isBox": true,
               "owner": "umut"
+            },
+            {
+              "id": "b-ongoing",
+              "name": "ONGOING",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "umut"
             }
           ],
           "icon": "📁"
@@ -113,17 +124,6 @@
       "cols": 9,
       "scheme": "grid",
       "archived": false
-    },
-    {
-      "id": "b-ongoing",
-      "name": "ONGOING",
-      "rows": 9,
-      "cols": 9,
-      "scheme": "grid",
-      "note": "from the sheet: -80 °C Freezer → Rack 1",
-      "archived": false,
-      "isBox": true,
-      "owner": "umut"
     },
     {
       "id": "b-umut-cells-4",

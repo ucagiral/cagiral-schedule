@@ -8931,7 +8931,16 @@
       "frozenRaw": "20-07-26",
       "frozenOn": "2026-07-20",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A1"
       },
@@ -8952,7 +8961,16 @@
       "frozenRaw": "20-07-26",
       "frozenOn": "2026-07-20",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A2"
       },
@@ -8972,7 +8990,16 @@
       "frozenRaw": "16-02-26",
       "frozenOn": "2026-02-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A3"
       },
@@ -8993,7 +9020,16 @@
       "frozenRaw": "16-02-26",
       "frozenOn": "2026-02-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A4"
       },
@@ -9014,7 +9050,16 @@
       "frozenRaw": "13-03-26",
       "frozenOn": "2026-03-13",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A5"
       },
@@ -9035,7 +9080,16 @@
       "frozenRaw": "10/3/2026",
       "frozenOn": "2026-03-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A6"
       },
@@ -9056,7 +9110,16 @@
       "frozenRaw": "11/3/2026",
       "frozenOn": "2026-03-11",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A7"
       },
@@ -9078,7 +9141,16 @@
       "frozenRaw": "11/3/2026",
       "frozenOn": "2026-03-11",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A8"
       },
@@ -9100,7 +9172,16 @@
       "frozenRaw": "10/3/2026",
       "frozenOn": "2026-03-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "A9"
       },
@@ -9121,7 +9202,16 @@
       "frozenRaw": "26-01-23",
       "frozenOn": "2023-01-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B1"
       },
@@ -9146,7 +9236,16 @@
         "to-do"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B2"
       },
@@ -9167,7 +9266,16 @@
       "frozenRaw": "9/6/2026",
       "frozenOn": "2026-06-09",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B3"
       },
@@ -9189,7 +9297,16 @@
       "frozenRaw": "25-06-26",
       "frozenOn": "2026-06-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B4"
       },
@@ -9210,7 +9327,16 @@
       "frozenRaw": "9/6/2026",
       "frozenOn": "2026-06-09",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B5"
       },
@@ -9231,7 +9357,16 @@
       "frozenRaw": "8/5/2026",
       "frozenOn": "2026-05-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B6"
       },
@@ -9251,7 +9386,16 @@
       "frozenRaw": "15-03-23",
       "frozenOn": "2023-03-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B7"
       },
@@ -9271,7 +9415,16 @@
       "frozenRaw": "27-03-23",
       "frozenOn": "2023-03-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B8"
       },
@@ -9292,7 +9445,16 @@
       "frozenRaw": "20-07-26",
       "frozenOn": "2026-07-20",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "B9"
       },
@@ -9313,7 +9475,16 @@
       "frozenRaw": "23-05-23",
       "frozenOn": "2023-05-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C1"
       },
@@ -9333,7 +9504,16 @@
       "frozenRaw": "23-05-23",
       "frozenOn": "2023-05-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C2"
       },
@@ -9353,7 +9533,16 @@
       "frozenRaw": "31-03-23",
       "frozenOn": "2023-03-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C3"
       },
@@ -9376,7 +9565,16 @@
       "frozenRaw": "25-06-26",
       "frozenOn": "2026-06-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C4"
       },
@@ -9397,7 +9595,16 @@
       "frozenRaw": "23-06-26",
       "frozenOn": "2026-06-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C5"
       },
@@ -9418,7 +9625,16 @@
       "frozenRaw": "26-06-26",
       "frozenOn": "2026-06-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C6"
       },
@@ -9439,7 +9655,16 @@
       "frozenRaw": "10/11/2025",
       "frozenOn": "2025-11-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C7"
       },
@@ -9460,7 +9685,16 @@
       "frozenRaw": "10/11/2025",
       "frozenOn": "2025-11-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C8"
       },
@@ -9485,7 +9719,16 @@
         "to-do"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "C9"
       },
@@ -9506,7 +9749,16 @@
       "frozenRaw": "8/5/2026",
       "frozenOn": "2026-05-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D1"
       },
@@ -9527,7 +9779,16 @@
       "frozenRaw": "23-06-26",
       "frozenOn": "2026-06-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D2"
       },
@@ -9548,7 +9809,16 @@
       "frozenRaw": "9/10/2025",
       "frozenOn": "2025-10-09",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D3"
       },
@@ -9569,7 +9839,16 @@
       "frozenRaw": "9/10/2025",
       "frozenOn": "2025-10-09",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D4"
       },
@@ -9590,7 +9869,16 @@
       "frozenRaw": "9/10/2025",
       "frozenOn": "2025-10-09",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D5"
       },
@@ -9611,7 +9899,16 @@
       "frozenRaw": "26-06-26",
       "frozenOn": "2026-06-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D6"
       },
@@ -9632,7 +9929,16 @@
       "frozenRaw": "26-06-26",
       "frozenOn": "2026-06-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D7"
       },
@@ -9653,7 +9959,16 @@
       "frozenRaw": "16-02-26",
       "frozenOn": "2026-02-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D8"
       },
@@ -9675,7 +9990,16 @@
       "frozenRaw": "16-02-26",
       "frozenOn": "2026-02-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "D9"
       },
@@ -9697,7 +10021,16 @@
       "frozenRaw": "6/5/2026",
       "frozenOn": "2026-05-06",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "E1"
       },
@@ -9718,7 +10051,16 @@
       "frozenRaw": "6/5/2026",
       "frozenOn": "2026-05-06",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "E2"
       },
@@ -9739,7 +10081,16 @@
       "frozenRaw": "25-06-26",
       "frozenOn": "2026-06-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "E3"
       },
@@ -9760,7 +10111,16 @@
       "frozenRaw": "15-06-26",
       "frozenOn": "2026-06-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "E4"
       },
@@ -9845,7 +10205,16 @@
       "frozenRaw": "6/1/2025",
       "frozenOn": "2025-01-06",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F1"
       },
@@ -9869,7 +10238,16 @@
       "frozenRaw": "25-06-26",
       "frozenOn": "2026-06-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F2"
       },
@@ -9890,7 +10268,16 @@
       "frozenRaw": "25-06-26",
       "frozenOn": "2026-06-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F3"
       },
@@ -9911,7 +10298,16 @@
       "frozenRaw": "25-06-26",
       "frozenOn": "2026-06-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F4"
       },
@@ -9931,7 +10327,16 @@
       "frozenRaw": "27-05-25",
       "frozenOn": "2025-05-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F5"
       },
@@ -9951,7 +10356,16 @@
       "frozenRaw": "30-06-25",
       "frozenOn": "2025-06-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F6"
       },
@@ -9971,7 +10385,16 @@
       "frozenRaw": "30-06-25",
       "frozenOn": "2025-06-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F7"
       },
@@ -9992,7 +10415,16 @@
       "frozenRaw": "5/12/2025",
       "frozenOn": "2025-12-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F8"
       },
@@ -10016,7 +10448,16 @@
       "frozenRaw": "11/12/2025",
       "frozenOn": "2025-12-11",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "F9"
       },
@@ -10040,7 +10481,16 @@
       "frozenRaw": "7/10/2025",
       "frozenOn": "2025-10-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G1"
       },
@@ -10060,7 +10510,16 @@
       "frozenRaw": "31-07-25",
       "frozenOn": "2025-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G2"
       },
@@ -10081,7 +10540,16 @@
       "frozenRaw": "27-10-25",
       "frozenOn": "2025-10-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G3"
       },
@@ -10102,7 +10570,16 @@
       "frozenRaw": "27-10-25",
       "frozenOn": "2025-10-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G4"
       },
@@ -10123,7 +10600,16 @@
       "frozenRaw": "27-10-25",
       "frozenOn": "2025-10-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G5"
       },
@@ -10144,7 +10630,16 @@
       "frozenRaw": "27-10-25",
       "frozenOn": "2025-10-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G6"
       },
@@ -10165,7 +10660,16 @@
       "frozenRaw": "15-11-25",
       "frozenOn": "2025-11-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G7"
       },
@@ -10185,7 +10689,16 @@
       "frozenRaw": "12/12/2025",
       "frozenOn": "2025-12-12",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G8"
       },
@@ -10205,7 +10718,16 @@
       "frozenRaw": "12/12/2025",
       "frozenOn": "2025-12-12",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "G9"
       },
@@ -10225,7 +10747,16 @@
       "frozenRaw": "7/10/2025",
       "frozenOn": "2025-10-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H1"
       },
@@ -10247,7 +10778,16 @@
       "frozenRaw": "13-03-26",
       "frozenOn": "2026-03-13",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H2"
       },
@@ -10268,7 +10808,16 @@
       "frozenRaw": "16-03-26",
       "frozenOn": "2026-03-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H3"
       },
@@ -10290,7 +10839,16 @@
       "frozenRaw": "12/6/2026",
       "frozenOn": "2026-06-12",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H4"
       },
@@ -10312,7 +10870,16 @@
       "frozenRaw": "12/6/2026",
       "frozenOn": "2026-06-12",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H5"
       },
@@ -10334,7 +10901,16 @@
       "frozenRaw": "12/6/2026",
       "frozenOn": "2026-06-12",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H6"
       },
@@ -10356,7 +10932,16 @@
       "frozenRaw": "12/6/2026",
       "frozenOn": "2026-06-12",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H7"
       },
@@ -10378,7 +10963,16 @@
       "frozenRaw": "12/6/2026",
       "frozenOn": "2026-06-12",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H8"
       },
@@ -10400,7 +10994,16 @@
       "frozenRaw": "12/6/2026",
       "frozenOn": "2026-06-12",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "H9"
       },
@@ -10422,7 +11025,16 @@
       "frozenRaw": "10/3/2026",
       "frozenOn": "2026-03-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I1"
       },
@@ -10443,7 +11055,16 @@
       "frozenRaw": "30-03-26",
       "frozenOn": "2026-03-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I2"
       },
@@ -10464,7 +11085,16 @@
       "frozenRaw": "30-03-26",
       "frozenOn": "2026-03-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I3"
       },
@@ -10485,7 +11115,16 @@
       "frozenRaw": "30-03-26",
       "frozenOn": "2026-03-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I4"
       },
@@ -10506,7 +11145,16 @@
       "frozenRaw": "23-03-26",
       "frozenOn": "2026-03-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I5"
       },
@@ -10527,7 +11175,16 @@
       "frozenRaw": "23-03-26",
       "frozenOn": "2026-03-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I6"
       },
@@ -10548,7 +11205,16 @@
       "frozenRaw": "18-06-26",
       "frozenOn": "2026-06-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I7"
       },
@@ -10570,7 +11236,16 @@
       "frozenRaw": "18-06-26",
       "frozenOn": "2026-06-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I8"
       },
@@ -10592,7 +11267,16 @@
       "frozenRaw": "15-06-26",
       "frozenOn": "2026-06-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-ongoing",
         "position": "I9"
       },

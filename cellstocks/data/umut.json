@@ -13920,6 +13920,50 @@
         "box": "Unnamed box"
       },
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 487"
+    },
+    {
+      "id": "v-mtrdw768-0",
+      "name": "HEK gNT",
+      "lineId": "l-hek-gnt",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-07",
+      "frozenOn": "2026-09-07",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "B8"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-07T15:17:01.905Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mtrdw768-1",
+      "name": "HEK gNT",
+      "lineId": "l-hek-gnt",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-07",
+      "frozenOn": "2026-09-07",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "B9"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-07T15:17:01.905Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [],
@@ -13946,6 +13990,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T13:48:36.547Z"
+    "savedAt": "2026-09-07T15:17:02.835Z"
   }
 }

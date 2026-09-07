@@ -2372,6 +2372,111 @@ check("removing empty spaces is not a withdrawal -- no phantom appears in the Lo
   return null;
 });
 
+// ------------------------------------- work a device never managed to save is not lost
+//
+// Umut froze two vials, the save was refused ("someone else saved first" -- nobody had),
+// and the next time the app opened the committed copy simply replaced what he had typed.
+// Both tubes were gone with nothing said, and he had to enter them again. In a freezer
+// people are now using, that is the failure that matters most.
+
+check("vials this device never saved survive meeting the committed copy", () => {
+  const server = fixture();
+  const onPhone = fixture();
+  const box = server.storage.children[0].children[0].children[0].id;
+  // Two vials frozen on the phone, never committed.
+  onPhone.vials.push(vial("v-new-1", "HEK ATP7B KO g3", box, "H1"));
+  onPhone.vials.push(vial("v-new-2", "HEK ATP7B KO g3", box, "H2"));
+
+  const out = E.mergeInventories(server, onPhone);
+  if (out.kept !== 2) return `expected 2 unsaved vials kept, got ${out.kept}`;
+  ["v-new-1", "v-new-2"].forEach(() => {});
+  for (const id of ["v-new-1", "v-new-2"]) {
+    if (!out.state.vials.some((v) => v.id === id)) return `${id} was lost -- this is the whole bug`;
+  }
+  // And nothing the server already had may be dropped on the way.
+  for (const v of server.vials) {
+    if (!out.state.vials.some((w) => w.id === v.id)) return `${v.id} was dropped from the committed copy`;
+  }
+  if (E.errorsOnly(E.validate(out.state)).length) return "the merged inventory does not validate";
+  return null;
+});
+
+check("a vial saved from another device arrives without displacing this one's work", () => {
+  const server = fixture();
+  const box = server.storage.children[0].children[0].children[0].id;
+  // The laptop saved one while the phone was offline holding one of its own.
+  server.vials.push(vial("v-laptop", "HEK ATP7B KO g3", box, "H5"));
+  const onPhone = fixture();
+  onPhone.vials.push(vial("v-phone", "HEK ATP7B KO g3", box, "H6"));
+
+  const out = E.mergeInventories(server, onPhone);
+  if (!out.state.vials.some((v) => v.id === "v-laptop")) return "the other device's vial was lost";
+  if (!out.state.vials.some((v) => v.id === "v-phone")) return "this device's unsaved vial was lost";
+  if (out.added !== 1) return `expected 1 vial reported as arriving from elsewhere, got ${out.added}`;
+  if (out.kept !== 1) return `expected 1 unsaved vial reported as kept, got ${out.kept}`;
+  return null;
+});
+
+check("two devices claiming one slot is refused, never silently resolved", () => {
+  const server = fixture();
+  const box = server.storage.children[0].children[0].children[0].id;
+  server.vials.push(vial("v-laptop", "HEK ATP7B KO g3", box, "H7"));
+  const onPhone = fixture();
+  onPhone.vials.push(vial("v-phone", "Huh7 p20", box, "H7"));   // same slot, different tube
+
+  const out = E.mergeInventories(server, onPhone);
+  // Both are still there -- neither is thrown away to make the numbers work.
+  if (!out.state.vials.some((v) => v.id === "v-laptop")) return "a real vial was discarded to resolve the clash";
+  if (!out.state.vials.some((v) => v.id === "v-phone")) return "a real vial was discarded to resolve the clash";
+  // And the save is refused, so a person is asked instead of a winner being picked.
+  const errs = E.errorsOnly(E.validate(out.state));
+  if (!errs.some((e) => e.code === "double-booked" || /two vials|already/i.test(e.message))) {
+    return `a slot claimed twice must be an error: ${json(errs)}`;
+  }
+  return null;
+});
+
+check("an edit this device has not saved beats the older committed copy of the same vial", () => {
+  const server = fixture();
+  const onPhone = fixture();
+  const id = onPhone.vials[0].id;
+  onPhone.vials[0].notes = "mycoplasma checked, clean";
+
+  const out = E.mergeInventories(server, onPhone);
+  const merged = out.state.vials.filter((v) => v.id === id)[0];
+  if (merged.notes !== "mycoplasma checked, clean") return "the unsaved edit was overwritten by the server copy";
+  if (out.kept !== 1) return `expected the edit counted as kept, got ${out.kept}`;
+  return null;
+});
+
+check("a withdrawal recorded on each device keeps both, and the Log never shrinks", () => {
+  const server = fixture();
+  const onPhone = JSON.parse(JSON.stringify(server));
+  const a = E.withdraw(server, [server.vials[0].id], { date: "2026-09-07", by: "laptop", ids: ["w-laptop"] });
+  const b = E.withdraw(onPhone, [onPhone.vials[1].id], { date: "2026-09-07", by: "phone", ids: ["w-phone"] });
+
+  const out = E.mergeInventories(a.state, b.state);
+  const ids = out.state.withdrawals.map((w) => w.id);
+  if (ids.indexOf("w-laptop") === -1) return "the other device's withdrawal vanished from the Log";
+  if (ids.indexOf("w-phone") === -1) return "this device's withdrawal vanished from the Log";
+  return null;
+});
+
+check("merging is a union, so doing it twice changes nothing", () => {
+  const server = fixture();
+  const box = server.storage.children[0].children[0].children[0].id;
+  const onPhone = fixture();
+  onPhone.vials.push(vial("v-new", "HEK ATP7B KO g3", box, "H3"));
+
+  const once = E.mergeInventories(server, onPhone).state;
+  const twice = E.mergeInventories(once, once).state;
+  if (once.vials.length !== twice.vials.length) {
+    return `merging twice changed the count: ${once.vials.length} then ${twice.vials.length}`;
+  }
+  if (twice.vials.filter((v) => v.id === "v-new").length !== 1) return "a vial was duplicated";
+  return null;
+});
+
 // ---------------------------------------------------------------------- report
 const total = passed + failures.length;
 

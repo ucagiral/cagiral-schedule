@@ -2568,6 +2568,61 @@
     return { state: next, removed: Object.keys(doomed).length };
   }
 
+  // Two copies of one account's inventory: the one on the server, and one a device is
+  // holding that was never committed. Umut's case, and the reason this exists: he froze
+  // two vials, the save was refused, and the next time the app opened the committed copy
+  // simply replaced what he had typed. Both tubes were gone with nothing said.
+  //
+  // The merge is a union by id, and that is safe for a reason worth stating: ids are
+  // minted per device from its own clock and never reused, so the same id in both copies
+  // is the same tube and a different id is a different tube. A union can therefore
+  // neither invent one nor drop one. Where an id is on both sides the local copy wins --
+  // it is the newer edit by definition, since it is the one that has not been saved yet.
+  //
+  // What it deliberately does NOT do is resolve a real disagreement. If two devices put
+  // different tubes in one slot, both survive here and validate() calls it an error, so
+  // the save is refused and a person is asked. Picking a winner silently is how a tube
+  // ends up in a place nobody can find it.
+  //
+  // Only the inventory is merged. The freezer tree and the classification rules are the
+  // lab's, come from their own shared files, and are re-hydrated by the caller.
+  function mergeInventories(remote, local) {
+    var base = mergeDefaults(remote);
+    var mine = mergeDefaults(local);
+    var next = clone(base);
+
+    var byId = {};
+    (next.vials || []).forEach(function (v, i) { byId[v.id] = i; });
+    var kept = 0, added = 0;
+    (mine.vials || []).forEach(function (v) {
+      if (byId[v.id] === undefined) { next.vials.push(clone(v)); kept++; return; }
+      // Same tube on both sides. Identical is not a change worth reporting; different
+      // means this device edited it and has not saved that yet.
+      if (JSON.stringify(next.vials[byId[v.id]]) !== JSON.stringify(v)) {
+        next.vials[byId[v.id]] = clone(v);
+        kept++;
+      }
+    });
+    // Anything on the server this device had never seen. Counted so the person is told
+    // their copy grew, rather than noticing later that the numbers moved on their own.
+    var mineIds = {};
+    (mine.vials || []).forEach(function (v) { mineIds[v.id] = true; });
+    (base.vials || []).forEach(function (v) { if (!mineIds[v.id]) added++; });
+
+    // The Log is append-only on both sides, so the same union applies -- a withdrawal
+    // recorded on a phone and one recorded on a laptop are both real events.
+    var wById = {};
+    (next.withdrawals || []).forEach(function (w) { wById[w.id] = true; });
+    (mine.withdrawals || []).forEach(function (w) {
+      if (!wById[w.id]) { next.withdrawals.push(clone(w)); kept++; }
+    });
+
+    // Settings are this device's own view (column maps, custom columns); the local copy
+    // is the one the person has been using, so it stands.
+    next.settings = clone(mine.settings || base.settings || {});
+    return { state: next, kept: kept, added: added };
+  }
+
   function reviewQueue(state) {
     // A row import couldn't place at all (see importSheet()) is its own category below
     // -- it has neither a date nor a passage to speak of yet, so it is excluded from
@@ -2714,6 +2769,7 @@
     slim: slim, serialise: serialise,
     slimStorage: slimStorage, serialiseStorage: serialiseStorage, blankStorage: blankStorage,
     mergeStorageDefaults: mergeStorageDefaults, hydrateStorage: hydrateStorage, iconKind: iconKind,
+    mergeInventories: mergeInventories,
     reviewQueue: reviewQueue, orphanedVials: orphanedVials,
     emptyImportRows: emptyImportRows, dropEmptyImportRows: dropEmptyImportRows,
     confirmDate: confirmDate, markDateUnknown: markDateUnknown,

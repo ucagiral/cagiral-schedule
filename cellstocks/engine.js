@@ -2445,6 +2445,27 @@
   }
 
   // Everything the review queue still owes an answer on.
+  // A stored vial whose box is no longer in the tree. It should never happen -- deleting
+  // a box withdraws whatever is inside it first, in the owner's own file -- but it did:
+  // the delete counts the lab's vials out of member files fetched from raw.githubusercontent,
+  // one of those fetches was silently swallowed, and a file that could not be read counted
+  // as zero vials. Two of baris's vials were left naming a box that had gone.
+  //
+  // The damage is not the orphan itself but what it does next: validate() calls it an
+  // error, save() refuses on any error, and the account can then save NOTHING -- no
+  // import, no new vial, no fix -- because of a row it has no way to reach. So Review
+  // has to be able to offer a way out, which is what this list is for. Whether to take
+  // it is still the owner's answer: nothing here moves a vial on its own.
+  function orphanedVials(state) {
+    var root = state && state.storage;
+    if (!root) return [];
+    var known = {};
+    eachBox(root, function (box) { known[box.id] = true; });
+    return (state.vials || []).filter(function (v) {
+      return v.status !== "withdrawn" && v.location && v.location.boxId && !known[v.location.boxId];
+    });
+  }
+
   function reviewQueue(state) {
     // A row import couldn't place at all (see importSheet()) is its own category below
     // -- it has neither a date nor a passage to speak of yet, so it is excluded from
@@ -2472,10 +2493,14 @@
     var unknownPassage = (state.vials || []).filter(function (v) {
       return v.status !== "withdrawn" && !v.importAmbiguous && (v.passageKind || "unknown") === "unknown";
     });
+    // Listed first in the UI because it is the only category that stops the account
+    // saving anything at all until it is answered.
+    var orphans = orphanedVials(state);
     return { dates: dates, facets: ca.diffs, gaps: ca.gaps, passages: passages, rows: rows,
-             unknownPassage: unknownPassage, ambiguousImport: ambiguousImport,
+             unknownPassage: unknownPassage, ambiguousImport: ambiguousImport, orphans: orphans,
              total: dates.length + ca.diffs.length + ca.gaps.length + passages.length +
-                    rows.length + unknownPassage.length + ambiguousImport.length };
+                    rows.length + unknownPassage.length + ambiguousImport.length +
+                    orphans.length };
   }
 
   function confirmDate(state, vialId, iso) {
@@ -2580,7 +2605,8 @@
     slim: slim, serialise: serialise,
     slimStorage: slimStorage, serialiseStorage: serialiseStorage, blankStorage: blankStorage,
     mergeStorageDefaults: mergeStorageDefaults, hydrateStorage: hydrateStorage, iconKind: iconKind,
-    reviewQueue: reviewQueue, confirmDate: confirmDate, markDateUnknown: markDateUnknown,
+    reviewQueue: reviewQueue, orphanedVials: orphanedVials,
+    confirmDate: confirmDate, markDateUnknown: markDateUnknown,
     resolveImportRow: resolveImportRow
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

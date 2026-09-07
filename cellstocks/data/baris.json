@@ -38,21 +38,7 @@
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
       "notes": "myco bilmiyorum",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "baro-box-deneme",
-        "position": "A2"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-07T12:05:09.133Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -67,21 +53,7 @@
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
       "notes": "myco bilmiyorum",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "baro-box-deneme",
-        "position": "A3"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-07T12:05:09.133Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -110,6 +82,52 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-boxgone-0",
+      "vialId": "v-mtr71fv1-1",
+      "name": "HEK g1 KO",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "baro-box-deneme",
+        "position": "A2"
+      },
+      "date": "2026-09-07",
+      "by": "repair",
+      "purpose": "discarded",
+      "notes": "BAro box deneme was removed from the freezer; this withdrawal was missed at the time"
+    },
+    {
+      "id": "w-boxgone-1",
+      "vialId": "v-mtr71fv1-2",
+      "name": "HEK g1 KO",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "baro-box-deneme",
+        "position": "A3"
+      },
+      "date": "2026-09-07",
+      "by": "repair",
+      "purpose": "discarded",
+      "notes": "BAro box deneme was removed from the freezer; this withdrawal was missed at the time"
     }
   ],
   "settings": {

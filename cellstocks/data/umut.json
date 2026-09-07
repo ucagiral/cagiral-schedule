@@ -10483,7 +10483,7 @@
     },
     {
       "id": "v-mtrdx0po-0",
-      "name": "hek gnt",
+      "name": "HEK gNT",
       "lineId": "l-hek-gnt",
       "passage": "p21",
       "passageNumber": 21,
@@ -10500,8 +10500,7 @@
       },
       "status": "stored",
       "addedAt": "2026-09-07T15:17:40.188Z",
-      "addedBy": "unknown device",
-      "kind": "Cell"
+      "addedBy": "unknown device"
     },
     {
       "id": "v-mtrdx0po-1",
@@ -10858,7 +10857,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T21:25:08.142Z"
+    "savedAt": "2026-09-07T21:26:59.463Z"
   },
   "removedVialIds": [
     "v-205",

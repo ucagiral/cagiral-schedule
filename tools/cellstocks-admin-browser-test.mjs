@@ -29,6 +29,14 @@ try {
   }
 }
 if (!chromium) {
+  // Locally this is a courtesy: a contributor without playwright still gets every other
+  // suite. In CI it is the opposite -- a step that goes green whether the checks ran or
+  // not is worse than no step at all, because it looks like coverage and is not.
+  if (process.env.CI) {
+    console.error("::error::playwright is missing, so the browser checks did not run.");
+    console.error("This step must not pass without them -- install playwright before it.");
+    process.exit(1);
+  }
   console.log("playwright is not installed — skipping the browser test.");
   console.log("  npm i -D playwright && npx playwright install chromium");
   process.exit(0);

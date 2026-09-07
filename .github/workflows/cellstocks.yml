@@ -29,6 +29,8 @@ on:
       - tools/cellstocks-mail.mjs
       - tools/cellstocks-mail-selftest.mjs
       - tools/cellstocks-merge-rules.mjs
+      - tools/cellstocks-browser-test.mjs
+      - tools/cellstocks-admin-browser-test.mjs
       - .github/workflows/cellstocks.yml
   pull_request:
     paths:
@@ -41,6 +43,8 @@ on:
       - tools/cellstocks-mail.mjs
       - tools/cellstocks-mail-selftest.mjs
       - tools/cellstocks-merge-rules.mjs
+      - tools/cellstocks-browser-test.mjs
+      - tools/cellstocks-admin-browser-test.mjs
       - .github/workflows/cellstocks.yml
   workflow_dispatch:
 
@@ -54,7 +58,10 @@ concurrency:
 jobs:
   selftest:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Raised from 5 for the browser suite: the checks themselves take about half a
+    # minute, but a cold chromium download on a slow runner is the outlier that would
+    # have hit the old limit.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
@@ -86,6 +93,33 @@ jobs:
       # like "it sent" from the outside.
       - name: Mailer self-test
         run: node tools/cellstocks-mail-selftest.mjs
+
+      # The browser suites drive the real app in a real Chromium: the login gate, the
+      # Structure tree, the merged admin views, and the export card's recipients and send
+      # time. They had never run here on any commit -- not even in the paths filter -- so
+      # 123 checks existed only on whoever's laptop last ran them.
+      #
+      # Pinned, because a floating playwright would silently change the browser under a
+      # suite whose whole job is to be believed.
+      - name: Cache the Chromium download
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-1.56.1
+
+      - name: Install playwright and Chromium
+        run: |
+          npm i --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      # These fail rather than skip when the browser is missing (see the CI guard in each
+      # file): a step that goes green whether the checks ran or not looks like coverage
+      # and is not.
+      - name: Browser checks
+        run: node tools/cellstocks-browser-test.mjs
+
+      - name: Admin browser checks
+        run: node tools/cellstocks-admin-browser-test.mjs
 
       # The inventory is the app's source of truth and the workbook is generated
       # from it. If the two ever disagree, the sheet somebody downloads is wrong,

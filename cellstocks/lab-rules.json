@@ -95,6 +95,10 @@
   ],
   "caspex": [
     {
+      "match": "CX",
+      "value": "CASPEX"
+    },
+    {
       "match": "CASP",
       "value": "CASPEX"
     },

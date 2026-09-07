@@ -12110,14 +12110,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "B8"
@@ -12138,14 +12132,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "B9"
@@ -12166,14 +12154,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "A4"
@@ -12194,14 +12176,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "A5"
@@ -12222,14 +12198,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "A6"
@@ -12250,14 +12220,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "A7"
@@ -12278,14 +12242,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "A8"
@@ -12306,14 +12264,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "A9"
@@ -12334,14 +12286,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-duzenle",
         "position": "E6"
@@ -12362,14 +12308,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-duzenle",
         "position": "E7"
@@ -12390,14 +12330,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-duzenle",
         "position": "E8"
@@ -12418,14 +12352,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-duzenle",
         "position": "E9"
@@ -12446,14 +12374,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "D3"
@@ -12474,14 +12396,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "D4"
@@ -12502,14 +12418,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "D5"
@@ -12530,14 +12440,8 @@
       "frozenOn": "2026-09-07",
       "location": {
         "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
+          "u-ln2",
+          "t-1"
         ],
         "boxId": "b-umut-cells-4",
         "position": "D6"
@@ -12572,6 +12476,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T18:20:13.495Z"
+    "savedAt": "2026-09-07T18:22:00.041Z"
   }
 }

@@ -55,10 +55,6 @@
       "value": "KO"
     },
     {
-      "match": "CASP",
-      "value": "CASPEX"
-    },
-    {
       "value": "WT"
     }
   ],

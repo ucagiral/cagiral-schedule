@@ -10588,7 +10588,7 @@
     },
     {
       "id": "v-mtrdyhss-1",
-      "name": "hek 3xflag",
+      "name": "HEK 3xFLAG",
       "lineId": "l-hek-3xflag",
       "passage": "p21",
       "passageNumber": 21,
@@ -10605,8 +10605,7 @@
       },
       "status": "stored",
       "addedAt": "2026-09-07T15:18:48.988Z",
-      "addedBy": "unknown device",
-      "kind": "Cell"
+      "addedBy": "unknown device"
     },
     {
       "id": "v-mtrdz1vx-0",
@@ -10853,7 +10852,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T21:28:02.432Z"
+    "savedAt": "2026-09-07T21:28:08.933Z"
   },
   "removedVialIds": [
     "v-205",

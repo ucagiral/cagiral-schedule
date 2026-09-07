@@ -7853,6 +7853,58 @@
       }
     },
     {
+      "id": "v-205",
+      "name": "Unreadable row (E 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 205,
+        "name": "",
+        "position": "E 6",
+        "box": "DUZENLE"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 205"
+    },
+    {
+      "id": "v-206",
+      "name": "Unreadable row (E 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 206,
+        "name": "",
+        "position": "E 7",
+        "box": "DUZENLE"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 206"
+    },
+    {
+      "id": "v-207",
+      "name": "Unreadable row (E 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 207,
+        "name": "",
+        "position": "E 8",
+        "box": "DUZENLE"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 207"
+    },
+    {
+      "id": "v-208",
+      "name": "Unreadable row (E 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 208,
+        "name": "",
+        "position": "E 9",
+        "box": "DUZENLE"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 208"
+    },
+    {
       "id": "v-209",
       "name": "HEK TOX4 KO g2",
       "lineId": "l-hek-tox4-ko-g2",
@@ -8635,6 +8687,32 @@
       }
     },
     {
+      "id": "v-234",
+      "name": "Unreadable row (H 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 234,
+        "name": "",
+        "position": "H 8",
+        "box": "DUZENLE"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 234"
+    },
+    {
+      "id": "v-235",
+      "name": "Unreadable row (H 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 235,
+        "name": "",
+        "position": "H 9",
+        "box": "DUZENLE"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 235"
+    },
+    {
       "id": "v-236",
       "name": "HEK E2F1 sh1",
       "lineId": "l-hek-e2f1-sh1",
@@ -8846,6 +8924,19 @@
         "koox": "KO",
         "guide": "g3"
       }
+    },
+    {
+      "id": "v-243",
+      "name": "Unreadable row (I 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 243,
+        "name": "",
+        "position": "I 8",
+        "box": "DUZENLE"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 243"
     },
     {
       "id": "v-244",
@@ -10088,6 +10179,71 @@
       }
     },
     {
+      "id": "v-285",
+      "name": "Unreadable row (E 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 285,
+        "name": "",
+        "position": "E 5",
+        "box": "ONGOING"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 285"
+    },
+    {
+      "id": "v-286",
+      "name": "Unreadable row (E 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 286,
+        "name": "",
+        "position": "E 6",
+        "box": "ONGOING"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 286"
+    },
+    {
+      "id": "v-287",
+      "name": "Unreadable row (E 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 287,
+        "name": "",
+        "position": "E 7",
+        "box": "ONGOING"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 287"
+    },
+    {
+      "id": "v-288",
+      "name": "Unreadable row (E 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 288,
+        "name": "",
+        "position": "E 8",
+        "box": "ONGOING"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 288"
+    },
+    {
+      "id": "v-289",
+      "name": "Unreadable row (E 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 289,
+        "name": "",
+        "position": "E 9",
+        "box": "ONGOING"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 289"
+    },
+    {
       "id": "v-290",
       "name": "DuDtxR CASPEX gNT",
       "lineId": "l-dudtxr-caspex-gnt",
@@ -11271,6 +11427,84 @@
       }
     },
     {
+      "id": "v-329",
+      "name": "Unreadable row (A 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 329,
+        "name": "",
+        "position": "A 4",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 329"
+    },
+    {
+      "id": "v-330",
+      "name": "Unreadable row (A 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 330,
+        "name": "",
+        "position": "A 5",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 330"
+    },
+    {
+      "id": "v-331",
+      "name": "Unreadable row (A 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 331,
+        "name": "",
+        "position": "A 6",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 331"
+    },
+    {
+      "id": "v-332",
+      "name": "Unreadable row (A 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 332,
+        "name": "",
+        "position": "A 7",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 332"
+    },
+    {
+      "id": "v-333",
+      "name": "Unreadable row (A 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 333,
+        "name": "",
+        "position": "A 8",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 333"
+    },
+    {
+      "id": "v-334",
+      "name": "Unreadable row (A 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 334,
+        "name": "",
+        "position": "A 9",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 334"
+    },
+    {
       "id": "v-335",
       "name": "HEK293T",
       "lineId": "l-hek293t",
@@ -11476,6 +11710,32 @@
         "koox": "WT"
       },
       "dateUnknown": true
+    },
+    {
+      "id": "v-342",
+      "name": "Unreadable row (B 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 342,
+        "name": "",
+        "position": "B 8",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 342"
+    },
+    {
+      "id": "v-343",
+      "name": "Unreadable row (B 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 343,
+        "name": "",
+        "position": "B 9",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 343"
     },
     {
       "id": "v-344",
@@ -11814,6 +12074,97 @@
       }
     },
     {
+      "id": "v-355",
+      "name": "Unreadable row (D 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 355,
+        "name": "",
+        "position": "D 3",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 355"
+    },
+    {
+      "id": "v-356",
+      "name": "Unreadable row (D 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 356,
+        "name": "",
+        "position": "D 4",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 356"
+    },
+    {
+      "id": "v-357",
+      "name": "Unreadable row (D 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 357,
+        "name": "",
+        "position": "D 5",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 357"
+    },
+    {
+      "id": "v-358",
+      "name": "Unreadable row (D 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 358,
+        "name": "",
+        "position": "D 6",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 358"
+    },
+    {
+      "id": "v-359",
+      "name": "Unreadable row (D 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 359,
+        "name": "",
+        "position": "D 7",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 359"
+    },
+    {
+      "id": "v-360",
+      "name": "Unreadable row (D 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 360,
+        "name": "",
+        "position": "D 8",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 360"
+    },
+    {
+      "id": "v-361",
+      "name": "Unreadable row (D 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 361,
+        "name": "",
+        "position": "D 9",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 361"
+    },
+    {
       "id": "v-362",
       "name": "DuDtxR CASPEX g1.1",
       "lineId": "l-dudtxr-caspex-g1-1",
@@ -12008,6 +12359,45 @@
       }
     },
     {
+      "id": "v-368",
+      "name": "Unreadable row (E 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 368,
+        "name": "",
+        "position": "E 7",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 368"
+    },
+    {
+      "id": "v-369",
+      "name": "Unreadable row (E 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 369,
+        "name": "",
+        "position": "E 8",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 369"
+    },
+    {
+      "id": "v-370",
+      "name": "Unreadable row (E 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 370,
+        "name": "",
+        "position": "E 9",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 370"
+    },
+    {
       "id": "v-371",
       "name": "MDA-MB g1.1 p10",
       "lineId": "l-mda-mb-g1-1-p10",
@@ -12070,6 +12460,97 @@
       }
     },
     {
+      "id": "v-373",
+      "name": "Unreadable row (F 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 373,
+        "name": "",
+        "position": "F 3",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 373"
+    },
+    {
+      "id": "v-374",
+      "name": "Unreadable row (F 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 374,
+        "name": "",
+        "position": "F 4",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 374"
+    },
+    {
+      "id": "v-375",
+      "name": "Unreadable row (F 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 375,
+        "name": "",
+        "position": "F 5",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 375"
+    },
+    {
+      "id": "v-376",
+      "name": "Unreadable row (F 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 376,
+        "name": "",
+        "position": "F 6",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 376"
+    },
+    {
+      "id": "v-377",
+      "name": "Unreadable row (F 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 377,
+        "name": "",
+        "position": "F 7",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 377"
+    },
+    {
+      "id": "v-378",
+      "name": "Unreadable row (F 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 378,
+        "name": "",
+        "position": "F 8",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 378"
+    },
+    {
+      "id": "v-379",
+      "name": "Unreadable row (F 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 379,
+        "name": "",
+        "position": "F 9",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 379"
+    },
+    {
       "id": "v-380",
       "name": "LNCX",
       "lineId": "l-lncx",
@@ -12098,6 +12579,1397 @@
         "origin": "LnCap",
         "koox": "WT"
       }
+    },
+    {
+      "id": "v-381",
+      "name": "Unreadable row (G 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 381,
+        "name": "",
+        "position": "G 2",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 381"
+    },
+    {
+      "id": "v-382",
+      "name": "Unreadable row (G 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 382,
+        "name": "",
+        "position": "G 3",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 382"
+    },
+    {
+      "id": "v-383",
+      "name": "Unreadable row (G 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 383,
+        "name": "",
+        "position": "G 4",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 383"
+    },
+    {
+      "id": "v-384",
+      "name": "Unreadable row (G 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 384,
+        "name": "",
+        "position": "G 5",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 384"
+    },
+    {
+      "id": "v-385",
+      "name": "Unreadable row (G 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 385,
+        "name": "",
+        "position": "G 6",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 385"
+    },
+    {
+      "id": "v-386",
+      "name": "Unreadable row (G 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 386,
+        "name": "",
+        "position": "G 7",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 386"
+    },
+    {
+      "id": "v-387",
+      "name": "Unreadable row (G 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 387,
+        "name": "",
+        "position": "G 8",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 387"
+    },
+    {
+      "id": "v-388",
+      "name": "Unreadable row (G 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 388,
+        "name": "",
+        "position": "G 9",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 388"
+    },
+    {
+      "id": "v-389",
+      "name": "Unreadable row (H 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 389,
+        "name": "",
+        "position": "H 1",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 389"
+    },
+    {
+      "id": "v-390",
+      "name": "Unreadable row (H 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 390,
+        "name": "",
+        "position": "H 2",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 390"
+    },
+    {
+      "id": "v-391",
+      "name": "Unreadable row (H 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 391,
+        "name": "",
+        "position": "H 3",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 391"
+    },
+    {
+      "id": "v-392",
+      "name": "Unreadable row (H 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 392,
+        "name": "",
+        "position": "H 4",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 392"
+    },
+    {
+      "id": "v-393",
+      "name": "Unreadable row (H 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 393,
+        "name": "",
+        "position": "H 5",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 393"
+    },
+    {
+      "id": "v-394",
+      "name": "Unreadable row (H 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 394,
+        "name": "",
+        "position": "H 6",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 394"
+    },
+    {
+      "id": "v-395",
+      "name": "Unreadable row (H 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 395,
+        "name": "",
+        "position": "H 7",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 395"
+    },
+    {
+      "id": "v-396",
+      "name": "Unreadable row (H 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 396,
+        "name": "",
+        "position": "H 8",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 396"
+    },
+    {
+      "id": "v-397",
+      "name": "Unreadable row (H 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 397,
+        "name": "",
+        "position": "H 9",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 397"
+    },
+    {
+      "id": "v-398",
+      "name": "Unreadable row (I 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 398,
+        "name": "",
+        "position": "I 1",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 398"
+    },
+    {
+      "id": "v-399",
+      "name": "Unreadable row (I 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 399,
+        "name": "",
+        "position": "I 2",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 399"
+    },
+    {
+      "id": "v-400",
+      "name": "Unreadable row (I 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 400,
+        "name": "",
+        "position": "I 3",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 400"
+    },
+    {
+      "id": "v-401",
+      "name": "Unreadable row (I 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 401,
+        "name": "",
+        "position": "I 4",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 401"
+    },
+    {
+      "id": "v-402",
+      "name": "Unreadable row (I 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 402,
+        "name": "",
+        "position": "I 5",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 402"
+    },
+    {
+      "id": "v-403",
+      "name": "Unreadable row (I 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 403,
+        "name": "",
+        "position": "I 6",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 403"
+    },
+    {
+      "id": "v-404",
+      "name": "Unreadable row (I 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 404,
+        "name": "",
+        "position": "I 7",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 404"
+    },
+    {
+      "id": "v-405",
+      "name": "Unreadable row (I 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 405,
+        "name": "",
+        "position": "I 8",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 405"
+    },
+    {
+      "id": "v-406",
+      "name": "Unreadable row (I 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 406,
+        "name": "",
+        "position": "I 9",
+        "box": "UMUT CELLS -4-"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 406"
+    },
+    {
+      "id": "v-407",
+      "name": "Unreadable row (A 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 407,
+        "name": "",
+        "position": "A 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 407"
+    },
+    {
+      "id": "v-408",
+      "name": "Unreadable row (A 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 408,
+        "name": "",
+        "position": "A 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 408"
+    },
+    {
+      "id": "v-409",
+      "name": "Unreadable row (A 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 409,
+        "name": "",
+        "position": "A 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 409"
+    },
+    {
+      "id": "v-410",
+      "name": "Unreadable row (A 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 410,
+        "name": "",
+        "position": "A 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 410"
+    },
+    {
+      "id": "v-411",
+      "name": "Unreadable row (A 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 411,
+        "name": "",
+        "position": "A 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 411"
+    },
+    {
+      "id": "v-412",
+      "name": "Unreadable row (A 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 412,
+        "name": "",
+        "position": "A 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 412"
+    },
+    {
+      "id": "v-413",
+      "name": "Unreadable row (A 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 413,
+        "name": "",
+        "position": "A 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 413"
+    },
+    {
+      "id": "v-414",
+      "name": "Unreadable row (A 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 414,
+        "name": "",
+        "position": "A 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 414"
+    },
+    {
+      "id": "v-415",
+      "name": "Unreadable row (A 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 415,
+        "name": "",
+        "position": "A 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 415"
+    },
+    {
+      "id": "v-416",
+      "name": "Unreadable row (B 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 416,
+        "name": "",
+        "position": "B 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 416"
+    },
+    {
+      "id": "v-417",
+      "name": "Unreadable row (B 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 417,
+        "name": "",
+        "position": "B 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 417"
+    },
+    {
+      "id": "v-418",
+      "name": "Unreadable row (B 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 418,
+        "name": "",
+        "position": "B 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 418"
+    },
+    {
+      "id": "v-419",
+      "name": "Unreadable row (B 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 419,
+        "name": "",
+        "position": "B 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 419"
+    },
+    {
+      "id": "v-420",
+      "name": "Unreadable row (B 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 420,
+        "name": "",
+        "position": "B 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 420"
+    },
+    {
+      "id": "v-421",
+      "name": "Unreadable row (B 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 421,
+        "name": "",
+        "position": "B 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 421"
+    },
+    {
+      "id": "v-422",
+      "name": "Unreadable row (B 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 422,
+        "name": "",
+        "position": "B 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 422"
+    },
+    {
+      "id": "v-423",
+      "name": "Unreadable row (B 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 423,
+        "name": "",
+        "position": "B 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 423"
+    },
+    {
+      "id": "v-424",
+      "name": "Unreadable row (B 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 424,
+        "name": "",
+        "position": "B 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 424"
+    },
+    {
+      "id": "v-425",
+      "name": "Unreadable row (C 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 425,
+        "name": "",
+        "position": "C 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 425"
+    },
+    {
+      "id": "v-426",
+      "name": "Unreadable row (C 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 426,
+        "name": "",
+        "position": "C 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 426"
+    },
+    {
+      "id": "v-427",
+      "name": "Unreadable row (C 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 427,
+        "name": "",
+        "position": "C 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 427"
+    },
+    {
+      "id": "v-428",
+      "name": "Unreadable row (C 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 428,
+        "name": "",
+        "position": "C 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 428"
+    },
+    {
+      "id": "v-429",
+      "name": "Unreadable row (C 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 429,
+        "name": "",
+        "position": "C 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 429"
+    },
+    {
+      "id": "v-430",
+      "name": "Unreadable row (C 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 430,
+        "name": "",
+        "position": "C 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 430"
+    },
+    {
+      "id": "v-431",
+      "name": "Unreadable row (C 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 431,
+        "name": "",
+        "position": "C 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 431"
+    },
+    {
+      "id": "v-432",
+      "name": "Unreadable row (C 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 432,
+        "name": "",
+        "position": "C 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 432"
+    },
+    {
+      "id": "v-433",
+      "name": "Unreadable row (C 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 433,
+        "name": "",
+        "position": "C 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 433"
+    },
+    {
+      "id": "v-434",
+      "name": "Unreadable row (D 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 434,
+        "name": "",
+        "position": "D 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 434"
+    },
+    {
+      "id": "v-435",
+      "name": "Unreadable row (D 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 435,
+        "name": "",
+        "position": "D 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 435"
+    },
+    {
+      "id": "v-436",
+      "name": "Unreadable row (D 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 436,
+        "name": "",
+        "position": "D 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 436"
+    },
+    {
+      "id": "v-437",
+      "name": "Unreadable row (D 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 437,
+        "name": "",
+        "position": "D 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 437"
+    },
+    {
+      "id": "v-438",
+      "name": "Unreadable row (D 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 438,
+        "name": "",
+        "position": "D 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 438"
+    },
+    {
+      "id": "v-439",
+      "name": "Unreadable row (D 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 439,
+        "name": "",
+        "position": "D 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 439"
+    },
+    {
+      "id": "v-440",
+      "name": "Unreadable row (D 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 440,
+        "name": "",
+        "position": "D 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 440"
+    },
+    {
+      "id": "v-441",
+      "name": "Unreadable row (D 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 441,
+        "name": "",
+        "position": "D 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 441"
+    },
+    {
+      "id": "v-442",
+      "name": "Unreadable row (D 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 442,
+        "name": "",
+        "position": "D 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 442"
+    },
+    {
+      "id": "v-443",
+      "name": "Unreadable row (E 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 443,
+        "name": "",
+        "position": "E 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 443"
+    },
+    {
+      "id": "v-444",
+      "name": "Unreadable row (E 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 444,
+        "name": "",
+        "position": "E 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 444"
+    },
+    {
+      "id": "v-445",
+      "name": "Unreadable row (E 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 445,
+        "name": "",
+        "position": "E 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 445"
+    },
+    {
+      "id": "v-446",
+      "name": "Unreadable row (E 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 446,
+        "name": "",
+        "position": "E 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 446"
+    },
+    {
+      "id": "v-447",
+      "name": "Unreadable row (E 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 447,
+        "name": "",
+        "position": "E 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 447"
+    },
+    {
+      "id": "v-448",
+      "name": "Unreadable row (E 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 448,
+        "name": "",
+        "position": "E 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 448"
+    },
+    {
+      "id": "v-449",
+      "name": "Unreadable row (E 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 449,
+        "name": "",
+        "position": "E 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 449"
+    },
+    {
+      "id": "v-450",
+      "name": "Unreadable row (E 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 450,
+        "name": "",
+        "position": "E 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 450"
+    },
+    {
+      "id": "v-451",
+      "name": "Unreadable row (E 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 451,
+        "name": "",
+        "position": "E 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 451"
+    },
+    {
+      "id": "v-452",
+      "name": "Unreadable row (F 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 452,
+        "name": "",
+        "position": "F 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 452"
+    },
+    {
+      "id": "v-453",
+      "name": "Unreadable row (F 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 453,
+        "name": "",
+        "position": "F 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 453"
+    },
+    {
+      "id": "v-454",
+      "name": "Unreadable row (F 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 454,
+        "name": "",
+        "position": "F 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 454"
+    },
+    {
+      "id": "v-455",
+      "name": "Unreadable row (F 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 455,
+        "name": "",
+        "position": "F 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 455"
+    },
+    {
+      "id": "v-456",
+      "name": "Unreadable row (F 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 456,
+        "name": "",
+        "position": "F 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 456"
+    },
+    {
+      "id": "v-457",
+      "name": "Unreadable row (F 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 457,
+        "name": "",
+        "position": "F 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 457"
+    },
+    {
+      "id": "v-458",
+      "name": "Unreadable row (F 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 458,
+        "name": "",
+        "position": "F 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 458"
+    },
+    {
+      "id": "v-459",
+      "name": "Unreadable row (F 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 459,
+        "name": "",
+        "position": "F 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 459"
+    },
+    {
+      "id": "v-460",
+      "name": "Unreadable row (F 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 460,
+        "name": "",
+        "position": "F 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 460"
+    },
+    {
+      "id": "v-461",
+      "name": "Unreadable row (G 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 461,
+        "name": "",
+        "position": "G 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 461"
+    },
+    {
+      "id": "v-462",
+      "name": "Unreadable row (G 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 462,
+        "name": "",
+        "position": "G 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 462"
+    },
+    {
+      "id": "v-463",
+      "name": "Unreadable row (G 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 463,
+        "name": "",
+        "position": "G 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 463"
+    },
+    {
+      "id": "v-464",
+      "name": "Unreadable row (G 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 464,
+        "name": "",
+        "position": "G 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 464"
+    },
+    {
+      "id": "v-465",
+      "name": "Unreadable row (G 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 465,
+        "name": "",
+        "position": "G 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 465"
+    },
+    {
+      "id": "v-466",
+      "name": "Unreadable row (G 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 466,
+        "name": "",
+        "position": "G 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 466"
+    },
+    {
+      "id": "v-467",
+      "name": "Unreadable row (G 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 467,
+        "name": "",
+        "position": "G 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 467"
+    },
+    {
+      "id": "v-468",
+      "name": "Unreadable row (G 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 468,
+        "name": "",
+        "position": "G 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 468"
+    },
+    {
+      "id": "v-469",
+      "name": "Unreadable row (G 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 469,
+        "name": "",
+        "position": "G 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 469"
+    },
+    {
+      "id": "v-470",
+      "name": "Unreadable row (H 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 470,
+        "name": "",
+        "position": "H 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 470"
+    },
+    {
+      "id": "v-471",
+      "name": "Unreadable row (H 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 471,
+        "name": "",
+        "position": "H 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 471"
+    },
+    {
+      "id": "v-472",
+      "name": "Unreadable row (H 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 472,
+        "name": "",
+        "position": "H 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 472"
+    },
+    {
+      "id": "v-473",
+      "name": "Unreadable row (H 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 473,
+        "name": "",
+        "position": "H 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 473"
+    },
+    {
+      "id": "v-474",
+      "name": "Unreadable row (H 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 474,
+        "name": "",
+        "position": "H 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 474"
+    },
+    {
+      "id": "v-475",
+      "name": "Unreadable row (H 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 475,
+        "name": "",
+        "position": "H 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 475"
+    },
+    {
+      "id": "v-476",
+      "name": "Unreadable row (H 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 476,
+        "name": "",
+        "position": "H 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 476"
+    },
+    {
+      "id": "v-477",
+      "name": "Unreadable row (H 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 477,
+        "name": "",
+        "position": "H 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 477"
+    },
+    {
+      "id": "v-478",
+      "name": "Unreadable row (H 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 478,
+        "name": "",
+        "position": "H 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 478"
+    },
+    {
+      "id": "v-479",
+      "name": "Unreadable row (I 1)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 479,
+        "name": "",
+        "position": "I 1",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 479"
+    },
+    {
+      "id": "v-480",
+      "name": "Unreadable row (I 2)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 480,
+        "name": "",
+        "position": "I 2",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 480"
+    },
+    {
+      "id": "v-481",
+      "name": "Unreadable row (I 3)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 481,
+        "name": "",
+        "position": "I 3",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 481"
+    },
+    {
+      "id": "v-482",
+      "name": "Unreadable row (I 4)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 482,
+        "name": "",
+        "position": "I 4",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 482"
+    },
+    {
+      "id": "v-483",
+      "name": "Unreadable row (I 5)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 483,
+        "name": "",
+        "position": "I 5",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 483"
+    },
+    {
+      "id": "v-484",
+      "name": "Unreadable row (I 6)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 484,
+        "name": "",
+        "position": "I 6",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 484"
+    },
+    {
+      "id": "v-485",
+      "name": "Unreadable row (I 7)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 485,
+        "name": "",
+        "position": "I 7",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 485"
+    },
+    {
+      "id": "v-486",
+      "name": "Unreadable row (I 8)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 486,
+        "name": "",
+        "position": "I 8",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 486"
+    },
+    {
+      "id": "v-487",
+      "name": "Unreadable row (I 9)",
+      "status": "stored",
+      "importAmbiguous": true,
+      "importRaw": {
+        "row": 487,
+        "name": "",
+        "position": "I 9",
+        "box": "Unnamed box"
+      },
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 487"
     },
     {
       "id": "v-mtrdx0po-0",
@@ -12476,6 +14348,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T18:22:28.624Z"
+    "savedAt": "2026-09-07T18:22:29.035Z"
   }
 }

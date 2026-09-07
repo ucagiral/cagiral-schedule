@@ -2552,6 +2552,40 @@
       box.appendChild(oc);
     }
 
+    // ---- empty slots the first import mistook for rows ----
+    //
+    // Before importSheet learned the difference, a line holding a slot label and nothing
+    // else came in as a vial called "Unreadable row (E 6)". 144 of them, all asking a
+    // question with no answer, and burying the rows that really did need one. New imports
+    // no longer make them; these are the ones already in the file, and clearing them is
+    // his click, not something done to his inventory behind his back.
+    if ((q.emptySlots || []).length){
+      var ec = el("div", "card");
+      ec.appendChild(el("h3", null, "Empty spaces from the sheet (" + q.emptySlots.length + ")"));
+      ec.appendChild(el("p", "note",
+        "Your spreadsheet lists every slot in a box and leaves the name blank where nothing " +
+        "is frozen. These lines held a slot and nothing else — no name, no date, no passage, " +
+        "no note — so there is nothing here to fix and nothing to lose. Removing them is not " +
+        "a withdrawal: no vial was ever in these spaces."));
+      var drop = el("button", "primary", "Remove all " + q.emptySlots.length);
+      drop.disabled = !canWrite() || ADMIN_MERGED;
+      drop.onclick = function(){
+        var out = E.dropEmptyImportRows(state);
+        state = out.state;
+        markDirty("Remove " + out.removed + " empty spaces from the sheet");
+        renderAll();
+        showBanner("Removed " + out.removed + " empty spaces. Nothing that held a vial was touched.");
+      };
+      ec.appendChild(drop);
+      q.emptySlots.slice(0, 20).forEach(function(v){
+        var raw = v.importRaw || {};
+        ec.appendChild(el("p", "note", "　" + (raw.box ? raw.box + " " : "") +
+          (raw.position || "(no slot)") + " — sheet row " + (raw.row || "?")));
+      });
+      if (q.emptySlots.length > 20) ec.appendChild(el("p", "note", "…and " + (q.emptySlots.length - 20) + " more."));
+      box.appendChild(ec);
+    }
+
     // ---- rows an import couldn't place at all ----
     if (q.ambiguousImport.length){
       var ic = el("div", "card");
@@ -3762,6 +3796,11 @@
       body.appendChild(p);
     }
     line(rep.imported + " vials out of " + rep.rows + " rows, in " + rep.boxes.length + " boxes.");
+    // Said out loud rather than passed over: the sheet lists every slot in a box, so most
+    // of these are simply spaces with nothing frozen in them. Reading that as "144 rows I
+    // could not understand" is what filled Review with questions nobody could answer.
+    if (rep.emptySlots) line(rep.emptySlots + " lines held a slot and nothing else — empty " +
+      "spaces in the sheet, not imported.");
     rep.boxes.forEach(function(b){ line("　" + b.name + " — " + b.rows + " × " + b.cols); });
     if (rep.dateQueue) line(rep.dateQueue + " dates can't be read unambiguously and will wait in Review.");
     if (rep.facetDiffs) line(rep.facetDiffs + " rows where the corrected rules disagree with the sheet.");

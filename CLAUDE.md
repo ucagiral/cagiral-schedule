@@ -257,6 +257,19 @@ worker handles by sweeping only its own prefix.
 - **A row that already mixes two cells is a warning, not an error.** One row does — UMUT CAA CELLS
   A, one Du145 among eight HEK293T. It is listed for review; it does not block a save, and nothing
   is moved to fix it without being asked.
+- **An empty slot in the sheet is not a vial.** Umut's workbook lists every position in a
+  box and leaves the name blank where nothing is frozen there, so a line carrying a slot
+  label and nothing else describes a space, not a tube whose name failed to read. Imported
+  as vials, 144 of those became 144 permanent *"Fix"* entries in Review about rows where
+  there was never anything to fix — and buried the one row that did need answering. The
+  test is deliberately narrow, because the cost of getting it wrong is a tube going
+  missing: the row is skipped only when the **name is blank and every other cell on the
+  line is blank too**, position and box excluded (the position is the grid's own
+  scaffolding, the box name repeats down the block). A date, a passage, a note, a facet, a
+  column nobody mapped, an uncalculated formula — anything at all — and the row still comes
+  in for Review. And whatever it *did* record now travels with it: that data used to be
+  read only on the path where the row was fully understood, so a row with a date and no
+  name arrived holding neither.
 - **Anything the sheet did not say is surfaced, not filled in.** Ambiguous dates, missing passages,
   an implausible passage, a mixed row: all listed under Review for Umut to answer through the vial
   editor. A facet he pins by hand is never recomputed.

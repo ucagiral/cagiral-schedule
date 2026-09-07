@@ -11,7 +11,19 @@
         {
           "id": "t-1",
           "name": "Rack 1",
-          "children": [],
+          "children": [
+            {
+              "id": "baro-box-deneme",
+              "name": "BAro box deneme",
+              "icon": "📦",
+              "isBox": true,
+              "owner": "baris",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false
+            }
+          ],
           "icon": "📁"
         },
         {
@@ -66,19 +78,6 @@
           "children": []
         }
       ]
-    }
-  ],
-  "unplaced": [
-    {
-      "id": "baro-box-deneme",
-      "name": "BAro box deneme",
-      "icon": "📦",
-      "isBox": true,
-      "owner": "baris",
-      "rows": 9,
-      "cols": 9,
-      "scheme": "grid",
-      "archived": false
     }
   ]
 }

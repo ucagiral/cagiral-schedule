@@ -13922,8 +13922,8 @@
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 487"
     },
     {
-      "id": "v-mtrdw768-0",
-      "name": "HEK gNT",
+      "id": "v-mtrdx0po-0",
+      "name": "hek gnt",
       "lineId": "l-hek-gnt",
       "passage": "p21",
       "passageNumber": 21,
@@ -13939,13 +13939,13 @@
         "position": "B8"
       },
       "status": "stored",
-      "addedAt": "2026-09-07T15:17:01.905Z",
+      "addedAt": "2026-09-07T15:17:40.188Z",
       "addedBy": "unknown device",
       "kind": "Cell"
     },
     {
-      "id": "v-mtrdw768-1",
-      "name": "HEK gNT",
+      "id": "v-mtrdx0po-1",
+      "name": "hek gnt",
       "lineId": "l-hek-gnt",
       "passage": "p21",
       "passageNumber": 21,
@@ -13961,7 +13961,7 @@
         "position": "B9"
       },
       "status": "stored",
-      "addedAt": "2026-09-07T15:17:01.905Z",
+      "addedAt": "2026-09-07T15:17:40.188Z",
       "addedBy": "unknown device",
       "kind": "Cell"
     }
@@ -13990,6 +13990,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T15:17:02.835Z"
+    "savedAt": "2026-09-07T15:17:41.125Z"
   }
 }

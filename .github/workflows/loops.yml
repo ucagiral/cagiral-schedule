@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
@@ -92,7 +92,7 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
@@ -109,7 +109,7 @@ jobs:
       # get cached over by the very run meant to prove it -- hash the whole
       # directory's *.py so no future new-source module repeats that.
       - name: Restore the portal catalogue
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: loops/_datasets.json
           key: loops-catalogue-${{ inputs.build }}-${{ hashFiles('tools/loops/*.py') }}-${{ github.run_id }}
@@ -155,7 +155,7 @@ jobs:
             --chain-file hg19ToHg38.over.chain.gz
 
       - name: Upload report and workbook
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: loops-${{ steps.query.outputs.slug }}
           path: |

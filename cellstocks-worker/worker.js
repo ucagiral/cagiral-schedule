@@ -814,7 +814,8 @@ async function handleRequest(request, env) {
 
   let response;
   try {
-    if (path === "/bootstrap" && request.method === "POST") response = await routeBootstrap(request, env);
+    if (path === "/cron-status" && request.method === "GET") response = await routeCronStatus(env);
+    else if (path === "/bootstrap" && request.method === "POST") response = await routeBootstrap(request, env);
     else if (path === "/login" && request.method === "POST") response = await routeLogin(request, env);
     else if (path === "/logout" && request.method === "POST") response = await routeLogout(request, env);
     else if (path === "/session" && request.method === "GET") response = await routeSession(request, env);
@@ -877,25 +878,58 @@ async function handleRequest(request, env) {
 // send time an admin set in the app and the marker saying whether today's has gone. So
 // this cannot mail at the wrong hour and cannot send a second copy -- and if GitHub's own
 // cron ever does start firing, whichever arrives first sends and the other declines.
-async function dispatchDailyMail(env) {
+const CRON_STATUS_KEY = "cron:last";
+
+async function dispatchDailyMail(env, now) {
+  const at = (now || new Date()).toISOString();
+  let outcome;
   try {
     await githubApi(env, "POST", "/actions/workflows/cellstocks-export.yml/dispatches", {
       ref: env.GITHUB_BRANCH || "main",
       inputs: { force: "false" }
     });
     console.log("dispatched the daily layout export (force=false)");
-    return { ok: true };
+    outcome = { at, ok: true };
   } catch (err) {
-    // Worth saying loudly: dispatching a workflow needs Actions write permission, which
-    // a token minted only for committing files may not carry. That failure looks like a
-    // 403 here and like "no mail" to the lab, so name it rather than letting it be silent.
-    console.error("could not dispatch the daily layout export: " +
-      (err && err.message ? err.message : String(err)) +
-      (err && err.status === 403
-        ? " -- GITHUB_TOKEN probably lacks Actions write permission; re-mint it with that scope."
-        : ""));
-    return { ok: false, error: err && err.message ? err.message : String(err) };
+    // Dispatching a workflow needs Actions write permission, which a token minted only
+    // for committing files may not carry. That failure looks like a 403 here and like
+    // "no mail" to the lab, so name it rather than letting it be silent.
+    const message = err && err.message ? err.message : String(err);
+    const advice = err && err.status === 403
+      ? "GITHUB_TOKEN probably lacks Actions write permission; re-mint it with that scope."
+      : "";
+    console.error("could not dispatch the daily layout export: " + message + (advice ? " -- " + advice : ""));
+    outcome = { at, ok: false, status: (err && err.status) || null, error: message, advice: advice || undefined };
   }
+  // Recorded so the outcome is visible without Cloudflare's own logs, which nobody
+  // debugging this from a phone -- or from a sandbox that cannot reach workers.dev --
+  // can get at. GET /cron-status reads it back. Never fatal: a KV hiccup must not turn a
+  // successful dispatch into a failed one.
+  try {
+    if (env.CST_KV) await env.CST_KV.put(CRON_STATUS_KEY, JSON.stringify(outcome));
+  } catch (e) { /* the dispatch is what matters */ }
+  return outcome;
+}
+
+// What the cron last did, and when. Public on purpose: it carries a timestamp and an
+// error string, nothing that is not already public in this repository, and the whole
+// point is that somebody can open it on a phone and see whether the mail's trigger is
+// alive without reading a dashboard.
+async function routeCronStatus(env) {
+  let last = null;
+  try {
+    const raw = env.CST_KV ? await env.CST_KV.get(CRON_STATUS_KEY) : null;
+    last = raw ? JSON.parse(raw) : null;
+  } catch (e) { last = null; }
+  return json({
+    schedule: "7,37 * * * *",
+    // A null here means the cron has never run since this was deployed -- which is a
+    // different problem from a run that failed, and the reason this endpoint exists.
+    last: last,
+    note: last
+      ? undefined
+      : "the cron has not run yet since this Worker was deployed"
+  });
 }
 
 export default {
@@ -922,5 +956,6 @@ export {
   base64ToUtf8,
   TYPES_CONFIG_KEY,
   DEFAULT_TYPE_NAMES,
-  dispatchDailyMail
+  dispatchDailyMail,
+  CRON_STATUS_KEY
 };

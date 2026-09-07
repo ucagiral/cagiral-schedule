@@ -1066,6 +1066,55 @@ await check("a refused dispatch is reported, not swallowed", async () => {
   return null;
 });
 
+// ---------------------------------------------------- seeing what the cron actually did
+//
+// The reason this endpoint exists: from a phone -- or from a sandbox that cannot reach
+// workers.dev -- there is no way to tell "the cron never fired" from "it fired and was
+// refused". Those need different fixes, so the Worker records which one happened.
+
+await check("cron-status says so plainly when the cron has never run", async () => {
+  const env = makeEnv({});
+  const res = await handleRequest(req("GET", "/cron-status"), env);
+  if (res.status !== 200) return `status ${res.status}`;
+  const body = await res.json();
+  if (body.last !== null) return `expected no recorded run, got ${json(body.last)}`;
+  if (!/not run yet/.test(body.note || "")) return `unhelpful note: ${json(body.note)}`;
+  return null;
+});
+
+await check("cron-status reports the last run, refusal and advice included", async () => {
+  const env = makeEnv({
+    fetch: async () => new Response(JSON.stringify({ message: "Resource not accessible by integration" }),
+                                    { status: 403 })
+  });
+  await dispatchDailyMail(env, new Date("2026-09-07T11:07:00Z"));
+  const body = await (await handleRequest(req("GET", "/cron-status"), env)).json();
+  if (!body.last) return "the run was not recorded at all -- this endpoint would still be blind";
+  if (body.last.ok !== false) return `a 403 was recorded as a success: ${json(body.last)}`;
+  if (body.last.status !== 403) return `recorded status ${json(body.last.status)}`;
+  if (!/Actions write/.test(body.last.advice || "")) return `no advice on what to fix: ${json(body.last)}`;
+  if (body.last.at !== "2026-09-07T11:07:00.000Z") return `wrong timestamp: ${json(body.last.at)}`;
+  return null;
+});
+
+await check("a successful dispatch is recorded too, so silence means the cron never fired", async () => {
+  const env = makeEnv({ fetch: async () => new Response("{}", { status: 200 }) });
+  await dispatchDailyMail(env, new Date("2026-09-07T11:37:00Z"));
+  const body = await (await handleRequest(req("GET", "/cron-status"), env)).json();
+  if (!body.last || body.last.ok !== true) return `a good dispatch was not recorded: ${json(body.last)}`;
+  if (body.note) return `still claiming it has not run: ${json(body.note)}`;
+  return null;
+});
+
+await check("a KV write that fails does not turn a good dispatch into a failed one", async () => {
+  const kv = makeKv();
+  kv.put = async () => { throw new Error("KV is having a day"); };
+  const env = makeEnv({ CST_KV: kv, fetch: async () => new Response("{}", { status: 200 }) });
+  const out = await dispatchDailyMail(env, new Date());
+  if (!out.ok) return "a KV hiccup was reported as a failed dispatch -- the mail did go out";
+  return null;
+});
+
 // ==================================================================== summary
 
 if (failures.length) {

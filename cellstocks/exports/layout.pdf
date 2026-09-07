@@ -19,9 +19,9 @@ BT /F2 11 Tf 46 718.54 Td (Freezer 1  \(-80 deg C · 269 Middle Door\)  ?  2 insi
 BT /F1 9.5 Tf 60 704.09 Td (Rack 1  ?  6 inside) Tj ET
 BT /F1 9.5 Tf 74 690.32 Td (UMUT CAA CELLS  ·  umut  ·  81/81 full) Tj ET
 BT /F1 9.5 Tf 74 676.54 Td (UMUT CELLS -80  ·  umut  ·  81/81 full) Tj ET
-BT /F1 9.5 Tf 74 662.77 Td (DUZENLE  ·  umut  ·  74/81 full) Tj ET
+BT /F1 9.5 Tf 74 662.77 Td (DUZENLE  ·  umut  ·  78/81 full) Tj ET
 BT /F1 9.5 Tf 74 648.99 Td (ONGOING  ·  umut  ·  76/81 full) Tj ET
-BT /F1 9.5 Tf 74 635.22 Td (UMUT CELLS -4-  ·  umut  ·  30/81 full) Tj ET
+BT /F1 9.5 Tf 74 635.22 Td (UMUT CELLS -4-  ·  umut  ·  42/81 full) Tj ET
 BT /F1 9.5 Tf 74 621.44 Td (Unnamed box  ·  umut  ·  0/81 full) Tj ET
 BT /F1 9.5 Tf 60 607.67 Td (Rack 2  ?  empty) Tj ET
 BT /F2 11 Tf 46 586.39 Td (Liquid Nitrogen  \(-196\)  ?  2 inside) Tj ET
@@ -635,11 +635,11 @@ endobj
 << /Type /Page /Parent 18 0 R /MediaBox [0 0 595.28 841.89] /Resources 3 0 R /Contents 8 0 R >>
 endobj
 10 0 obj
-<< /Length 13730 >>
+<< /Length 14254 >>
 stream
 BT /F2 16 Tf 40 785.89 Td (DUZENLE) Tj ET
 BT /F1 10 Tf 40 768.69 Td (Freezer 1 ? Rack 1) Tj ET
-BT /F1 10 Tf 40 754.19 Td (umut  ·  74 of 81 slots full) Tj ET
+BT /F1 10 Tf 40 754.19 Td (umut  ·  78 of 81 slots full) Tj ET
 BT /F2 7.5 Tf 85 747.69 Td (1) Tj ET
 BT /F2 7.5 Tf 137 747.69 Td (2) Tj ET
 BT /F2 7.5 Tf 189 747.69 Td (3) Tj ET
@@ -796,10 +796,20 @@ q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 270 573.69 52 34 re B Q
 BT /F1 5.4 Tf 272.5 598.69 Td (Huh7 ATF3 OX rep) Tj ET
 BT /F1 5.4 Tf 272.5 592.69 Td (2) Tj ET
 BT /F2 5.4 Tf 272.5 576.69 Td (p14) Tj ET
-q 0.6 w 0.6 0.6 0.6 RG 322 573.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 374 573.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 426 573.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 478 573.69 52 34 re S Q
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 322 573.69 52 34 re B Q
+BT /F1 5.4 Tf 324.5 598.69 Td (Huh7 gNT) Tj ET
+BT /F2 5.4 Tf 324.5 576.69 Td (p17) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 374 573.69 52 34 re B Q
+BT /F1 5.4 Tf 376.5 598.69 Td (Huh7 gNT) Tj ET
+BT /F2 5.4 Tf 376.5 576.69 Td (p17) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 426 573.69 52 34 re B Q
+BT /F1 5.4 Tf 428.5 598.69 Td (Huh7 ATF3 KO rep) Tj ET
+BT /F1 5.4 Tf 428.5 592.69 Td (3) Tj ET
+BT /F2 5.4 Tf 428.5 576.69 Td (p18) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 478 573.69 52 34 re B Q
+BT /F1 5.4 Tf 480.5 598.69 Td (Huh7 ATF3 KO rep) Tj ET
+BT /F1 5.4 Tf 480.5 592.69 Td (3) Tj ET
+BT /F2 5.4 Tf 480.5 576.69 Td (p18) Tj ET
 BT /F2 7.5 Tf 46 553.69 Td (F) Tj ET
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 62 539.69 52 34 re B Q
 BT /F1 5.4 Tf 64.5 564.69 Td (HEK TOX4 KO g2) Tj ET
@@ -1189,11 +1199,11 @@ endobj
 << /Type /Page /Parent 18 0 R /MediaBox [0 0 595.28 841.89] /Resources 3 0 R /Contents 12 0 R >>
 endobj
 14 0 obj
-<< /Length 8183 >>
+<< /Length 9603 >>
 stream
 BT /F2 16 Tf 40 785.89 Td (UMUT CELLS -4-) Tj ET
 BT /F1 10 Tf 40 768.69 Td (Freezer 1 ? Rack 1) Tj ET
-BT /F1 10 Tf 40 754.19 Td (umut  ·  30 of 81 slots full) Tj ET
+BT /F1 10 Tf 40 754.19 Td (umut  ·  42 of 81 slots full) Tj ET
 BT /F2 7.5 Tf 85 747.69 Td (1) Tj ET
 BT /F2 7.5 Tf 137 747.69 Td (2) Tj ET
 BT /F2 7.5 Tf 189 747.69 Td (3) Tj ET
@@ -1213,12 +1223,24 @@ BT /F2 5.4 Tf 116.5 712.69 Td (p6) Tj ET
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 166 709.69 52 34 re B Q
 BT /F1 5.4 Tf 168.5 734.69 Td (HEK gNT) Tj ET
 BT /F2 5.4 Tf 168.5 712.69 Td (p27) Tj ET
-q 0.6 w 0.6 0.6 0.6 RG 218 709.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 270 709.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 322 709.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 374 709.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 426 709.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 478 709.69 52 34 re S Q
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 218 709.69 52 34 re B Q
+BT /F1 5.4 Tf 220.5 734.69 Td (hek atf3 ko rep2) Tj ET
+BT /F2 5.4 Tf 220.5 712.69 Td (p21) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 270 709.69 52 34 re B Q
+BT /F1 5.4 Tf 272.5 734.69 Td (hek atf3 ko rep2) Tj ET
+BT /F2 5.4 Tf 272.5 712.69 Td (p21) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 322 709.69 52 34 re B Q
+BT /F1 5.4 Tf 324.5 734.69 Td (hek 3xflag) Tj ET
+BT /F2 5.4 Tf 324.5 712.69 Td (p21) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 374 709.69 52 34 re B Q
+BT /F1 5.4 Tf 376.5 734.69 Td (hek 3xflag) Tj ET
+BT /F2 5.4 Tf 376.5 712.69 Td (p21) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 426 709.69 52 34 re B Q
+BT /F1 5.4 Tf 428.5 734.69 Td (hek atf3 ox rep3) Tj ET
+BT /F2 5.4 Tf 428.5 712.69 Td (p28) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 478 709.69 52 34 re B Q
+BT /F1 5.4 Tf 480.5 734.69 Td (hek atf3 ox rep3) Tj ET
+BT /F2 5.4 Tf 480.5 712.69 Td (p28) Tj ET
 BT /F2 7.5 Tf 46 689.69 Td (B) Tj ET
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 62 675.69 52 34 re B Q
 BT /F1 5.4 Tf 64.5 700.69 Td (HEK293T) Tj ET
@@ -1241,8 +1263,12 @@ BT /F2 5.4 Tf 324.5 678.69 Td (p16) Tj ET
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 374 675.69 52 34 re B Q
 BT /F1 5.4 Tf 376.5 700.69 Td (HEK293T) Tj ET
 BT /F2 5.4 Tf 376.5 678.69 Td (p14) Tj ET
-q 0.6 w 0.6 0.6 0.6 RG 426 675.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 478 675.69 52 34 re S Q
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 426 675.69 52 34 re B Q
+BT /F1 5.4 Tf 428.5 700.69 Td (hek gnt) Tj ET
+BT /F2 5.4 Tf 428.5 678.69 Td (p21) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 478 675.69 52 34 re B Q
+BT /F1 5.4 Tf 480.5 700.69 Td (hek gnt) Tj ET
+BT /F2 5.4 Tf 480.5 678.69 Td (p21) Tj ET
 BT /F2 7.5 Tf 46 655.69 Td (C) Tj ET
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 62 641.69 52 34 re B Q
 BT /F1 5.4 Tf 64.5 666.69 Td (Du145) Tj ET
@@ -1279,10 +1305,20 @@ BT /F2 5.4 Tf 64.5 610.69 Td (p51) Tj ET
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 114 607.69 52 34 re B Q
 BT /F1 5.4 Tf 116.5 632.69 Td (Huh7) Tj ET
 BT /F2 5.4 Tf 116.5 610.69 Td (p15) Tj ET
-q 0.6 w 0.6 0.6 0.6 RG 166 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 218 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 270 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 322 607.69 52 34 re S Q
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 166 607.69 52 34 re B Q
+BT /F1 5.4 Tf 168.5 632.69 Td (Huh7 3xFLAG) Tj ET
+BT /F2 5.4 Tf 168.5 610.69 Td (p17) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 218 607.69 52 34 re B Q
+BT /F1 5.4 Tf 220.5 632.69 Td (Huh7 3xFLAG) Tj ET
+BT /F2 5.4 Tf 220.5 610.69 Td (p17) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 270 607.69 52 34 re B Q
+BT /F1 5.4 Tf 272.5 632.69 Td (Huh7 ATF3 OX rep) Tj ET
+BT /F1 5.4 Tf 272.5 626.69 Td (3) Tj ET
+BT /F2 5.4 Tf 272.5 610.69 Td (p18) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 322 607.69 52 34 re B Q
+BT /F1 5.4 Tf 324.5 632.69 Td (Huh7 ATF3 OX rep) Tj ET
+BT /F1 5.4 Tf 324.5 626.69 Td (3) Tj ET
+BT /F2 5.4 Tf 324.5 610.69 Td (p18) Tj ET
 q 0.6 w 0.6 0.6 0.6 RG 374 607.69 52 34 re S Q
 q 0.6 w 0.6 0.6 0.6 RG 426 607.69 52 34 re S Q
 q 0.6 w 0.6 0.6 0.6 RG 478 607.69 52 34 re S Q
@@ -1494,17 +1530,17 @@ xref
 0000016441 00000 n 
 0000031571 00000 n 
 0000031682 00000 n 
-0000045466 00000 n 
-0000045579 00000 n 
-0000059090 00000 n 
-0000059203 00000 n 
-0000067439 00000 n 
-0000067552 00000 n 
-0000072237 00000 n 
-0000072350 00000 n 
-0000072448 00000 n 
+0000045990 00000 n 
+0000046103 00000 n 
+0000059614 00000 n 
+0000059727 00000 n 
+0000069383 00000 n 
+0000069496 00000 n 
+0000074181 00000 n 
+0000074294 00000 n 
+0000074392 00000 n 
 trailer
 << /Size 20 /Root 19 0 R >>
 startxref
-72499
+74443
 %%EOF

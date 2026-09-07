@@ -1,7 +1,7 @@
 ﻿area,location,box,owner,rows,cols,used,capacity,free
 Freezer 1,Freezer 1 → Rack 1,UMUT CAA CELLS,umut,9,9,81,81,0
 Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -80,umut,9,9,81,81,0
-Freezer 1,Freezer 1 → Rack 1,DUZENLE,umut,9,9,74,81,7
+Freezer 1,Freezer 1 → Rack 1,DUZENLE,umut,9,9,78,81,3
 Freezer 1,Freezer 1 → Rack 1,ONGOING,umut,9,9,76,81,5
-Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -4-,umut,9,9,30,81,51
+Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -4-,umut,9,9,42,81,39
 Freezer 1,Freezer 1 → Rack 1,Unnamed box,umut,9,9,0,81,81

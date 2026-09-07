@@ -1983,12 +1983,22 @@ check("the real inventory holds nothing that is double-booked or shapeless", () 
     // slipped in without an owner appears on nobody's Boxes screen.
     if (!b.owner) return `${b.name} belongs to nobody`;
   }
-  // Every stored (non-withdrawn) vial occupies exactly one slot, no more, no fewer.
-  // Withdrawals change how many that is; they must never change whether occupancy and
-  // vial status agree with each other.
+  // Every vial that claims a slot occupies exactly one, no more, no fewer. Withdrawals
+  // change how many that is; they must never change whether occupancy and vial status
+  // agree with each other.
+  //
+  // A row an import could not place is deliberately NOT one of them: it comes in with no
+  // location and waits in Review rather than being guessed into a slot (validate() says
+  // the same, as a warning rather than an error). Counting those as slot-holders is what
+  // made this check go red the morning 486 vials were imported with 144 of them waiting
+  // -- the data was right and the arithmetic here was wrong.
   const total = boxes.reduce((n, b) => n + E.occupancy(real, b.id).used, 0);
-  const stored = real.vials.filter((v) => v.status !== "withdrawn").length;
-  if (total !== stored) return `${total} slots are occupied but ${stored} vials are marked stored`;
+  const placed = real.vials.filter((v) => v.status !== "withdrawn" && v.location && v.location.boxId).length;
+  if (total !== placed) return `${total} slots are occupied but ${placed} vials claim one`;
+  // And a vial without a slot is only allowed to be one Review has not answered yet.
+  const homeless = real.vials.filter((v) => v.status !== "withdrawn" && !(v.location && v.location.boxId));
+  const unexplained = homeless.filter((v) => !v.importAmbiguous);
+  if (unexplained.length) return `${unexplained.length} vials are stored but sit nowhere, and Review is not waiting on them (first: ${unexplained[0].name})`;
   return null;
 });
 
@@ -2139,8 +2149,62 @@ check("freezing into the real freezer never offers a slot that is taken", () => 
   return null;
 });
 
+// --------------------------------------------- a vial whose box was deleted under it
+//
+// Real damage, not hypothetical: a box owned by one member was deleted while their file
+// could not be read, so the withdrawal that goes with a delete never ran and two of their
+// vials were left naming a box that no longer existed. validate() calls that an error and
+// save() refuses on any error, so from then on that account could save NOTHING -- not an
+// import, not a new vial, not even a fix. Review has to be able to offer a way out.
+
+check("a vial whose box is gone is an error, and it blocks the whole file", () => {
+  const state = fixture();
+  state.vials[0].location.boxId = "b-deleted";
+  const errs = E.errorsOnly(E.validate(state));
+  if (!errs.some((e) => e.code === "unknown-box")) return `no unknown-box error: ${json(errs)}`;
+  return null;
+});
+
+check("Review lists it, so there is a way out of that lockout", () => {
+  const state = fixture();
+  state.vials[0].location.boxId = "b-deleted";
+  const q = E.reviewQueue(state);
+  if (q.orphans.length !== 1) return `Review did not surface it: ${json(q.orphans)}`;
+  if (q.orphans[0].id !== state.vials[0].id) return "surfaced the wrong vial";
+  if (!q.total) return "it does not count towards Review's total, so the tab shows nothing to do";
+  return null;
+});
+
+check("taking it out clears the error without erasing the vial", () => {
+  const state = fixture();
+  const id = state.vials[0].id;
+  state.vials[0].location.boxId = "b-deleted";
+  const out = E.withdraw(state, [id], {
+    date: "2026-09-07", by: "test", purpose: "discarded", ids: ["w-1"]
+  });
+  if (E.errorsOnly(E.validate(out.state)).length) return "still refuses to save";
+  if (E.reviewQueue(out.state).orphans.length) return "still listed in Review";
+  const v = out.state.vials.filter((x) => x.id === id)[0];
+  if (!v) return "the vial was erased -- history is not optional in a lab inventory";
+  if (v.status !== "withdrawn") return `status is ${v.status}`;
+  const w = out.state.withdrawals[out.state.withdrawals.length - 1];
+  // The slot it was in is the only record left of where it was, so the Log has to keep it.
+  if (!w.from || w.from.boxId !== "b-deleted") return `the Log lost where it was: ${json(w)}`;
+  return null;
+});
+
+check("a vial already taken out is not dragged into that list", () => {
+  const state = fixture();
+  state.vials[0].location.boxId = "b-deleted";
+  state.vials[0].status = "withdrawn";
+  state.vials[0].location = null;
+  if (E.reviewQueue(state).orphans.length) return "a vial already taken out must not be listed";
+  return null;
+});
+
 // ---------------------------------------------------------------------- report
 const total = passed + failures.length;
+
 if (failures.length) {
   console.error(`\n${failures.length} of ${total} checks failed:\n`);
   for (const f of failures) console.error(`  ✗ ${f}\n`);

@@ -1012,7 +1012,7 @@
     labStorageLoaded = true;   // what was just written is the freshest copy there is
     // Every member's cached copy is now stale, including this session's own state.
     state = hydrate(state, effectiveIdentity());
-    labCache.members = null; labCache.data = {};
+    labCache.members = null; labCache.data = {}; labCache.failed = [];
   }
 
   // The rules are shared, so editing one is a change to the whole lab's reading of every
@@ -1027,7 +1027,7 @@
     labRules = E.mergeRulesDefaults(next);
     labRulesLoaded = true;
     state = hydrate(state, effectiveIdentity());
-    labCache.members = null; labCache.data = {};
+    labCache.members = null; labCache.data = {}; labCache.failed = [];
   }
 
   // A box lives in the lab's shared file, so editing one is a read-modify-write of that
@@ -1062,8 +1062,13 @@
     var errors = E.errorsOnly(E.validate(state));
     if (errors.length){
       setStatus("Not saved", "error");
+      // A vial whose box was deleted blocks every save, including the one that would fix
+      // it, so the message has to say where the way out is instead of only what is wrong.
+      var stuck = errors.filter(function(e){ return e.code === "unknown-box"; }).length;
       showBanner("Refusing to save, because the inventory would be wrong: " + esc(errors[0].message) +
-                 (errors.length > 1 ? " (and " + (errors.length - 1) + " more — see Settings → Check it)" : ""));
+                 (errors.length > 1 ? " (and " + (errors.length - 1) + " more — see Settings → Check it)" : "") +
+                 (stuck ? " — the box was deleted from the freezer. Open <b>Review</b> to take " +
+                          (stuck > 1 ? "those " + stuck + " vials" : "that vial") + " out and unblock saving." : ""));
       return;
     }
 
@@ -1225,7 +1230,7 @@
     });
   }
 
-  var labCache = { members: null, data: {}, promise: null };
+  var labCache = { members: null, data: {}, promise: null, failed: [] };
 
   // A plain fetch() has no built-in timeout -- a stalled connection (a flaky network,
   // a proxy or firewall that swallows the request rather than refusing it) leaves the
@@ -1275,13 +1280,24 @@
         // lab's shared structure and rules before anything renders it -- otherwise every
         // merged view would show vials with no box, no path and no occupancy.
         await ensureLabFiles();
+        // A file that could not be read is remembered as such. It used to be swallowed
+        // here and the member simply had no entry -- which every reader then took to mean
+        // "no vials", because an absent entry and an empty one look identical. That is not
+        // cosmetic: deleting a box counts the lab's vials out of exactly this cache, so a
+        // member whose file failed to load counted as zero, the delete withdrew nothing,
+        // and their vials were left pointing at a box that no longer existed -- which then
+        // blocked every save that account tried to make. A file committed minutes earlier
+        // is the likeliest one to fail, because raw.githubusercontent serves the previous
+        // version (or none at all) for a while after a commit.
+        labCache.failed = [];
         await Promise.all(names.map(function(name){
           return fetchWithTimeout(rawURL(DATA_PREFIX + name + ".json"), 10000)
             .then(function(r){ return r.ok ? r.text() : null; })
             .then(function(text){
               if (text) labCache.data[name] = hydrate(E.mergeDefaults(JSON.parse(text)), name);
+              else labCache.failed.push(name);
             })
-            .catch(function(){});
+            .catch(function(){ labCache.failed.push(name); });
         }));
       } finally {
         labCache.promise = null;
@@ -2474,6 +2490,66 @@
     if (!q.total){
       box.appendChild(el("div", "empty", "Nothing to review. Everything the import wasn't sure about has been answered."));
       return;
+    }
+
+    // ---- vials whose box has gone ----
+    //
+    // First, because this is the one category that blocks every save: validate() calls a
+    // vial pointing at a missing box an error, and save() refuses on any error, so until
+    // these are answered the account can save nothing at all -- not an import, not a new
+    // vial, not even a fix somewhere else. That is exactly how one account got stuck: a
+    // box was deleted while its owner's file could not be read, so the withdrawal that
+    // should have gone with the delete never happened.
+    //
+    // Offered, never done automatically: the vial is not erased, it is taken out and
+    // logged, with the slot it was in kept in the Log exactly as taking one out by hand
+    // records it.
+    if ((q.orphans || []).length){
+      var oc = el("div", "card");
+      oc.appendChild(el("h3", null, "Vials whose box is gone (" + q.orphans.length + ")"));
+      oc.appendChild(el("p", "note",
+        "The box these sit in is no longer in the freezer — someone deleted it. Nothing is " +
+        "saved while this is unanswered, so this comes first. Taking one out does not erase " +
+        "it: it leaves the inventory and stays in the Log, with the slot it was in."));
+
+      function takeOrphans(list, label){
+        var ids = list.map(function(v){ return v.id; });
+        var out = E.withdraw(state, ids, {
+          date: new Date().toISOString().slice(0, 10), by: getDevice(), purpose: "discarded",
+          notes: "the box it was in was removed from the freezer",
+          ids: ids.map(function(_, i){ return "w-" + Date.now().toString(36) + "-" + i; })
+        });
+        if (out.warnings.length){ showBanner(esc(out.warnings[0])); return; }
+        state = out.state;
+        markDirty(label);
+        renderAll();
+        showBanner("Took out " + ids.length + " vial(s). They are in the Log.");
+      }
+
+      if (q.orphans.length > 1){
+        var allOut = el("button", "primary", "Take out all " + q.orphans.length);
+        allOut.disabled = !canWrite() || ADMIN_MERGED;
+        allOut.onclick = function(){ takeOrphans(q.orphans, "Take out " + q.orphans.length + " vial(s) whose box is gone"); };
+        oc.appendChild(allOut);
+      }
+
+      q.orphans.slice(0, 60).forEach(function(v){
+        var row = el("div", "item");
+        var grow = el("div", "grow");
+        grow.appendChild(el("div", null, v.name));
+        // The box id is all that is left of where it was, so say it rather than "(unknown
+        // box)" -- it is what tells an admin which deletion did this.
+        grow.appendChild(el("div", "sub", "box " + (v.location && v.location.boxId) +
+          (v.location && v.location.position ? " · " + v.location.position : "") + " — no longer in the freezer"));
+        row.appendChild(grow);
+        var take = el("button", null, "Take it out");
+        take.disabled = !canWrite() || ADMIN_MERGED;
+        take.onclick = function(){ takeOrphans([v], "Take out " + v.name + ", whose box is gone"); };
+        row.appendChild(take);
+        oc.appendChild(row);
+      });
+      if (q.orphans.length > 60) oc.appendChild(el("p", "note", "…and " + (q.orphans.length - 60) + " more."));
+      box.appendChild(oc);
     }
 
     // ---- rows an import couldn't place at all ----
@@ -3758,7 +3834,7 @@
         ], "Import " + rep.imported + " vials from " + fileName + " from " + getDevice());
         labStorage = E.mergeStorageDefaults(adopted.storage);
         labStorageLoaded = true;
-        labCache.members = null; labCache.data = {};
+        labCache.members = null; labCache.data = {}; labCache.failed = [];
         dirty = false; cacheSave(); setStatus("Saved", "");
         $("dlg").close();
         var n = (labStorage.unplaced || []).length;
@@ -4376,6 +4452,20 @@
     var found = E.findNode(labStorage, id);
     if (!found){ msg.textContent = "That is already gone."; return; }
     var contents = E.nodeContents(labStorage, id);
+
+    // Refuse rather than guess. What is inside this node is counted out of the other
+    // members' files, and a file that could not be read counts as zero -- so with one
+    // missing, "nothing is inside it" is not an answer, it is an absence. Going ahead on
+    // that is what stranded two vials naming a box that had gone, and locked their owner
+    // out of saving anything at all. An empty structure is an answer; an unread one is not.
+    if ((labCache.failed || []).length){
+      msg.textContent = "Not deleting anything yet: " + labCache.failed.join(", ") +
+        "'s inventory could not be read just now, so I cannot tell whether any of their vials " +
+        "are inside. Reload and try again in a minute.";
+      msg.style.color = "var(--bad)";
+      return;
+    }
+
     var counts = labVialCounts();
     var byOwner = {};
     contents.boxes.forEach(function(b){
@@ -4618,7 +4708,7 @@
         // a brand-new account reusing a just-deleted name would still show whatever
         // that name's old inventory looked like when this session first loaded it,
         // until the page was reloaded by hand.
-        labCache.members = null; labCache.data = {};
+        labCache.members = null; labCache.data = {}; labCache.failed = [];
         showBanner("Created " + esc(name.value.trim()) + ".");
         renderAdminUsers();
       } catch(err){ showBanner(err.message); }
@@ -4665,7 +4755,7 @@
           adminUsersCache = null;
           // Same reason as Create and Delete below: the merged view holds one snapshot
           // per name for the whole session, and both names are now wrong in it.
-          labCache.members = null; labCache.data = {};
+          labCache.members = null; labCache.data = {}; labCache.failed = [];
           if (manageView.user === u.name){ manageView.user = null; manageView.state = null; }
           structureView.collapsed = {};   // owner labels in the tree are now wrong
           showBanner("Renamed " + esc(u.name) + " to <b>" + esc(newName) + "</b>.");
@@ -4697,7 +4787,7 @@
           adminUsersCache = null;
           // See the matching comment on Create above -- the deleted account's data
           // must not keep showing in the merged view from this session's in-memory cache.
-          labCache.members = null; labCache.data = {};
+          labCache.members = null; labCache.data = {}; labCache.failed = [];
           renderAdminUsers();
         } catch(err){ showBanner(err.message); }
       };
@@ -5195,7 +5285,7 @@
         }
         await workerFetch("/admin/users/" + encodeURIComponent(user), { method:"DELETE", headers: adminAuth() });
         adminUsersCache = null;
-        labCache.members = null; labCache.data = {};
+        labCache.members = null; labCache.data = {}; labCache.failed = [];
         structureView.collapsed = {};
 
         clear(msg).appendChild(el("div", "note",

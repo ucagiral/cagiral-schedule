@@ -10,7 +10,8 @@ import { connect as netConnect } from "node:net";
 import { buildMessage, dotStuff, encodeHeader, sendMail, readRecipients, readMailSettings,
          shouldSendNow, normaliseTime, localClock, readLastMailed, recordSent,
          summarise } from "./cellstocks-mail.mjs";
-import { mkdtempSync, writeFileSync, readFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync, readFileSync, mkdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -435,10 +436,79 @@ await check("a send is recorded only once it lands, and then the day is closed",
   return null;
 });
 
+// ------------------------------------------------ the marker the workflow has to commit
+//
+// The mailer writes cellstocks/exports/last-mailed.json only after the server has taken
+// the message, and the workflow commits it. If that commit does not happen, every later
+// poll the same day sends another copy -- which is precisely what happened the first time
+// this ran for real: the mail went out at 14:07 and the step reported "nothing was sent
+// this run", because it asked `git diff`, and git diff does not see a file that is not
+// tracked yet. The very first send is exactly when the marker is untracked.
+//
+// So the guard is read out of the workflow itself and run against a real repository,
+// rather than trusting that the line says what it should.
+
+function guardFromWorkflow() {
+  const yml = readFileSync(new URL("../.github/workflows/cellstocks-export.yml", import.meta.url), "utf8");
+  const line = yml.split("\n").map((l) => l.trim())
+    .filter((l) => l.startsWith("if ") && l.includes("last-mailed.json"))[0];
+  return line || null;
+}
+
+// Runs the workflow's own condition in `dir`; true means "there is something to commit".
+function guardSaysChanged(dir, guard) {
+  const script = `cd "${dir}"\n${guard}\n  echo NOCHANGE\n  exit 0\nfi\necho CHANGED\n`;
+  const out = execFileSync("bash", ["-c", script], { encoding: "utf8" });
+  return out.includes("CHANGED");
+}
+
+function scratchRepo() {
+  const dir = mkdtempSync(join(tmpdir(), "cst-marker-"));
+  const git = (...args) => execFileSync("git", args, { cwd: dir, stdio: "ignore" });
+  git("init", "-q", ".");
+  git("config", "user.email", "t@example.invalid");
+  git("config", "user.name", "t");
+  mkdirSync(join(dir, "cellstocks", "exports"), { recursive: true });
+  writeFileSync(join(dir, "cellstocks", "exports", "layout.csv"), "x\n");
+  git("add", "-A");
+  git("commit", "-qm", "base");
+  return { dir, git };
+}
+
+await check("the workflow still guards the marker with something that sees a new file", async () => {
+  const guard = guardFromWorkflow();
+  if (!guard) return "no condition naming last-mailed.json found in the export workflow";
+
+  // 1. The first send ever: the marker is brand new and untracked. This is the case that
+  //    was broken, and the one that matters most -- an unrecorded send repeats all day.
+  const a = scratchRepo();
+  writeFileSync(join(a.dir, "cellstocks", "exports", "last-mailed.json"), '{"date":"2026-09-07"}\n');
+  if (!guardSaysChanged(a.dir, guard)) {
+    return "an untracked marker reads as 'nothing was sent' -- the first send of every " +
+           "new deployment would go unrecorded and repeat on every later poll that day";
+  }
+
+  // 2. A later send: the marker exists and its date moves on.
+  const b = scratchRepo();
+  const marker = join(b.dir, "cellstocks", "exports", "last-mailed.json");
+  writeFileSync(marker, '{"date":"2026-09-06"}\n');
+  b.git("add", "-A"); b.git("commit", "-qm", "yesterday");
+  writeFileSync(marker, '{"date":"2026-09-07"}\n');
+  if (!guardSaysChanged(b.dir, guard)) return "a marker that moved to today reads as unchanged";
+
+  // 3. A poll that sent nothing must not commit, or the log fills with empty commits.
+  if (guardSaysChanged(b.dir, guard) === false) return null;
+  const c = scratchRepo();
+  writeFileSync(join(c.dir, "cellstocks", "exports", "last-mailed.json"), '{"date":"2026-09-07"}\n');
+  c.git("add", "-A"); c.git("commit", "-qm", "sent");
+  if (guardSaysChanged(c.dir, guard)) return "a poll that sent nothing would still commit";
+  return null;
+});
+
 console.log("");
 if (failures) {
-  console.log(`${failures} of 20 cell stocks mail checks failed:\n`);
+  console.log(`${failures} of 21 cell stocks mail checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 20 cell stocks mail checks passed.");
+console.log("All 21 cell stocks mail checks passed.");

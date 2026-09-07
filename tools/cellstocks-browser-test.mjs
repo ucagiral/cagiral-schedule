@@ -1617,13 +1617,21 @@ try {
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=history]");
-    await page.waitForSelector("#admin-history input[type=time]");
+    // Wait for the field to be FILLED, not merely present. renderExportRecipients sets
+    // the value after an await, so the input exists for a moment holding "" -- which on a
+    // slow runner is what the next line reads. That is what failed in CI on 7b04cc7 and
+    // then "passed" on a commit touching neither this test nor the card: a flake, not a fix.
+    const timeFieldReady = () => page.waitForFunction(() => {
+      const el = document.querySelector("#admin-history input[type=time]");
+      return !!el && !!el.value;
+    }, null, { timeout: 20000 });
+    await timeFieldReady();
 
     const shownTime = await page.$eval("#admin-history input[type=time]", (el) => el.value);
     check("the export card shows the send time that is actually configured",
       shownTime === "07:30", shownTime);
     const timeNote = await page.evaluate(() => document.getElementById("admin-history").textContent);
-    check("and says what the schedule really does rather than promising a exact minute",
+    check("and says what the schedule really does rather than promising an exact minute",
       /every half hour/.test(timeNote) && /Europe\/Istanbul/.test(timeNote), timeNote.slice(0, 200));
 
     // Change the time.
@@ -1671,7 +1679,7 @@ try {
     // Leave the screen and come back, so the card renders again from scratch.
     await page.click("#adminTabs button[data-admintab=users]");
     await page.click("#adminTabs button[data-admintab=history]");
-    await page.waitForSelector("#admin-history input[type=time]");
+    await timeFieldReady();
     const timeAfterReturn = await page.$eval("#admin-history input[type=time]", (el) => el.value);
     check("coming back to the card shows what was committed, not the stale copy",
       timeAfterReturn === "06:15", timeAfterReturn);

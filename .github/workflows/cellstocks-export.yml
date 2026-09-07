@@ -142,7 +142,14 @@ jobs:
         if: steps.due.outputs.send == 'true' && steps.mail.outputs.configured == 'true'
         run: |
           set -euo pipefail
-          if git diff --quiet -- cellstocks/exports/last-mailed.json; then
+          # `git status --porcelain`, not `git diff`: the very first time this runs the
+          # marker does not exist in git yet, and `git diff` does not see an untracked
+          # file, so it reported "nothing was sent" on the one run where recording
+          # mattered most. The mail had gone out (the log above says so) and nothing was
+          # written, which means every later poll that day sends another copy -- the
+          # exact failure the marker exists to prevent. Reproduced in a scratch repo
+          # before this line was changed, and covered by the mailer self-test.
+          if [ -z "$(git status --porcelain -- cellstocks/exports/last-mailed.json)" ]; then
             echo "nothing was sent this run -- nothing to record"
             exit 0
           fi

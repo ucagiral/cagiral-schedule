@@ -10546,7 +10546,7 @@
     },
     {
       "id": "v-mtrdxsum-1",
-      "name": "hek atf3 ko rep2",
+      "name": "HEK ATF3 KO rep2",
       "lineId": "l-hek-atf3-ko-rep2",
       "passage": "p21",
       "passageNumber": 21,
@@ -10563,8 +10563,7 @@
       },
       "status": "stored",
       "addedAt": "2026-09-07T15:18:16.654Z",
-      "addedBy": "unknown device",
-      "kind": "Cell"
+      "addedBy": "unknown device"
     },
     {
       "id": "v-mtrdyhss-0",
@@ -10855,7 +10854,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T21:27:32.006Z"
+    "savedAt": "2026-09-07T21:27:46.647Z"
   },
   "removedVialIds": [
     "v-205",

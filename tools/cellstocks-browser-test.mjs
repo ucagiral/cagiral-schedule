@@ -950,19 +950,39 @@ try {
     // A save is async and ends with $("dlg").close(); opening the next dialog before that
     // lands would see it closed under it. So: wait for no dialog, click, wait for one.
     // (Sleeping instead is what made this block fail one run in three.)
+    // Clicking a row button is three things that can each be too early: the previous
+    // save's dialog may still be closing, the row may not be redrawn yet, and the click
+    // itself may land between renders. The old version evaluated once and silently did
+    // nothing when the row was missing -- then waited 30s for a dialog nobody opened,
+    // which is what made this block fail two runs in three from different call sites.
+    // So: retry the whole thing, and if it never opens, say which row and what was there.
     const clickRowButton = (title, label) => page.evaluate(([t, l]) => {
       const body = document.querySelector(`#admin-structure .treeBody[data-title="${t}"]`);
       const btn = body && [...body.parentElement.querySelectorAll(".structRowEdit")]
         .filter((b) => b.textContent === l)[0];
-      if (btn) btn.click();
+      if (!btn) return false;
+      btn.click();
+      return true;
     }, [title, label]);
-    const noDialog = () => page.waitForFunction(() => !document.getElementById("dlg").open);
-    const dialogOpen = () => page.waitForFunction(() => document.getElementById("dlg").open);
-    async function editRow(title){
-      await noDialog();
-      await clickRowButton(title, "✎");
-      await dialogOpen();
+    const noDialog = () => page.waitForFunction(() => !document.getElementById("dlg").open, null, { timeout: 15000 });
+    const dialogIsOpen = () => page.evaluate(() => document.getElementById("dlg").open);
+
+    async function openRowDialog(title, label){
+      for (let i = 0; i < 60; i++){
+        await noDialog().catch(() => {});
+        if (await clickRowButton(title, label)){
+          // The handler is synchronous, but give the render a tick before deciding.
+          for (let j = 0; j < 10; j++){
+            if (await dialogIsOpen()) return;
+            await page.waitForTimeout(50);
+          }
+        }
+        await page.waitForTimeout(250);
+      }
+      const rows = await titles();
+      throw new Error(`"${label}" on row ${JSON.stringify(title)} never opened a dialog. On screen: ${JSON.stringify(rows)}`);
     }
+    const editRow = (title) => openRowDialog(title, "✎");
     const titles = () => page.evaluate(() =>
       Array.from(document.querySelectorAll("#admin-structure .treeBody")).map((b) => b.dataset.title));
 
@@ -1007,11 +1027,7 @@ try {
     // The old screen had a "how many children" number per level, which could only ever
     // grow or trim from the end -- so there was no way to add one named thing, and no
     // way to delete anything but the last. + adds exactly one, wherever you are.
-    async function addUnder(title){
-      await noDialog();
-      await clickRowButton(title, "+");
-      await dialogOpen();
-    }
+    const addUnder = (title) => openRowDialog(title, "+");
 
     await addUnder("Shelf 1");
     await page.waitForSelector("#dlgBody input");

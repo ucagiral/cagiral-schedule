@@ -116,7 +116,7 @@
       "title": "CuAdapt cells — passage",
       "category": "experiment",
       "type": "active",
-      "status": "done",
+      "status": "pending",
       "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -2412,7 +2412,7 @@
       "title": "TCA fixation",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "10:00",
       "end": "10:30"
@@ -2462,7 +2462,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-07T15:38:03.980Z",
+    "lastModified": "2026-09-07T15:38:05.807Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

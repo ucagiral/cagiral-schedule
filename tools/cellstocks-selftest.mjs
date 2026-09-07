@@ -1745,6 +1745,73 @@ check("iconKind tells an uploaded image from an emoji, and blank from both", () 
   return null;
 });
 
+// ------------------------------------------------------- an import reaches the lab
+//
+// The bug this guards: a spreadsheet import invented boxes in the member's own state,
+// and slim() drops `storage` from a member's file -- so the boxes were never written
+// anywhere. On the next reload every imported vial resolved to "(unknown box)", and
+// validate() then refused to save that member's file at all.
+
+const importFixture = () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [
+    [cell("Position"), cell("Cell Name"), cell("Box")],
+    [cell("A1"), cell("HEK293T ATP7B KO p12"), cell("BOX ONE")],
+    [cell("B2"), cell("Du145 CASPEX g5.1 p7"), cell("BOX ONE")]
+  ];
+  return E.importSheet({ name: "Sheet1", rows, merges: [] },
+    { columns: { position: 0, name: 1, box: 2 }, headerRow: 1,
+      unitName: "-80 Freezer", rackName: "Rack 1", sourceName: "t.xlsx", idPrefix: "v" }).state;
+};
+
+check("imported boxes reach the lab's shared file, so they survive a reload", () => {
+  const imported = importFixture();
+  const lab = E.blankStorage();
+  const adopted = E.adoptImportedBoxes(lab, imported, "umut");
+
+  if ((adopted.storage.unplaced || []).length !== 1) {
+    return `expected one box in the lab, got ${json(adopted.storage.unplaced)}`;
+  }
+  const box = adopted.storage.unplaced[0];
+  if (box.owner !== "umut") return `the imported box belongs to ${json(box.owner)}`;
+  if (!box.isBox) return "the imported box is not marked as a box";
+  // A member does not add freezers to everybody's tree, so the sheet's own location
+  // is kept as a note rather than becoming layers nobody asked for.
+  if (adopted.storage.children.length) return `the import added layers: ${json(adopted.storage.children.map((c) => c.name))}`;
+  if (!/-80 Freezer/.test(box.note)) return `the sheet's location was lost: ${json(box.note)}`;
+
+  // The whole point: save it, reload it against the committed tree, and the vials still
+  // know where they are.
+  const written = JSON.parse(E.serialise(adopted.state));
+  if (written.storage !== undefined) return "the member's file still carries the tree";
+  const reloaded = E.hydrateStorage(E.mergeDefaults(written), adopted.storage, "umut");
+  const errs = E.errorsOnly(E.validate(reloaded));
+  if (errs.length) return `after a reload the inventory is invalid: ${errs[0].message}`;
+  if (/unknown box/.test(E.locationPath(reloaded, reloaded.vials[0].location))) {
+    return "an imported vial came back pointing at a box that does not exist";
+  }
+  if (E.occupancy(reloaded, box.id).used !== 2) {
+    return `the imported vials are not in the box: ${json(E.occupancy(reloaded, box.id).used)}`;
+  }
+  return null;
+});
+
+check("two people importing a box of the same name do not collide", () => {
+  const first = E.adoptImportedBoxes(E.blankStorage(), importFixture(), "umut");
+  const second = E.adoptImportedBoxes(first.storage, importFixture(), "busra");
+  const ids = second.storage.unplaced.map((b) => b.id);
+  if (new Set(ids).size !== ids.length) return `two boxes share an id: ${json(ids)}`;
+  if (ids.length !== 2) return `expected both boxes to survive: ${json(ids)}`;
+  // And the second importer's vials follow their box to its new id.
+  const movedTo = ids[1];
+  if (second.state.vials.some((v) => v.location.boxId !== movedTo)) {
+    return `a vial was left pointing at the old id: ${json(second.state.vials.map((v) => v.location.boxId))}`;
+  }
+  // The first person's boxes and vials are untouched by somebody else's import.
+  if (first.storage.unplaced.length !== 1) return "the first import was mutated by the second";
+  return null;
+});
+
 // ---------------------------------------------------------------- shared rules
 //
 // The rules were per-account and had genuinely drifted apart -- admin read

@@ -3719,22 +3719,49 @@
       body.appendChild(agree);
       go3.disabled = true;
     }
-    go3.onclick = function(){
-      var keptRules = state.rules;
-      state = E.mergeDefaults(out.state);
-      state.rules = keptRules;
-      state.settings.columnMap = map;
-      if (customColumns && Object.keys(customColumns).length){
-        var byHeader = {};
-        Object.keys(customColumns).forEach(function(idx){
-          var h = headerByIndex && headerByIndex[idx];
-          if (h) byHeader[h] = customColumns[idx];
-        });
-        state.settings.customColumns = byHeader;
+    go3.onclick = async function(){
+      // The boxes the sheet describes have to reach the lab's shared file, or they exist
+      // only in this browser: slim() drops `storage` from a member's own file, so before
+      // this the next reload turned every imported vial into "(unknown box)" and then
+      // validate() refused to save the file at all. They land under "Not placed yet",
+      // owned by whoever imported -- a member makes boxes, an admin says where they go.
+      go3.disabled = true;
+      try {
+        var adopted = E.adoptImportedBoxes(labStorage, out.state, effectiveIdentity());
+        var next = E.mergeDefaults(adopted.state);
+        next.rules = state.rules;               // the rules are the lab's, not the sheet's
+        next.settings.columnMap = map;
+        if (customColumns && Object.keys(customColumns).length){
+          var byHeader = {};
+          Object.keys(customColumns).forEach(function(idx){
+            var h = headerByIndex && headerByIndex[idx];
+            if (h) byHeader[h] = customColumns[idx];
+          });
+          next.settings.customColumns = byHeader;
+        }
+        // One commit: the member's vials, their workbook, and the lab's tree with the
+        // new boxes in it. Two commits would leave vials pointing at boxes that are not
+        // there yet if the second one failed.
+        state = next;
+        var bytes = await X.writeWorkbookAsync(E.vialsToSheets(state));
+        await workerCommit([
+          { path: dataPath(), content: E.serialise(state) },
+          { path: xlsxPath(), content: bytesToBase64(bytes), base64: true },
+          { path: LAB_STORAGE_PATH, content: E.serialiseStorage(adopted.storage) }
+        ], "Import " + rep.imported + " vials from " + fileName + " from " + getDevice());
+        labStorage = E.mergeStorageDefaults(adopted.storage);
+        labStorageLoaded = true;
+        labCache.members = null; labCache.data = {};
+        dirty = false; cacheSave(); setStatus("Saved", "");
+        $("dlg").close();
+        var n = (labStorage.unplaced || []).length;
+        showBanner("Imported " + rep.imported + " vials. Their box(es) are waiting under " +
+                   "<b>Not placed yet</b> — an admin says where they go. (" + n + " unplaced in the lab.)");
+        renderAll();
+      } catch(err){
+        showBanner("Couldn't import: " + esc(err.message));
       }
-      $("dlg").close();
-      markDirty("Import " + rep.imported + " vials from " + fileName);
-      renderAll();
+      go3.disabled = false;
     };
     foot.appendChild(go3);
     $("dlg").showModal();

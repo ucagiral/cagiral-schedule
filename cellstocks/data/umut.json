@@ -4682,7 +4682,8 @@
       "facetsFromSheet": {
         "origin": "HEK293T",
         "koox": "WT"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-102",
@@ -5430,7 +5431,8 @@
         "origin": "Huh7",
         "koox": "OX",
         "guide": "g1"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-126",
@@ -6019,7 +6021,8 @@
         "origin": "LnCap",
         "koox": "CASPEX",
         "caspex": "CASPEX"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-145",
@@ -11527,7 +11530,8 @@
       "facetsFromSheet": {
         "origin": "HEK293T",
         "koox": "WT"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-336",
@@ -11555,7 +11559,8 @@
       "facetsFromSheet": {
         "origin": "HEK293T",
         "koox": "WT"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-337",
@@ -14343,6 +14348,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T16:17:20.384Z"
+    "savedAt": "2026-09-07T16:17:29.559Z"
   }
 }

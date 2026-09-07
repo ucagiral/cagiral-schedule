@@ -4,13 +4,26 @@ name: Cell stocks daily layout export
 # asked for: an Excel workbook with a grid per box, a printable PDF map for the freezer
 # door, and a one-row-per-box summary.
 #
-# 05:00 UTC, which is 08:00 in Istanbul: build, commit if anything changed, and mail.
+# This used to be a single "0 5 * * *" -- 08:00 in Istanbul -- and the very first morning
+# it was due, nothing ran at all. The top of the hour is the most contended slot on
+# GitHub's shared scheduler, and GitHub's own docs say runs there are delayed and may be
+# dropped outright. A fixed delivery time is the wrong thing to hang on it.
+#
+# So the cron is a POLL now, every half hour, and tools/cellstocks-mail.mjs decides whether
+# this particular poll is the day's send (shouldSendNow). Three things follow:
+#
+#   * a delayed or dropped poll is covered by the next one -- a skipped morning heals
+#     itself instead of being silently lost;
+#   * the send time is data, in cellstocks/exports/recipients.json, which an admin edits
+#     from inside the app. It is deliberately NOT a literal here: the app can write that
+#     one file and must never be able to write a workflow;
+#   * a poll that is not the send does nothing and costs about twenty seconds.
 #
 # The file names never change. A dated file would mean a new link every morning and a
 # directory nobody prunes; git already keeps every previous morning.
 on:
   schedule:
-    - cron: "0 5 * * *"
+    - cron: "5,35 * * * *"
   workflow_dispatch:
     inputs:
       skip_mail:
@@ -38,13 +51,30 @@ jobs:
         with:
           node-version: '20'
 
+      # Is this poll the day's send? The rule lives in tools/cellstocks-mail.mjs, once,
+      # and this asks it -- so the YAML never restates half of it. On a schedule it is
+      # false for 47 of the 48 daily polls, and everything below is skipped in seconds.
+      #
+      # Pressing "Run workflow" is always a send: somebody has already decided.
+      - name: Is this poll today's send?
+        id: due
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run by hand -- building and sending now"
+            echo "send=true" >> "$GITHUB_OUTPUT"
+          else
+            node tools/cellstocks-mail.mjs --check
+          fi
+
       - name: Build the layout exports
+        if: steps.due.outputs.send == 'true'
         run: node tools/cellstocks-export.mjs
 
       # Only commits when something actually changed. Most mornings nothing has: the
       # freezer is the same as it was, and a commit a day saying so would bury the
       # mornings when it is not.
       - name: Commit them if they changed
+        if: steps.due.outputs.send == 'true'
         run: |
           set -euo pipefail
           if git diff --quiet -- cellstocks/exports; then
@@ -75,17 +105,44 @@ jobs:
       # still pass. It exits 0 by itself when nobody is on the recipients list.
       - name: Check for the mail credentials
         id: mail
+        if: steps.due.outputs.send == 'true'
         run: echo "configured=${{ secrets.MAIL_PASSWORD != '' && secrets.MAIL_USER != '' }}" >> "$GITHUB_OUTPUT"
 
       - name: Mail today's layout
-        if: steps.mail.outputs.configured == 'true' && inputs.skip_mail != true
+        if: steps.due.outputs.send == 'true' && steps.mail.outputs.configured == 'true' && inputs.skip_mail != true
         env:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: node tools/cellstocks-mail.mjs
 
+      # Which day's mail has gone is the one thing this job has to remember, so the next
+      # poll does not send a second copy. cellstocks-mail.mjs writes it only after the
+      # server accepted the message -- a failed send leaves it alone, and the next poll
+      # tries again. Only this job writes it; the app cannot reach the path, so an admin
+      # editing the recipient list cannot race it.
+      - name: Remember that today's mail went out
+        if: steps.due.outputs.send == 'true' && steps.mail.outputs.configured == 'true'
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- cellstocks/exports/last-mailed.json; then
+            echo "nothing was sent this run -- nothing to record"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cellstocks/exports/last-mailed.json
+          git commit -m "Daily freezer layout mailed"
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "push rejected (attempt $attempt) -- rebasing onto the newer main"
+            git pull --rebase origin main
+          done
+          # Left unrecorded, the next poll half an hour from now sends a second copy.
+          echo "::error::could not record that today's mail went out"
+          exit 1
+
       - name: No mail credentials configured
-        if: steps.mail.outputs.configured != 'true'
+        if: steps.due.outputs.send == 'true' && steps.mail.outputs.configured != 'true'
         run: |
           echo "::warning::MAIL_USER / MAIL_PASSWORD are not set, so today's layout was built and committed but not mailed."
           echo "::warning::Add them under Settings -> Secrets and variables -> Actions. MAIL_PASSWORD is a Gmail app password, not the account password."

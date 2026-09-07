@@ -2176,6 +2176,50 @@
     return copy;
   }
 
+  // An import reads a spreadsheet, and a spreadsheet describes one person's boxes. The
+  // freezer it describes is not this member's to add -- "kullanicilarin tank/freezer
+  // ekleme ozelligini kaldiralim" -- so the boxes come into the lab the same way a
+  // member's hand-made box does: into `unplaced`, owned by the importer, waiting for an
+  // admin to say where they live. What the sheet said about their location is kept as
+  // each box's note rather than thrown away or turned into freezers nobody asked for.
+  //
+  // Without this the imported boxes existed only in the browser's memory: slim() drops
+  // `storage` from a member's file and the shared tree was never written, so every
+  // imported vial came back as "(unknown box)" on the next reload -- and validate()
+  // then refused to save the file at all.
+  function adoptImportedBoxes(labStorage, imported, owner) {
+    var lab = mergeStorageDefaults(labStorage);
+    var next = clone(imported);
+    var taken = allIds(lab);
+    var remap = {};
+
+    eachBox(next, function (box, rack, unit, chain) {
+      var where = chain.map(function (n) { return n.name; }).join(" → ");
+      var fresh = clone(box);
+      // Two people can import sheets that both call a box "Box 1"; the lab's ids have to
+      // stay unique across everybody, so a clash is renamed here and the vials follow.
+      fresh.id = nodeId(box.id, taken);
+      taken.push(fresh.id);
+      if (fresh.id !== box.id) remap[box.id] = fresh.id;
+      fresh.isBox = true;
+      fresh.owner = String(owner || "").toLowerCase();
+      fresh.note = [box.note, where ? "from the sheet: " + where : ""].filter(Boolean).join(" · ");
+      lab.unplaced = (lab.unplaced || []).concat([fresh]);
+    });
+
+    // The member's file keeps only vials, so its own copy of the tree goes; the boxes
+    // are the lab's now.
+    next.storage = { labName: lab.labName, labIcon: lab.labIcon,
+                     children: clone(lab.children), unplaced: clone(lab.unplaced) };
+    (next.vials || []).forEach(function (v) {
+      if (!v.location || !v.location.boxId) return;
+      if (remap[v.location.boxId]) v.location.boxId = remap[v.location.boxId];
+      // Unplaced, so there is no route to remember yet.
+      v.location.path = [];
+    });
+    return { storage: lab, state: next, renamed: remap };
+  }
+
   // =====================================================================
   // Rules are the lab's, not one account's
   // =====================================================================
@@ -2497,6 +2541,7 @@
     // the tree: one recursive kind of node, marked isBox where it stops
     eachNode: eachNode, findNode: findNode, layers: layers, isBoxNode: isBoxNode,
     addNode: addNode, editNode: editNode, moveNode: moveNode, removeNode: removeNode,
+    adoptImportedBoxes: adoptImportedBoxes,
     mergeRuleSets: mergeRuleSets, ruleMatcher: ruleMatcher, hydrateRules: hydrateRules,
     mergeRulesDefaults: mergeRulesDefaults, serialiseRules: serialiseRules,
     nodeContents: nodeContents, pathOf: pathOf, pathKey: pathKey, pathNames: pathNames,

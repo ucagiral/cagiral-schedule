@@ -278,6 +278,14 @@ worker handles by sweeping only its own prefix.
   tools. **A PI has no inventory of their own at all** — they read and search everyone else's and
   change nothing, which the worker enforces in `canWrite()` rather than trusting the app to hide
   the buttons. An unknown role is refused, never quietly demoted to member.
+- **An import puts its boxes in the lab's file, not in the importer's.** A spreadsheet
+  describes boxes, and `slim()` drops `storage` from a member's own file — so for a while
+  the boxes an import created existed only in that browser: the next reload turned every
+  imported vial into *"(unknown box)"* and `validate()` then refused to save the file at
+  all. `adoptImportedBoxes()` moves them into `lab-storage.json` under `unplaced`, owned by
+  whoever imported, with the sheet's own location kept as the box's note. The member's
+  vials, their workbook and the tree go in **one commit**. The freezer the sheet names is
+  *not* created: a member does not add units to everybody's tree.
 - **The classification rules are the lab's, not an account's.** Every account started from the
   same defaults and then edited its own private copy, so the same cell name read differently
   depending on whose screen you were on — admin read `Du145 TOX4 KO` as a knockout, umut's copy

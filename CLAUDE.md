@@ -341,6 +341,15 @@ worker handles by sweeping only its own prefix.
   Admin → History & export and is the only path under `exports/` the worker lets the app
   write. No secret, or nobody on the list, skips the mail — it never fails the build and
   never claims to have sent something it did not.
+- **Another lab gets a generated template, never a copied folder.**
+  `tools/cellstocks-template.mjs` builds a blank standalone tree out of the live files and
+  tars it; the two documents that only exist in the template (a Turkish setup `README.md`
+  and its own `CLAUDE.md`) live in `tools/cellstocks-template/`. A checked-in second copy
+  of `index.html` would go stale the first time the real one was fixed. Every substitution
+  it makes is asserted and the built tree is grepped for our identifiers, because the one
+  that matters is the GitHub Pages redirect: left in, a new lab's users get bounced onto
+  our Worker and log in against our freezer. It runs the four suites inside the built tree
+  before writing an archive.
 - Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get

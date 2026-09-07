@@ -600,6 +600,27 @@ The same suite runs in CI on every change to `cellstocks/` or the suite itself
 (`.github/workflows/cellstocks.yml`), along with a check that the committed `.xlsx` still matches
 the inventory it is generated from.
 
+### Giving it to another lab
+
+`node tools/cellstocks-template.mjs` builds a blank, standalone copy of the app that somebody
+else can put in their own GitHub repository and run for their own freezer, and writes it as
+`cellstocks-template.tar.gz`. It reads the live files every run rather than keeping a second copy
+of `index.html` in the repository, which would go stale the first afternoon somebody fixed a bug
+in the real one.
+
+It strips the inventory, the freezer tree, the mailing list, the daily export, the Cloudflare
+host, the KV namespace id and the GitHub owner/repo — and the GitHub Pages redirect in
+`index.html`, which would otherwise bounce a new lab's own users onto *this* copy, where they
+would be logging in against *this* freezer. It keeps every rule, every suite, both workflows and
+the shared classification rules, then proves the result by running four suites inside the built
+tree and refusing to write an archive that still contains any of our identifiers. The template
+carries its own `README.md` (a Turkish setup walkthrough) and its own `CLAUDE.md`, both under
+`tools/cellstocks-template/`.
+
+Every replacement it makes is asserted. If a marker moves — the footer text, `DEFAULT_REPO`, the
+redirect — the build fails loudly instead of shipping a template that still points here. That is
+the whole safety property; do not soften it into a best-effort replace.
+
 ### What it deliberately doesn't do
 
 - **This repository is public.** Only Umut's own `UMUT -80` sheet was imported; the other nine

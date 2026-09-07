@@ -26,6 +26,14 @@ try {
   }
 }
 if (!chromium) {
+  // Locally this is a courtesy: a contributor without playwright still gets every other
+  // suite. In CI it is the opposite -- a step that goes green whether the checks ran or
+  // not is worse than no step at all, because it looks like coverage and is not.
+  if (process.env.CI) {
+    console.error("::error::playwright is missing, so the browser checks did not run.");
+    console.error("This step must not pass without them -- install playwright before it.");
+    process.exit(1);
+  }
   console.log("playwright is not installed — skipping the browser test.");
   console.log("  npm i -D playwright && npx playwright install chromium");
   process.exit(0);
@@ -950,19 +958,39 @@ try {
     // A save is async and ends with $("dlg").close(); opening the next dialog before that
     // lands would see it closed under it. So: wait for no dialog, click, wait for one.
     // (Sleeping instead is what made this block fail one run in three.)
+    // Clicking a row button is three things that can each be too early: the previous
+    // save's dialog may still be closing, the row may not be redrawn yet, and the click
+    // itself may land between renders. The old version evaluated once and silently did
+    // nothing when the row was missing -- then waited 30s for a dialog nobody opened,
+    // which is what made this block fail two runs in three from different call sites.
+    // So: retry the whole thing, and if it never opens, say which row and what was there.
     const clickRowButton = (title, label) => page.evaluate(([t, l]) => {
       const body = document.querySelector(`#admin-structure .treeBody[data-title="${t}"]`);
       const btn = body && [...body.parentElement.querySelectorAll(".structRowEdit")]
         .filter((b) => b.textContent === l)[0];
-      if (btn) btn.click();
+      if (!btn) return false;
+      btn.click();
+      return true;
     }, [title, label]);
-    const noDialog = () => page.waitForFunction(() => !document.getElementById("dlg").open);
-    const dialogOpen = () => page.waitForFunction(() => document.getElementById("dlg").open);
-    async function editRow(title){
-      await noDialog();
-      await clickRowButton(title, "✎");
-      await dialogOpen();
+    const noDialog = () => page.waitForFunction(() => !document.getElementById("dlg").open, null, { timeout: 15000 });
+    const dialogIsOpen = () => page.evaluate(() => document.getElementById("dlg").open);
+
+    async function openRowDialog(title, label){
+      for (let i = 0; i < 60; i++){
+        await noDialog().catch(() => {});
+        if (await clickRowButton(title, label)){
+          // The handler is synchronous, but give the render a tick before deciding.
+          for (let j = 0; j < 10; j++){
+            if (await dialogIsOpen()) return;
+            await page.waitForTimeout(50);
+          }
+        }
+        await page.waitForTimeout(250);
+      }
+      const rows = await titles();
+      throw new Error(`"${label}" on row ${JSON.stringify(title)} never opened a dialog. On screen: ${JSON.stringify(rows)}`);
     }
+    const editRow = (title) => openRowDialog(title, "✎");
     const titles = () => page.evaluate(() =>
       Array.from(document.querySelectorAll("#admin-structure .treeBody")).map((b) => b.dataset.title));
 
@@ -1007,11 +1035,7 @@ try {
     // The old screen had a "how many children" number per level, which could only ever
     // grow or trim from the end -- so there was no way to add one named thing, and no
     // way to delete anything but the last. + adds exactly one, wherever you are.
-    async function addUnder(title){
-      await noDialog();
-      await clickRowButton(title, "+");
-      await dialogOpen();
-    }
+    const addUnder = (title) => openRowDialog(title, "+");
 
     await addUnder("Shelf 1");
     await page.waitForSelector("#dlgBody input");
@@ -1461,6 +1485,18 @@ try {
     // Rules: every rule now has its own Edit and Delete, and deleting previews the damage.
     await page.click("nav button[data-screen=settings]");
     await page.waitForSelector("#rulesCard");
+    // The rules are the whole lab's, so Edit/Delete stay disabled until the lab has been
+    // read -- otherwise the impact preview would count only your own vials and say
+    // "changes 0" while re-reading everybody else's. Locally that load finishes before
+    // the next line runs; in CI it does not, and clicking a disabled button opened no
+    // dialog and timed out. Wait for the gate the app actually applies.
+    await page.waitForFunction(() => {
+      const rows = Array.from(document.querySelectorAll("#rulesCard .item"));
+      const row = rows.find((r) => /HEK → HEK293T/.test(r.textContent));
+      const del = row && Array.from(row.querySelectorAll("button"))
+        .find((b) => b.textContent.trim() === "Delete");
+      return !!del && !del.disabled;
+    }, null, { timeout: 20000 });
     const ruleRowButtons = await page.evaluate(() => {
       const rows = Array.from(document.querySelectorAll("#rulesCard .item"));
       const row = rows.find((r) => /HEK → HEK293T/.test(r.textContent));
@@ -1512,6 +1548,116 @@ try {
   } finally {
     await browser7.close();
     server7.close();
+  }
+}
+
+// ---- Admin -> History & export: who the daily mail goes to, and when ----
+//
+// The send time used to be a literal in the workflow, so changing it meant editing YAML.
+// It is data now, in the one file under exports/ the app may write -- which is what lets
+// an admin set it here. The trap this guards: the save used to write { emails } alone, so
+// adding an address would silently reset the time (and now, vice versa).
+{
+  const server8 = await serve(8805);
+  const browser8 = await chromium.launch();
+  try {
+    const context = await browser8.newContext();
+    await context.addInitScript(() => {
+      localStorage.setItem("cst_cfg", JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" }));
+    });
+    const page = await context.newPage();
+
+    let settings = { emails: ["already@example.com"], sendAt: "07:30", timeZone: "Europe/Istanbul" };
+    let lastCommit = null;
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/exports/recipients.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(settings) });
+      }
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ labName: "CAA Lab Stocks", labIcon: "", children: [], unplaced: [] }) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) }));
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
+      }
+      if (path === "/admin/users" && req.method() === "GET") {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ users: [] }) });
+      }
+      if (path === "/commit" && req.method() === "POST") {
+        lastCommit = JSON.parse(req.postData());
+        const f = lastCommit.files.find((x) => x.path.includes("recipients.json"));
+        if (f) settings = JSON.parse(f.content);
+        return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto(`http://localhost:8805/cellstocks/`);
+    await page.waitForSelector("#gateBody input");
+    const li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("admin");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+
+    await page.click("nav button[data-screen=admin]");
+    await page.click("#adminTabs button[data-admintab=history]");
+    await page.waitForSelector("#admin-history input[type=time]");
+
+    const shownTime = await page.$eval("#admin-history input[type=time]", (el) => el.value);
+    check("the export card shows the send time that is actually configured",
+      shownTime === "07:30", shownTime);
+    const timeNote = await page.evaluate(() => document.getElementById("admin-history").textContent);
+    check("and says what the schedule really does rather than promising a exact minute",
+      /every half hour/.test(timeNote) && /Europe\/Istanbul/.test(timeNote), timeNote.slice(0, 200));
+
+    // Change the time.
+    await page.fill("#admin-history input[type=time]", "06:15");
+    await page.evaluate(() => {
+      const btn = [...document.querySelectorAll("#admin-history button")]
+        .find((b) => b.textContent.trim() === "Save the time");
+      btn.click();
+    });
+    await page.waitForFunction(() => /goes out at 06:15/.test(document.getElementById("admin-history").textContent));
+    const afterTime = lastCommit && JSON.parse(lastCommit.files[0].content);
+    check("saving the time writes it to the shared settings file",
+      afterTime && afterTime.sendAt === "06:15", JSON.stringify(afterTime));
+    // The trap: the addresses must survive a change to the time.
+    check("and does not drop the recipients while doing it",
+      afterTime && JSON.stringify(afterTime.emails) === JSON.stringify(["already@example.com"]),
+      JSON.stringify(afterTime && afterTime.emails));
+    check("only that one file is written -- the app never touches a workflow",
+      lastCommit && lastCommit.files.length === 1 &&
+      lastCommit.files[0].path === "cellstocks/exports/recipients.json",
+      JSON.stringify(lastCommit && lastCommit.files.map((f) => f.path)));
+
+    // And the mirror image: adding an address must not reset the time.
+    await page.fill("#admin-history input[type=email]", "second@example.com");
+    await page.evaluate(() => {
+      const btn = [...document.querySelectorAll("#admin-history button")]
+        .find((b) => b.textContent.trim() === "Add");
+      btn.click();
+    });
+    await page.waitForFunction(() => /second@example.com/.test(document.getElementById("admin-history").textContent));
+    const afterAddr = lastCommit && JSON.parse(lastCommit.files[0].content);
+    check("adding an address keeps the send time, instead of silently resetting it",
+      afterAddr && afterAddr.sendAt === "06:15" && afterAddr.emails.length === 2,
+      JSON.stringify(afterAddr));
+  } catch (err) {
+    check("the export card sets who the daily mail goes to and when", false, String(err));
+  } finally {
+    await browser8.close();
+    server8.close();
   }
 }
 

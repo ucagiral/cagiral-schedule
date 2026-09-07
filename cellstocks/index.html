@@ -4824,6 +4824,8 @@
     c.appendChild(list);
     var msg = el("div");
     var current = [];
+    // The whole settings object as it was read, so saving one field never drops another.
+    var settings = { emails: [], sendAt: "07:30", timeZone: "Europe/Istanbul" };
 
     function draw(){
       clear(list);
@@ -4841,18 +4843,31 @@
       });
     }
 
-    async function saveRecipients(next){
+    // One file holds both who it goes to and when. It is written whole, so this merges
+    // into what was read rather than replacing it -- writing { emails } alone used to be
+    // enough, and now it would silently reset the send time every time somebody added an
+    // address.
+    async function saveSettings(changes, what){
+      var next = Object.assign({}, settings, changes);
       clear(msg).appendChild(el("p", "note", "Saving…"));
       try {
         await workerCommit(
-          [{ path: RECIPIENTS_PATH, content: JSON.stringify({ emails: next }, null, 2) + "\n" }],
-          "Set who the daily layout export goes to");
-        current = next;
+          [{ path: RECIPIENTS_PATH, content: JSON.stringify(next, null, 2) + "\n" }],
+          what || "Set up the daily layout export");
+        settings = next;
+        current = next.emails;
         draw();
-        clear(msg).appendChild(el("p", "note", "Saved. The next morning's export goes to " +
-          (next.length ? next.join(", ") : "nobody") + "."));
+        return true;
       } catch(err){
         clear(msg).appendChild(el("p", "note", "Couldn't save that: " + esc(err.message)));
+        return false;
+      }
+    }
+
+    async function saveRecipients(next){
+      if (await saveSettings({ emails: next }, "Set who the daily layout export goes to")){
+        clear(msg).appendChild(el("p", "note", "Saved. The next morning's export goes to " +
+          (next.length ? next.join(", ") : "nobody") + "."));
       }
     }
 
@@ -4879,15 +4894,55 @@
     var row = el("div", "row tight");
     row.appendChild(input); row.appendChild(add);
     c.appendChild(row);
+
+    // ---- when it goes out -------------------------------------------------------
+    //
+    // This is a value the scheduled job reads, not a time written into the workflow:
+    // the app can write this one file and must never be able to write a workflow. The
+    // job wakes every half hour and sends on the first wake at or after this time,
+    // which is also what makes a morning GitHub skips heal itself.
+    c.appendChild(el("h3", null, "When it goes out"));
+    var timeInput = document.createElement("input");
+    timeInput.type = "time";
+    timeInput.step = 60;
+    var saveTime = el("button", "primary", "Save the time");
+    saveTime.onclick = async function(){
+      var v = String(timeInput.value || "").trim();
+      if (!/^\d{1,2}:\d{2}$/.test(v)){
+        clear(msg).appendChild(el("p", "note", "Give a time like 07:30."));
+        return;
+      }
+      saveTime.disabled = true;
+      if (await saveSettings({ sendAt: v }, "Send the daily layout at " + v)){
+        clear(msg).appendChild(el("p", "note",
+          "Saved. From tomorrow the layout goes out at " + esc(v) + " " + esc(settings.timeZone) + "."));
+      }
+      saveTime.disabled = false;
+    };
+    var timeRow = el("div", "row tight");
+    timeRow.appendChild(timeInput); timeRow.appendChild(saveTime);
+    c.appendChild(timeRow);
+    var timeNote = el("p", "note");
+    c.appendChild(timeNote);
     c.appendChild(msg);
 
     try {
       var resp = await fetch(rawURL(RECIPIENTS_PATH), { cache:"no-store" });
       if (resp.ok){
         var body = JSON.parse(await resp.text());
-        current = (body.emails || []).filter(function(a){ return typeof a === "string" && a; });
+        settings = {
+          emails: (body.emails || []).filter(function(a){ return typeof a === "string" && a; }),
+          sendAt: /^\d{1,2}:\d{2}$/.test(body.sendAt || "") ? body.sendAt : "07:30",
+          timeZone: body.timeZone || "Europe/Istanbul"
+        };
+        current = settings.emails;
       }
     } catch(err){ /* no list yet is not an error -- it is the starting state */ }
+    timeInput.value = settings.sendAt;
+    // Say what actually happens rather than implying a guarantee GitHub does not give.
+    timeNote.textContent = "Times are " + settings.timeZone + ". The freezer is checked every half " +
+      "hour and the mail goes out on the first check at or after this time, so it can be a few " +
+      "minutes late — and a morning GitHub skips is picked up by the next check instead of lost.";
     draw();
   }
 

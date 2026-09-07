@@ -12,7 +12,7 @@
 // It reads cellstocks/exports/recipients.json for the address list. An empty list is a
 // setting, not a fault: the files are still built and committed, and nothing is sent.
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
 import { connect as tlsConnect } from "node:tls";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -165,18 +165,118 @@ export function sendMail(options) {
   });
 }
 
-// ------------------------------------------------------------------------------- the run
-export function readRecipients(dir) {
-  const file = join(dir || EXPORTS, "recipients.json");
-  if (!existsSync(file)) return [];
+// --------------------------------------------------------------------------- when to send
+//
+// The workflow used to fire once a day at 05:00 UTC and send whatever it found. That is the
+// top of the hour -- the most contended slot on GitHub's shared scheduler -- and GitHub's own
+// docs say runs there are delayed and may be dropped outright. The very first morning it was
+// due, nothing ran at all.
+//
+// So the cron is a *poll* now, every half hour, and this decides. Two consequences fall out
+// of that, both of them things Umut asked for:
+//
+//   * a delayed or dropped poll is covered by the next one, so a skipped morning heals
+//     itself instead of being silently lost;
+//   * the send time stops being a literal in the workflow and becomes data -- which is what
+//     lets an admin change it from inside the app, without anyone touching a YAML file.
+//
+// Pure, and `now` is an argument: the same rule the engine follows, and the only way to test
+// midnight, a late poll and a DST shift without waiting for one.
+const DEFAULT_SEND_AT = "07:30";
+const DEFAULT_TIME_ZONE = "Europe/Istanbul";
+
+// Local wall-clock date and time in a named zone, with no dependency: Intl has done this
+// since Node 14 and it knows about DST, which hand-rolled offset arithmetic does not.
+export function localClock(now, timeZone) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone, hour12: false,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit"
+  }).formatToParts(now instanceof Date ? now : new Date(now));
+  const at = (t) => (parts.filter((p) => p.type === t)[0] || {}).value;
+  // Some ICU builds render midnight as "24" rather than "00" under hour12:false.
+  const hour = at("hour") === "24" ? "00" : at("hour");
+  return { date: `${at("year")}-${at("month")}-${at("day")}`, time: `${hour}:${at("minute")}` };
+}
+
+export function shouldSendNow({ now, sendAt, timeZone, lastMailedDate }) {
+  const zone = timeZone || DEFAULT_TIME_ZONE;
+  const want = normaliseTime(sendAt) || DEFAULT_SEND_AT;
+  let local;
   try {
-    const body = JSON.parse(readFileSync(file, "utf8"));
-    return (body.emails || []).filter((a) => typeof a === "string" && /\S@\S+\.\S/.test(a));
+    local = localClock(now, zone);
+  } catch (err) {
+    // An unknown zone is a setting somebody typed wrong. Fall back rather than never
+    // mailing again -- a mail an hour off is recoverable, silence is not.
+    local = localClock(now, DEFAULT_TIME_ZONE);
+    return { send: false, localDate: local.date, localTime: local.time, sendAt: want,
+             reason: `${timeZone} is not a time zone I know -- fix it in the app; nothing sent.` };
+  }
+  if (lastMailedDate === local.date) {
+    return { send: false, localDate: local.date, localTime: local.time, sendAt: want,
+             reason: `today's layout already went out (${local.date}).` };
+  }
+  // >= rather than ==: this is what makes a late poll still send, which is the whole point.
+  if (local.time < want) {
+    return { send: false, localDate: local.date, localTime: local.time, sendAt: want,
+             reason: `it is ${local.time} in ${zone}; the layout goes out at ${want}.` };
+  }
+  return { send: true, localDate: local.date, localTime: local.time, sendAt: want,
+           reason: `${local.time} in ${zone} is at or past ${want}, and nothing has gone out today.` };
+}
+
+// "8:00", "08:00", "8" and "0800" are all things a person types into a time field.
+export function normaliseTime(value) {
+  const m = /^\s*(\d{1,2})\s*[:.]?\s*(\d{2})?\s*$/.exec(String(value === null || value === undefined ? "" : value));
+  if (!m) return null;
+  const h = Number(m[1]), min = Number(m[2] || 0);
+  if (!(h >= 0 && h <= 23) || !(min >= 0 && min <= 59)) return null;
+  return String(h).padStart(2, "0") + ":" + String(min).padStart(2, "0");
+}
+
+// ------------------------------------------------------------------------------- the run
+//
+// One file holds who the mail goes to and when. It is the one path under exports/ the
+// worker lets the app write, and it is admin-only there -- so the send time inherits
+// exactly the right permission without the worker having to learn about it.
+export function readMailSettings(dir) {
+  const file = join(dir || EXPORTS, "recipients.json");
+  const fallback = { emails: [], sendAt: DEFAULT_SEND_AT, timeZone: DEFAULT_TIME_ZONE };
+  if (!existsSync(file)) return fallback;
+  let body;
+  try {
+    body = JSON.parse(readFileSync(file, "utf8"));
   } catch (err) {
     // A list nobody can parse is not an empty list: refuse rather than silently
     // deciding that today nobody wanted the mail.
     throw new Error("cellstocks/exports/recipients.json is not valid JSON");
   }
+  return {
+    emails: (body.emails || []).filter((a) => typeof a === "string" && /\S@\S+\.\S/.test(a)),
+    // A file written before there was a time in it still works, and still sends.
+    sendAt: normaliseTime(body.sendAt) || DEFAULT_SEND_AT,
+    timeZone: typeof body.timeZone === "string" && body.timeZone ? body.timeZone : DEFAULT_TIME_ZONE
+  };
+}
+
+// Kept because it reads better at the call sites that only want the addresses.
+export function readRecipients(dir) {
+  return readMailSettings(dir).emails;
+}
+
+// The one piece of state: which day's mail has already gone. Written only by the Action,
+// never by the app, so an admin editing the recipient list cannot race it.
+export function readLastMailed(dir) {
+  const file = join(dir || EXPORTS, "last-mailed.json");
+  if (!existsSync(file)) return null;
+  try { return JSON.parse(readFileSync(file, "utf8")).date || null; } catch (err) { return null; }
+}
+
+// Called only once the server has accepted the message. A send that failed must NOT be
+// recorded, or the next poll would decide today was done and nobody would get anything.
+export function recordSent(dir, date, count, now) {
+  writeFileSync(join(dir || EXPORTS, "last-mailed.json"),
+    JSON.stringify({ date: date, sentAt: (now || new Date()).toISOString(), to: count }, null, 2) + "\n");
 }
 
 // A box's location is a whole path now, and a path can contain a comma the same way a box
@@ -240,13 +340,34 @@ export function summarise(csvText, areaCount) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  const settings = readMailSettings();
+
+  // The cron polls every half hour. --check answers "is this poll the day's send?" and
+  // writes send=true|false to $GITHUB_OUTPUT so the workflow can skip building, committing
+  // and mailing on the other 47 polls. The rule lives here, once, rather than being
+  // half-restated in YAML.
+  if (process.argv.includes("--check")) {
+    const when = shouldSendNow({
+      now: new Date(),
+      sendAt: settings.sendAt,
+      timeZone: settings.timeZone,
+      lastMailedDate: readLastMailed()
+    });
+    console.log(when.reason);
+    if (process.env.GITHUB_OUTPUT) {
+      appendFileSync(process.env.GITHUB_OUTPUT, `send=${when.send}\n`);
+    }
+    process.exit(0);
+  }
+
   const user = process.env.MAIL_USER;
   const password = (process.env.MAIL_PASSWORD || "").replace(/\s+/g, "");  // app passwords are shown in groups of four
   if (!user || !password) {
     console.log("MAIL_USER / MAIL_PASSWORD are not set -- the export was built but is not being mailed.");
     process.exit(0);
   }
-  const to = readRecipients();
+
+  const to = settings.emails;
   if (!to.length) {
     console.log("nobody is on the recipients list -- the export was built but is not being mailed.");
     process.exit(0);
@@ -288,7 +409,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       to, subject: `CAA Lab freezer layout — ${today}`, text, attachments, date: new Date()
     })
   }).then(() => {
-    console.log(`mailed today's layout to ${to.length} address(es)`);
+    // Only after the server has accepted it. Written before this and a send that failed
+    // would still count as today's, and the next poll would not retry.
+    const local = localClock(new Date(), settings.timeZone);
+    recordSent(EXPORTS, local.date, to.length);
+    console.log(`mailed today's layout to ${to.length} address(es); marked ${local.date} as sent`);
   }).catch((err) => {
     // The transcript never contains the credentials -- say() redacts them -- so it is
     // safe in a public build log, and it is the only way to tell a wrong password from

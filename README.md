@@ -442,7 +442,7 @@ to a separate URL. See `cellstocks-worker/README.md` for the backend.
 | `cellstocks/xlsx.js` | Reads and writes `.xlsx` with no dependencies. A spreadsheet is a zip of XML, so reading is a zip walk plus the browser's own `DecompressionStream`, and writing is the same XML zipped back up. |
 | `cellstocks/index.html` | The app. Reads and writes the JSON through the worker (or, on the older per-device flow, through the GitHub API). |
 | `cellstocks/data/<name>.xlsx` | **Generated.** Rewritten from that account's JSON on every save and committed with it. Never edit by hand — the next save overwrites it. |
-| `cellstocks/exports/` | **Generated every morning.** `layout.xlsx` (a grid sheet per box), `layout.pdf` (the printable map for the freezer door) and `layout.csv` (one row per box). Built by `tools/cellstocks-export.mjs`, committed by a scheduled Action at 05:00 UTC (08:00 Istanbul) only when the freezer has actually changed, then mailed to whoever is listed in `recipients.json` — which admin edits under Admin → History & export. |
+| `cellstocks/exports/` | **Generated every morning.** `layout.xlsx` (a grid sheet per box), `layout.pdf` (the printable map for the freezer door) and `layout.csv` (one row per box). Built by `tools/cellstocks-export.mjs` and mailed to whoever is listed in `recipients.json` — which admin edits under Admin → History & export, along with **the time it goes out**. The Action wakes every half hour and sends on the first wake at or after that time, so a morning GitHub skips is picked up by the next wake rather than lost. `last-mailed.json` records which day has gone, and is written only once the mail server has accepted the message. |
 | `tools/cellstocks-mail.mjs` | Mails the three files, speaking SMTP itself — no third-party action is handed the mailbox's app password, since this repository is public. Needs `MAIL_USER` and `MAIL_PASSWORD` (a Gmail **app password**) as Actions secrets; without them the export is still built and committed, just not mailed. |
 | `cellstocks/pdf.js` | Writes a PDF with no dependencies, the same way `xlsx.js` writes a spreadsheet: enough for the map and no more. One built-in font, so Turkish letters are folded (`Şişli` → `Sisli`) rather than dropped. |
 | `protocols/cryopreservation.md` | How long a −80 vial is good for, and what has to be recorded about one, with sources. |
@@ -599,6 +599,27 @@ counts and fails if any of them would put two kinds of cell in one row.
 The same suite runs in CI on every change to `cellstocks/` or the suite itself
 (`.github/workflows/cellstocks.yml`), along with a check that the committed `.xlsx` still matches
 the inventory it is generated from.
+
+### Giving it to another lab
+
+`node tools/cellstocks-template.mjs` builds a blank, standalone copy of the app that somebody
+else can put in their own GitHub repository and run for their own freezer, and writes it as
+`cellstocks-template.tar.gz`. It reads the live files every run rather than keeping a second copy
+of `index.html` in the repository, which would go stale the first afternoon somebody fixed a bug
+in the real one.
+
+It strips the inventory, the freezer tree, the mailing list, the daily export, the Cloudflare
+host, the KV namespace id and the GitHub owner/repo — and the GitHub Pages redirect in
+`index.html`, which would otherwise bounce a new lab's own users onto *this* copy, where they
+would be logging in against *this* freezer. It keeps every rule, every suite, both workflows and
+the shared classification rules, then proves the result by running four suites inside the built
+tree and refusing to write an archive that still contains any of our identifiers. The template
+carries its own `README.md` (a Turkish setup walkthrough) and its own `CLAUDE.md`, both under
+`tools/cellstocks-template/`.
+
+Every replacement it makes is asserted. If a marker moves — the footer text, `DEFAULT_REPO`, the
+redirect — the build fails loudly instead of shipping a template that still points here. That is
+the whole safety property; do not soften it into a best-effort replace.
 
 ### What it deliberately doesn't do
 

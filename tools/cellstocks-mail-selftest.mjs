@@ -7,8 +7,10 @@
 
 import { createServer } from "node:net";
 import { connect as netConnect } from "node:net";
-import { buildMessage, dotStuff, encodeHeader, sendMail, readRecipients, summarise } from "./cellstocks-mail.mjs";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { buildMessage, dotStuff, encodeHeader, sendMail, readRecipients, readMailSettings,
+         shouldSendNow, normaliseTime, localClock, readLastMailed, recordSent,
+         summarise } from "./cellstocks-mail.mjs";
+import { mkdtempSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -311,10 +313,132 @@ await check("a box with no home yet is named rather than hidden in the total", (
   return null;
 });
 
+// ---------------------------------------------------------------- when it goes out
+//
+// The cron used to be a single "0 5 * * *" and the first morning it was due, GitHub ran
+// nothing at all -- the top of the hour is its most contended slot. It is a half-hourly
+// poll now and this decides which poll is the day's send. `now` is an argument, so
+// midnight, a dropped poll and a DST shift are all testable without waiting for one.
+
+const IST = "Europe/Istanbul";
+const at = (iso, extra) => shouldSendNow(Object.assign(
+  { now: new Date(iso), sendAt: "07:30", timeZone: IST, lastMailedDate: null }, extra));
+
+await check("it waits until the time the admin set, then sends once", () => {
+  // 04:05Z is 07:05 in Istanbul -- before 07:30, so this poll does nothing.
+  if (at("2026-09-07T04:05:00Z").send) return "sent half an hour early";
+  // 04:35Z is 07:35: the first poll at or after the time.
+  const due = at("2026-09-07T04:35:00Z");
+  if (!due.send) return `did not send at the right time: ${due.reason}`;
+  if (due.localTime !== "07:35" || due.localDate !== "2026-09-07") {
+    return `local clock is wrong: ${due.localDate} ${due.localTime}`;
+  }
+  // Having sent, the rest of the day's polls do nothing.
+  const after = at("2026-09-07T05:05:00Z", { lastMailedDate: "2026-09-07" });
+  if (after.send) return "sent a second copy on the next poll";
+  if (!/already went out/.test(after.reason)) return `unhelpful reason: ${after.reason}`;
+  return null;
+});
+
+await check("a poll GitHub dropped is picked up by the next one, not lost", () => {
+  // This is the whole point of the rewrite: the morning's polls never ran, and the one
+  // that finally does still sends rather than deciding it has missed its slot.
+  const late = at("2026-09-07T08:05:00Z");          // 11:05 in Istanbul, hours late
+  if (!late.send) return `a late poll refused to send: ${late.reason}`;
+  const verylate = at("2026-09-07T20:55:00Z");      // 23:55, still the same day
+  if (!verylate.send) return `the last poll of the day refused to send: ${verylate.reason}`;
+  return null;
+});
+
+await check("crossing local midnight starts a new day's send", () => {
+  // 20:55Z on the 7th is 23:55 Istanbul -- still the 7th, already sent.
+  if (at("2026-09-07T20:55:00Z", { lastMailedDate: "2026-09-07" }).send) {
+    return "sent twice on the same local day";
+  }
+  // 21:05Z is 00:05 on the 8th: a new day, but before the send time.
+  const justAfterMidnight = at("2026-09-07T21:05:00Z", { lastMailedDate: "2026-09-07" });
+  if (justAfterMidnight.localDate !== "2026-09-08") return `date did not roll: ${justAfterMidnight.localDate}`;
+  if (justAfterMidnight.send) return "sent at five past midnight";
+  // And the next morning it sends again.
+  if (!at("2026-09-08T04:35:00Z", { lastMailedDate: "2026-09-07" }).send) {
+    return "the next morning never sent";
+  }
+  return null;
+});
+
+await check("the local clock is the lab's, not the runner's UTC", () => {
+  // The runner is UTC; getting this wrong sends the mail three hours out.
+  const c = localClock(new Date("2026-09-07T04:35:00Z"), IST);
+  if (c.time !== "07:35") return `Istanbul time read as ${c.time}`;
+  // Midnight is the case that breaks naive hour formatting (some builds say "24").
+  const mid = localClock(new Date("2026-09-07T21:00:00Z"), IST);
+  if (mid.time !== "00:00" || mid.date !== "2026-09-08") return `midnight read as ${mid.date} ${mid.time}`;
+  return null;
+});
+
+await check("a time zone nobody can resolve refuses rather than mailing at a random hour", () => {
+  const bad = shouldSendNow({ now: new Date("2026-09-07T04:35:00Z"), sendAt: "07:30",
+                              timeZone: "Not/AZone", lastMailedDate: null });
+  if (bad.send) return "an unreadable time zone still sent";
+  if (!/not a time zone/.test(bad.reason)) return `unhelpful reason: ${bad.reason}`;
+  return null;
+});
+
+await check("the times a person actually types are all understood", () => {
+  const want = { "7:30": "07:30", "07:30": "07:30", "8": "08:00", "0800": "08:00", " 9:05 ": "09:05" };
+  for (const [given, expected] of Object.entries(want)) {
+    if (normaliseTime(given) !== expected) return `${JSON.stringify(given)} read as ${normaliseTime(given)}`;
+  }
+  for (const bad of ["25:00", "07:70", "", "lunchtime", null]) {
+    if (normaliseTime(bad) !== null) return `${JSON.stringify(bad)} was accepted as ${normaliseTime(bad)}`;
+  }
+  return null;
+});
+
+await check("a recipients file written before there was a time in it still sends", () => {
+  const dir = mkdtempSync(join(tmpdir(), "cellstocks-mail-"));
+  // Exactly the shape of the file on main before this change.
+  writeFileSync(join(dir, "recipients.json"), JSON.stringify({ emails: ["a@example.com"] }));
+  const s = readMailSettings(dir);
+  if (s.sendAt !== "07:30") return `sendAt defaulted to ${s.sendAt}`;
+  if (s.timeZone !== IST) return `timeZone defaulted to ${s.timeZone}`;
+  if (JSON.stringify(s.emails) !== JSON.stringify(["a@example.com"])) return "the addresses were lost";
+  // And a nonsense time falls back rather than throwing or never sending again.
+  writeFileSync(join(dir, "recipients.json"), JSON.stringify({ emails: [], sendAt: "half past eight" }));
+  if (readMailSettings(dir).sendAt !== "07:30") return "an unreadable time was not defaulted";
+  return null;
+});
+
+await check("a send is recorded only once it lands, and then the day is closed", () => {
+  const dir = mkdtempSync(join(tmpdir(), "cellstocks-mail-"));
+  const now = new Date("2026-09-07T04:35:00Z");   // 07:35 Istanbul
+
+  // Nothing recorded yet: this poll is the send.
+  if (readLastMailed(dir) !== null) return "a fresh directory claimed a mail had gone";
+  if (!shouldSendNow({ now, sendAt: "07:30", timeZone: IST, lastMailedDate: readLastMailed(dir) }).send) {
+    return "the first poll of the day refused to send";
+  }
+
+  // The mailer calls this only after the server accepted the message.
+  recordSent(dir, "2026-09-07", 3, now);
+  if (readLastMailed(dir) !== "2026-09-07") return `the marker read back as ${readLastMailed(dir)}`;
+  const written = JSON.parse(readFileSync(join(dir, "last-mailed.json"), "utf8"));
+  if (written.to !== 3) return `the marker lost the recipient count: ${JSON.stringify(written)}`;
+
+  // And now every later poll today declines.
+  const next = shouldSendNow({ now: new Date("2026-09-07T05:05:00Z"), sendAt: "07:30",
+                               timeZone: IST, lastMailedDate: readLastMailed(dir) });
+  if (next.send) return "the poll half an hour later sent a second copy";
+
+  // A failed send never gets here, so the marker still says yesterday and the next poll
+  // retries -- which is what the live smoke test showed: TLS refused, no marker written.
+  return null;
+});
+
 console.log("");
 if (failures) {
-  console.log(`${failures} of 12 cell stocks mail checks failed:\n`);
+  console.log(`${failures} of 20 cell stocks mail checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 12 cell stocks mail checks passed.");
+console.log("All 20 cell stocks mail checks passed.");

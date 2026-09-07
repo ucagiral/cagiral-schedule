@@ -341,6 +341,26 @@ worker handles by sweeping only its own prefix.
   Admin → History & export and is the only path under `exports/` the worker lets the app
   write. No secret, or nobody on the list, skips the mail — it never fails the build and
   never claims to have sent something it did not.
+- **The mail is a poll, not a single daily fire, and the hour is data.** It was
+  `cron: "0 5 * * *"` once, and the first morning it was due GitHub ran nothing at all:
+  the top of the hour is its most contended slot and runs there are delayed or dropped.
+  The cron is `5,35 * * * *` now and `shouldSendNow()` in `tools/cellstocks-mail.mjs`
+  decides which poll is the day's send — so a skipped poll heals itself on the next one,
+  which is the whole reason a fixed daily fire was wrong. **Never put the send time back
+  into the workflow**: it lives in `recipients.json` as `sendAt`/`timeZone` because an
+  admin sets it from the app, and the app can write that one file and must never be able
+  to write a workflow. `last-mailed.json` is the one bit of state, written by the Action
+  only after the server accepted the message — a failed send is deliberately not recorded,
+  so the next poll retries.
+- **Another lab gets a generated template, never a copied folder.**
+  `tools/cellstocks-template.mjs` builds a blank standalone tree out of the live files and
+  tars it; the two documents that only exist in the template (a Turkish setup `README.md`
+  and its own `CLAUDE.md`) live in `tools/cellstocks-template/`. A checked-in second copy
+  of `index.html` would go stale the first time the real one was fixed. Every substitution
+  it makes is asserted and the built tree is grepped for our identifiers, because the one
+  that matters is the GitHub Pages redirect: left in, a new lab's users get bounced onto
+  our Worker and log in against our freezer. It runs the four suites inside the built tree
+  before writing an archive.
 - Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get

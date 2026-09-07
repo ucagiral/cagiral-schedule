@@ -11,7 +11,8 @@
         {
           "id": "t-1",
           "name": "Shelf 1",
-          "children": []
+          "children": [],
+          "icon": "📁"
         }
       ]
     },

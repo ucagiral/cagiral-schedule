@@ -10630,7 +10630,7 @@
     },
     {
       "id": "v-mtrdz1vx-1",
-      "name": "hek atf3 ox rep3",
+      "name": "HEK ATF3 OX rep3",
       "lineId": "l-hek-atf3-ox-rep3",
       "passage": "p28",
       "passageNumber": 28,
@@ -10647,8 +10647,7 @@
       },
       "status": "stored",
       "addedAt": "2026-09-07T15:19:15.021Z",
-      "addedBy": "unknown device",
-      "kind": "Cell"
+      "addedBy": "unknown device"
     },
     {
       "id": "v-mtrdzpx7-0",
@@ -10851,7 +10850,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T21:28:36.418Z"
+    "savedAt": "2026-09-07T21:28:48.719Z"
   },
   "removedVialIds": [
     "v-205",

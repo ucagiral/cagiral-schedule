@@ -257,6 +257,27 @@ worker handles by sweeping only its own prefix.
 - **A row that already mixes two cells is a warning, not an error.** One row does — UMUT CAA CELLS
   A, one Du145 among eight HEK293T. It is listed for review; it does not block a save, and nothing
   is moved to fix it without being asked.
+- **Work a device has not committed is merged with the server's copy, never replaced by
+  it.** Umut froze two vials, the save was refused, and the next time the app opened they
+  were gone — he had to enter them again. Three lines apart: `markDirty()` cached the
+  state, `dirty` lived only in memory, and `load()` then overwrote `state` with the
+  committed copy *and* wrote that over the cache. So `dirty` travels inside the cached
+  copy now, and `load()` merges by vial id when it is set. The union is safe because ids
+  are minted per device and never reused: the same id is the same tube, a different id is
+  a different tube, so it can neither invent one nor drop one. What it must never do is
+  settle a real disagreement — two devices claiming one slot both survive the merge and
+  `validate()` refuses the save, because picking a winner silently is how a tube ends up
+  somewhere nobody looks. Only the inventory merges; the tree and the rules are the lab's
+  and are re-hydrated from the shared files.
+- **A ref update refused because the branch moved is retried, not reported as a conflict.**
+  `commitFilesAtomic` gave up on GitHub's "Update is not a fast forward", and the app told
+  somebody standing at a freezer that *someone else saved first* — for a save nobody else
+  was involved in. `main` moves on its own here (the daily export commits to it, phones
+  commit to it, merged PRs land on it), so a second between the read and the write is
+  enough. It re-reads the tip and rebuilds, up to `COMMIT_ATTEMPTS`; `base_tree` comes
+  from the new tip, so everything committed in between is carried forward. A refusal that
+  is *not* a moved branch (a 403, say) is never retried — it would only make the person
+  wait longer for the same answer.
 - **An empty slot in the sheet is not a vial.** Umut's workbook lists every position in a
   box and leaves the name blank where nothing is frozen there, so a line carrying a slot
   label and nothing else describes a space, not a tube whose name failed to read. Imported

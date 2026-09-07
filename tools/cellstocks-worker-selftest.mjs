@@ -9,7 +9,7 @@
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
 import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX,
-         dispatchDailyMail } from "../cellstocks-worker/worker.js";
+         dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -1112,6 +1112,91 @@ await check("a KV write that fails does not turn a good dispatch into a failed o
   const env = makeEnv({ CST_KV: kv, fetch: async () => new Response("{}", { status: 200 }) });
   const out = await dispatchDailyMail(env, new Date());
   if (!out.ok) return "a KV hiccup was reported as a failed dispatch -- the mail did go out";
+  return null;
+});
+
+// ------------------------------------------------ a branch that moved is not a conflict
+//
+// Umut froze two vials and the app told him someone else had saved first. Nobody had.
+// main moves on its own here -- the daily export commits to it, phones commit to it,
+// merged PRs land on it -- and the ref update was refused simply because the read and
+// the write were a second apart. He lost both vials and had to enter them again.
+//
+// The files being written belong to one account and base_tree is taken from whatever the
+// tip is now, so a retry carries everyone else's work forward untouched.
+
+function refMovingFetch(failTimes) {
+  // Answers the six calls commitFilesAtomic makes, and refuses the ref update the first
+  // `failTimes` times the way GitHub does when the branch has moved on.
+  let refused = 0;
+  const calls = [];
+  return {
+    calls,
+    get refused() { return refused; },
+    fetch: async (url, opts) => {
+      calls.push(`${opts.method} ${url.replace(/^.*\/repos\/[^/]+\/[^/]+/, "")}`);
+      if (opts.method === "PATCH" && /\/git\/refs\/heads\//.test(url)) {
+        if (refused < failTimes) {
+          refused++;
+          return new Response(JSON.stringify({ message: "Update is not a fast forward" }), { status: 422 });
+        }
+        return new Response("{}", { status: 200 });
+      }
+      if (/\/git\/ref\/heads\//.test(url)) return new Response(JSON.stringify({ object: { sha: "tip" + refused } }), { status: 200 });
+      if (/\/git\/commits\//.test(url) && opts.method === "GET") return new Response(JSON.stringify({ tree: { sha: "t" + refused } }), { status: 200 });
+      if (/\/git\/blobs$/.test(url)) return new Response(JSON.stringify({ sha: "blob" }), { status: 200 });
+      if (/\/git\/trees$/.test(url)) return new Response(JSON.stringify({ sha: "newtree" }), { status: 200 });
+      if (/\/git\/commits$/.test(url)) return new Response(JSON.stringify({ sha: "newcommit" }), { status: 200 });
+      return new Response("{}", { status: 200 });
+    }
+  };
+}
+
+await check("a save whose branch moved under it is retried, not reported as someone else's", async () => {
+  const stub = refMovingFetch(1);
+  const env = makeEnv({ fetch: stub.fetch });
+  const sha = await commitFilesAtomic(env, [{ path: "cellstocks/data/umut.json", content: "{}" }], "Add 2 vials");
+  if (sha !== "newcommit") return `expected the commit to go through, got ${json(sha)}`;
+  if (stub.refused !== 1) return "the test never actually refused the first attempt";
+  // The whole point: the second attempt must read the tip AGAIN. Rebuilding on the
+  // stale one would recreate exactly the commit that was just refused.
+  const reads = stub.calls.filter((c) => c.startsWith("GET /git/ref/heads/"));
+  if (reads.length !== 2) return `expected the tip to be re-read on the retry, saw ${reads.length} reads`;
+  return null;
+});
+
+await check("a branch that keeps moving eventually gives up rather than spinning", async () => {
+  const stub = refMovingFetch(99);
+  const env = makeEnv({ fetch: stub.fetch });
+  let threw = null;
+  try { await commitFilesAtomic(env, [{ path: "cellstocks/data/umut.json", content: "{}" }], "Add 2 vials"); }
+  catch (err) { threw = err; }
+  if (!threw) return "a ref that never accepts the update must not report success";
+  if (stub.refused !== COMMIT_ATTEMPTS) return `tried ${stub.refused} times, expected ${COMMIT_ATTEMPTS}`;
+  if (!/fast forward/i.test(threw.message)) return `lost the real reason: ${threw.message}`;
+  return null;
+});
+
+await check("a refusal that is NOT a moved branch is not retried", async () => {
+  // A token without permission, or a path the API rejects, must surface immediately.
+  // Retrying those three more times just makes somebody wait longer for the same answer.
+  let patches = 0;
+  const env = makeEnv({
+    fetch: async (url, opts) => {
+      if (opts.method === "PATCH") {
+        patches++;
+        return new Response(JSON.stringify({ message: "Resource not accessible by personal access token" }), { status: 403 });
+      }
+      if (/\/git\/ref\/heads\//.test(url)) return new Response(JSON.stringify({ object: { sha: "tip" } }), { status: 200 });
+      if (/\/git\/commits\//.test(url) && opts.method === "GET") return new Response(JSON.stringify({ tree: { sha: "t" } }), { status: 200 });
+      return new Response(JSON.stringify({ sha: "x" }), { status: 200 });
+    }
+  });
+  let threw = null;
+  try { await commitFilesAtomic(env, [{ path: "cellstocks/data/umut.json", content: "{}" }], "Add 2 vials"); }
+  catch (err) { threw = err; }
+  if (!threw) return "a 403 was reported as a successful save";
+  if (patches !== 1) return `a 403 was retried ${patches} times`;
   return null;
 });
 

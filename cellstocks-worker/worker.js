@@ -175,20 +175,57 @@ async function githubApi(env, method, path, body) {
 // it is supposed to describe disagree, exactly what CLAUDE.md says must never happen.
 // `files` is [{ path, content, base64 }] -- base64 content for the binary workbook, plain
 // text otherwise.
+// A ref update that is refused because the branch moved under us is not a conflict in
+// any meaningful sense: the files being written belong to one account, and `base_tree`
+// is taken from whatever the tip is NOW, so everything anybody else committed in the
+// meantime is carried forward untouched. The only thing that went wrong is that the read
+// and the write were a second apart.
+//
+// It used to give up there, and the app told somebody in front of a freezer that
+// "someone else saved first" -- for a save that had nothing to do with anyone else. Two
+// vials were entered and lost that way. Main moves on its own all day here: the daily
+// export commits to it, the app commits from phones, and every merged PR lands on it.
+//
+// So it rebuilds on the new tip and tries again. The GitHub Action that writes the
+// layout export has done exactly this (pull --rebase, three attempts) since it was
+// written; this is the same answer in the one place that talks to a person waiting.
+const COMMIT_ATTEMPTS = 4;
+
+function isNotFastForward(err) {
+  if (!err) return false;
+  // 422 with GitHub's own wording, and 409 for good measure -- the REST API has used
+  // both for a ref that moved, and the retry is harmless either way.
+  if (err.status === 409) return true;
+  return err.status === 422 && /fast\s*forward/i.test(err.message || "");
+}
+
 async function commitFilesAtomic(env, files, message) {
   const branch = env.GITHUB_BRANCH || "main";
-  const ref = await githubApi(env, "GET", `/git/ref/heads/${branch}`);
-  const baseSha = ref.object.sha;
-  const baseCommit = await githubApi(env, "GET", `/git/commits/${baseSha}`);
-  const tree = [];
-  for (const f of files) {
-    const blob = await githubApi(env, "POST", "/git/blobs", f.base64 ? { content: f.content, encoding: "base64" } : { content: f.content, encoding: "utf-8" });
-    tree.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
+  let lastError = null;
+  for (let attempt = 0; attempt < COMMIT_ATTEMPTS; attempt++) {
+    // Re-read the tip every attempt. Reusing the first one is what made the retry
+    // pointless in the first draft of this: it would rebuild the same doomed commit.
+    const ref = await githubApi(env, "GET", `/git/ref/heads/${branch}`);
+    const baseSha = ref.object.sha;
+    const baseCommit = await githubApi(env, "GET", `/git/commits/${baseSha}`);
+    const tree = [];
+    for (const f of files) {
+      const blob = await githubApi(env, "POST", "/git/blobs", f.base64 ? { content: f.content, encoding: "base64" } : { content: f.content, encoding: "utf-8" });
+      tree.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
+    }
+    const newTree = await githubApi(env, "POST", "/git/trees", { base_tree: baseCommit.tree.sha, tree });
+    const commit = await githubApi(env, "POST", "/git/commits", { message, tree: newTree.sha, parents: [baseSha] });
+    try {
+      await githubApi(env, "PATCH", `/git/refs/heads/${branch}`, { sha: commit.sha });
+      return commit.sha;
+    } catch (err) {
+      if (!isNotFastForward(err)) throw err;
+      lastError = err;
+      // A blob and a tree that never got referenced are unreachable objects; GitHub
+      // collects them. Nothing is left behind by an attempt that lost the race.
+    }
   }
-  const newTree = await githubApi(env, "POST", "/git/trees", { base_tree: baseCommit.tree.sha, tree });
-  const commit = await githubApi(env, "POST", "/git/commits", { message, tree: newTree.sha, parents: [baseSha] });
-  await githubApi(env, "PATCH", `/git/refs/heads/${branch}`, { sha: commit.sha });
-  return commit.sha;
+  throw lastError;
 }
 
 // Renames a user's data/workbook pair in one commit -- admin-only, part of renaming an
@@ -957,5 +994,7 @@ export {
   TYPES_CONFIG_KEY,
   DEFAULT_TYPE_NAMES,
   dispatchDailyMail,
-  CRON_STATUS_KEY
+  CRON_STATUS_KEY,
+  commitFilesAtomic,
+  COMMIT_ATTEMPTS
 };

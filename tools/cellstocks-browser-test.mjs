@@ -1704,6 +1704,120 @@ try {
   }
 }
 
+// ============================================================================
+// Work a device never managed to save is not thrown away when the app reopens
+// ============================================================================
+//
+// The real incident, reproduced. Umut froze two vials, the save was refused, and the
+// next time the app opened they were gone -- he had to enter them again. The cause was
+// three lines apart: markDirty() cached the state, `dirty` lived only in memory, and
+// load() then replaced state with the committed copy and wrote that over the cache too.
+// Nothing was shown. In a freezer people are now using, this is the failure that matters.
+{
+  const server9 = await serve(8806);
+  const browser9 = await chromium.launch();
+  try {
+    const committed = {
+      lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-committed", name: "HEK293T", passage: "p5",
+                location: { boxId: "b-1", position: "A1", path: [] }, status: "stored" }]
+    };
+    const labStorage = {
+      labName: "CAA Lab Stocks", labIcon: "", unplaced: [],
+      children: [{ id: "u-1", name: "Freezer 1", children: [
+        { id: "r-1", name: "Rack 1", children: [
+          { id: "b-1", name: "Box 1", isBox: true, owner: "umut", rows: 9, cols: 9, scheme: "grid" }] }] }]
+    };
+    // What the device was holding and had never committed: the committed vial plus the
+    // two that were typed in front of the freezer.
+    const unsaved = JSON.parse(JSON.stringify(committed));
+    unsaved.vials.push({ id: "v-frozen-1", name: "Du145 TOX4 KO", passage: "p3",
+                         location: { boxId: "b-1", position: "B1", path: [] }, status: "stored" });
+    unsaved.vials.push({ id: "v-frozen-2", name: "Du145 TOX4 KO", passage: "p3",
+                         location: { boxId: "b-1", position: "B2", path: [] }, status: "stored" });
+
+    const context = await browser9.newContext();
+    await context.addInitScript(([cache, cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "Umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+      localStorage.setItem("cst_cache:umut", cache);
+    }, [JSON.stringify({ at: Date.now(), state: unsaved, dirty: true }),
+        JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(committed) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json",
+                      body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    let committedFiles = null;
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        committedFiles = JSON.parse(req.postData());
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "abc" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8806/cellstocks/");
+
+    // Probed through what the app actually persists, not a hook added for the test: the
+    // cache is rewritten by load(), so if the two vials are still in it afterwards they
+    // survived the read of the committed copy.
+    const idsInCache = async () => page.evaluate(() => {
+      try {
+        const c = JSON.parse(localStorage.getItem("cst_cache:umut") || "null");
+        return c && c.state && c.state.vials ? c.state.vials.map((v) => v.id) : null;
+      } catch (e) { return null; }
+    });
+    await page.waitForFunction(() => {
+      try {
+        const c = JSON.parse(localStorage.getItem("cst_cache:umut") || "null");
+        // Wait until load() has been through it -- the committed vial arriving is the
+        // signal that the read happened, which is the moment the old code lost the rest.
+        return c && c.state && c.state.vials.some((v) => v.id === "v-committed");
+      } catch (e) { return false; }
+    }, { timeout: 10000 }).catch(() => {});
+
+    const ids = await idsInCache();
+    check("the two vials this device never saved are still here after reopening",
+      !!ids && ids.includes("v-frozen-1") && ids.includes("v-frozen-2"), JSON.stringify(ids));
+    check("and the committed one is not lost on the way",
+      !!ids && ids.includes("v-committed"), JSON.stringify(ids));
+
+    // And it retries the save by itself rather than waiting to be noticed.
+    await page.waitForFunction(() => true);
+    for (let i = 0; i < 40 && !committedFiles; i++) await page.waitForTimeout(100);
+    check("reopening retries the save that had failed",
+      !!committedFiles, committedFiles ? "committed" : "no /commit call was made");
+    if (committedFiles) {
+      const written = JSON.parse(committedFiles.files[0].content);
+      const writtenIds = written.vials.map((v) => v.id);
+      check("what it saves contains both vials, so the committed file is right afterwards",
+        writtenIds.includes("v-frozen-1") && writtenIds.includes("v-frozen-2"), JSON.stringify(writtenIds));
+    }
+  } catch (err) {
+    check("unsaved work survives the app being reopened", false, String(err));
+  } finally {
+    await browser9.close();
+    server9.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

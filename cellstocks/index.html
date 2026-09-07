@@ -333,6 +333,12 @@
   .dlg-body{padding:14px; overflow:auto; max-height:60vh}
   .dlg-foot{padding:12px 14px; border-top:1px solid var(--border); display:flex; gap:8px; flex-wrap:wrap}
   .dlg-foot button{flex:1; min-width:100px}
+  .refresh { background:none; border:0; font-size:1.1rem; line-height:1; padding:.2rem .4rem;
+    color:inherit; opacity:.65; cursor:pointer; }
+  .refresh:hover { opacity:1; }
+  .refresh[disabled] { opacity:.25; cursor:default; }
+  .refresh.spin { animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -341,6 +347,10 @@
   <img src="icon-192.png" alt="" class="brand-mark">
   <h1>CAApp</h1>
   <span id="status">Loading…</span>
+  <!-- Asked for by name: "en azindan bir yenile/update tusu eklesek". Safe to press at
+       any moment now -- work this device has not committed is merged with what comes
+       back, never replaced by it. -->
+  <button id="refresh" class="refresh" title="Take another look at the freezer" aria-label="Refresh">↻</button>
 </header>
 <div class="banner" id="banner"></div>
 
@@ -767,13 +777,19 @@
     var name = effectiveIdentity();
     return LS.cachePrefix + (name ? name.toLowerCase() : "legacy");
   }
+  // `dirty` travels with the cached copy. It used to live only in memory, and that is how
+  // two vials were lost: they were entered, the save was refused, the app was closed, and
+  // on the next open cacheLoad() restored them into `state` -- then load() replaced the
+  // whole thing with the committed copy and cacheSave() wrote that over the cache too.
+  // Nothing said anything. A copy that has never been committed has to be recognisable as
+  // one after the app has been closed, or it is not really kept on the device at all.
   function cacheSave(){
-    try { localStorage.setItem(cacheKey(), JSON.stringify({ at: Date.now(), state: state })); } catch(e){}
+    try { localStorage.setItem(cacheKey(), JSON.stringify({ at: Date.now(), state: state, dirty: dirty })); } catch(e){}
   }
   function cacheLoad(){
     try {
       var c = JSON.parse(localStorage.getItem(cacheKey()) || "null");
-      if (c && c.state){ state = E.mergeDefaults(c.state); return c.at; }
+      if (c && c.state){ state = E.mergeDefaults(c.state); dirty = !!c.dirty; return c.at; }
     } catch(e){}
     return null;
   }
@@ -814,6 +830,30 @@
       // screen keeps reading them exactly where it always did. slim() takes them back
       // off again before this account's file is saved.
       await ensureLabFiles();
+      // Work this device never managed to commit is not overwritten by what is on the
+      // server -- it is merged with it, by vial id, keeping both sides. Ids are minted
+      // per device and never reused, so a union cannot invent or lose a tube; a slot two
+      // devices both claimed comes back as a validate() error rather than one silently
+      // winning. The freezer tree and the rules always come from the shared files: they
+      // are the lab's, not this device's, and they were never the unsaved part.
+      if (dirty){
+        var merged = E.mergeInventories(own, state);
+        state = hydrate(merged.state, effectiveIdentity());
+        cacheSave();
+        setStatus("Not saved yet", "error");
+        if (merged.kept){
+          showBanner(merged.kept + " change(s) on this device had not been saved. They are still here" +
+                     (merged.added ? ", alongside " + merged.added + " from elsewhere" : "") +
+                     " — saving again now.",
+                     [{ label:"Save now", onClick: function(){ save("Save work this device had kept"); } }]);
+        }
+        // Retried on its own as well as offered, because the reason it failed the first
+        // time (a branch that had moved, a phone that woke with no signal) is usually
+        // gone by the time the app is opened again.
+        save("Save work this device had kept");
+        renderAll();
+        return;
+      }
       state = hydrate(own, effectiveIdentity());
       cacheSave();
       setStatus(canWrite() ? "Ready" : "Read-only", "");
@@ -5494,6 +5534,23 @@
   });
 
   $("appFooter").textContent = "© " + new Date().getFullYear() + " CAApp · Umut Cagiral · Built with Claude";
+
+  // Pressing it is never destructive: load() merges anything this device has not managed
+  // to commit rather than replacing it, so the worst case is that nothing has changed.
+  $("refresh").onclick = async function(){
+    if (!canWrite()) return;
+    var b = $("refresh");
+    b.disabled = true; b.classList.add("spin");
+    // Somebody pressing this is asking for a fresh look, so the shared files are re-read
+    // too -- otherwise a rack an admin added a minute ago would still be missing and the
+    // button would look broken. This is the one place re-reading is right: the rule
+    // against it is about re-reading straight AFTER a commit, when the CDN still serves
+    // the copy from before it.
+    labStorageLoaded = false; labRulesLoaded = false;
+    labCache.members = null; labCache.data = {}; labCache.failed = [];
+    try { await load(); renderAll(); }
+    finally { b.disabled = false; b.classList.remove("spin"); }
+  };
 
   cacheLoad();
   afterAuthChange();

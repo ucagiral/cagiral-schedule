@@ -8,7 +8,8 @@
 // No network, no Cloudflare account, no deploy. See that file's own header for why it is
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
-import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX } from "../cellstocks-worker/worker.js";
+import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX,
+         dispatchDailyMail } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -1016,6 +1017,52 @@ await check("a member cannot rename or delete an attribute, and an unknown one 4
   const blank = await handleRequest(
     req("POST", "/admin/types/Protein/attributes/rename", { from: "conc", to: "   " }, adminToken), env);
   if (blank.status !== 400) return `expected 400 for a blank new name, got ${blank.status}`;
+  return null;
+});
+
+// ---------------------------------------------------------- the daily mail's trigger
+//
+// GitHub's scheduler never once fired the export workflow, so a Cloudflare cron on this
+// Worker dispatches it instead. What matters is WHAT it dispatches: force=false, meaning
+// "check whether it is time" rather than "send now". Get that wrong and the lab is mailed
+// at whatever hour the cron happens to run, ignoring the time the admin set in the app.
+
+await check("the cron dispatches the export workflow, asking it to check the time first", async () => {
+  const calls = [];
+  const env = makeEnv({
+    fetch: async (url, opts) => {
+      calls.push({ url, method: opts.method, body: JSON.parse(opts.body || "{}"),
+                   auth: (opts.headers || {}).Authorization });
+      return new Response("{}", { status: 200 });
+    }
+  });
+  const out = await dispatchDailyMail(env);
+  if (!out.ok) return `the dispatch reported failure: ${JSON.stringify(out)}`;
+  if (calls.length !== 1) return `expected one API call, got ${calls.length}`;
+  const c = calls[0];
+  if (c.method !== "POST") return `used ${c.method}`;
+  if (!/\/actions\/workflows\/cellstocks-export\.yml\/dispatches$/.test(c.url)) {
+    return `dispatched the wrong thing: ${c.url}`;
+  }
+  if (!/ucagiral\/cagiral-schedule/.test(c.url)) return `wrong repository: ${c.url}`;
+  if (c.body.ref !== "main") return `dispatched onto ${c.body.ref}`;
+  // The whole point. "true" here would mail the lab at the cron's hour rather than the
+  // admin's, and would send a second copy on every later poll of the same day.
+  if (c.body.inputs.force !== "false") return `force was ${JSON.stringify(c.body.inputs.force)}, not "false"`;
+  if (!/test-token/.test(c.auth || "")) return "the Worker's GitHub token was not used";
+  return null;
+});
+
+await check("a refused dispatch is reported, not swallowed", async () => {
+  // Dispatching a workflow needs Actions write permission, which a token minted only for
+  // committing files may not have. That must not look like a successful morning.
+  const env = makeEnv({
+    fetch: async () => new Response(JSON.stringify({ message: "Resource not accessible by integration" }),
+                                    { status: 403 })
+  });
+  const out = await dispatchDailyMail(env);
+  if (out.ok) return "a 403 was reported as a successful dispatch";
+  if (!/not accessible/.test(out.error || "")) return `unhelpful error: ${JSON.stringify(out)}`;
   return null;
 });
 

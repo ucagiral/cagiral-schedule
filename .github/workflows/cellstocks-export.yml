@@ -12,6 +12,14 @@ name: Cell stocks daily layout export
 # So the cron is a POLL now, every half hour, and tools/cellstocks-mail.mjs decides whether
 # this particular poll is the day's send (shouldSendNow). Three things follow:
 #
+# GitHub's own scheduler then missed three consecutive polls of THAT cron too (08:35,
+# 09:05, 09:35 on 7 Sep), and this repository has never had a single schedule-event run
+# with either cron. So the schedule above is no longer trusted on its own: a Claude
+# Routine dispatches this workflow with force=false, which runs the same --check and lets
+# the app's own sendAt decide. Whichever arrives first sends; last-mailed.json stops the
+# other from sending a second copy. The cron stays because if it ever does start firing
+# it is the cheaper of the two.
+#
 #   * a delayed or dropped poll is covered by the next one -- a skipped morning heals
 #     itself instead of being silently lost;
 #   * the send time is data, in cellstocks/exports/recipients.json, which an admin edits
@@ -30,6 +38,13 @@ on:
         description: "Build and commit, but do not send the mail"
         type: boolean
         default: false
+      # A person pressing the button means "send now", so this defaults to true.
+      # An automated caller standing in for the cron passes false, so the app's own
+      # sendAt still decides and today's mail cannot go out twice.
+      force:
+        description: "Send now, ignoring the configured time and today's marker"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -59,7 +74,7 @@ jobs:
       - name: Is this poll today's send?
         id: due
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" != "false" ]; then
             echo "run by hand -- building and sending now"
             echo "send=true" >> "$GITHUB_OUTPUT"
           else
@@ -113,7 +128,10 @@ jobs:
         env:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-        run: node tools/cellstocks-mail.mjs
+        # --force only when a human pressed the button. A dispatch with force=false has
+        # already been through --check above and must not re-send if it declined.
+        run: |
+          node tools/cellstocks-mail.mjs ${{ github.event_name == 'workflow_dispatch' && inputs.force != false && '--force' || '' }}
 
       # Which day's mail has gone is the one thing this job has to remember, so the next
       # poll does not send a second copy. cellstocks-mail.mjs writes it only after the

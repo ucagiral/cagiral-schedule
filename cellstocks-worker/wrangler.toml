@@ -40,3 +40,15 @@ GITHUB_BRANCH = "main"
 # Kept for the GitHub Pages address, which still works and is still where anyone with
 # the old link lands. The Worker-hosted copy needs no entry here: it is same-origin.
 ALLOWED_ORIGIN = "https://ucagiral.github.io"
+
+# The daily freezer layout mail's actual trigger.
+#
+# GitHub's own scheduler has never fired the export workflow -- see dispatchDailyMail() in
+# worker.js. Cloudflare's cron is independent of it, and this Worker already holds the
+# GitHub token, so the trigger lives here instead.
+#
+# Twice an hour, like the workflow's own (untrusted) cron: the Worker only asks "is it
+# time?" and the workflow decides, reading the send time an admin set in the app. A poll
+# that is not the day's send costs one API call and does nothing.
+[triggers]
+crons = ["7,37 * * * *"]

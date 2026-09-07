@@ -861,7 +861,49 @@ async function handleRequest(request, env) {
 }
 
 // Cloudflare's module-worker entry point. Node (the selftest) calls handleRequest directly.
-export default { fetch: handleRequest };
+// ============================================================ the daily mail's trigger
+//
+// GitHub's own scheduler has never once fired this repository's export workflow -- not
+// with "0 5 * * *", not with the "5,35 * * * *" poll that replaced it, which missed three
+// consecutive slots on the morning of 7 Sep. I could not establish why, so the schedule
+// stopped being trusted and this took over.
+//
+// Cloudflare's cron is a different scheduler entirely, and this Worker is the natural
+// place for it: it already holds GITHUB_TOKEN and already speaks to the GitHub API, so no
+// new credential goes anywhere.
+//
+// It dispatches with force=false, which means "check whether it is time" rather than
+// "send now": the workflow then runs tools/cellstocks-mail.mjs --check, which reads the
+// send time an admin set in the app and the marker saying whether today's has gone. So
+// this cannot mail at the wrong hour and cannot send a second copy -- and if GitHub's own
+// cron ever does start firing, whichever arrives first sends and the other declines.
+async function dispatchDailyMail(env) {
+  try {
+    await githubApi(env, "POST", "/actions/workflows/cellstocks-export.yml/dispatches", {
+      ref: env.GITHUB_BRANCH || "main",
+      inputs: { force: "false" }
+    });
+    console.log("dispatched the daily layout export (force=false)");
+    return { ok: true };
+  } catch (err) {
+    // Worth saying loudly: dispatching a workflow needs Actions write permission, which
+    // a token minted only for committing files may not carry. That failure looks like a
+    // 403 here and like "no mail" to the lab, so name it rather than letting it be silent.
+    console.error("could not dispatch the daily layout export: " +
+      (err && err.message ? err.message : String(err)) +
+      (err && err.status === 403
+        ? " -- GITHUB_TOKEN probably lacks Actions write permission; re-mint it with that scope."
+        : ""));
+    return { ok: false, error: err && err.message ? err.message : String(err) };
+  }
+}
+
+export default {
+  fetch: handleRequest,
+  scheduled(event, env, ctx) {
+    ctx.waitUntil(dispatchDailyMail(env));
+  }
+};
 export {
   handleRequest,
   hashPassword,
@@ -879,5 +921,6 @@ export {
   boxesOwnedBy,
   base64ToUtf8,
   TYPES_CONFIG_KEY,
-  DEFAULT_TYPE_NAMES
+  DEFAULT_TYPE_NAMES,
+  dispatchDailyMail
 };

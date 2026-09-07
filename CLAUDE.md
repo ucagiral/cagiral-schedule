@@ -341,6 +341,24 @@ worker handles by sweeping only its own prefix.
   Admin → History & export and is the only path under `exports/` the worker lets the app
   write. No secret, or nobody on the list, skips the mail — it never fails the build and
   never claims to have sent something it did not.
+- **The recipients file is cached after a commit, like the tree is.** Umut set the send
+  time, removed an address, removed it again — and the third save wrote his old time back.
+  The export card re-read `recipients.json` from raw.githubusercontent after committing,
+  got the pre-change copy, and merged his next edit onto that. It is the freezers coming
+  back, in a new place, and the merge made it worse by rebuilding fresh edits on stale
+  state. `mailSettings` holds what was committed and the card only reads the file when it
+  has never seen it. **After a commit, never re-read — anywhere.**
+- **The daily mail's trigger is the Worker's Cloudflare cron, not GitHub's.** GitHub's
+  scheduler has never once fired this repository's export workflow — not `0 5 * * *`, not
+  the `5,35 * * * *` poll that replaced it, which missed three slots in a row on the
+  morning of 7 Sep. I could not establish why. So `cellstocks-worker` has a `scheduled`
+  handler that dispatches the workflow: Cloudflare's cron is a different scheduler, and
+  the Worker already holds `GITHUB_TOKEN`, so no new credential goes anywhere. It
+  dispatches with **`force=false`**, which means *check whether it is time* rather than
+  *send now* — the workflow then runs `--check` and the app's own `sendAt` still decides.
+  A Claude Routine was tried first and does not work: the sessions it fires have no GitHub
+  tools, and its test firing dispatched nothing. **Do not put the send time in the cron**
+  — the cron only asks, the workflow decides.
 - **The mail is a poll, not a single daily fire, and the hour is data.** It was
   `cron: "0 5 * * *"` once, and the first morning it was due GitHub ran nothing at all:
   the top of the hour is its most contended slot and runs there are delayed or dropped.

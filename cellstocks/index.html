@@ -904,6 +904,13 @@
   // them back. Five rounds of it are in this file's git history.
   var labStorageLoaded = false;
   var labRulesLoaded = false;
+  // Who the daily mail goes to and when. Cached for the same reason the tree is: after a
+  // commit, what we just wrote is the freshest copy there is, and re-reading it from
+  // raw.githubusercontent gets the PREVIOUS version for a while afterwards. Umut hit
+  // exactly that -- he removed an address and set the time, and the next save merged his
+  // change onto the stale copy and wrote his old time back. Same bug as the freezers that
+  // kept coming back; same fix.
+  var mailSettings = null;
   var ownFileExists = false;
 
   async function fetchLabStorage(){
@@ -4824,8 +4831,8 @@
     c.appendChild(list);
     var msg = el("div");
     var current = [];
-    // The whole settings object as it was read, so saving one field never drops another.
-    var settings = { emails: [], sendAt: "07:30", timeZone: "Europe/Istanbul" };
+    // The whole settings object, so saving one field never drops another.
+    var settings = mailSettings || { emails: [], sendAt: "07:30", timeZone: "Europe/Istanbul" };
 
     function draw(){
       clear(list);
@@ -4855,6 +4862,10 @@
           [{ path: RECIPIENTS_PATH, content: JSON.stringify(next, null, 2) + "\n" }],
           what || "Set up the daily layout export");
         settings = next;
+        // What was just committed is now the freshest copy there is. Recording it here is
+        // what stops the next render -- or the next save's merge -- from resurrecting the
+        // old values out of a stale CDN read.
+        mailSettings = next;
         current = next.emails;
         draw();
         return true;
@@ -4926,18 +4937,25 @@
     c.appendChild(timeNote);
     c.appendChild(msg);
 
-    try {
-      var resp = await fetch(rawURL(RECIPIENTS_PATH), { cache:"no-store" });
-      if (resp.ok){
-        var body = JSON.parse(await resp.text());
-        settings = {
-          emails: (body.emails || []).filter(function(a){ return typeof a === "string" && a; }),
-          sendAt: /^\d{1,2}:\d{2}$/.test(body.sendAt || "") ? body.sendAt : "07:30",
-          timeZone: body.timeZone || "Europe/Istanbul"
-        };
-        current = settings.emails;
-      }
-    } catch(err){ /* no list yet is not an error -- it is the starting state */ }
+    // Only read the file when this session has never seen it. Once we have committed it,
+    // re-reading can only lose the change (see mailSettings above).
+    if (!mailSettings){
+      try {
+        var resp = await fetch(rawURL(RECIPIENTS_PATH), { cache:"no-store" });
+        if (resp.ok){
+          var body = JSON.parse(await resp.text());
+          settings = {
+            emails: (body.emails || []).filter(function(a){ return typeof a === "string" && a; }),
+            sendAt: /^\d{1,2}:\d{2}$/.test(body.sendAt || "") ? body.sendAt : "07:30",
+            timeZone: body.timeZone || "Europe/Istanbul"
+          };
+          mailSettings = settings;
+          current = settings.emails;
+        }
+      } catch(err){ /* no list yet is not an error -- it is the starting state */ }
+    } else {
+      current = settings.emails;
+    }
     timeInput.value = settings.sendAt;
     // Say what actually happens rather than implying a guarantee GitHub does not give.
     timeNote.textContent = "Times are " + settings.timeZone + ". The freezer is checked every half " +

@@ -1815,6 +1815,37 @@ check("hydration is a round trip: the same lab, the same member file, byte for b
   return null;
 });
 
+check("a defaultUnitId naming a unit that no longer exists is not left dangling", () => {
+  // Reproduces the "no boxes to put anything in yet" false alarm: an account's
+  // defaultUnitId can survive a unit being deleted from the shared tree (mergeDefaults's
+  // own fallback only fires when the field is empty, never when it is merely stale), and
+  // a stale id makes the Where dropdown and the placement search disagree about which
+  // unit is actually chosen.
+  const lab = E.mergeStorageDefaults({ children: [
+    { id: "u-real", name: "Freezer 1", children: [] },
+    { id: "u-other", name: "Liquid Nitrogen", children: [] }
+  ] });
+  const own = E.mergeDefaults({ vials: [], settings: { defaultUnitId: "u-deleted" } });
+  const hydrated = E.hydrateStorage(own, lab, "umut");
+  if (hydrated.settings.defaultUnitId !== "u-real") {
+    return `expected the dangling id replaced by the first real unit, got ${json(hydrated.settings.defaultUnitId)}`;
+  }
+  return null;
+});
+
+check("a defaultUnitId that still names a real unit is left exactly as it is", () => {
+  const lab = E.mergeStorageDefaults({ children: [
+    { id: "u-first", name: "Freezer 1", children: [] },
+    { id: "u-second", name: "Liquid Nitrogen", children: [] }
+  ] });
+  const own = E.mergeDefaults({ vials: [], settings: { defaultUnitId: "u-second" } });
+  const hydrated = E.hydrateStorage(own, lab, "umut");
+  if (hydrated.settings.defaultUnitId !== "u-second") {
+    return `a valid defaultUnitId must not be overridden just for not being first, got ${json(hydrated.settings.defaultUnitId)}`;
+  }
+  return null;
+});
+
 check("placement only ever offers a member their own boxes", () => {
   const lab = { units: [{ id: "u-1", name: "-80", childLabel: "Rack", racks: [{ id: "r-1", name: "Rack 1", boxes: [
     Object.assign(box("b-mine", "Mine", 9, 9), { owner: "umut" }),

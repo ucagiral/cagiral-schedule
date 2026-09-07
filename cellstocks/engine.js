@@ -2428,6 +2428,20 @@
     next.storage = { labName: lab.labName, labIcon: lab.labIcon,
                      children: clone(lab.children), unplaced: clone(lab.unplaced) };
     if (owner) next._owner = owner;
+    // A unit can be deleted (admin, from Structure) while an account's own settings still
+    // name it as the default -- mergeDefaults already falls back to the first unit when
+    // defaultUnitId is empty, but never checked whether a *non-empty* one still exists.
+    // A dangling id is exactly as useless as no id: renderFreezeUnits() and the Add
+    // screen's placement search both read this same field, and when it names nothing,
+    // the browser's own <select> falls back to displaying the first option while the
+    // placement search keeps using the dangling id underneath -- "no boxes to put
+    // anything in" for a freezer that plainly has some, with the dropdown visibly (but
+    // wrongly) showing that freezer as chosen. Only fixable today by picking a different
+    // option and back, which resets the field to the dropdown's real value.
+    if (next.settings) {
+      var stillExists = (next.storage.children || []).some(function (u) { return u.id === next.settings.defaultUnitId; });
+      if (!stillExists) next.settings.defaultUnitId = next.storage.children[0] ? next.storage.children[0].id : null;
+    }
     return next;
   }
 

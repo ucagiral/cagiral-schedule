@@ -1527,6 +1527,17 @@
         "caspex": "-",
         "guide": "gNT"
       }
+    },
+    {
+      "id": "l-hek-atf3-ko-rep2",
+      "name": "hek atf3 ko rep2",
+      "facets": {
+        "origin": "HEK293T",
+        "koox": "KO",
+        "resistance": "-",
+        "caspex": "-",
+        "guide": "-"
+      }
     }
   ],
   "vials": [
@@ -13964,6 +13975,50 @@
       "addedAt": "2026-09-07T15:17:40.188Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mtrdxsum-0",
+      "name": "hek atf3 ko rep2",
+      "lineId": "l-hek-atf3-ko-rep2",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-07",
+      "frozenOn": "2026-09-07",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "A4"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-07T15:18:16.654Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mtrdxsum-1",
+      "name": "hek atf3 ko rep2",
+      "lineId": "l-hek-atf3-ko-rep2",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-07",
+      "frozenOn": "2026-09-07",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "A5"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-07T15:18:16.654Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [],
@@ -13990,6 +14045,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T15:17:41.125Z"
+    "savedAt": "2026-09-07T15:18:17.585Z"
   }
 }

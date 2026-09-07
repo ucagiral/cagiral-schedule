@@ -1599,12 +1599,7 @@
         "position": "A1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 2",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 2"
     },
     {
       "id": "v-3",
@@ -1631,12 +1626,7 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 3",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 3"
     },
     {
       "id": "v-4",
@@ -1663,12 +1653,7 @@
         "position": "A3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 4",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 4"
     },
     {
       "id": "v-5",
@@ -1694,11 +1679,7 @@
         "position": "A4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 5",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 5"
     },
     {
       "id": "v-6",
@@ -1724,11 +1705,7 @@
         "position": "A5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 6",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 6"
     },
     {
       "id": "v-7",
@@ -1754,11 +1731,7 @@
         "position": "A6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 7",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 7"
     },
     {
       "id": "v-8",
@@ -1784,11 +1757,7 @@
         "position": "A7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 8",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 8"
     },
     {
       "id": "v-9",
@@ -1814,11 +1783,7 @@
         "position": "A8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 9",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 9"
     },
     {
       "id": "v-10",
@@ -1847,12 +1812,7 @@
         "position": "A9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 10",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 10"
     },
     {
       "id": "v-11",
@@ -1877,13 +1837,7 @@
         "position": "B1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 11",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "OX",
-        "resistance": "50CR",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 11"
     },
     {
       "id": "v-12",
@@ -1908,12 +1862,7 @@
         "position": "B2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 12",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "OX",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 12"
     },
     {
       "id": "v-13",
@@ -1938,12 +1887,7 @@
         "position": "B3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 13",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "OX",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 13"
     },
     {
       "id": "v-14",
@@ -1968,12 +1912,7 @@
         "position": "B4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 14",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 14"
     },
     {
       "id": "v-15",
@@ -1998,12 +1937,7 @@
         "position": "B5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 15",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 15"
     },
     {
       "id": "v-16",
@@ -2028,12 +1962,7 @@
         "position": "B6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 16",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 16"
     },
     {
       "id": "v-17",
@@ -2058,13 +1987,7 @@
         "position": "B7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 17",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "OX",
-        "resistance": "50CR",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 17"
     },
     {
       "id": "v-18",
@@ -2089,13 +2012,7 @@
         "position": "B8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 18",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "OX",
-        "resistance": "50CR",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 18"
     },
     {
       "id": "v-19",
@@ -2120,12 +2037,7 @@
         "position": "B9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 19",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 19"
     },
     {
       "id": "v-20",
@@ -2151,11 +2063,7 @@
         "position": "C1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 20",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 20"
     },
     {
       "id": "v-21",
@@ -2181,11 +2089,7 @@
         "position": "C2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 21",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 21"
     },
     {
       "id": "v-22",
@@ -2211,12 +2115,7 @@
         "position": "C3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 22",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 22"
     },
     {
       "id": "v-23",
@@ -2242,12 +2141,7 @@
         "position": "C4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 23",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 23"
     },
     {
       "id": "v-24",
@@ -2273,11 +2167,7 @@
         "position": "C5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 24",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 24"
     },
     {
       "id": "v-25",
@@ -2303,11 +2193,7 @@
         "position": "C6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 25",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 25"
     },
     {
       "id": "v-26",
@@ -2333,11 +2219,7 @@
         "position": "C7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 26",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 26"
     },
     {
       "id": "v-27",
@@ -2363,12 +2245,7 @@
         "position": "C8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 27",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 27"
     },
     {
       "id": "v-28",
@@ -2394,12 +2271,7 @@
         "position": "C9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 28",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 28"
     },
     {
       "id": "v-29",
@@ -2424,10 +2296,7 @@
         "position": "D1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 29",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 29"
     },
     {
       "id": "v-30",
@@ -2457,11 +2326,7 @@
         "position": "D2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 30",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 30"
     },
     {
       "id": "v-31",
@@ -2487,12 +2352,7 @@
         "position": "D3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 31",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 31"
     },
     {
       "id": "v-32",
@@ -2517,12 +2377,7 @@
         "position": "D4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 32",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "resistance": "EnzaR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 32"
     },
     {
       "id": "v-33",
@@ -2552,11 +2407,7 @@
         "position": "D5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 33",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 33"
     },
     {
       "id": "v-34",
@@ -2586,11 +2437,7 @@
         "position": "D6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 34",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 34"
     },
     {
       "id": "v-35",
@@ -2620,11 +2467,7 @@
         "position": "D7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 35",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 35"
     },
     {
       "id": "v-36",
@@ -2650,11 +2493,7 @@
         "position": "D8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 36",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 36"
     },
     {
       "id": "v-37",
@@ -2680,12 +2519,7 @@
         "position": "D9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 37",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 37"
     },
     {
       "id": "v-38",
@@ -2710,12 +2544,7 @@
         "position": "E1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 38",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 38"
     },
     {
       "id": "v-39",
@@ -2740,12 +2569,7 @@
         "position": "E2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 39",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 39"
     },
     {
       "id": "v-40",
@@ -2770,12 +2594,7 @@
         "position": "E3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 40",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 40"
     },
     {
       "id": "v-41",
@@ -2800,13 +2619,7 @@
         "position": "E4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 41",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "OX",
-        "resistance": "50CR",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 41"
     },
     {
       "id": "v-42",
@@ -2831,12 +2644,7 @@
         "position": "E5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 42",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 42"
     },
     {
       "id": "v-43",
@@ -2861,12 +2669,7 @@
         "position": "E6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 43",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 43"
     },
     {
       "id": "v-44",
@@ -2891,12 +2694,7 @@
         "position": "E7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 44",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 44"
     },
     {
       "id": "v-45",
@@ -2922,14 +2720,7 @@
         "position": "E8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 45",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 45"
     },
     {
       "id": "v-46",
@@ -2954,14 +2745,7 @@
         "position": "E9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 46",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 46"
     },
     {
       "id": "v-47",
@@ -2987,12 +2771,7 @@
         "position": "F1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 47",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 47"
     },
     {
       "id": "v-48",
@@ -3018,12 +2797,7 @@
         "position": "F2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 48",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 48"
     },
     {
       "id": "v-49",
@@ -3049,12 +2823,7 @@
         "position": "F3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 49",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 49"
     },
     {
       "id": "v-50",
@@ -3080,12 +2849,7 @@
         "position": "F4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 50",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 50"
     },
     {
       "id": "v-51",
@@ -3111,12 +2875,7 @@
         "position": "F5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 51",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 51"
     },
     {
       "id": "v-52",
@@ -3142,12 +2901,7 @@
         "position": "F6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 52",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 52"
     },
     {
       "id": "v-53",
@@ -3173,12 +2927,7 @@
         "position": "F7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 53",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "guide": "gP1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 53"
     },
     {
       "id": "v-54",
@@ -3204,12 +2953,7 @@
         "position": "F8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 54",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "guide": "gP1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 54"
     },
     {
       "id": "v-55",
@@ -3235,12 +2979,7 @@
         "position": "F9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 55",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 55"
     },
     {
       "id": "v-56",
@@ -3266,12 +3005,7 @@
         "position": "G1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 56",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 56"
     },
     {
       "id": "v-57",
@@ -3297,11 +3031,7 @@
         "position": "G2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 57",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 57"
     },
     {
       "id": "v-58",
@@ -3327,11 +3057,7 @@
         "position": "G3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 58",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 58"
     },
     {
       "id": "v-59",
@@ -3357,11 +3083,7 @@
         "position": "G4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 59",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 59"
     },
     {
       "id": "v-60",
@@ -3391,11 +3113,7 @@
         "position": "G5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 60",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 60"
     },
     {
       "id": "v-61",
@@ -3421,11 +3139,7 @@
         "position": "G6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 61",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 61"
     },
     {
       "id": "v-62",
@@ -3450,10 +3164,7 @@
         "position": "G7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 62",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 62"
     },
     {
       "id": "v-63",
@@ -3483,12 +3194,7 @@
         "position": "G8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 63",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 63"
     },
     {
       "id": "v-64",
@@ -3518,12 +3224,7 @@
         "position": "G9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 64",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gP1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 64"
     },
     {
       "id": "v-65",
@@ -3549,12 +3250,7 @@
         "position": "H1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 65",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 65"
     },
     {
       "id": "v-66",
@@ -3580,12 +3276,7 @@
         "position": "H2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 66",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 66"
     },
     {
       "id": "v-67",
@@ -3611,12 +3302,7 @@
         "position": "H3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 67",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 67"
     },
     {
       "id": "v-68",
@@ -3642,12 +3328,7 @@
         "position": "H4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 68",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 68"
     },
     {
       "id": "v-69",
@@ -3673,12 +3354,7 @@
         "position": "H5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 69",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 69"
     },
     {
       "id": "v-70",
@@ -3704,12 +3380,7 @@
         "position": "H6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 70",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 70"
     },
     {
       "id": "v-71",
@@ -3735,12 +3406,7 @@
         "position": "H7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 71",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 71"
     },
     {
       "id": "v-72",
@@ -3766,12 +3432,7 @@
         "position": "H8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 72",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 72"
     },
     {
       "id": "v-73",
@@ -3797,12 +3458,7 @@
         "position": "H9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 73",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 73"
     },
     {
       "id": "v-74",
@@ -3828,12 +3484,7 @@
         "position": "I1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 74",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 74"
     },
     {
       "id": "v-75",
@@ -3859,12 +3510,7 @@
         "position": "I2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 75",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 75"
     },
     {
       "id": "v-76",
@@ -3890,12 +3536,7 @@
         "position": "I3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 76",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 76"
     },
     {
       "id": "v-77",
@@ -3921,12 +3562,7 @@
         "position": "I4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 77",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 77"
     },
     {
       "id": "v-78",
@@ -3952,12 +3588,7 @@
         "position": "I5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 78",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 78"
     },
     {
       "id": "v-79",
@@ -3983,11 +3614,7 @@
         "position": "I6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 79",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 79"
     },
     {
       "id": "v-80",
@@ -4013,12 +3640,7 @@
         "position": "I7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 80",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 80"
     },
     {
       "id": "v-81",
@@ -4044,11 +3666,7 @@
         "position": "I8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 81",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 81"
     },
     {
       "id": "v-82",
@@ -4074,12 +3692,7 @@
         "position": "I9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 82",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 82"
     },
     {
       "id": "v-83",
@@ -4105,14 +3718,7 @@
         "position": "A1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 83",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g5.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 83"
     },
     {
       "id": "v-84",
@@ -4138,14 +3744,7 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 84",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g5.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 84"
     },
     {
       "id": "v-85",
@@ -4170,14 +3769,7 @@
         "position": "A3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 85",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 85"
     },
     {
       "id": "v-86",
@@ -4203,14 +3795,7 @@
         "position": "A4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 86",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 86"
     },
     {
       "id": "v-87",
@@ -4236,14 +3821,7 @@
         "position": "A5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 87",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 87"
     },
     {
       "id": "v-88",
@@ -4269,14 +3847,7 @@
         "position": "A6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 88",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 88"
     },
     {
       "id": "v-89",
@@ -4302,14 +3873,7 @@
         "position": "A7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 89",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 89"
     },
     {
       "id": "v-90",
@@ -4335,14 +3899,7 @@
         "position": "A8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 90",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g5.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 90"
     },
     {
       "id": "v-91",
@@ -4368,14 +3925,7 @@
         "position": "A9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 91",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 91"
     },
     {
       "id": "v-92",
@@ -4401,12 +3951,7 @@
         "position": "B1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 92",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 92"
     },
     {
       "id": "v-93",
@@ -4432,12 +3977,7 @@
         "position": "B2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 93",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 93"
     },
     {
       "id": "v-94",
@@ -4463,12 +4003,7 @@
         "position": "B3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 94",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 94"
     },
     {
       "id": "v-95",
@@ -4494,12 +4029,7 @@
         "position": "B4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 95",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 95"
     },
     {
       "id": "v-96",
@@ -4525,12 +4055,7 @@
         "position": "B5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 96",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 96"
     },
     {
       "id": "v-97",
@@ -4556,12 +4081,7 @@
         "position": "B6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 97",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 97"
     },
     {
       "id": "v-98",
@@ -4587,12 +4107,7 @@
         "position": "B7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 98",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 98"
     },
     {
       "id": "v-99",
@@ -4618,12 +4133,7 @@
         "position": "B8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 99",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 99"
     },
     {
       "id": "v-100",
@@ -4649,12 +4159,7 @@
         "position": "B9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 100",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 100"
     },
     {
       "id": "v-101",
@@ -4679,10 +4184,6 @@
       },
       "status": "stored",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 101",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      },
       "dateUnknown": true
     },
     {
@@ -4709,11 +4210,7 @@
         "position": "C2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 102",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 102"
     },
     {
       "id": "v-103",
@@ -4739,12 +4236,7 @@
         "position": "C3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 103",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 103"
     },
     {
       "id": "v-104",
@@ -4770,12 +4262,7 @@
         "position": "C4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 104",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 104"
     },
     {
       "id": "v-105",
@@ -4801,12 +4288,7 @@
         "position": "C5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 105",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 105"
     },
     {
       "id": "v-106",
@@ -4832,12 +4314,7 @@
         "position": "C6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 106",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 106"
     },
     {
       "id": "v-107",
@@ -4863,12 +4340,7 @@
         "position": "C7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 107",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 107"
     },
     {
       "id": "v-108",
@@ -4894,11 +4366,7 @@
         "position": "C8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 108",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "3xFLAG"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 108"
     },
     {
       "id": "v-109",
@@ -4924,12 +4392,7 @@
         "position": "C9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 109",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 109"
     },
     {
       "id": "v-110",
@@ -4955,14 +4418,7 @@
         "position": "D1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 110",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 110"
     },
     {
       "id": "v-111",
@@ -4988,14 +4444,7 @@
         "position": "D2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 111",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g5.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 111"
     },
     {
       "id": "v-112",
@@ -5021,14 +4470,7 @@
         "position": "D3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 112",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 112"
     },
     {
       "id": "v-113",
@@ -5054,11 +4496,7 @@
         "position": "D4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 113",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 113"
     },
     {
       "id": "v-114",
@@ -5084,11 +4522,7 @@
         "position": "D5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 114",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 114"
     },
     {
       "id": "v-115",
@@ -5114,14 +4548,7 @@
         "position": "D6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 115",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 115"
     },
     {
       "id": "v-116",
@@ -5147,14 +4574,7 @@
         "position": "D7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 116",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 116"
     },
     {
       "id": "v-117",
@@ -5180,14 +4600,7 @@
         "position": "D8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 117",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 117"
     },
     {
       "id": "v-118",
@@ -5213,14 +4626,7 @@
         "position": "D9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 118",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 118"
     },
     {
       "id": "v-119",
@@ -5246,11 +4652,7 @@
         "position": "E1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 119",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 119"
     },
     {
       "id": "v-120",
@@ -5276,12 +4678,7 @@
         "position": "E2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 120",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 120"
     },
     {
       "id": "v-121",
@@ -5307,11 +4704,7 @@
         "position": "E3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 121",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 121"
     },
     {
       "id": "v-122",
@@ -5337,12 +4730,7 @@
         "position": "E4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 122",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 122"
     },
     {
       "id": "v-123",
@@ -5368,11 +4756,7 @@
         "position": "E5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 123",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 123"
     },
     {
       "id": "v-124",
@@ -5398,11 +4782,7 @@
         "position": "E6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 124",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 124"
     },
     {
       "id": "v-125",
@@ -5427,11 +4807,6 @@
       },
       "status": "stored",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 125",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX",
-        "guide": "g1"
-      },
       "dateUnknown": true
     },
     {
@@ -5458,11 +4833,7 @@
         "position": "E8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 126",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 126"
     },
     {
       "id": "v-127",
@@ -5488,11 +4859,7 @@
         "position": "E9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 127",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 127"
     },
     {
       "id": "v-128",
@@ -5518,12 +4885,7 @@
         "position": "F1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 128",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 128"
     },
     {
       "id": "v-129",
@@ -5549,12 +4911,7 @@
         "position": "F2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 129",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 129"
     },
     {
       "id": "v-130",
@@ -5580,12 +4937,7 @@
         "position": "F3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 130",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 130"
     },
     {
       "id": "v-131",
@@ -5611,12 +4963,7 @@
         "position": "F4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 131",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 131"
     },
     {
       "id": "v-132",
@@ -5642,12 +4989,7 @@
         "position": "F5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 132",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 132"
     },
     {
       "id": "v-133",
@@ -5673,12 +5015,7 @@
         "position": "F6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 133",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 133"
     },
     {
       "id": "v-134",
@@ -5704,12 +5041,7 @@
         "position": "F7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 134",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 134"
     },
     {
       "id": "v-135",
@@ -5735,12 +5067,7 @@
         "position": "F8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 135",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 135"
     },
     {
       "id": "v-136",
@@ -5766,11 +5093,7 @@
         "position": "F9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 136",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 136"
     },
     {
       "id": "v-137",
@@ -5800,12 +5123,7 @@
         "position": "G1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 137",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 137"
     },
     {
       "id": "v-138",
@@ -5835,12 +5153,7 @@
         "position": "G2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 138",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 138"
     },
     {
       "id": "v-139",
@@ -5866,12 +5179,7 @@
         "position": "G3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 139",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gP2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 139"
     },
     {
       "id": "v-140",
@@ -5897,12 +5205,7 @@
         "position": "G4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 140",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gP2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 140"
     },
     {
       "id": "v-141",
@@ -5928,11 +5231,7 @@
         "position": "G5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 141",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 141"
     },
     {
       "id": "v-142",
@@ -5958,11 +5257,7 @@
         "position": "G6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 142",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 142"
     },
     {
       "id": "v-143",
@@ -5988,11 +5283,7 @@
         "position": "G7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 143",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 143"
     },
     {
       "id": "v-144",
@@ -6017,11 +5308,6 @@
       },
       "status": "stored",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 144",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      },
       "dateUnknown": true
     },
     {
@@ -6047,12 +5333,7 @@
         "position": "G9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 145",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 145"
     },
     {
       "id": "v-146",
@@ -6078,12 +5359,7 @@
         "position": "H1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 146",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 146"
     },
     {
       "id": "v-147",
@@ -6109,12 +5385,7 @@
         "position": "H2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 147",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 147"
     },
     {
       "id": "v-148",
@@ -6140,12 +5411,7 @@
         "position": "H3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 148",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 148"
     },
     {
       "id": "v-149",
@@ -6171,11 +5437,7 @@
         "position": "H4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 149",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 149"
     },
     {
       "id": "v-150",
@@ -6201,11 +5463,7 @@
         "position": "H5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 150",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 150"
     },
     {
       "id": "v-151",
@@ -6230,13 +5488,7 @@
         "position": "H6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 151",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "CASPEX",
-        "caspex": "CASPEX",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 151"
     },
     {
       "id": "v-152",
@@ -6262,12 +5514,7 @@
         "position": "H7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 152",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 152"
     },
     {
       "id": "v-153",
@@ -6293,11 +5540,7 @@
         "position": "H8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 153",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 153"
     },
     {
       "id": "v-154",
@@ -6323,11 +5566,7 @@
         "position": "H9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 154",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 154"
     },
     {
       "id": "v-155",
@@ -6353,14 +5592,7 @@
         "position": "I1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 155",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 155"
     },
     {
       "id": "v-156",
@@ -6386,14 +5618,7 @@
         "position": "I2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 156",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 156"
     },
     {
       "id": "v-157",
@@ -6419,14 +5644,7 @@
         "position": "I3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 157",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 157"
     },
     {
       "id": "v-158",
@@ -6452,14 +5670,7 @@
         "position": "I4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 158",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 158"
     },
     {
       "id": "v-159",
@@ -6485,14 +5696,7 @@
         "position": "I5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 159",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 159"
     },
     {
       "id": "v-160",
@@ -6518,14 +5722,7 @@
         "position": "I6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 160",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 160"
     },
     {
       "id": "v-161",
@@ -6550,11 +5747,7 @@
         "position": "I7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 161",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 161"
     },
     {
       "id": "v-162",
@@ -6580,12 +5773,7 @@
         "position": "I8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 162",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT",
-        "resistance": "50CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 162"
     },
     {
       "id": "v-163",
@@ -6611,14 +5799,7 @@
         "position": "I9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 163",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 163"
     },
     {
       "id": "v-164",
@@ -6644,14 +5825,7 @@
         "position": "A1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 164",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g5.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 164"
     },
     {
       "id": "v-165",
@@ -6677,14 +5851,7 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 165",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 165"
     },
     {
       "id": "v-166",
@@ -6710,14 +5877,7 @@
         "position": "A3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 166",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g5.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 166"
     },
     {
       "id": "v-167",
@@ -6743,14 +5903,7 @@
         "position": "A4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 167",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 167"
     },
     {
       "id": "v-168",
@@ -6776,11 +5929,7 @@
         "position": "A5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 168",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 168"
     },
     {
       "id": "v-169",
@@ -6806,11 +5955,7 @@
         "position": "A6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 169",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 169"
     },
     {
       "id": "v-170",
@@ -6836,12 +5981,7 @@
         "position": "A7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 170",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT",
-        "resistance": "DtxR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 170"
     },
     {
       "id": "v-171",
@@ -6867,12 +6007,7 @@
         "position": "A8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 171",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT",
-        "resistance": "DtxR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 171"
     },
     {
       "id": "v-172",
@@ -6897,14 +6032,7 @@
         "position": "A9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 172",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 172"
     },
     {
       "id": "v-173",
@@ -6929,12 +6057,7 @@
         "position": "B1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 173",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 173"
     },
     {
       "id": "v-174",
@@ -6959,12 +6082,7 @@
         "position": "B2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 174",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 174"
     },
     {
       "id": "v-175",
@@ -6989,12 +6107,7 @@
         "position": "B3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 175",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 175"
     },
     {
       "id": "v-176",
@@ -7019,12 +6132,7 @@
         "position": "B4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 176",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 176"
     },
     {
       "id": "v-177",
@@ -7049,12 +6157,7 @@
         "position": "B5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 177",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 177"
     },
     {
       "id": "v-178",
@@ -7079,12 +6182,7 @@
         "position": "B6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 178",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 178"
     },
     {
       "id": "v-179",
@@ -7109,12 +6207,7 @@
         "position": "B7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 179",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 179"
     },
     {
       "id": "v-180",
@@ -7139,12 +6232,7 @@
         "position": "B8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 180",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 180"
     },
     {
       "id": "v-181",
@@ -7169,10 +6257,7 @@
         "position": "B9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 181",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 181"
     },
     {
       "id": "v-182",
@@ -7197,10 +6282,7 @@
         "position": "C1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 182",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 182"
     },
     {
       "id": "v-183",
@@ -7225,10 +6307,7 @@
         "position": "C2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 183",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 183"
     },
     {
       "id": "v-184",
@@ -7253,10 +6332,7 @@
         "position": "C3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 184",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 184"
     },
     {
       "id": "v-185",
@@ -7281,10 +6357,7 @@
         "position": "C4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 185",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 185"
     },
     {
       "id": "v-186",
@@ -7309,10 +6382,7 @@
         "position": "C5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 186",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 186"
     },
     {
       "id": "v-187",
@@ -7337,10 +6407,7 @@
         "position": "C6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 187",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 187"
     },
     {
       "id": "v-188",
@@ -7365,10 +6432,7 @@
         "position": "C7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 188",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 188"
     },
     {
       "id": "v-189",
@@ -7393,10 +6457,7 @@
         "position": "C8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 189",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 189"
     },
     {
       "id": "v-190",
@@ -7421,10 +6482,7 @@
         "position": "C9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 190",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 190"
     },
     {
       "id": "v-191",
@@ -7449,10 +6507,7 @@
         "position": "D1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 191",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 191"
     },
     {
       "id": "v-192",
@@ -7477,10 +6532,7 @@
         "position": "D2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 192",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 192"
     },
     {
       "id": "v-193",
@@ -7505,10 +6557,7 @@
         "position": "D3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 193",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 193"
     },
     {
       "id": "v-194",
@@ -7537,11 +6586,7 @@
         "position": "D4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 194",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 194"
     },
     {
       "id": "v-195",
@@ -7570,11 +6615,7 @@
         "position": "D5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 195",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 195"
     },
     {
       "id": "v-196",
@@ -7603,11 +6644,7 @@
         "position": "D6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 196",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 196"
     },
     {
       "id": "v-197",
@@ -7636,11 +6673,7 @@
         "position": "D7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 197",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 197"
     },
     {
       "id": "v-198",
@@ -7666,11 +6699,7 @@
         "position": "D8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 198",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 198"
     },
     {
       "id": "v-199",
@@ -7696,11 +6725,7 @@
         "position": "D9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 199",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 199"
     },
     {
       "id": "v-200",
@@ -7725,12 +6750,7 @@
         "position": "E1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 200",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 200"
     },
     {
       "id": "v-201",
@@ -7756,11 +6776,7 @@
         "position": "E2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 201",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 201"
     },
     {
       "id": "v-202",
@@ -7786,11 +6802,7 @@
         "position": "E3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 202",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 202"
     },
     {
       "id": "v-203",
@@ -7816,11 +6828,7 @@
         "position": "E4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 203",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 203"
     },
     {
       "id": "v-204",
@@ -7846,11 +6854,7 @@
         "position": "E5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 204",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 204"
     },
     {
       "id": "v-209",
@@ -7876,12 +6880,7 @@
         "position": "F1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 209",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 209"
     },
     {
       "id": "v-210",
@@ -7907,12 +6906,7 @@
         "position": "F2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 210",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 210"
     },
     {
       "id": "v-211",
@@ -7938,12 +6932,7 @@
         "position": "F3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 211",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 211"
     },
     {
       "id": "v-212",
@@ -7969,11 +6958,7 @@
         "position": "F4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 212",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 212"
     },
     {
       "id": "v-213",
@@ -7999,12 +6984,7 @@
         "position": "F5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 213",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 213"
     },
     {
       "id": "v-214",
@@ -8030,11 +7010,7 @@
         "position": "F6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 214",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 214"
     },
     {
       "id": "v-215",
@@ -8060,11 +7036,7 @@
         "position": "F7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 215",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 215"
     },
     {
       "id": "v-216",
@@ -8090,11 +7062,7 @@
         "position": "F8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 216",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 216"
     },
     {
       "id": "v-217",
@@ -8120,11 +7088,7 @@
         "position": "F9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 217",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 217"
     },
     {
       "id": "v-218",
@@ -8150,13 +7114,7 @@
         "position": "G1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 218",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "resistance": "EnzaR",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 218"
     },
     {
       "id": "v-219",
@@ -8182,13 +7140,7 @@
         "position": "G2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 219",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "CASPEX",
-        "resistance": "EnzaR",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 219"
     },
     {
       "id": "v-220",
@@ -8214,11 +7166,7 @@
         "position": "G3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 220",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 220"
     },
     {
       "id": "v-221",
@@ -8244,11 +7192,7 @@
         "position": "G4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 221",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 221"
     },
     {
       "id": "v-222",
@@ -8274,11 +7218,7 @@
         "position": "G5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 222",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 222"
     },
     {
       "id": "v-223",
@@ -8308,11 +7248,7 @@
         "position": "G6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 223",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 223"
     },
     {
       "id": "v-224",
@@ -8342,12 +7278,7 @@
         "position": "G7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 224",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gP1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 224"
     },
     {
       "id": "v-225",
@@ -8377,12 +7308,7 @@
         "position": "G8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 225",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gP2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 225"
     },
     {
       "id": "v-226",
@@ -8412,12 +7338,7 @@
         "position": "G9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 226",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gP2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 226"
     },
     {
       "id": "v-227",
@@ -8443,12 +7364,7 @@
         "position": "H1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 227",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 227"
     },
     {
       "id": "v-228",
@@ -8474,11 +7390,7 @@
         "position": "H2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 228",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 228"
     },
     {
       "id": "v-229",
@@ -8504,11 +7416,7 @@
         "position": "H3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 229",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 229"
     },
     {
       "id": "v-230",
@@ -8534,11 +7442,7 @@
         "position": "H4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 230",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 230"
     },
     {
       "id": "v-231",
@@ -8564,11 +7468,7 @@
         "position": "H5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 231",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 231"
     },
     {
       "id": "v-232",
@@ -8594,11 +7494,7 @@
         "position": "H6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 232",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 232"
     },
     {
       "id": "v-233",
@@ -8628,11 +7524,7 @@
         "position": "H7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 233",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 233"
     },
     {
       "id": "v-236",
@@ -8658,11 +7550,7 @@
         "position": "I1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 236",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 236"
     },
     {
       "id": "v-237",
@@ -8688,11 +7576,7 @@
         "position": "I2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 237",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 237"
     },
     {
       "id": "v-238",
@@ -8718,11 +7602,7 @@
         "position": "I3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 238",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 238"
     },
     {
       "id": "v-239",
@@ -8748,11 +7628,7 @@
         "position": "I4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 239",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 239"
     },
     {
       "id": "v-240",
@@ -8778,12 +7654,7 @@
         "position": "I5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 240",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 240"
     },
     {
       "id": "v-241",
@@ -8809,12 +7680,7 @@
         "position": "I6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 241",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 241"
     },
     {
       "id": "v-242",
@@ -8840,12 +7706,7 @@
         "position": "I7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 242",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 242"
     },
     {
       "id": "v-244",
@@ -8871,11 +7732,7 @@
         "position": "I9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 244",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 244"
     },
     {
       "id": "v-245",
@@ -8901,11 +7758,7 @@
         "position": "A1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 245",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 245"
     },
     {
       "id": "v-246",
@@ -8931,10 +7784,7 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 246",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 246"
     },
     {
       "id": "v-247",
@@ -8960,11 +7810,7 @@
         "position": "A3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 247",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 247"
     },
     {
       "id": "v-248",
@@ -8990,11 +7836,7 @@
         "position": "A4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 248",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 248"
     },
     {
       "id": "v-249",
@@ -9020,11 +7862,7 @@
         "position": "A5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 249",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 249"
     },
     {
       "id": "v-250",
@@ -9050,11 +7888,7 @@
         "position": "A6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 250",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 250"
     },
     {
       "id": "v-251",
@@ -9080,12 +7914,7 @@
         "position": "A7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 251",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "resistance": "EnzaR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 251"
     },
     {
       "id": "v-252",
@@ -9111,12 +7940,7 @@
         "position": "A8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 252",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "resistance": "EnzaR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 252"
     },
     {
       "id": "v-253",
@@ -9142,11 +7966,7 @@
         "position": "A9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 253",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 253"
     },
     {
       "id": "v-254",
@@ -9172,11 +7992,7 @@
         "position": "B1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 254",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 254"
     },
     {
       "id": "v-255",
@@ -9206,11 +8022,7 @@
         "position": "B2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 255",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 255"
     },
     {
       "id": "v-256",
@@ -9236,12 +8048,7 @@
         "position": "B3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 256",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 256"
     },
     {
       "id": "v-257",
@@ -9267,11 +8074,7 @@
         "position": "B4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 257",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 257"
     },
     {
       "id": "v-258",
@@ -9297,11 +8100,7 @@
         "position": "B5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 258",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "3xFLAG"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 258"
     },
     {
       "id": "v-259",
@@ -9327,11 +8126,7 @@
         "position": "B6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 259",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 259"
     },
     {
       "id": "v-260",
@@ -9356,11 +8151,7 @@
         "position": "B7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 260",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 260"
     },
     {
       "id": "v-261",
@@ -9385,11 +8176,7 @@
         "position": "B8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 261",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 261"
     },
     {
       "id": "v-262",
@@ -9415,12 +8202,7 @@
         "position": "B9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 262",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 262"
     },
     {
       "id": "v-263",
@@ -9445,11 +8227,7 @@
         "position": "C1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 263",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 263"
     },
     {
       "id": "v-264",
@@ -9474,11 +8252,7 @@
         "position": "C2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 264",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "3xFLAG"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 264"
     },
     {
       "id": "v-265",
@@ -9503,13 +8277,7 @@
         "position": "C3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 265",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "CASPEX",
-        "caspex": "CASPEX",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 265"
     },
     {
       "id": "v-266",
@@ -9535,11 +8303,7 @@
         "position": "C4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 266",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 266"
     },
     {
       "id": "v-267",
@@ -9565,11 +8329,7 @@
         "position": "C5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 267",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 267"
     },
     {
       "id": "v-268",
@@ -9595,11 +8355,7 @@
         "position": "C6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 268",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 268"
     },
     {
       "id": "v-269",
@@ -9625,11 +8381,7 @@
         "position": "C7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 269",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 269"
     },
     {
       "id": "v-270",
@@ -9655,11 +8407,7 @@
         "position": "C8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 270",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 270"
     },
     {
       "id": "v-271",
@@ -9689,11 +8437,7 @@
         "position": "C9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 271",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 271"
     },
     {
       "id": "v-272",
@@ -9719,11 +8463,7 @@
         "position": "D1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 272",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 272"
     },
     {
       "id": "v-273",
@@ -9749,11 +8489,7 @@
         "position": "D2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 273",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 273"
     },
     {
       "id": "v-274",
@@ -9779,11 +8515,7 @@
         "position": "D3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 274",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 274"
     },
     {
       "id": "v-275",
@@ -9809,11 +8541,7 @@
         "position": "D4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 275",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 275"
     },
     {
       "id": "v-276",
@@ -9839,11 +8567,7 @@
         "position": "D5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 276",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 276"
     },
     {
       "id": "v-277",
@@ -9869,11 +8593,7 @@
         "position": "D6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 277",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 277"
     },
     {
       "id": "v-278",
@@ -9899,11 +8619,7 @@
         "position": "D7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 278",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 278"
     },
     {
       "id": "v-279",
@@ -9929,12 +8645,7 @@
         "position": "D8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 279",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 279"
     },
     {
       "id": "v-280",
@@ -9960,12 +8671,7 @@
         "position": "D9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 280",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "CASPEX",
-        "caspex": "CASPEX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 280"
     },
     {
       "id": "v-281",
@@ -9991,11 +8697,7 @@
         "position": "E1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 281",
-      "facetsFromSheet": {
-        "origin": "HepG2",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 281"
     },
     {
       "id": "v-282",
@@ -10021,11 +8723,7 @@
         "position": "E2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 282",
-      "facetsFromSheet": {
-        "origin": "HepG2",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 282"
     },
     {
       "id": "v-283",
@@ -10051,11 +8749,7 @@
         "position": "E3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 283",
-      "facetsFromSheet": {
-        "origin": "HepG2",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 283"
     },
     {
       "id": "v-284",
@@ -10081,11 +8775,7 @@
         "position": "E4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 284",
-      "facetsFromSheet": {
-        "origin": "HepG2",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 284"
     },
     {
       "id": "v-290",
@@ -10110,14 +8800,7 @@
         "position": "F1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 290",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 290"
     },
     {
       "id": "v-291",
@@ -10143,11 +8826,7 @@
         "position": "F2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 291",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 291"
     },
     {
       "id": "v-292",
@@ -10173,11 +8852,7 @@
         "position": "F3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 292",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "KO"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 292"
     },
     {
       "id": "v-293",
@@ -10203,11 +8878,7 @@
         "position": "F4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 293",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 293"
     },
     {
       "id": "v-294",
@@ -10232,11 +8903,7 @@
         "position": "F5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 294",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 294"
     },
     {
       "id": "v-295",
@@ -10261,11 +8928,7 @@
         "position": "F6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 295",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 295"
     },
     {
       "id": "v-296",
@@ -10290,11 +8953,7 @@
         "position": "F7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 296",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 296"
     },
     {
       "id": "v-297",
@@ -10320,14 +8979,7 @@
         "position": "F8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 297",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g5.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 297"
     },
     {
       "id": "v-298",
@@ -10353,14 +9005,7 @@
         "position": "F9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 298",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 298"
     },
     {
       "id": "v-299",
@@ -10386,11 +9031,7 @@
         "position": "G1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 299",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 299"
     },
     {
       "id": "v-300",
@@ -10415,11 +9056,7 @@
         "position": "G2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 300",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 300"
     },
     {
       "id": "v-301",
@@ -10445,11 +9082,7 @@
         "position": "G3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 301",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 301"
     },
     {
       "id": "v-302",
@@ -10475,11 +9108,7 @@
         "position": "G4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 302",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 302"
     },
     {
       "id": "v-303",
@@ -10505,11 +9134,7 @@
         "position": "G5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 303",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 303"
     },
     {
       "id": "v-304",
@@ -10535,11 +9160,7 @@
         "position": "G6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 304",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 304"
     },
     {
       "id": "v-305",
@@ -10565,10 +9186,7 @@
         "position": "G7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 305",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 305"
     },
     {
       "id": "v-306",
@@ -10594,10 +9212,7 @@
         "position": "G8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 306",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 306"
     },
     {
       "id": "v-307",
@@ -10623,10 +9238,7 @@
         "position": "G9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 307",
-      "facetsFromSheet": {
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 307"
     },
     {
       "id": "v-308",
@@ -10652,12 +9264,7 @@
         "position": "H1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 308",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 308"
     },
     {
       "id": "v-309",
@@ -10683,11 +9290,7 @@
         "position": "H2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 309",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 309"
     },
     {
       "id": "v-310",
@@ -10713,12 +9316,7 @@
         "position": "H3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 310",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 310"
     },
     {
       "id": "v-311",
@@ -10744,12 +9342,7 @@
         "position": "H4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 311",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 311"
     },
     {
       "id": "v-312",
@@ -10775,12 +9368,7 @@
         "position": "H5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 312",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "resistance": "CR"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 312"
     },
     {
       "id": "v-313",
@@ -10806,12 +9394,7 @@
         "position": "H6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 313",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "guide": "gP2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 313"
     },
     {
       "id": "v-314",
@@ -10837,12 +9420,7 @@
         "position": "H7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 314",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "guide": "gP1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 314"
     },
     {
       "id": "v-315",
@@ -10868,12 +9446,7 @@
         "position": "H8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 315",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "guide": "gP1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 315"
     },
     {
       "id": "v-316",
@@ -10899,12 +9472,7 @@
         "position": "H9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 316",
-      "facetsFromSheet": {
-        "origin": "LuCap35CR",
-        "koox": "WT",
-        "guide": "gP2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 316"
     },
     {
       "id": "v-317",
@@ -10930,11 +9498,7 @@
         "position": "I1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 317",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 317"
     },
     {
       "id": "v-318",
@@ -10960,11 +9524,7 @@
         "position": "I2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 318",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 318"
     },
     {
       "id": "v-319",
@@ -10990,11 +9550,7 @@
         "position": "I3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 319",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 319"
     },
     {
       "id": "v-320",
@@ -11020,11 +9576,7 @@
         "position": "I4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 320",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 320"
     },
     {
       "id": "v-321",
@@ -11050,11 +9602,7 @@
         "position": "I5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 321",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 321"
     },
     {
       "id": "v-322",
@@ -11080,11 +9628,7 @@
         "position": "I6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 322",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 322"
     },
     {
       "id": "v-323",
@@ -11110,12 +9654,7 @@
         "position": "I7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 323",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 323"
     },
     {
       "id": "v-324",
@@ -11141,12 +9680,7 @@
         "position": "I8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 324",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gP2"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 324"
     },
     {
       "id": "v-325",
@@ -11172,12 +9706,7 @@
         "position": "I9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 325",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT",
-        "guide": "gP1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 325"
     },
     {
       "id": "v-326",
@@ -11203,11 +9732,7 @@
         "position": "A1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 326",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 326"
     },
     {
       "id": "v-327",
@@ -11233,11 +9758,7 @@
         "position": "A2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 327",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "OX"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 327"
     },
     {
       "id": "v-328",
@@ -11263,12 +9784,7 @@
         "position": "A3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 328",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 328"
     },
     {
       "id": "v-335",
@@ -11293,10 +9809,6 @@
       },
       "status": "stored",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 335",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      },
       "dateUnknown": true
     },
     {
@@ -11322,10 +9834,6 @@
       },
       "status": "stored",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 336",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      },
       "dateUnknown": true
     },
     {
@@ -11352,11 +9860,7 @@
         "position": "B3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 337",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 337"
     },
     {
       "id": "v-338",
@@ -11382,11 +9886,7 @@
         "position": "B4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 338",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 338"
     },
     {
       "id": "v-339",
@@ -11412,11 +9912,7 @@
         "position": "B5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 339",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 339"
     },
     {
       "id": "v-340",
@@ -11442,11 +9938,7 @@
         "position": "B6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 340",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 340"
     },
     {
       "id": "v-341",
@@ -11471,10 +9963,6 @@
       },
       "status": "stored",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 341",
-      "facetsFromSheet": {
-        "origin": "HEK293T",
-        "koox": "WT"
-      },
       "dateUnknown": true
     },
     {
@@ -11501,11 +9989,7 @@
         "position": "C1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 344",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 344"
     },
     {
       "id": "v-345",
@@ -11531,11 +10015,7 @@
         "position": "C2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 345",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 345"
     },
     {
       "id": "v-346",
@@ -11561,11 +10041,7 @@
         "position": "C3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 346",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 346"
     },
     {
       "id": "v-347",
@@ -11591,11 +10067,7 @@
         "position": "C4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 347",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 347"
     },
     {
       "id": "v-348",
@@ -11621,11 +10093,7 @@
         "position": "C5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 348",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 348"
     },
     {
       "id": "v-349",
@@ -11651,14 +10119,7 @@
         "position": "C6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 349",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 349"
     },
     {
       "id": "v-350",
@@ -11684,11 +10145,7 @@
         "position": "C7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 350",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 350"
     },
     {
       "id": "v-351",
@@ -11714,11 +10171,7 @@
         "position": "C8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 351",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 351"
     },
     {
       "id": "v-352",
@@ -11744,14 +10197,7 @@
         "position": "C9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 352",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 352"
     },
     {
       "id": "v-353",
@@ -11777,11 +10223,7 @@
         "position": "D1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 353",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 353"
     },
     {
       "id": "v-354",
@@ -11807,11 +10249,7 @@
         "position": "D2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 354",
-      "facetsFromSheet": {
-        "origin": "Huh7",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 354"
     },
     {
       "id": "v-362",
@@ -11836,14 +10274,7 @@
         "position": "E1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 362",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 362"
     },
     {
       "id": "v-363",
@@ -11869,14 +10300,7 @@
         "position": "E2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 363",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g3"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 363"
     },
     {
       "id": "v-364",
@@ -11902,14 +10326,7 @@
         "position": "E3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 364",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g5.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 364"
     },
     {
       "id": "v-365",
@@ -11934,14 +10351,7 @@
         "position": "E4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 365",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 365"
     },
     {
       "id": "v-366",
@@ -11966,14 +10376,7 @@
         "position": "E5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 366",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 366"
     },
     {
       "id": "v-367",
@@ -11998,14 +10401,7 @@
         "position": "E6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 367",
-      "facetsFromSheet": {
-        "origin": "Du145",
-        "koox": "CASPEX",
-        "resistance": "DtxR",
-        "caspex": "CASPEX",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 367"
     },
     {
       "id": "v-371",
@@ -12031,12 +10427,7 @@
         "position": "F1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 371",
-      "facetsFromSheet": {
-        "origin": "MDA-MB-231",
-        "koox": "WT",
-        "guide": "g1.1"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 371"
     },
     {
       "id": "v-372",
@@ -12062,12 +10453,7 @@
         "position": "F2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 372",
-      "facetsFromSheet": {
-        "origin": "MDA-MB-231",
-        "koox": "WT",
-        "guide": "gNT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 372"
     },
     {
       "id": "v-380",
@@ -12093,11 +10479,7 @@
         "position": "G1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 380",
-      "facetsFromSheet": {
-        "origin": "LnCap",
-        "koox": "WT"
-      }
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 380"
     },
     {
       "id": "v-mtrdx0po-0",
@@ -12476,7 +10858,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T18:22:29.035Z"
+    "savedAt": "2026-09-07T18:42:14.440Z"
   },
   "removedVialIds": [
     "v-205",

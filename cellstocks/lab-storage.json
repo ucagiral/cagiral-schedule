@@ -134,18 +134,5 @@
         }
       ]
     }
-  ],
-  "unplaced": [
-    {
-      "id": "baro-cells-1-80",
-      "name": "Baro CELLS #1 (-80)",
-      "icon": "📦",
-      "isBox": true,
-      "owner": "baris",
-      "rows": 9,
-      "cols": 9,
-      "scheme": "grid",
-      "archived": false
-    }
   ]
 }

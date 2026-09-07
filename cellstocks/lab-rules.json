@@ -47,9 +47,6 @@
   ],
   "koox": [
     {
-      "extract": "(?<![A-Za-z])(?:KO|OX|3xFLAG)"
-    },
-    {
       "match": "FLAG",
       "value": "FLAG"
     },

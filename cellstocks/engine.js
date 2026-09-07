@@ -2626,9 +2626,25 @@
   // explicitly rather than the union guessing "keep" every time, which is how a removal
   // undid itself the moment a stale dirty cache -- this device's own debounced save racing
   // a reload, or a second device/tab -- merged back in afterwards.
-  function mergeInventories(remote, local) {
+  //
+  // `synced`, when given, is the last copy this session is known to have actually agreed
+  // with the server on -- a three-way merge's common ancestor. Without one, an id present
+  // on both sides but with different content always means "local edited it, local wins",
+  // which is right the one place that used to be true: reopening with an entire dirty
+  // cache, where "not yet saved" really does cover the whole thing. It stopped being true
+  // the moment save() started reconciling with the server before every commit, not just
+  // at reopen -- there, `local` is this session's *whole* current view, most of which it
+  // never touched, and "local wins on differ" silently re-committed a stale copy of every
+  // vial the account itself had already corrected elsewhere the next time this session
+  // saved anything at all (a facet correction accepted on Review, reported fixed, then
+  // reappearing, was exactly this). With an ancestor, a vial local hasn't changed since it
+  // (mine equals synced) defers to whatever remote now has instead of overwriting it.
+  function mergeInventories(remote, local, synced) {
     var base = mergeDefaults(remote);
     var mine = mergeDefaults(local);
+    var ancestor = synced ? mergeDefaults(synced) : null;
+    var ancestorById = {};
+    if (ancestor) (ancestor.vials || []).forEach(function (v) { ancestorById[v.id] = v; });
 
     var removedIds = {};
     (base.removedVialIds || []).forEach(function (id) { removedIds[id] = true; });
@@ -2644,12 +2660,17 @@
     (mine.vials || []).forEach(function (v) {
       if (removedIds[v.id]) return;   // tombstoned -- a stale cache must not resurrect it
       if (byId[v.id] === undefined) { next.vials.push(clone(v)); kept++; return; }
-      // Same tube on both sides. Identical is not a change worth reporting; different
-      // means this device edited it and has not saved that yet.
-      if (JSON.stringify(next.vials[byId[v.id]]) !== JSON.stringify(v)) {
-        next.vials[byId[v.id]] = clone(v);
-        kept++;
-      }
+      // Same tube on both sides. Identical is not a change worth reporting.
+      if (JSON.stringify(next.vials[byId[v.id]]) === JSON.stringify(v)) return;
+      // Different: this device edited it and has not saved that yet -- UNLESS an
+      // ancestor is given and local matches it exactly, meaning this session never
+      // touched this particular vial and is simply carrying forward a copy the server
+      // has since moved past. Then remote's current copy (already in `next`) stands.
+      var atAncestor = ancestor && ancestorById[v.id];
+      var untouchedSinceSync = atAncestor && JSON.stringify(atAncestor) === JSON.stringify(v);
+      if (untouchedSinceSync) return;
+      next.vials[byId[v.id]] = clone(v);
+      kept++;
     });
     // Anything on the server this device had never seen. Counted so the person is told
     // their copy grew, rather than noticing later that the numbers moved on their own.

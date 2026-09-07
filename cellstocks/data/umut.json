@@ -1549,6 +1549,17 @@
         "caspex": "-",
         "guide": "-"
       }
+    },
+    {
+      "id": "l-huh7-atf3-ko-rep3",
+      "name": "Huh7 ATF3 KO rep3",
+      "facets": {
+        "origin": "Huh7",
+        "koox": "KO",
+        "resistance": "-",
+        "caspex": "-",
+        "guide": "-"
+      }
     }
   ],
   "vials": [
@@ -14162,6 +14173,50 @@
       "addedAt": "2026-09-07T15:19:46.171Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mtre0daw-0",
+      "name": "Huh7 ATF3 KO rep3",
+      "lineId": "l-huh7-atf3-ko-rep3",
+      "passage": "p18",
+      "passageNumber": 18,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-07",
+      "frozenOn": "2026-09-07",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-duzenle",
+        "position": "E8"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-07T15:20:16.472Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mtre0daw-1",
+      "name": "Huh7 ATF3 KO rep3",
+      "lineId": "l-huh7-atf3-ko-rep3",
+      "passage": "p18",
+      "passageNumber": 18,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-07",
+      "frozenOn": "2026-09-07",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-duzenle",
+        "position": "E9"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-07T15:20:16.472Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [],
@@ -14188,6 +14243,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T15:19:47.103Z"
+    "savedAt": "2026-09-07T15:20:17.391Z"
   }
 }

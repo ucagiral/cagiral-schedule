@@ -6583,7 +6583,16 @@
       "frozenRaw": "5/5/2025",
       "frozenOn": "2025-05-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A1"
       },
@@ -6607,7 +6616,16 @@
       "frozenRaw": "5/5/2025",
       "frozenOn": "2025-05-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A2"
       },
@@ -6631,7 +6649,16 @@
       "frozenRaw": "5/5/2025",
       "frozenOn": "2025-05-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A3"
       },
@@ -6655,7 +6682,16 @@
       "frozenRaw": "5/5/2025",
       "frozenOn": "2025-05-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A4"
       },
@@ -6679,7 +6715,16 @@
       "frozenRaw": "9/4/2026",
       "frozenOn": "2026-04-09",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A5"
       },
@@ -6700,7 +6745,16 @@
       "frozenRaw": "9/4/2026",
       "frozenOn": "2026-04-09",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A6"
       },
@@ -6721,7 +6775,16 @@
       "frozenRaw": "26-03-26",
       "frozenOn": "2026-03-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A7"
       },
@@ -6743,7 +6806,16 @@
       "frozenRaw": "26-03-26",
       "frozenOn": "2026-03-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A8"
       },
@@ -6764,7 +6836,16 @@
       "frozenRaw": "10/2/2026",
       "frozenOn": "2026-02-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "A9"
       },
@@ -6787,7 +6868,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B1"
       },
@@ -6808,7 +6898,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B2"
       },
@@ -6829,7 +6928,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B3"
       },
@@ -6850,7 +6958,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B4"
       },
@@ -6871,7 +6988,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B5"
       },
@@ -6892,7 +7018,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B6"
       },
@@ -6913,7 +7048,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B7"
       },
@@ -6934,7 +7078,16 @@
       "frozenRaw": "22-04-25",
       "frozenOn": "2025-04-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B8"
       },
@@ -6955,7 +7108,16 @@
       "frozenRaw": "8/5/2025",
       "frozenOn": "2025-05-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "B9"
       },
@@ -6974,7 +7136,16 @@
       "frozenRaw": "8/5/2025",
       "frozenOn": "2025-05-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C1"
       },
@@ -6993,7 +7164,16 @@
       "frozenRaw": "8/5/2025",
       "frozenOn": "2025-05-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C2"
       },
@@ -7012,7 +7192,16 @@
       "frozenRaw": "8/5/2025",
       "frozenOn": "2025-05-08",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C3"
       },
@@ -7031,7 +7220,16 @@
       "frozenRaw": "7/5/2025",
       "frozenOn": "2025-05-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C4"
       },
@@ -7050,7 +7248,16 @@
       "frozenRaw": "7/5/2025",
       "frozenOn": "2025-05-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C5"
       },
@@ -7069,7 +7276,16 @@
       "frozenRaw": "7/5/2025",
       "frozenOn": "2025-05-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C6"
       },
@@ -7088,7 +7304,16 @@
       "frozenRaw": "30-05-25",
       "frozenOn": "2025-05-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C7"
       },
@@ -7107,7 +7332,16 @@
       "frozenRaw": "30-05-25",
       "frozenOn": "2025-05-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C8"
       },
@@ -7126,7 +7360,16 @@
       "frozenRaw": "30-05-25",
       "frozenOn": "2025-05-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "C9"
       },
@@ -7145,7 +7388,16 @@
       "frozenRaw": "30-05-25",
       "frozenOn": "2025-05-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D1"
       },
@@ -7164,7 +7416,16 @@
       "frozenRaw": "30-05-25",
       "frozenOn": "2025-05-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D2"
       },
@@ -7183,7 +7444,16 @@
       "frozenRaw": "30-05-25",
       "frozenOn": "2025-05-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D3"
       },
@@ -7206,7 +7476,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D4"
       },
@@ -7230,7 +7509,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D5"
       },
@@ -7254,7 +7542,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D6"
       },
@@ -7278,7 +7575,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D7"
       },
@@ -7299,7 +7605,16 @@
       "frozenRaw": "15-05-26",
       "frozenOn": "2026-05-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D8"
       },
@@ -7320,7 +7635,16 @@
       "frozenRaw": "15-05-26",
       "frozenOn": "2026-05-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "D9"
       },
@@ -7340,7 +7664,16 @@
       "frozenRaw": "3/2/2023",
       "frozenOn": "2023-02-03",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "E1"
       },
@@ -7362,7 +7695,16 @@
       "frozenRaw": "19-05-25",
       "frozenOn": "2025-05-19",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "E2"
       },
@@ -7383,7 +7725,16 @@
       "frozenRaw": "2/5/2025",
       "frozenOn": "2025-05-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "E3"
       },
@@ -7404,7 +7755,16 @@
       "frozenRaw": "31-07-26",
       "frozenOn": "2026-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "E4"
       },
@@ -7425,7 +7785,16 @@
       "frozenRaw": "31-07-26",
       "frozenOn": "2026-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "E5"
       },
@@ -7498,7 +7867,16 @@
       "frozenRaw": "19-05-25",
       "frozenOn": "2025-05-19",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F1"
       },
@@ -7520,7 +7898,16 @@
       "frozenRaw": "24-03-26",
       "frozenOn": "2026-03-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F2"
       },
@@ -7542,7 +7929,16 @@
       "frozenRaw": "6/2/2026",
       "frozenOn": "2026-02-06",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F3"
       },
@@ -7564,7 +7960,16 @@
       "frozenRaw": "23-01-26",
       "frozenOn": "2026-01-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F4"
       },
@@ -7585,7 +7990,16 @@
       "frozenRaw": "5/2/2026",
       "frozenOn": "2026-02-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F5"
       },
@@ -7607,7 +8021,16 @@
       "frozenRaw": "2/2/2026",
       "frozenOn": "2026-02-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F6"
       },
@@ -7628,7 +8051,16 @@
       "frozenRaw": "23-01-26",
       "frozenOn": "2026-01-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F7"
       },
@@ -7649,7 +8081,16 @@
       "frozenRaw": "2/2/2026",
       "frozenOn": "2026-02-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F8"
       },
@@ -7670,7 +8111,16 @@
       "frozenRaw": "23-01-26",
       "frozenOn": "2026-01-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "F9"
       },
@@ -7691,7 +8141,16 @@
       "frozenRaw": "3/3/2026",
       "frozenOn": "2026-03-03",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G1"
       },
@@ -7714,7 +8173,16 @@
       "frozenRaw": "3/3/2026",
       "frozenOn": "2026-03-03",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G2"
       },
@@ -7737,7 +8205,16 @@
       "frozenRaw": "20-02-26",
       "frozenOn": "2026-02-20",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G3"
       },
@@ -7758,7 +8235,16 @@
       "frozenRaw": "20-02-26",
       "frozenOn": "2026-02-20",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G4"
       },
@@ -7779,7 +8265,16 @@
       "frozenRaw": "18-05-26",
       "frozenOn": "2026-05-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G5"
       },
@@ -7804,7 +8299,16 @@
         "to-do"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G6"
       },
@@ -7829,7 +8333,16 @@
         "chip-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G7"
       },
@@ -7855,7 +8368,16 @@
         "chip-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G8"
       },
@@ -7881,7 +8403,16 @@
         "chip-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "G9"
       },
@@ -7903,7 +8434,16 @@
       "frozenRaw": "26-03-26",
       "frozenOn": "2026-03-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "H1"
       },
@@ -7925,7 +8465,16 @@
       "frozenRaw": "24-04-26",
       "frozenOn": "2026-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "H2"
       },
@@ -7946,7 +8495,16 @@
       "frozenRaw": "24-04-26",
       "frozenOn": "2026-04-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "H3"
       },
@@ -7967,7 +8525,16 @@
       "frozenRaw": "18-05-26",
       "frozenOn": "2026-05-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "H4"
       },
@@ -7988,7 +8555,16 @@
       "frozenRaw": "18-05-26",
       "frozenOn": "2026-05-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "H5"
       },
@@ -8009,7 +8585,16 @@
       "frozenRaw": "18-05-26",
       "frozenOn": "2026-05-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "H6"
       },
@@ -8034,7 +8619,16 @@
         "to-do"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "H7"
       },
@@ -8081,7 +8675,16 @@
       "frozenRaw": "2/2/2026",
       "frozenOn": "2026-02-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "I1"
       },
@@ -8102,7 +8705,16 @@
       "frozenRaw": "26-01-26",
       "frozenOn": "2026-01-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "I2"
       },
@@ -8123,7 +8735,16 @@
       "frozenRaw": "2/2/2026",
       "frozenOn": "2026-02-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "I3"
       },
@@ -8144,7 +8765,16 @@
       "frozenRaw": "26-01-26",
       "frozenOn": "2026-01-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "I4"
       },
@@ -8165,7 +8795,16 @@
       "frozenRaw": "24-03-26",
       "frozenOn": "2026-03-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "I5"
       },
@@ -8187,7 +8826,16 @@
       "frozenRaw": "10/4/2026",
       "frozenOn": "2026-04-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "I6"
       },
@@ -8209,7 +8857,16 @@
       "frozenRaw": "10/4/2026",
       "frozenOn": "2026-04-10",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "I7"
       },
@@ -8244,7 +8901,16 @@
       "frozenRaw": "31-07-26",
       "frozenOn": "2026-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-duzenle",
         "position": "I9"
       },

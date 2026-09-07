@@ -1711,6 +1711,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "notes": "BUNUN YERINI DEGISTIR!",
       "flags": [
         "move-me"
@@ -1735,6 +1736,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -1927,6 +1929,7 @@
       "passageNumber": 50,
       "passageKind": "absolute",
       "frozenRaw": "11/8/2025",
+      "frozenOn": "2025-08-11",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -1968,6 +1971,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -1989,6 +1993,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2010,6 +2015,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2030,6 +2036,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2050,6 +2057,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2070,6 +2078,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2091,6 +2100,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2337,6 +2347,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2357,6 +2368,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2420,6 +2432,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "2/6/2025",
+      "frozenOn": "2025-06-02",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2440,6 +2453,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2530,6 +2544,7 @@
       "passageNumber": 9,
       "passageKind": "absolute",
       "frozenRaw": "4/11/2025",
+      "frozenOn": "2025-11-04",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2573,6 +2588,7 @@
       "passageNumber": 9,
       "passageKind": "absolute",
       "frozenRaw": "4/11/2025",
+      "frozenOn": "2025-11-04",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -2854,6 +2870,7 @@
       "passageNumber": 21,
       "passageKind": "relative",
       "frozenRaw": "4/6/2026",
+      "frozenOn": "2026-06-04",
       "notes": "chip-",
       "flags": [
         "chip-negative"
@@ -2879,6 +2896,7 @@
       "passageNumber": 21,
       "passageKind": "relative",
       "frozenRaw": "4/6/2026",
+      "frozenOn": "2026-06-04",
       "notes": "chip-",
       "flags": [
         "chip-negative"
@@ -3080,6 +3098,7 @@
       "passageNumber": 14,
       "passageKind": "absolute",
       "frozenRaw": "5/1/2024",
+      "frozenOn": "2024-01-05",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -3167,6 +3186,7 @@
       "passageNumber": 14,
       "passageKind": "absolute",
       "frozenRaw": "5/4/2024",
+      "frozenOn": "2024-04-05",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -3253,6 +3273,7 @@
       "passageNumber": 47,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-caa-cells",
@@ -3414,6 +3435,7 @@
       "passageNumber": 5,
       "passageKind": "relative",
       "frozenRaw": "2/1/2026",
+      "frozenOn": "2026-01-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3437,6 +3459,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "2/1/2026",
+      "frozenOn": "2026-01-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3460,6 +3483,7 @@
       "passageNumber": 5,
       "passageKind": "absolute",
       "frozenRaw": "2/1/2026",
+      "frozenOn": "2026-01-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3483,6 +3507,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3616,6 +3641,7 @@
       "passageNumber": 30,
       "passageKind": "absolute",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3765,6 +3791,7 @@
       "passageNumber": 28,
       "passageKind": "absolute",
       "frozenRaw": "5/1/2026",
+      "frozenOn": "2026-01-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3852,6 +3879,7 @@
       "passageNumber": 6,
       "passageKind": "relative",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3872,6 +3900,7 @@
       "passageNumber": 37,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3893,6 +3922,7 @@
       "passageNumber": 9,
       "passageKind": "relative",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3916,6 +3946,7 @@
       "passageNumber": 7,
       "passageKind": "absolute",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3939,6 +3970,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3962,6 +3994,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3982,6 +4015,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4074,6 +4108,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4097,6 +4132,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4117,6 +4153,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4138,6 +4175,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4158,6 +4196,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4262,6 +4301,7 @@
       "passageNumber": 84,
       "passageKind": "absolute",
       "frozenRaw": "2/5/2025",
+      "frozenOn": "2025-05-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4282,6 +4322,7 @@
       "passageNumber": 48,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4303,6 +4344,7 @@
       "passageNumber": 48,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4324,6 +4366,7 @@
       "passageNumber": 22,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4345,6 +4388,7 @@
       "passageNumber": 22,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4366,6 +4410,7 @@
       "passageNumber": 37,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4387,6 +4432,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4430,6 +4476,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "2/5/2025",
+      "frozenOn": "2025-05-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4524,6 +4571,7 @@
       "passageNumber": 21,
       "passageKind": "relative",
       "frozenRaw": "4/6/2026",
+      "frozenOn": "2026-06-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4671,6 +4719,7 @@
       "passageNumber": 43,
       "passageKind": "absolute",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4714,6 +4763,7 @@
       "passageNumber": 43,
       "passageKind": "absolute",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4735,6 +4785,7 @@
       "passageNumber": 42,
       "passageKind": "absolute",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4755,6 +4806,7 @@
       "passageNumber": 42,
       "passageKind": "absolute",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4774,6 +4826,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "10/2/2026",
+      "frozenOn": "2026-02-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4818,6 +4871,7 @@
       "passageNumber": 21,
       "passageKind": "absolute",
       "frozenRaw": "6/2/2026",
+      "frozenOn": "2026-02-06",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -5069,6 +5123,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5092,6 +5147,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5115,6 +5171,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5138,6 +5195,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5161,6 +5219,7 @@
       "passageNumber": 25,
       "passageKind": "absolute",
       "frozenRaw": "9/4/2026",
+      "frozenOn": "2026-04-09",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5181,6 +5240,7 @@
       "passageNumber": 25,
       "passageKind": "absolute",
       "frozenRaw": "9/4/2026",
+      "frozenOn": "2026-04-09",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5244,6 +5304,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "10/2/2026",
+      "frozenOn": "2026-02-10",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5434,6 +5495,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "8/5/2025",
+      "frozenOn": "2025-05-08",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5452,6 +5514,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "8/5/2025",
+      "frozenOn": "2025-05-08",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5470,6 +5533,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "8/5/2025",
+      "frozenOn": "2025-05-08",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5488,6 +5552,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "8/5/2025",
+      "frozenOn": "2025-05-08",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5506,6 +5571,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "7/5/2025",
+      "frozenOn": "2025-05-07",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5524,6 +5590,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "7/5/2025",
+      "frozenOn": "2025-05-07",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5542,6 +5609,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "7/5/2025",
+      "frozenOn": "2025-05-07",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5812,6 +5880,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/2/2023",
+      "frozenOn": "2023-02-03",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5854,6 +5923,7 @@
       "passageNumber": 14,
       "passageKind": "relative",
       "frozenRaw": "2/5/2025",
+      "frozenOn": "2025-05-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6012,6 +6082,7 @@
       "passageNumber": 22,
       "passageKind": "absolute",
       "frozenRaw": "6/2/2026",
+      "frozenOn": "2026-02-06",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6054,6 +6125,7 @@
       "passageNumber": 18,
       "passageKind": "absolute",
       "frozenRaw": "5/2/2026",
+      "frozenOn": "2026-02-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6075,6 +6147,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "2/2/2026",
+      "frozenOn": "2026-02-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6116,6 +6189,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "2/2/2026",
+      "frozenOn": "2026-02-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6157,6 +6231,7 @@
       "passageNumber": 11,
       "passageKind": "relative",
       "frozenRaw": "3/3/2026",
+      "frozenOn": "2026-03-03",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6179,6 +6254,7 @@
       "passageNumber": 11,
       "passageKind": "relative",
       "frozenRaw": "3/3/2026",
+      "frozenOn": "2026-03-03",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6545,6 +6621,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "2/2/2026",
+      "frozenOn": "2026-02-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6586,6 +6663,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "2/2/2026",
+      "frozenOn": "2026-02-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6649,6 +6727,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6670,6 +6749,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6829,6 +6909,7 @@
       "passageNumber": 14,
       "passageKind": "relative",
       "frozenRaw": "10/3/2026",
+      "frozenOn": "2026-03-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6849,6 +6930,7 @@
       "passageNumber": 13,
       "passageKind": "relative",
       "frozenRaw": "11/3/2026",
+      "frozenOn": "2026-03-11",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6870,6 +6952,7 @@
       "passageNumber": 13,
       "passageKind": "relative",
       "frozenRaw": "11/3/2026",
+      "frozenOn": "2026-03-11",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6891,6 +6974,7 @@
       "passageNumber": 14,
       "passageKind": "relative",
       "frozenRaw": "10/3/2026",
+      "frozenOn": "2026-03-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6932,6 +7016,7 @@
       "passageNumber": 7,
       "passageKind": "absolute",
       "frozenRaw": "7/7/2025",
+      "frozenOn": "2025-07-07",
       "notes": "to-do box / thaw",
       "flags": [
         "to-do"
@@ -6956,6 +7041,7 @@
       "passageNumber": 16,
       "passageKind": "absolute",
       "frozenRaw": "9/6/2026",
+      "frozenOn": "2026-06-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6998,6 +7084,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "9/6/2026",
+      "frozenOn": "2026-06-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7018,6 +7105,7 @@
       "passageNumber": 36,
       "passageKind": "absolute",
       "frozenRaw": "8/5/2026",
+      "frozenOn": "2026-05-08",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7225,6 +7313,7 @@
       "passageNumber": 51,
       "passageKind": "absolute",
       "frozenRaw": "10/11/2025",
+      "frozenOn": "2025-11-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7245,6 +7334,7 @@
       "passageNumber": 51,
       "passageKind": "absolute",
       "frozenRaw": "10/11/2025",
+      "frozenOn": "2025-11-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7265,6 +7355,7 @@
       "passageNumber": 42,
       "passageKind": "absolute",
       "frozenRaw": "2/6/2025",
+      "frozenOn": "2025-06-02",
       "notes": "to-do box / thaw",
       "flags": [
         "to-do"
@@ -7289,6 +7380,7 @@
       "passageNumber": 36,
       "passageKind": "absolute",
       "frozenRaw": "8/5/2026",
+      "frozenOn": "2026-05-08",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7330,6 +7422,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "9/10/2025",
+      "frozenOn": "2025-10-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7350,6 +7443,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "9/10/2025",
+      "frozenOn": "2025-10-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7370,6 +7464,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "9/10/2025",
+      "frozenOn": "2025-10-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7476,6 +7571,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7496,6 +7592,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7622,6 +7719,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "6/1/2025",
+      "frozenOn": "2025-01-06",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7768,6 +7866,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "5/12/2025",
+      "frozenOn": "2025-12-05",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7791,6 +7890,7 @@
       "passageNumber": 3,
       "passageKind": "relative",
       "frozenRaw": "11/12/2025",
+      "frozenOn": "2025-12-11",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7814,6 +7914,7 @@
       "passageNumber": 23,
       "passageKind": "relative",
       "frozenRaw": "7/10/2025",
+      "frozenOn": "2025-10-07",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7958,6 +8059,7 @@
       "passageNumber": 23,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7977,6 +8079,7 @@
       "passageNumber": 23,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7996,6 +8099,7 @@
       "passageNumber": 9,
       "passageKind": "absolute",
       "frozenRaw": "7/10/2025",
+      "frozenOn": "2025-10-07",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8060,6 +8164,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8081,6 +8186,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8102,6 +8208,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8123,6 +8230,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8144,6 +8252,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8165,6 +8274,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8186,6 +8296,7 @@
       "passageNumber": 14,
       "passageKind": "relative",
       "frozenRaw": "10/3/2026",
+      "frozenOn": "2026-03-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8419,6 +8530,7 @@
       "passageNumber": 27,
       "passageKind": "absolute",
       "frozenRaw": "5/3/2026",
+      "frozenOn": "2026-03-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8577,6 +8689,7 @@
       "passageNumber": 16,
       "passageKind": "absolute",
       "frozenRaw": "6/11/2025",
+      "frozenOn": "2025-11-06",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8618,6 +8731,7 @@
       "passageNumber": 16,
       "passageKind": "absolute",
       "frozenRaw": "6/11/2025",
+      "frozenOn": "2025-11-06",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8683,6 +8797,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8703,6 +8818,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8723,6 +8839,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8743,6 +8860,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8784,6 +8902,7 @@
       "passageNumber": 3,
       "passageKind": "relative",
       "frozenRaw": "11/12/2025",
+      "frozenOn": "2025-12-11",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8849,6 +8968,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "5/12/2025",
+      "frozenOn": "2025-12-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8872,6 +8992,7 @@
       "passageNumber": 51,
       "passageKind": "absolute",
       "frozenRaw": "10/11/2025",
+      "frozenOn": "2025-11-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8892,6 +9013,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "10/8/2026",
+      "frozenOn": "2026-08-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9002,6 +9124,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "2/12/2025",
+      "frozenOn": "2025-12-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9025,6 +9148,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "4/12/2025",
+      "frozenOn": "2025-12-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9048,6 +9172,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "4/12/2025",
+      "frozenOn": "2025-12-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9070,6 +9195,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "5/12/2025",
+      "frozenOn": "2025-12-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9092,6 +9218,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "2/12/2025",
+      "frozenOn": "2025-12-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9114,6 +9241,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "2/12/2025",
+      "frozenOn": "2025-12-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -10739,7 +10867,7 @@
     "customFlags": []
   },
   "_meta": {
-    "savedBy": null,
-    "savedAt": null
+    "savedBy": "unknown device",
+    "savedAt": "2026-09-07T13:48:36.547Z"
   }
 }

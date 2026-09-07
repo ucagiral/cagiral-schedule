@@ -1541,7 +1541,16 @@
       "frozenOn": "2025-07-28",
       "notes": "A",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A1"
       },
@@ -1564,7 +1573,16 @@
       "frozenOn": "2025-07-28",
       "notes": "B",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A2"
       },
@@ -1587,7 +1605,16 @@
       "frozenOn": "2025-07-28",
       "notes": "C",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A3"
       },
@@ -1609,7 +1636,16 @@
       "frozenRaw": "16-07-25",
       "frozenOn": "2025-07-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A4"
       },
@@ -1630,7 +1666,16 @@
       "frozenRaw": "27-05-25",
       "frozenOn": "2025-05-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A5"
       },
@@ -1651,7 +1696,16 @@
       "frozenRaw": "27-05-25",
       "frozenOn": "2025-05-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A6"
       },
@@ -1672,7 +1726,16 @@
       "frozenRaw": "29-05-25",
       "frozenOn": "2025-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A7"
       },
@@ -1693,7 +1756,16 @@
       "frozenRaw": "29-05-25",
       "frozenOn": "2025-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A8"
       },
@@ -1711,12 +1783,22 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "notes": "BUNUN YERINI DEGISTIR!",
       "flags": [
         "move-me"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "A9"
       },
@@ -1735,8 +1817,18 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B1"
       },
@@ -1758,7 +1850,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B2"
       },
@@ -1779,7 +1880,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B3"
       },
@@ -1800,7 +1910,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B4"
       },
@@ -1821,7 +1940,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B5"
       },
@@ -1842,7 +1970,16 @@
       "frozenRaw": "27-05-25",
       "frozenOn": "2025-05-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B6"
       },
@@ -1863,7 +2000,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B7"
       },
@@ -1885,7 +2031,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B8"
       },
@@ -1907,7 +2062,16 @@
       "frozenRaw": "27-05-25",
       "frozenOn": "2025-05-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "B9"
       },
@@ -1927,8 +2091,18 @@
       "passageNumber": 50,
       "passageKind": "absolute",
       "frozenRaw": "11/8/2025",
+      "frozenOn": "2025-08-11",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C1"
       },
@@ -1949,7 +2123,16 @@
       "frozenRaw": "30-05-25",
       "frozenOn": "2025-05-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C2"
       },
@@ -1968,8 +2151,18 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C3"
       },
@@ -1989,8 +2182,18 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C4"
       },
@@ -2010,8 +2213,18 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C5"
       },
@@ -2030,8 +2243,18 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C6"
       },
@@ -2050,8 +2273,18 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C7"
       },
@@ -2070,8 +2303,18 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C8"
       },
@@ -2091,8 +2334,18 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "C9"
       },
@@ -2113,7 +2366,16 @@
       "frozenRaw": "31-07-25",
       "frozenOn": "2025-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D1"
       },
@@ -2137,7 +2399,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D2"
       },
@@ -2158,7 +2429,16 @@
       "frozenRaw": "14-11-25",
       "frozenOn": "2025-11-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D3"
       },
@@ -2179,7 +2459,16 @@
       "frozenRaw": "31-07-25",
       "frozenOn": "2025-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D4"
       },
@@ -2205,7 +2494,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D5"
       },
@@ -2230,7 +2528,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D6"
       },
@@ -2255,7 +2562,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D7"
       },
@@ -2276,7 +2592,16 @@
       "frozenRaw": "16-07-25",
       "frozenOn": "2025-07-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D8"
       },
@@ -2297,7 +2622,16 @@
       "frozenRaw": "14-11-25",
       "frozenOn": "2025-11-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "D9"
       },
@@ -2318,7 +2652,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E1"
       },
@@ -2337,8 +2680,18 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E2"
       },
@@ -2357,8 +2710,18 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E3"
       },
@@ -2379,7 +2742,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E4"
       },
@@ -2401,7 +2773,16 @@
       "frozenRaw": "26-05-25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E5"
       },
@@ -2420,8 +2801,18 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "2/6/2025",
+      "frozenOn": "2025-06-02",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E6"
       },
@@ -2440,8 +2831,18 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/7/2025",
+      "frozenOn": "2025-07-03",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E7"
       },
@@ -2463,7 +2864,16 @@
       "frozenRaw": "13-01-26",
       "frozenOn": "2026-01-13",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E8"
       },
@@ -2486,7 +2896,16 @@
       "frozenRaw": "23-12-25",
       "frozenOn": "2025-12-23",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "E9"
       },
@@ -2510,7 +2929,16 @@
       "frozenRaw": "28-11-25",
       "frozenOn": "2025-11-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F1"
       },
@@ -2530,8 +2958,18 @@
       "passageNumber": 9,
       "passageKind": "absolute",
       "frozenRaw": "4/11/2025",
+      "frozenOn": "2025-11-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F2"
       },
@@ -2553,7 +2991,16 @@
       "frozenRaw": "28-11-25",
       "frozenOn": "2025-11-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F3"
       },
@@ -2573,8 +3020,18 @@
       "passageNumber": 9,
       "passageKind": "absolute",
       "frozenRaw": "4/11/2025",
+      "frozenOn": "2025-11-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F4"
       },
@@ -2596,7 +3053,16 @@
       "frozenRaw": "28-11-25",
       "frozenOn": "2025-11-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F5"
       },
@@ -2618,7 +3084,16 @@
       "frozenRaw": "28-11-25",
       "frozenOn": "2025-11-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F6"
       },
@@ -2640,7 +3115,16 @@
       "frozenRaw": "26-05-26",
       "frozenOn": "2026-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F7"
       },
@@ -2662,7 +3146,16 @@
       "frozenRaw": "26-05-26",
       "frozenOn": "2026-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F8"
       },
@@ -2684,7 +3177,16 @@
       "frozenRaw": "26-03-26",
       "frozenOn": "2026-03-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "F9"
       },
@@ -2706,7 +3208,16 @@
       "frozenRaw": "14-11-25",
       "frozenOn": "2025-11-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G1"
       },
@@ -2728,7 +3239,16 @@
       "frozenRaw": "31-07-25",
       "frozenOn": "2025-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G2"
       },
@@ -2749,7 +3269,16 @@
       "frozenRaw": "31-07-25",
       "frozenOn": "2025-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G3"
       },
@@ -2770,7 +3299,16 @@
       "frozenRaw": "28-11-25",
       "frozenOn": "2025-11-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G4"
       },
@@ -2795,7 +3333,16 @@
         "myco-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G5"
       },
@@ -2816,7 +3363,16 @@
       "frozenRaw": "31-07-25",
       "frozenOn": "2025-07-31",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G6"
       },
@@ -2836,7 +3392,16 @@
       "frozenRaw": "30-05-25",
       "frozenOn": "2025-05-30",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G7"
       },
@@ -2854,12 +3419,22 @@
       "passageNumber": 21,
       "passageKind": "relative",
       "frozenRaw": "4/6/2026",
+      "frozenOn": "2026-06-04",
       "notes": "chip-",
       "flags": [
         "chip-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G8"
       },
@@ -2879,12 +3454,22 @@
       "passageNumber": 21,
       "passageKind": "relative",
       "frozenRaw": "4/6/2026",
+      "frozenOn": "2026-06-04",
       "notes": "chip-",
       "flags": [
         "chip-negative"
       ],
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "G9"
       },
@@ -2906,7 +3491,16 @@
       "frozenRaw": "21-05-25",
       "frozenOn": "2025-05-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H1"
       },
@@ -2928,7 +3522,16 @@
       "frozenRaw": "13-12-23",
       "frozenOn": "2023-12-13",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H2"
       },
@@ -2950,7 +3553,16 @@
       "frozenRaw": "21-07-25",
       "frozenOn": "2025-07-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H3"
       },
@@ -2972,7 +3584,16 @@
       "frozenRaw": "21-07-25",
       "frozenOn": "2025-07-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H4"
       },
@@ -2994,7 +3615,16 @@
       "frozenRaw": "21-05-25",
       "frozenOn": "2025-05-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H5"
       },
@@ -3016,7 +3646,16 @@
       "frozenRaw": "21-07-25",
       "frozenOn": "2025-07-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H6"
       },
@@ -3038,7 +3677,16 @@
       "frozenRaw": "21-07-25",
       "frozenOn": "2025-07-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H7"
       },
@@ -3060,7 +3708,16 @@
       "frozenRaw": "21-05-25",
       "frozenOn": "2025-05-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H8"
       },
@@ -3080,8 +3737,18 @@
       "passageNumber": 14,
       "passageKind": "absolute",
       "frozenRaw": "5/1/2024",
+      "frozenOn": "2024-01-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "H9"
       },
@@ -3103,7 +3770,16 @@
       "frozenRaw": "21-05-25",
       "frozenOn": "2025-05-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I1"
       },
@@ -3125,7 +3801,16 @@
       "frozenRaw": "21-07-25",
       "frozenOn": "2025-07-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I2"
       },
@@ -3147,7 +3832,16 @@
       "frozenRaw": "21-07-25",
       "frozenOn": "2025-07-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I3"
       },
@@ -3167,8 +3861,18 @@
       "passageNumber": 14,
       "passageKind": "absolute",
       "frozenRaw": "5/4/2024",
+      "frozenOn": "2024-04-05",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I4"
       },
@@ -3190,7 +3894,16 @@
       "frozenRaw": "21-05-25",
       "frozenOn": "2025-05-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I5"
       },
@@ -3212,7 +3925,16 @@
       "frozenRaw": "16-01-26",
       "frozenOn": "2026-01-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I6"
       },
@@ -3233,7 +3955,16 @@
       "frozenRaw": "16-01-26",
       "frozenOn": "2026-01-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I7"
       },
@@ -3253,8 +3984,18 @@
       "passageNumber": 47,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I8"
       },
@@ -3275,7 +4016,16 @@
       "frozenRaw": "16-01-26",
       "frozenOn": "2026-01-16",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-umut-caa-cells",
         "position": "I9"
       },
@@ -3414,6 +4164,7 @@
       "passageNumber": 5,
       "passageKind": "relative",
       "frozenRaw": "2/1/2026",
+      "frozenOn": "2026-01-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3437,6 +4188,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "2/1/2026",
+      "frozenOn": "2026-01-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3460,6 +4212,7 @@
       "passageNumber": 5,
       "passageKind": "absolute",
       "frozenRaw": "2/1/2026",
+      "frozenOn": "2026-01-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3483,6 +4236,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3616,6 +4370,7 @@
       "passageNumber": 30,
       "passageKind": "absolute",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3765,6 +4520,7 @@
       "passageNumber": 28,
       "passageKind": "absolute",
       "frozenRaw": "5/1/2026",
+      "frozenOn": "2026-01-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3852,6 +4608,7 @@
       "passageNumber": 6,
       "passageKind": "relative",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3872,6 +4629,7 @@
       "passageNumber": 37,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3893,6 +4651,7 @@
       "passageNumber": 9,
       "passageKind": "relative",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3916,6 +4675,7 @@
       "passageNumber": 7,
       "passageKind": "absolute",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3939,6 +4699,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3962,6 +4723,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -3982,6 +4744,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "8/1/2026",
+      "frozenOn": "2026-01-08",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4074,6 +4837,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4097,6 +4861,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4117,6 +4882,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4138,6 +4904,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4158,6 +4925,7 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "frozenRaw": "1/6/2026",
+      "frozenOn": "2026-06-01",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4262,6 +5030,7 @@
       "passageNumber": 84,
       "passageKind": "absolute",
       "frozenRaw": "2/5/2025",
+      "frozenOn": "2025-05-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4282,6 +5051,7 @@
       "passageNumber": 48,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4303,6 +5073,7 @@
       "passageNumber": 48,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4324,6 +5095,7 @@
       "passageNumber": 22,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4345,6 +5117,7 @@
       "passageNumber": 22,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4366,6 +5139,7 @@
       "passageNumber": 37,
       "passageKind": "absolute",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4387,6 +5161,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "4/5/2026",
+      "frozenOn": "2026-05-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4430,6 +5205,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "2/5/2025",
+      "frozenOn": "2025-05-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4524,6 +5300,7 @@
       "passageNumber": 21,
       "passageKind": "relative",
       "frozenRaw": "4/6/2026",
+      "frozenOn": "2026-06-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4671,6 +5448,7 @@
       "passageNumber": 43,
       "passageKind": "absolute",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4714,6 +5492,7 @@
       "passageNumber": 43,
       "passageKind": "absolute",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4735,6 +5514,7 @@
       "passageNumber": 42,
       "passageKind": "absolute",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4755,6 +5535,7 @@
       "passageNumber": 42,
       "passageKind": "absolute",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4774,6 +5555,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "10/2/2026",
+      "frozenOn": "2026-02-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -4818,6 +5600,7 @@
       "passageNumber": 21,
       "passageKind": "absolute",
       "frozenRaw": "6/2/2026",
+      "frozenOn": "2026-02-06",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-80",
@@ -5069,6 +5852,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5092,6 +5876,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5115,6 +5900,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5138,6 +5924,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "5/5/2025",
+      "frozenOn": "2025-05-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5161,6 +5948,7 @@
       "passageNumber": 25,
       "passageKind": "absolute",
       "frozenRaw": "9/4/2026",
+      "frozenOn": "2026-04-09",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5181,6 +5969,7 @@
       "passageNumber": 25,
       "passageKind": "absolute",
       "frozenRaw": "9/4/2026",
+      "frozenOn": "2026-04-09",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5244,6 +6033,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "10/2/2026",
+      "frozenOn": "2026-02-10",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5434,6 +6224,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "8/5/2025",
+      "frozenOn": "2025-05-08",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5452,6 +6243,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "8/5/2025",
+      "frozenOn": "2025-05-08",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5470,6 +6262,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "8/5/2025",
+      "frozenOn": "2025-05-08",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5488,6 +6281,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "8/5/2025",
+      "frozenOn": "2025-05-08",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5506,6 +6300,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "7/5/2025",
+      "frozenOn": "2025-05-07",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5524,6 +6319,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "7/5/2025",
+      "frozenOn": "2025-05-07",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5542,6 +6338,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "7/5/2025",
+      "frozenOn": "2025-05-07",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5812,6 +6609,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "3/2/2023",
+      "frozenOn": "2023-02-03",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -5854,6 +6652,7 @@
       "passageNumber": 14,
       "passageKind": "relative",
       "frozenRaw": "2/5/2025",
+      "frozenOn": "2025-05-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6012,6 +6811,7 @@
       "passageNumber": 22,
       "passageKind": "absolute",
       "frozenRaw": "6/2/2026",
+      "frozenOn": "2026-02-06",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6054,6 +6854,7 @@
       "passageNumber": 18,
       "passageKind": "absolute",
       "frozenRaw": "5/2/2026",
+      "frozenOn": "2026-02-05",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6075,6 +6876,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "2/2/2026",
+      "frozenOn": "2026-02-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6116,6 +6918,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "2/2/2026",
+      "frozenOn": "2026-02-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6157,6 +6960,7 @@
       "passageNumber": 11,
       "passageKind": "relative",
       "frozenRaw": "3/3/2026",
+      "frozenOn": "2026-03-03",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6179,6 +6983,7 @@
       "passageNumber": 11,
       "passageKind": "relative",
       "frozenRaw": "3/3/2026",
+      "frozenOn": "2026-03-03",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6545,6 +7350,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "2/2/2026",
+      "frozenOn": "2026-02-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6586,6 +7392,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "2/2/2026",
+      "frozenOn": "2026-02-02",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6649,6 +7456,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6670,6 +7478,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "10/4/2026",
+      "frozenOn": "2026-04-10",
       "location": {
         "path": [],
         "boxId": "b-duzenle",
@@ -6829,6 +7638,7 @@
       "passageNumber": 14,
       "passageKind": "relative",
       "frozenRaw": "10/3/2026",
+      "frozenOn": "2026-03-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6849,6 +7659,7 @@
       "passageNumber": 13,
       "passageKind": "relative",
       "frozenRaw": "11/3/2026",
+      "frozenOn": "2026-03-11",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6870,6 +7681,7 @@
       "passageNumber": 13,
       "passageKind": "relative",
       "frozenRaw": "11/3/2026",
+      "frozenOn": "2026-03-11",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6891,6 +7703,7 @@
       "passageNumber": 14,
       "passageKind": "relative",
       "frozenRaw": "10/3/2026",
+      "frozenOn": "2026-03-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6932,6 +7745,7 @@
       "passageNumber": 7,
       "passageKind": "absolute",
       "frozenRaw": "7/7/2025",
+      "frozenOn": "2025-07-07",
       "notes": "to-do box / thaw",
       "flags": [
         "to-do"
@@ -6956,6 +7770,7 @@
       "passageNumber": 16,
       "passageKind": "absolute",
       "frozenRaw": "9/6/2026",
+      "frozenOn": "2026-06-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -6998,6 +7813,7 @@
       "passageNumber": 7,
       "passageKind": "relative",
       "frozenRaw": "9/6/2026",
+      "frozenOn": "2026-06-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7018,6 +7834,7 @@
       "passageNumber": 36,
       "passageKind": "absolute",
       "frozenRaw": "8/5/2026",
+      "frozenOn": "2026-05-08",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7225,6 +8042,7 @@
       "passageNumber": 51,
       "passageKind": "absolute",
       "frozenRaw": "10/11/2025",
+      "frozenOn": "2025-11-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7245,6 +8063,7 @@
       "passageNumber": 51,
       "passageKind": "absolute",
       "frozenRaw": "10/11/2025",
+      "frozenOn": "2025-11-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7265,6 +8084,7 @@
       "passageNumber": 42,
       "passageKind": "absolute",
       "frozenRaw": "2/6/2025",
+      "frozenOn": "2025-06-02",
       "notes": "to-do box / thaw",
       "flags": [
         "to-do"
@@ -7289,6 +8109,7 @@
       "passageNumber": 36,
       "passageKind": "absolute",
       "frozenRaw": "8/5/2026",
+      "frozenOn": "2026-05-08",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7330,6 +8151,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "9/10/2025",
+      "frozenOn": "2025-10-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7350,6 +8172,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "9/10/2025",
+      "frozenOn": "2025-10-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7370,6 +8193,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "9/10/2025",
+      "frozenOn": "2025-10-09",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7476,6 +8300,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7496,6 +8321,7 @@
       "passageNumber": 2,
       "passageKind": "relative",
       "frozenRaw": "6/5/2026",
+      "frozenOn": "2026-05-06",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7622,6 +8448,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "6/1/2025",
+      "frozenOn": "2025-01-06",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7768,6 +8595,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "5/12/2025",
+      "frozenOn": "2025-12-05",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7791,6 +8619,7 @@
       "passageNumber": 3,
       "passageKind": "relative",
       "frozenRaw": "11/12/2025",
+      "frozenOn": "2025-12-11",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7814,6 +8643,7 @@
       "passageNumber": 23,
       "passageKind": "relative",
       "frozenRaw": "7/10/2025",
+      "frozenOn": "2025-10-07",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7958,6 +8788,7 @@
       "passageNumber": 23,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7977,6 +8808,7 @@
       "passageNumber": 23,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -7996,6 +8828,7 @@
       "passageNumber": 9,
       "passageKind": "absolute",
       "frozenRaw": "7/10/2025",
+      "frozenOn": "2025-10-07",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8060,6 +8893,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8081,6 +8915,7 @@
       "passageNumber": 11,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8102,6 +8937,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8123,6 +8959,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8144,6 +8981,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8165,6 +9003,7 @@
       "passageNumber": 20,
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
+      "frozenOn": "2026-06-12",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8186,6 +9025,7 @@
       "passageNumber": 14,
       "passageKind": "relative",
       "frozenRaw": "10/3/2026",
+      "frozenOn": "2026-03-10",
       "location": {
         "path": [],
         "boxId": "b-ongoing",
@@ -8419,6 +9259,7 @@
       "passageNumber": 27,
       "passageKind": "absolute",
       "frozenRaw": "5/3/2026",
+      "frozenOn": "2026-03-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8577,6 +9418,7 @@
       "passageNumber": 16,
       "passageKind": "absolute",
       "frozenRaw": "6/11/2025",
+      "frozenOn": "2025-11-06",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8618,6 +9460,7 @@
       "passageNumber": 16,
       "passageKind": "absolute",
       "frozenRaw": "6/11/2025",
+      "frozenOn": "2025-11-06",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8683,6 +9526,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8703,6 +9547,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8723,6 +9568,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8743,6 +9589,7 @@
       "passageNumber": 10,
       "passageKind": "absolute",
       "frozenRaw": "12/12/2025",
+      "frozenOn": "2025-12-12",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8784,6 +9631,7 @@
       "passageNumber": 3,
       "passageKind": "relative",
       "frozenRaw": "11/12/2025",
+      "frozenOn": "2025-12-11",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8849,6 +9697,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "5/12/2025",
+      "frozenOn": "2025-12-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8872,6 +9721,7 @@
       "passageNumber": 51,
       "passageKind": "absolute",
       "frozenRaw": "10/11/2025",
+      "frozenOn": "2025-11-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -8892,6 +9742,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "10/8/2026",
+      "frozenOn": "2026-08-10",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9002,6 +9853,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "2/12/2025",
+      "frozenOn": "2025-12-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9025,6 +9877,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "4/12/2025",
+      "frozenOn": "2025-12-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9048,6 +9901,7 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "frozenRaw": "4/12/2025",
+      "frozenOn": "2025-12-04",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9070,6 +9924,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "5/12/2025",
+      "frozenOn": "2025-12-05",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9092,6 +9947,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "2/12/2025",
+      "frozenOn": "2025-12-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -9114,6 +9970,7 @@
       "passage": "p?",
       "passageKind": "unknown",
       "frozenRaw": "2/12/2025",
+      "frozenOn": "2025-12-02",
       "location": {
         "path": [],
         "boxId": "b-umut-cells-4",
@@ -10739,7 +11596,7 @@
     "customFlags": []
   },
   "_meta": {
-    "savedBy": null,
-    "savedAt": null
+    "savedBy": "unknown device",
+    "savedAt": "2026-09-07T13:48:36.547Z"
   }
 }

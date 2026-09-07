@@ -1568,11 +1568,16 @@ try {
     const page = await context.newPage();
 
     let settings = { emails: ["already@example.com"], sendAt: "07:30", timeZone: "Europe/Istanbul" };
+    // raw.githubusercontent keeps serving the PREVIOUS version of a file for a while
+    // after a commit. Once this is set, the route is frozen at whatever it held then --
+    // which is exactly what a stale CDN read is.
+    let staleSettings = null;
     let lastCommit = null;
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
       if (url.includes("cellstocks/exports/recipients.json")) {
-        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(settings) });
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify(staleSettings || settings) });
       }
       if (url.includes("cellstocks/lab-storage.json")) {
         return route.fulfill({ status: 200, contentType: "application/json",
@@ -1653,6 +1658,36 @@ try {
     check("adding an address keeps the send time, instead of silently resetting it",
       afterAddr && afterAddr.sendAt === "06:15" && afterAddr.emails.length === 2,
       JSON.stringify(afterAddr));
+
+    // ---- the stale CDN read, which is how this actually broke for Umut -------------
+    //
+    // He set the time to 13:15, removed an address, removed it again -- and the third
+    // save wrote his old 07:30 back. The card re-read recipients.json from
+    // raw.githubusercontent after committing, got the pre-13:15 copy, and the next save
+    // merged his deletion onto that stale object. Same failure as the freezers that kept
+    // coming back, in a new place. From here the raw route is frozen at the old file.
+    staleSettings = { emails: ["already@example.com"], sendAt: "07:30", timeZone: "Europe/Istanbul" };
+
+    // Leave the screen and come back, so the card renders again from scratch.
+    await page.click("#adminTabs button[data-admintab=users]");
+    await page.click("#adminTabs button[data-admintab=history]");
+    await page.waitForSelector("#admin-history input[type=time]");
+    const timeAfterReturn = await page.$eval("#admin-history input[type=time]", (el) => el.value);
+    check("coming back to the card shows what was committed, not the stale copy",
+      timeAfterReturn === "06:15", timeAfterReturn);
+
+    // And the save that follows must not carry the stale value back into the file.
+    await page.evaluate(() => {
+      const row = Array.from(document.querySelectorAll("#admin-history .item"))
+        .find((r) => /second@example.com/.test(r.textContent));
+      Array.from(row.querySelectorAll("button")).find((b) => b.textContent.trim() === "Remove").click();
+    });
+    await page.waitForFunction(() => !/second@example.com/.test(document.getElementById("admin-history").textContent));
+    const afterRemove = lastCommit && JSON.parse(lastCommit.files[0].content);
+    check("removing an address actually removes it",
+      afterRemove && !afterRemove.emails.includes("second@example.com"), JSON.stringify(afterRemove));
+    check("and it does not resurrect the send time from the stale read",
+      afterRemove && afterRemove.sendAt === "06:15", JSON.stringify(afterRemove));
   } catch (err) {
     check("the export card sets who the daily mail goes to and when", false, String(err));
   } finally {

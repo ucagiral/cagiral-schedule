@@ -11703,7 +11703,8 @@
       "facetsFromSheet": {
         "origin": "HEK293T",
         "koox": "WT"
-      }
+      },
+      "dateUnknown": true
     },
     {
       "id": "v-342",
@@ -14342,6 +14343,6 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-07T15:21:13.601Z"
+    "savedAt": "2026-09-07T16:17:20.384Z"
   }
 }

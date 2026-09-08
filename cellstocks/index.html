@@ -2086,7 +2086,17 @@
   function pickBox(){
     var body = clear($("dlgBody"));
     $("dlgTitle").textContent = "Which box?";
-    E.eachBox(state, function(box, rack, unit){
+    // Your own placed boxes only -- same filter suggestPlacement() already applies for
+    // the automatic proposal (E.boxesFor, owner-scoped). A raw E.eachBox() here used to
+    // list every box in the whole lab, including other members' and anything still
+    // sitting in "Not placed yet": an override that is supposed to offer a different
+    // box of YOURS was instead offering to freeze a vial straight into Barış's box.
+    var mine = E.boxesFor(state, null, effectiveIdentity());
+    if (!mine.length){
+      body.appendChild(el("p", "note", "You have no boxes with room yet — ask an admin for one."));
+    }
+    mine.forEach(function(entry){
+      var box = entry.box, rack = entry.rack, unit = entry.unit;
       var occ = E.occupancy(state, box.id);
       var b = el("button", null, "");
       b.style.width = "100%";

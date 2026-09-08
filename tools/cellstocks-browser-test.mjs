@@ -2592,6 +2592,90 @@ try {
   }
 }
 
+// ============================================================================
+// The Add screen's "put it somewhere else" override must stay inside your own boxes
+// ============================================================================
+//
+// The real report: Umut froze a vial and the box override offered Barış's box as
+// somewhere to put it -- his own screen, freezing his own vial, and the app was willing
+// to write it into a lab-mate's inventory. suggestPlacement() already scopes the
+// AUTOMATIC proposal to the caller's own boxes via E.boxesFor (owner-scoped, and it
+// already excludes "Not placed yet" boxes too -- one is not in the freezer yet). pickBox()
+// -- the manual "choose a different box" dialog -- used a raw E.eachBox() instead, which
+// walks every box in the whole shared tree with no owner filter at all, including
+// unplaced ones. Reproduced with three boxes: one of Umut's, one of Barış's, and one of
+// Umut's own that has no home yet.
+{
+  const server17 = await serve(8814);
+  const browser17 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-mine", name: "Box Mine", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 2, cols: 2, scheme: "grid" },
+        { id: "b-baris", name: "Box Baris", icon: "📦", note: "", isBox: true, owner: "baris",
+          rows: 2, cols: 2, scheme: "grid" }
+      ] }
+    ], unplaced: [
+      { id: "b-unplaced-mine", name: "Box Unplaced Mine", icon: "📦", note: "", isBox: true,
+        owner: "umut", rows: 2, cols: 2, scheme: "grid" }
+    ] };
+    const own = { lines: [], withdrawals: [], rules: {}, settings: {}, vials: [] };
+
+    const context = await browser17.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(own) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await page.route("https://fake-worker.example/**", (route) =>
+      route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) }));
+
+    await page.goto("http://localhost:8814/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    await page.click('nav button[data-screen="freeze"]');
+    await page.fill("#fzName", "RaceTest Gamma");
+    await page.waitForFunction(() => /Box Mine/.test(document.getElementById("fzPlanCard").textContent));
+
+    await page.evaluate(() => {
+      const btn = [...document.querySelectorAll("#fzPlanCard button")]
+        .find((b) => b.textContent.trim() === "Put it somewhere else");
+      btn.click();
+    });
+    await page.waitForSelector("#dlgBody button");
+    const dialogText = await page.evaluate(() => document.getElementById("dlgBody").textContent);
+
+    check("your own placed box is offered", /Box Mine/.test(dialogText), dialogText);
+    check("a lab-mate's box is never offered as somewhere to put YOUR vial",
+      !/Box Baris/.test(dialogText) && !/baris/i.test(dialogText), dialogText);
+    check("your own box that has no home yet is not offered either -- it is not in the freezer",
+      !/Box Unplaced Mine/.test(dialogText) && !/Not placed yet/.test(dialogText), dialogText);
+  } catch (err) {
+    check("the box override never offers a box you don't own", false, String(err));
+  } finally {
+    await browser17.close();
+    server17.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

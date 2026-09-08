@@ -10930,7 +10930,18 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-08",
       "frozenOn": "2026-09-08",
-      "location": {
+      "status": "withdrawn",
+      "addedAt": "2026-09-08T11:09:47.786Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    }
+  ],
+  "withdrawals": [
+    {
+      "id": "w-mtskid31",
+      "vialId": "v-mtski3re-0",
+      "name": "Hek caspex",
+      "from": {
         "path": [
           "u-ln2",
           "t-1"
@@ -10938,13 +10949,12 @@
         "boxId": "b-duzenle",
         "position": "I8"
       },
-      "status": "stored",
-      "addedAt": "2026-09-08T11:09:47.786Z",
-      "addedBy": "unknown device",
-      "kind": "Cell"
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
-  "withdrawals": [],
   "settings": {
     "defaultUnitId": "u-ln2",
     "placement": {
@@ -10969,7 +10979,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T11:09:49.350Z"
+    "savedAt": "2026-09-08T11:10:00.871Z"
   },
   "removedVialIds": [
     "v-205",

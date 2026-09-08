@@ -10489,7 +10489,21 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "status": "withdrawn",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "B8"
+      },
+      "status": "stored",
       "addedAt": "2026-09-07T15:17:40.188Z",
       "addedBy": "unknown device"
     },
@@ -10650,21 +10664,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-duzenle",
-        "position": "E6"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-07T15:19:46.171Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -10818,7 +10818,21 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "status": "withdrawn",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "D5"
+      },
+      "status": "stored",
       "addedAt": "2026-09-07T15:21:12.672Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -10954,9 +10968,9 @@
       "notes": ""
     },
     {
-      "id": "w-mtsxsa3f",
-      "vialId": "v-mtrdx0po-0",
-      "name": "HEK gNT",
+      "id": "w-mtsxt6o1",
+      "vialId": "v-mtrdzpx7-0",
+      "name": "Huh7 gNT",
       "from": {
         "path": [
           {
@@ -10968,31 +10982,8 @@
             "name": "Rack 1"
           }
         ],
-        "boxId": "b-umut-cells-4",
-        "position": "B8"
-      },
-      "date": "2026-09-08",
-      "by": "unknown device",
-      "purpose": "thaw",
-      "notes": ""
-    },
-    {
-      "id": "w-mtsxsce4",
-      "vialId": "v-mtre1ko0-0",
-      "name": "Huh7 ATF3 OX rep3",
-      "from": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-4",
-        "position": "D5"
+        "boxId": "b-duzenle",
+        "position": "E6"
       },
       "date": "2026-09-08",
       "by": "unknown device",
@@ -11024,7 +11015,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T17:21:41.604Z"
+    "savedAt": "2026-09-08T17:22:20.799Z"
   },
   "removedVialIds": [
     "v-205",

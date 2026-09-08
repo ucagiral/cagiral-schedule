@@ -10822,6 +10822,26 @@
       "addedAt": "2026-09-08T11:09:47.786Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mtt0h140-0",
+      "name": "klm ox",
+      "lineId": "l-klm-ox",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-08",
+      "frozenOn": "2026-09-08",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A1"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-08T18:36:51.554Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -11051,7 +11071,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T18:20:30.922Z"
+    "savedAt": "2026-09-08T18:36:52.791Z"
   },
   "removedVialIds": [
     "v-205",

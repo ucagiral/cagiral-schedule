@@ -10543,21 +10543,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-4",
-        "position": "A4"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-07T15:18:16.654Z",
       "addedBy": "unknown device"
     },
@@ -10597,7 +10583,21 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "status": "withdrawn",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "A6"
+      },
+      "status": "stored",
       "addedAt": "2026-09-07T15:18:48.988Z",
       "addedBy": "unknown device"
     },
@@ -10637,7 +10637,21 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "status": "withdrawn",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "A8"
+      },
+      "status": "stored",
       "addedAt": "2026-09-07T15:19:15.021Z",
       "addedBy": "unknown device"
     },
@@ -10927,9 +10941,9 @@
       "notes": ""
     },
     {
-      "id": "w-mtsxgml2",
-      "vialId": "v-mtrdz1vx-0",
-      "name": "HEK ATF3 OX rep3",
+      "id": "w-mtsxh1p0",
+      "vialId": "v-mtrdxsum-0",
+      "name": "HEK ATF3 KO rep2",
       "from": {
         "path": [
           {
@@ -10942,30 +10956,7 @@
           }
         ],
         "boxId": "b-umut-cells-4",
-        "position": "A8"
-      },
-      "date": "2026-09-08",
-      "by": "unknown device",
-      "purpose": "thaw",
-      "notes": ""
-    },
-    {
-      "id": "w-mtsxgo43",
-      "vialId": "v-mtrdyhss-0",
-      "name": "HEK 3xFLAG",
-      "from": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-4",
-        "position": "A6"
+        "position": "A4"
       },
       "date": "2026-09-08",
       "by": "unknown device",
@@ -10997,7 +10988,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T17:12:36.925Z"
+    "savedAt": "2026-09-08T17:12:54.509Z"
   },
   "removedVialIds": [
     "v-205",

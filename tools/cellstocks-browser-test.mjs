@@ -2892,6 +2892,113 @@ try {
   }
 }
 
+// ============================================================================
+// An account switch must never keep showing a lab-wide cache from before it
+// ============================================================================
+//
+// The real report: Umut froze a vial as himself, logged out, logged into admin, and
+// admin's merged view of Umut's own box still showed the old, empty state -- going
+// back to Umut's own account showed it fine. Not a network race this time: this
+// session had already fetched Umut's data once (ensureLabCache() caches by design, so
+// switching screens doesn't keep re-fetching everyone), and neither workerLogin() nor
+// workerLogout() ever cleared that cache. ensureLabCache()'s own guard -- "already have
+// members, skip the fetch" -- kept serving the pre-freeze copy straight through the
+// account switch, no CDN involved. load() runs on every fresh open and every account
+// switch alike, so it now clears labCache itself rather than leaving every caller to
+// remember to.
+{
+  const server20 = await serve(8818);
+  const browser20 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-1", name: "Box Umut", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 2, cols: 2, scheme: "grid" }
+      ] }
+    ], unplaced: [] };
+    const admin = { lines: [], withdrawals: [], rules: {}, settings: {}, vials: [] };
+    let umutData = { lines: [], withdrawals: [], rules: {}, settings: {}, vials: [] };
+
+    const context = await browser20.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/admin.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(admin) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(umutData) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
+      }
+      if (path === "/logout" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8818/cellstocks/");
+    const loginAsAdmin = async () => {
+      await page.waitForSelector("#gateBody input");
+      const li = await page.$$("#gateBody input");
+      await li[0].fill("https://fake-worker.example");
+      await li[1].fill("admin");
+      await li[2].fill("anything");
+      await page.click("#workerLoginBtn");
+      await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+    };
+    await loginAsAdmin();
+
+    await page.click('nav button[data-screen="boxes"]');
+    await page.waitForSelector("#bxOcc");
+    const before = await page.evaluate(() => document.getElementById("bxOcc").textContent);
+    check("admin's merged view starts by correctly showing Umut has nothing frozen yet",
+      /0 of 4/.test(before), before);
+
+    // Log out -- this account's session ends, but nothing about "everyone else's data"
+    // this tab already fetched is inherently wrong yet, so the real bug wouldn't show
+    // here even without the fix.
+    await page.click('nav button[data-screen="settings"]');
+    await page.waitForSelector("#workerLogoutBtn");
+    await page.click("#workerLogoutBtn");
+    await page.waitForSelector("#gateBody input");
+
+    // While logged out, Umut freezes a vial (a different device, or this same one under
+    // a different login) -- the server's copy of umut.json changes.
+    umutData = { lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [{ id: "v-1", name: "klm ox", lineId: "l-klm-ox", passageKind: "unknown",
+        frozenOn: "2026-09-08", frozenRaw: "2026-09-08", notes: "", flags: [],
+        location: { boxId: "b-1", position: "A1", path: ["u-1"] }, status: "stored" }] };
+
+    // Log back into admin -- this is the exact reported sequence: freeze as Umut,
+    // switch into admin, and admin's merged view still showed the pre-freeze state.
+    await loginAsAdmin();
+    await page.click('nav button[data-screen="boxes"]');
+    await page.waitForFunction(() => /1 of 4/.test(document.getElementById("bxOcc").textContent));
+  } catch (err) {
+    check("an account switch never keeps showing a lab-wide cache from before it", false, String(err));
+  } finally {
+    await browser20.close();
+    server20.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

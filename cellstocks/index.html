@@ -856,9 +856,6 @@
   // rather than save() growing a second, maybe-diverging copy of this branching.
   async function fetchOwnFileText(){
     var text = null;
-    // A worker login never needs the token-authenticated read below -- the repo is
-    // public, so an unauthenticated raw fetch of the account's own data path always
-    // works. Only save() ever talks to the worker.
     if (getToken()){
       var r = await fetch(API + "/contents/" + LEGACY_DATA_PATH + "?ref=" + encodeURIComponent(CFG.branch||"main"),
                           { headers: ghHeaders(), cache:"no-store" });
@@ -866,8 +863,25 @@
       else if (!r.ok) throw new Error("GitHub said " + r.status);
       else { var j = await r.json(); text = base64ToUtf8(j.content || ""); }
     } else {
-      var resp = await fetch(rawURL(dataPath()), { cache:"no-store" });
-      text = resp.ok ? await resp.text() : null;
+      // A worker login never needs the token-authenticated read above -- the repo is
+      // public, so the Contents API also answers this unauthenticated, same as the raw
+      // fetch this replaces. It used to be a plain fetch(rawURL(...)) against
+      // raw.githubusercontent.com -- a CDN that can keep serving the previous version of
+      // a file for a while after a commit, already documented and worked around for
+      // lab-storage.json/recipients.json and load()'s own dirty-merge branch. It bit here
+      // too, in a worse way: doSave()'s pre-commit reconcile calls this same function
+      // right after this device's own withdrawal commit, and the CDN handing back the
+      // stale pre-withdrawal copy made that reconcile silently revert the withdrawal
+      // before the NEXT save went out -- accumulating withdrawal log entries (a plain
+      // union) while the vial's own status kept bouncing back to "stored", exactly what
+      // Umut saw with a box he was actively withdrawing from. The Contents API is not
+      // fronted by that CDN, so this read now sees this device's own just-committed
+      // writes immediately.
+      var r2 = await fetch(API + "/contents/" + dataPath() + "?ref=" + encodeURIComponent(CFG.branch||"main"),
+                           { cache:"no-store" });
+      if (r2.status === 404) text = null;
+      else if (!r2.ok) throw new Error("GitHub said " + r2.status);
+      else { var j2 = await r2.json(); text = base64ToUtf8(j2.content || ""); }
     }
     return text;
   }
@@ -1268,6 +1282,19 @@
       var remoteText = await fetchOwnFileText();
       if (remoteText !== null && remoteText !== undefined){
         var remote = E.mergeDefaults(JSON.parse(remoteText));
+        // This read can still be stale even off the Contents API (a slow edge, a retried
+        // request racing its own retry) -- and mergeInventories's "local matches its
+        // ancestor, so let remote stand" rule (by design, for the case where remote is a
+        // genuine newer edit from elsewhere) cannot tell that apart from "remote is an
+        // echo of a write this device already made and knows landed." A withdrawal
+        // committed, then silently undone by the very next save's own reconcile reading
+        // an older copy of this same file, was exactly that. load() already refuses to
+        // regress past syncedState on its own read (see there); the same guard belongs
+        // here, on the read doSave() takes right before every commit.
+        if (syncedState && syncedState._meta && remote._meta &&
+            String(remote._meta.savedAt || "") < String(syncedState._meta.savedAt || "")){
+          remote = syncedState;
+        }
         var reconciled = E.mergeInventories(remote, state, syncedState);
         state = hydrate(reconciled.state, effectiveIdentity());
         // What we just read is now the freshest thing this device knows the server to

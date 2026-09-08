@@ -10842,6 +10842,66 @@
       "addedAt": "2026-09-08T18:36:51.554Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mtt3mo6u-0",
+      "name": "jkl",
+      "lineId": "l-jkl",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-08",
+      "frozenOn": "2026-09-08",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A2"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-08T20:05:13.592Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mtt3mo6u-1",
+      "name": "jkl",
+      "lineId": "l-jkl",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-08",
+      "frozenOn": "2026-09-08",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A3"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-08T20:05:13.592Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mtt3mo6u-2",
+      "name": "jkl",
+      "lineId": "l-jkl",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-08",
+      "frozenOn": "2026-09-08",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A4"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-08T20:05:13.592Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -11071,7 +11131,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T20:04:20.822Z"
+    "savedAt": "2026-09-08T20:05:14.594Z"
   },
   "removedVialIds": [
     "v-205",

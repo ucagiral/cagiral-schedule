@@ -330,7 +330,7 @@
   dialog::backdrop{background:rgba(0,0,0,.45)}
   .dlg-head{display:flex; align-items:center; gap:8px; padding:12px 14px; border-bottom:1px solid var(--border)}
   .dlg-head h3{margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:var(--text)}
-  .dlg-body{padding:14px; overflow:auto; max-height:60vh}
+  .dlg-body{padding:14px; overflow-y:auto; overflow-x:hidden; max-height:60vh}
   .dlg-foot{padding:12px 14px; border-top:1px solid var(--border); display:flex; gap:8px; flex-wrap:wrap}
   .dlg-foot button{flex:1; min-width:100px}
   .refresh { background:none; border:0; font-size:1.1rem; line-height:1; padding:.2rem .4rem;
@@ -879,6 +879,16 @@
                  "opened from GitHub Pages rather than from a file on disk.");
       return;
     }
+    // Every OTHER member's data, cached in memory for admin/PI's merged Boxes view and
+    // "search in lab" -- but nothing ever invalidated it on a plain account switch.
+    // Umut froze a vial as himself, logged out, logged into admin, and admin's view of
+    // Umut's own box still showed the old, pre-freeze state: this session had already
+    // fetched Umut earlier (however long ago, in this same tab) and workerLogin()/
+    // workerLogout() never cleared it, so ensureLabCache()'s own guard -- "already have
+    // members, skip the fetch" -- kept serving that stale copy through the whole switch,
+    // no network lag involved at all. load() runs on every fresh open and every account
+    // switch alike, so it is where "as of right now" has to start meaning that again.
+    labCache.members = null; labCache.data = {}; labCache.failed = [];
     try {
       var text = await fetchOwnFileText();
       // A miss (404, or no token/legacy file yet) means this account has nothing saved yet --
@@ -5850,9 +5860,9 @@
     // too -- otherwise a rack an admin added a minute ago would still be missing and the
     // button would look broken. This is the one place re-reading is right: the rule
     // against it is about re-reading straight AFTER a commit, when the CDN still serves
-    // the copy from before it.
+    // the copy from before it. load() itself now clears labCache on every call, so this
+    // only still needs the two lab-wide files.
     labStorageLoaded = false; labRulesLoaded = false;
-    labCache.members = null; labCache.data = {}; labCache.failed = [];
     try { await load(); renderAll(); }
     finally { b.disabled = false; b.classList.remove("spin"); }
   };

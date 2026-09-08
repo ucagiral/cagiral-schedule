@@ -10830,7 +10830,15 @@
       "passageKind": "unknown",
       "frozenRaw": "2026-09-08",
       "frozenOn": "2026-09-08",
-      "status": "withdrawn",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A1"
+      },
+      "status": "stored",
       "addedAt": "2026-09-08T18:36:51.554Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -11143,6 +11151,23 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtt6vscn",
+      "vialId": "v-mtt3mo6u-0",
+      "name": "jkl",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A2"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11169,7 +11194,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T21:36:12.941Z"
+    "savedAt": "2026-09-08T21:36:18.745Z"
   },
   "removedVialIds": [
     "v-205",

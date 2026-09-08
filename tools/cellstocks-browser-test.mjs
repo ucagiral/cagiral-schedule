@@ -2795,6 +2795,103 @@ try {
   }
 }
 
+// ============================================================================
+// A clean reload must never regress past a save this device already knows landed
+// ============================================================================
+//
+// The real report: Umut froze a vial, reopened the app a couple of minutes later, and
+// the box was back to empty. Nothing was lost server-side -- the commit had gone
+// through -- but raw.githubusercontent can serve the previous version of a file for a
+// while after a commit (documented already for lab-storage.json and recipients.json),
+// and this reload landed in that window. Nothing was "dirty" at that point to protect
+// against it, so load()'s clean branch just trusted the stale read and overwrote a
+// state this device already knew, for a fact, to be newer.
+{
+  const server19 = await serve(8817);
+  const browser19 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-1", name: "Box 1", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 2, cols: 2, scheme: "grid" }
+      ] }
+    ], unplaced: [] };
+    // The pre-save copy: what a lagging CDN edge keeps serving for a while after the
+    // real commit. Its own _meta.savedAt is fixed and old on purpose, so the check has
+    // something genuinely older than the real save to compare against.
+    const preSaveOwn = { lines: [], withdrawals: [], rules: {}, settings: {}, vials: [],
+      _meta: { savedBy: "the phone", savedAt: "2020-01-01T00:00:00.000Z" } };
+    let postSaveOwn = null;
+    let simulateStaleCdn = false;
+
+    const context = await browser19.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        const body = (simulateStaleCdn || !postSaveOwn) ? preSaveOwn : postSaveOwn;
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    let lastCommit19 = null;
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        lastCommit19 = JSON.parse(req.postData());
+        const f = lastCommit19.files.find((x) => x.path === "cellstocks/data/umut.json");
+        if (f) postSaveOwn = JSON.parse(f.content);
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "sha" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8817/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    await page.click('nav button[data-screen="freeze"]');
+    await page.fill("#fzName", "klm ox");
+    await page.waitForFunction(() => /Box 1/.test(document.getElementById("fzPlanCard").textContent));
+    await page.click("#fzGo");
+    for (let i = 0; i < 60 && !lastCommit19; i++) await page.waitForTimeout(50);
+    check("the freeze actually committed", !!lastCommit19 && !!postSaveOwn, JSON.stringify(lastCommit19));
+
+    // Now the CDN starts lagging: every raw read of umut.json goes back to the pre-save
+    // copy, exactly as if the commit had never happened, from this read's point of view.
+    simulateStaleCdn = true;
+    await page.reload();
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    await page.click('nav button[data-screen="boxes"]');
+    await page.waitForSelector("#bxOcc");
+    const occText = await page.evaluate(() => document.getElementById("bxOcc").textContent);
+    check("the vial is still there after a reload that hit a stale CDN read",
+      /1 of 4/.test(occText), occText);
+  } catch (err) {
+    check("a clean reload never regresses past a save this device already knows landed", false, String(err));
+  } finally {
+    await browser19.close();
+    server19.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

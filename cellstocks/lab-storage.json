@@ -223,6 +223,39 @@
       "archived": false,
       "isBox": true,
       "owner": "baris"
+    },
+    {
+      "id": "b-beyza-caa-h-cre-box-1",
+      "name": "Beyza Caa Hücre Box 1",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: Left Liquid Nitrogen → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "beyzat"
+    },
+    {
+      "id": "b-beyza-caa-s-v-azot-box-1",
+      "name": "Beyza Caa Sıvı Azot Box 1",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: Left Liquid Nitrogen → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "beyzat"
+    },
+    {
+      "id": "b-beyza-caa-h-cre-box-2",
+      "name": "Beyza Caa Hücre Box 2",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: Left (Thermo) -80 Beyza Shelf → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "beyzat"
     }
   ]
 }

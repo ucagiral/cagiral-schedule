@@ -11067,11 +11067,11 @@
       "notes": 10
     },
     "customFlags": [],
-    "groupingStrategy": "category-row"
+    "groupingStrategy": "random"
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T18:36:52.791Z"
+    "savedAt": "2026-09-08T20:04:20.822Z"
   },
   "removedVialIds": [
     "v-205",

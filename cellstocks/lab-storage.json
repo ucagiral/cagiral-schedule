@@ -134,5 +134,95 @@
         }
       ]
     }
+  ],
+  "unplaced": [
+    {
+      "id": "b-80-box1",
+      "name": "-80 Box1",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: -80 °C Freezer → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "baris"
+    },
+    {
+      "id": "b-80-box2",
+      "name": "-80 Box2",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: -80 °C Freezer → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "baris"
+    },
+    {
+      "id": "b-80-box3",
+      "name": "-80 Box3",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: -80 °C Freezer → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "baris"
+    },
+    {
+      "id": "b-80-box4",
+      "name": "-80 Box4",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: -80 °C Freezer → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "baris"
+    },
+    {
+      "id": "b-80-box5",
+      "name": "-80 Box5",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: -80 °C Freezer → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "baris"
+    },
+    {
+      "id": "b-80-box6",
+      "name": "-80 Box6",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: -80 °C Freezer → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "baris"
+    },
+    {
+      "id": "b-liqnitro-1",
+      "name": "LiqNitro 1",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: -80 °C Freezer → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "baris"
+    },
+    {
+      "id": "b-liqnitro-2",
+      "name": "LiqNitro 2",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "note": "from the sheet: -80 °C Freezer → Rack 1",
+      "archived": false,
+      "isBox": true,
+      "owner": "baris"
+    }
   ]
 }

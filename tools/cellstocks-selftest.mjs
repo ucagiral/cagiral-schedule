@@ -1865,6 +1865,77 @@ check("placement only ever offers a member their own boxes", () => {
   return null;
 });
 
+// ---- suggestPlacementAt: a manual, exact-slot pick -------------------------------
+//
+// The automatic proposal is a proposal; Umut asked for a way to say exactly which
+// slot rather than accept whichever one the packing rule picked. This only validates
+// a slot someone already chose by clicking it -- yours, free, actually in the
+// freezer, and still bound by the one-cell-per-row rule -- it never chooses one.
+
+check("suggestPlacementAt locks a manual pick to exactly the slot chosen", () => {
+  const lab = E.mergeStorageDefaults({ children: [
+    { id: "u-1", name: "Freezer 1", children: [
+      Object.assign(box("b-1", "Box 1", 2, 2), { isBox: true, owner: "umut" })
+    ] }
+  ] });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "umut");
+
+  const plan = E.suggestPlacementAt(state, { name: "HEK293T", boxId: "b-1", position: "B2" });
+  if (!plan.ok) return `expected a valid plan: ${plan.reason}`;
+  if (plan.segments.length !== 1 || plan.segments[0].positions.join(",") !== "B2") {
+    return `expected exactly B2, got ${json(plan.segments)}`;
+  }
+  const out = E.applyPlacement(state, plan, { name: "HEK293T" }, { ids: ["v1"], now: "2026-09-08T00:00:00Z", by: "test" });
+  if (out.vials[0].location.position !== "B2") return `vial did not land at B2: ${json(out.vials[0].location)}`;
+  return null;
+});
+
+check("suggestPlacementAt refuses a slot that is already taken", () => {
+  const lab = E.mergeStorageDefaults({ children: [
+    { id: "u-1", name: "Freezer 1", children: [
+      Object.assign(box("b-1", "Box 1", 2, 2), { isBox: true, owner: "umut" })
+    ] }
+  ] });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [vial("v-1", "Du145", "b-1", "A1")] }), lab, "umut");
+  const plan = E.suggestPlacementAt(state, { name: "HEK293T", boxId: "b-1", position: "A1" });
+  if (plan.ok) return "a taken slot must be refused, not silently placed on top of the vial already there";
+  return null;
+});
+
+check("suggestPlacementAt refuses another member's box, same as the automatic path", () => {
+  const lab = E.mergeStorageDefaults({ children: [
+    { id: "u-1", name: "Freezer 1", children: [
+      Object.assign(box("b-1", "Box 1", 2, 2), { isBox: true, owner: "baris" })
+    ] }
+  ] });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "umut");
+  const plan = E.suggestPlacementAt(state, { name: "HEK293T", boxId: "b-1", position: "A1" });
+  if (plan.ok) return "a manual pick must not be allowed to write into a lab-mate's box";
+  return null;
+});
+
+check("suggestPlacementAt refuses a box that has no home in the freezer yet", () => {
+  const lab = E.mergeStorageDefaults({ children: [], unplaced: [
+    Object.assign(box("b-1", "Box 1", 2, 2), { isBox: true, owner: "umut" })
+  ] });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "umut");
+  const plan = E.suggestPlacementAt(state, { name: "HEK293T", boxId: "b-1", position: "A1" });
+  if (plan.ok) return "a box nobody has placed yet is not in the freezer -- a manual pick must not target it either";
+  return null;
+});
+
+check("suggestPlacementAt still refuses to mix two cells in one row, even for a manual pick", () => {
+  const lab = E.mergeStorageDefaults({ children: [
+    { id: "u-1", name: "Freezer 1", children: [
+      Object.assign(box("b-1", "Box 1", 1, 3), { isBox: true, owner: "umut" })
+    ] }
+  ] });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [vial("v-1", "HEK293T", "b-1", "A1")] }), lab, "umut");
+  const plan = E.suggestPlacementAt(state, { name: "Du145", boxId: "b-1", position: "A2" });
+  if (plan.ok) return "a manual pick into a row already holding a different cell must be refused, same as the plan";
+  return null;
+});
+
 check("iconKind tells an uploaded image from an emoji, and blank from both", () => {
   const cases = [["freezer.png", "image"], ["a.JPEG", "image"], ["x.webp", "image"],
                  ["\u{1F9CA}", "emoji"], ["\u{1F4C1}", "emoji"], ["", null], ["   ", null]];

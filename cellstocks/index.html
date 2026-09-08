@@ -1948,7 +1948,7 @@
   // Freeze
   // =====================================================================
 
-  var freeze = { name:"", count:1, unitId:null, boxId:null, plan:null, kind:"Cell", customFacets:{} };
+  var freeze = { name:"", count:1, unitId:null, boxId:null, position:null, plan:null, kind:"Cell", customFacets:{} };
 
   // The type selector -- Cell plus whatever the lab-wide list holds (Plasmid, RNA,
   // cDNA, Protein, Bacterial Glycerol out of the box, plus anything anyone has typed
@@ -2045,17 +2045,29 @@
       freeze.plan = null;
       return;
     }
-    var plan = E.suggestPlacement(state, {
-      name: name, count: freeze.count,
-      unitId: freeze.unitId || state.settings.defaultUnitId,
-      boxId: freeze.boxId || null
-    });
+    // A locked exact slot only ever means one vial -- there is no meaning to "lock
+    // several onto this one slot" -- so raising the count while one is pinned drops
+    // the pin rather than silently ignoring it.
+    if (freeze.position && freeze.count !== 1) freeze.position = null;
+
+    var plan = freeze.boxId && freeze.position
+      ? E.suggestPlacementAt(state, { name: name, boxId: freeze.boxId, position: freeze.position })
+      : E.suggestPlacement(state, {
+          name: name, count: freeze.count,
+          unitId: freeze.unitId || state.settings.defaultUnitId,
+          boxId: freeze.boxId || null
+        });
     freeze.plan = plan;
 
     if (!plan.ok){
       var bad = el("p", "note", plan.reason);
       bad.style.color = "var(--bad)";
       card.appendChild(bad);
+      if (freeze.position){
+        var clearPin = el("button", null, "Clear this exact slot");
+        clearPin.onclick = function(){ freeze.position = null; renderFreezePlan(); renderFreezeGuard(); };
+        card.appendChild(clearPin);
+      }
       return;
     }
 
@@ -2068,16 +2080,26 @@
 
     plan.segments.forEach(function(seg){
       card.appendChild(el("div", "occ", seg.path));
-      card.appendChild(boxGrid(seg.boxId, { target: seg.positions }));
+      // Clicking an empty cell locks placement to exactly that one -- only meaningful
+      // for a single vial, so a freeze of several falls back to the plan's own
+      // highlighting and the ordinary slot dialog, same as everywhere else in the app.
+      card.appendChild(boxGrid(seg.boxId, { target: seg.positions,
+        onEmptyClick: freeze.count === 1 ? function(position){
+          freeze.boxId = seg.boxId; freeze.position = position; renderFreezePlan(); renderFreezeGuard();
+        } : null }));
     });
 
     var row = el("div", "row tight");
     var override = el("button", null, freeze.boxId ? "Choose a different box" : "Put it somewhere else");
     override.onclick = pickBox;
     row.appendChild(override);
-    if (freeze.boxId){
+    if (freeze.position){
+      var clearPin2 = el("button", null, "Let it pick a slot in this box");
+      clearPin2.onclick = function(){ freeze.position = null; renderFreezePlan(); renderFreezeGuard(); };
+      row.appendChild(clearPin2);
+    } else if (freeze.boxId){
       var auto = el("button", null, "Let it choose");
-      auto.onclick = function(){ freeze.boxId = null; renderFreezePlan(); renderFreezeGuard(); };
+      auto.onclick = function(){ freeze.boxId = null; freeze.position = null; renderFreezePlan(); renderFreezeGuard(); };
       row.appendChild(auto);
     }
     card.appendChild(row);
@@ -2104,7 +2126,9 @@
       b.style.marginBottom = "6px";
       b.textContent = unit.name + " → " + rack.name + " → " + box.name + "  (" + occ.free + " free)";
       b.disabled = occ.free < freeze.count;
-      b.onclick = function(){ freeze.boxId = box.id; $("dlg").close(); renderFreezePlan(); renderFreezeGuard(); };
+      // A previously locked slot belonged to the box being replaced -- carrying it
+      // over could silently target the wrong cell in the new one.
+      b.onclick = function(){ freeze.boxId = box.id; freeze.position = null; $("dlg").close(); renderFreezePlan(); renderFreezeGuard(); };
       body.appendChild(b);
     });
     clear($("dlgFoot"));
@@ -2139,6 +2163,7 @@
     markDirty("Add " + freeze.count + " × " + name);
     showBanner("Put " + out.vials.length + " × <b>" + esc(name) + "</b> in " + esc(freeze.plan.summary) + ".");
     freeze.boxId = null;
+    freeze.position = null;
     freeze.customFacets = {};
     $("fzCustomFacets").dataset.kind = ""; // force a fresh, empty table on the next render
     renderAll();
@@ -2181,7 +2206,14 @@
         if (o.target && o.target.indexOf(slot.position) !== -1) cell.className += " target";
         if (o.highlight && o.highlight.indexOf(slot.position) !== -1) cell.className += " hit";
         if (!o.static){
-          (function(s){ cell.onclick = function(){ slotDialog(boxId, s); }; })(slot);
+          // onEmptyClick is how the freeze plan lets a person lock the exact slot
+          // themselves, rather than only the box -- an empty cell there goes straight to
+          // the caller instead of opening the generic slot dialog. A taken cell still
+          // shows what's in it either way.
+          (function(s){
+            cell.onclick = (!s.vial && o.onEmptyClick) ? function(){ o.onEmptyClick(s.position); }
+                                                         : function(){ slotDialog(boxId, s); };
+          })(slot);
         }
         grid.appendChild(cell);
       }
@@ -2447,7 +2479,10 @@
       var f = el("button", "primary", "Add into this slot");
       f.disabled = !canWrite();
       f.onclick = function(){
-        freeze.boxId = boxId; $("dlg").close(); go("freeze");
+        // "This slot", not merely "this box" -- locking the exact position only makes
+        // sense for one vial, so the count resets to match what was actually asked for.
+        freeze.boxId = boxId; freeze.position = slot.position; setCount(1);
+        $("dlg").close(); go("freeze");
         $("fzName").focus(); renderFreezePlan();
       };
       foot.appendChild(f);
@@ -5708,7 +5743,12 @@
 
   $("fzName").oninput = function(){
     freeze.name = $("fzName").value;
-    freeze.boxId = null;
+    // A locked exact slot came from clicking a specific cell, not from typing a name --
+    // it should survive the name changing (suggestPlacementAt() still re-checks the new
+    // name's origin against that slot's row every time, so a real mix is still refused).
+    // Without this guard, arriving here from "Add into this slot" with the name field
+    // still empty dropped the pin on the very first keystroke.
+    if (!freeze.position) freeze.boxId = null;
     renderFreezeFacets();
     renderFreezePlan();
     renderFreezeGuard();
@@ -5754,7 +5794,7 @@
   $("fzPlus").onclick = function(){ setCount(freeze.count + 1); };
   setCount(freeze.count);
   $("fzUnit").onchange = function(){
-    freeze.unitId = $("fzUnit").value; freeze.boxId = null; renderFreezePlan(); renderFreezeGuard();
+    freeze.unitId = $("fzUnit").value; freeze.boxId = null; freeze.position = null; renderFreezePlan(); renderFreezeGuard();
   };
   $("fzGo").onclick = doFreeze;
   $("fzDate").value = new Date().toISOString().slice(0, 10);

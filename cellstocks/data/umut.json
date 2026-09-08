@@ -10748,7 +10748,21 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "status": "withdrawn",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-duzenle",
+        "position": "E8"
+      },
+      "status": "stored",
       "addedAt": "2026-09-07T15:20:16.472Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -10927,7 +10941,7 @@
       "notes": ""
     },
     {
-      "id": "w-mtsxef90",
+      "id": "w-mtsxf9y6",
       "vialId": "v-mtrdzpx7-0",
       "name": "Huh7 gNT",
       "from": {
@@ -10943,29 +10957,6 @@
         ],
         "boxId": "b-duzenle",
         "position": "E6"
-      },
-      "date": "2026-09-08",
-      "by": "unknown device",
-      "purpose": "thaw",
-      "notes": ""
-    },
-    {
-      "id": "w-mtsxeh1t",
-      "vialId": "v-mtre0daw-0",
-      "name": "Huh7 ATF3 KO rep3",
-      "from": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-duzenle",
-        "position": "E8"
       },
       "date": "2026-09-08",
       "by": "unknown device",
@@ -10997,7 +10988,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T17:10:55.655Z"
+    "savedAt": "2026-09-08T17:11:31.930Z"
   },
   "removedVialIds": [
     "v-205",

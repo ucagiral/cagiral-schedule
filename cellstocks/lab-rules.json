@@ -116,6 +116,10 @@
   ],
   "guide": [
     {
+      "match": "sh",
+      "value": "sh"
+    },
+    {
       "extract": "(DS)?g\\d+(\\.\\d+)?|gNT|g[PC]\\d+",
       "longest": true
     },

@@ -11355,6 +11355,23 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtt7ear8",
+      "vialId": "v-mtt0h140-0",
+      "name": "klm ox",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A1"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11381,7 +11398,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T21:50:40.575Z"
+    "savedAt": "2026-09-08T21:50:44.575Z"
   },
   "removedVialIds": [
     "v-205",

@@ -2445,7 +2445,7 @@
       "title": "Cell seeding with Büşra",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "09:00",
       "end": "09:30"
@@ -2484,7 +2484,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-08T17:08:40.036Z",
+    "lastModified": "2026-09-08T17:08:42.181Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

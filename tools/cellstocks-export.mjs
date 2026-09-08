@@ -1,14 +1,15 @@
-// Builds the daily freezer layout exports, in the three shapes Umut asked for:
+// Builds the daily freezer layout exports, in the four shapes Umut asked for:
 //
 //   cellstocks/exports/layout.xlsx    one grid sheet per box, cell by cell
 //   cellstocks/exports/layout.pdf     the printable map that goes on the freezer door
 //   cellstocks/exports/layout.csv     one row per box -- where it is, whose, how full
+//   cellstocks/exports/roster.xlsx    one flat sheet per member, plus a lab-wide log
 //
 // Run: node tools/cellstocks-export.mjs [--out <dir>]
 //
 // The names are stable on purpose. A dated file would mean a new link every morning and
-// a directory nobody prunes; this way the same three links always hold today's answer,
-// and git already keeps every previous morning.
+// a directory nobody prunes; this way the same links always hold today's answer, and git
+// already keeps every previous morning.
 //
 // It reads the lab's shared tree plus every member's own file and merges them into one
 // view, because the map is of the freezer, not of one person's vials. Nothing here
@@ -40,6 +41,8 @@ const DATA_DIR = join(ROOT, "cellstocks", "data");
 const storage = E.mergeStorageDefaults(
   JSON.parse(readFileSync(join(ROOT, "cellstocks", "lab-storage.json"), "utf8"))
 );
+const RULES_PATH = join(ROOT, "cellstocks", "lab-rules.json");
+const labRules = E.mergeRulesDefaults(existsSync(RULES_PATH) ? JSON.parse(readFileSync(RULES_PATH, "utf8")) : null);
 
 // One state holding the whole lab's stored vials, hydrated with the shared tree, so
 // occupancy() and locationPath() answer for any box regardless of whose it is.
@@ -48,14 +51,31 @@ const members = existsSync(DATA_DIR)
   : [];
 const ownerOfVial = {};
 const allVials = [];
+// The roster needs the same vials grouped by whose file they came from (one sheet per
+// member), plus two things the grid export has no use for: each member's own withdrawal
+// history, and a same-shape "addition" entry for any vial that actually recorded who
+// added it and when (applyPlacement sets addedBy/addedAt on a live Add; an imported or
+// pre-existing vial has neither, and contributes nothing here rather than a guess).
+const vialsByOwner = {};
+const logRows = [];
 for (const name of members) {
   const own = E.mergeDefaults(JSON.parse(readFileSync(join(DATA_DIR, `${name}.json`), "utf8")));
+  vialsByOwner[name] = [];
   (own.vials || []).forEach((v) => {
+    if (v.addedBy || v.addedAt) {
+      logRows.push({ date: v.addedAt || v.frozenOn || "", action: "added", name: v.name || "",
+                     by: v.addedBy || "", owner: name });
+    }
     if (v.status === "withdrawn" || !v.location) return;
+    vialsByOwner[name].push(v);
     const copy = JSON.parse(JSON.stringify(v));
     copy.id = `${name}:${v.id}`;          // ids are per-file; namespace them for this view
     ownerOfVial[copy.id] = name;
     allVials.push(copy);
+  });
+  (own.withdrawals || []).forEach((w) => {
+    logRows.push({ date: w.date || "", action: "withdrawn", name: w.name || "", by: w.by || "",
+                   owner: name, from: w.from || null, purpose: w.purpose || "", notes: w.notes || "" });
   });
 }
 const lab = E.hydrateStorage(E.mergeDefaults({ vials: allVials }), storage, null);
@@ -214,14 +234,97 @@ function buildCsv() {
   return "﻿" + rows.map((r) => r.map(esc).join(",")).join("\r\n") + "\r\n";
 }
 
+// ----------------------------------------------------------------------- 4. the roster
+//
+// The grid export is shaped like the freezer; this one is shaped like the spreadsheet
+// Umut originally handed over -- one flat row per vial, one sheet per person -- plus a
+// lab-wide log of who froze and who withdrew what. `location` here is the box's whole
+// chain path, not the fixed unit/rack pair vialsToSheets (the per-member workbook) still
+// uses, because the tree has no fixed depth any more.
+const pathOfBox = {};
+boxes.forEach((b) => { pathOfBox[b.box.id] = b.path; });
+
+// Only an admin's explicit "hide" survives here -- a column nobody has an opinion on yet,
+// including one that does not exist yet, is shown. Missing/unreadable file: nothing hidden.
+let rosterHiddenColumns = [];
+try {
+  const recipients = JSON.parse(readFileSync(join(ROOT, "cellstocks", "exports", "recipients.json"), "utf8"));
+  if (Array.isArray(recipients.rosterHiddenColumns)) rosterHiddenColumns = recipients.rosterHiddenColumns;
+} catch (err) { /* no recipients.json yet, or it doesn't have the field -- nothing hidden */ }
+
+const FIXED_COLUMNS = ["name", "origin", "koox", "resistance", "caspex", "guide", "passage",
+                       "passage_kind", "frozen", "frozen_raw", "location", "position", "notes", "flags"];
+// Whatever a member's non-"cell" kind vial carries beyond the fixed facets (a Plasmid's
+// dox-inducible/tet/FLAG...) -- the whole point of the picker is that this list is never
+// hardcoded, so a lab member adding a new one tomorrow makes it a column without a code change.
+const customKeys = new Set();
+allVials.forEach((v) => { if (v.customFacets) Object.keys(v.customFacets).forEach((k) => customKeys.add(k)); });
+const allColumns = FIXED_COLUMNS.concat([...customKeys].sort());
+const columns = allColumns.filter((c) => !rosterHiddenColumns.includes(c));
+
+function rosterSheets() {
+  const sheets = [];
+  for (const name of members) {
+    const rows = [columns];
+    vialsByOwner[name].slice().sort((a, b) => {
+      const ap = a.location ? (pathOfBox[a.location.boxId] || "") + " " + (a.location.position || "") : "zzz";
+      const bp = b.location ? (pathOfBox[b.location.boxId] || "") + " " + (b.location.position || "") : "zzz";
+      return ap < bp ? -1 : ap > bp ? 1 : 0;
+    }).forEach((v) => {
+      const f = E.facetsFor(v, labRules);
+      rows.push(columns.map((c) => cellFor(v, f, c)));
+    });
+    sheets.push({ name: sheetSafe(name), rows });
+  }
+
+  const logSorted = logRows.slice().sort((a, b) => (String(b.date || "") < String(a.date || "") ? -1 : 1));
+  const logHeader = ["date", "action", "name", "by", "owner", "location", "purpose", "notes"];
+  const logBody = logSorted.map((r) => [
+    r.date || "", r.action, r.name, r.by || "", r.owner,
+    r.from ? (pathOfBox[r.from.boxId] || "") + (r.from.position ? " " + r.from.position : "") : "",
+    r.purpose || "", r.notes || ""
+  ]);
+  sheets.push({ name: "log", rows: [logHeader].concat(logBody) });
+  return sheets;
+}
+
+function sheetSafe(name) {
+  // A sheet name is capped at 31 characters and cannot hold : \ / ? * [ ], same rule
+  // gridSheets() already applies to box names.
+  return String(name || "").replace(/[:\\/?*\[\]]/g, "-").slice(0, 31);
+}
+
+function cellFor(v, f, column) {
+  switch (column) {
+    case "name": return v.name || "";
+    case "origin": return f.origin || "";
+    case "koox": return f.koox || "";
+    case "resistance": return f.resistance || "";
+    case "caspex": return f.caspex || "";
+    case "guide": return f.guide || "";
+    case "passage": return v.passage || "";
+    case "passage_kind": return v.passageKind || "";
+    case "frozen": return v.frozenOn || (v.dateUnknown ? "Unknown" : "");
+    case "frozen_raw": return v.frozenRaw || "";
+    case "location": return v.location ? (pathOfBox[v.location.boxId] || "") : "";
+    case "position": return v.location ? v.location.position || "" : "";
+    case "notes": return v.notes || "";
+    case "flags": return (v.flags || []).join(", ");
+    default: return v.customFacets ? (v.customFacets[column] || "") : "";
+  }
+}
+
 // ------------------------------------------------------------------------------ write
 mkdirSync(OUT_DIR, { recursive: true });
 const xlsxBytes = await X.writeWorkbookAsync(gridSheets());
 writeFileSync(join(OUT_DIR, "layout.xlsx"), Buffer.from(xlsxBytes));
 writeFileSync(join(OUT_DIR, "layout.pdf"), Buffer.from(buildPdf()));
 writeFileSync(join(OUT_DIR, "layout.csv"), buildCsv());
+const rosterBytes = await X.writeWorkbookAsync(rosterSheets());
+writeFileSync(join(OUT_DIR, "roster.xlsx"), Buffer.from(rosterBytes));
 
 const filled = boxes.filter((b) => b.occ.used).length;
 console.log(`${labName}: ${storage.children.length} top layer(s), ${boxes.length} box(es) (${filled} holding vials), ` +
             `${allVials.length} stored vial(s) across ${members.length} account(s)`);
+console.log(`wrote roster.xlsx (${columns.length} columns, ${logRows.length} log entries)`);
 console.log(`wrote layout.xlsx, layout.pdf and layout.csv to ${OUT_DIR}`);

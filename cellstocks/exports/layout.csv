@@ -1,7 +1,18 @@
 ﻿area,location,box,owner,rows,cols,used,capacity,free
 Freezer 1,Freezer 1 → Rack 1,UMUT CAA CELLS,umut,9,9,81,81,0
 Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -80,umut,9,9,81,81,0
-Freezer 1,Freezer 1 → Rack 1,DUZENLE,umut,9,9,78,81,3
+Freezer 1,Freezer 1 → Rack 1,DUZENLE,umut,9,9,76,81,5
 Freezer 1,Freezer 1 → Rack 1,ONGOING,umut,9,9,76,81,5
-Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -4-,umut,9,9,42,81,39
-Freezer 1,Freezer 1 → Rack 1,Unnamed box,umut,9,9,0,81,81
+Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -4-,umut,9,9,36,81,45
+Freezer 1,Freezer 1 → Rack 1,Unnamed box,umut,9,9,4,81,77
+Not placed yet,Not placed yet,-80 Box1,baris,9,9,26,81,55
+Not placed yet,Not placed yet,-80 Box2,baris,9,9,54,81,27
+Not placed yet,Not placed yet,-80 Box3,baris,9,9,79,81,2
+Not placed yet,Not placed yet,-80 Box4,baris,9,9,73,81,8
+Not placed yet,Not placed yet,-80 Box5,baris,9,9,69,81,12
+Not placed yet,Not placed yet,-80 Box6,baris,9,9,76,81,5
+Not placed yet,Not placed yet,LiqNitro 1,baris,9,9,63,81,18
+Not placed yet,Not placed yet,LiqNitro 2,baris,9,9,75,81,6
+Not placed yet,Not placed yet,Beyza Caa Hücre Box 1,beyzat,9,9,81,81,0
+Not placed yet,Not placed yet,Beyza Caa Sıvı Azot Box 1,beyzat,9,9,24,81,57
+Not placed yet,Not placed yet,Beyza Caa Hücre Box 2,beyzat,9,9,70,81,11

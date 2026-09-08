@@ -11372,6 +11372,23 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtt7edez",
+      "vialId": "v-mtt3mo6u-2",
+      "name": "jkl",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A4"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11398,7 +11415,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T21:50:44.575Z"
+    "savedAt": "2026-09-08T21:50:48.358Z"
   },
   "removedVialIds": [
     "v-205",

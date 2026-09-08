@@ -324,7 +324,11 @@ function xlsxPathFor(name) {
 // an admin writing anywhere under the shared data prefix. Nothing outside
 // cellstocks/data/** is ever writable through this endpoint -- it is not a
 // general-purpose GitHub proxy.
-function canWrite(user, path) {
+//
+// `batchPaths` is every path in the SAME commit -- needed for the one narrow exception
+// below, where what a member may write depends on what else they are committing at the
+// same time, not on the path alone.
+function canWrite(user, path, batchPaths) {
   // A PI reads the whole lab and writes none of it -- no inventory of their own, and no
   // structural edits either.
   if (user.role === "pi") return false;
@@ -365,7 +369,19 @@ function canWrite(user, path) {
 
   if (!path.startsWith(DATA_PREFIX) || !/\.(json|xlsx)$/.test(path)) return false;
   if (user.role === "admin") return true;
-  return path === dataPathFor(user.name) || path === xlsxPathFor(user.name);
+  if (path === dataPathFor(user.name) || path === xlsxPathFor(user.name)) return true;
+
+  // Every member's workbook carries a storage sheet describing the WHOLE shared tree, so
+  // a change to it -- a rename, a new box, an import adding several at once -- can leave
+  // every OTHER member's already-committed workbook wrong, not just the person making the
+  // change. A member may regenerate anyone's WORKBOOK as part of a commit that is itself
+  // legitimately touching the shared tree or the shared rules -- never their .json, which
+  // stays exactly as ownership-restricted as it always was above.
+  if (/\.xlsx$/.test(path) && batchPaths &&
+      (batchPaths.includes(LAB_STORAGE_PATH) || batchPaths.includes(LAB_RULES_PATH))) {
+    return true;
+  }
+  return false;
 }
 
 // ============================================================================ history (time machine)
@@ -624,7 +640,8 @@ async function routeCommit(request, env) {
   // otherwise a request mixing one writable path with one that is not could commit the
   // writable one and only then discover the other is forbidden, which is not atomic in
   // the sense that matters here (an unauthorized write must never partially happen).
-  const forbidden = body.files.find((f) => !canWrite(session.user, f.path));
+  const batchPaths = body.files.map((f) => f.path);
+  const forbidden = body.files.find((f) => !canWrite(session.user, f.path, batchPaths));
   if (forbidden) return json({ error: `${session.user.name} may not write ${forbidden.path}` }, 403);
   try {
     const sha = await commitFilesAtomic(env, body.files, body.message);

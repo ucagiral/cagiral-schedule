@@ -2242,6 +2242,94 @@ try {
   }
 }
 
+// ============================================================================
+// A member adding their own box -- the everyday action, not just an import --
+// must not leave every OTHER member's workbook stale
+// ============================================================================
+//
+// The actual incident: Umut imported a spreadsheet as baris and got a CI failure --
+// admin.xlsx (and umut.xlsx too) no longer matched the shared tree. Every member's
+// workbook carries a storage sheet describing the WHOLE tree, so a new box anywhere
+// makes every OTHER member's already-committed workbook wrong -- but dependentFiles()
+// (engine.js's refreshPaths/vialsToSheets driven by index.html) only ever considered
+// "everyone" when ADMIN was the one making the change. The far more common path bites
+// the same way: any ordinary member adding a box for themselves from the Boxes tab.
+{
+  const server14 = await serve(8811);
+  const browser14 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [], unplaced: [] };
+    const own = { lines: [], withdrawals: [], vials: [], rules: {}, settings: {} };
+    const baris = { lines: [], withdrawals: [], vials: [], rules: {}, settings: {} };
+
+    const context = await browser14.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "Umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(own) });
+      }
+      if (url.includes("cellstocks/data/baris.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(baris) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json",
+                      body: JSON.stringify([{ name: "baris.json", type: "file" }, { name: "umut.json", type: "file" }]) }));
+
+    const commits = [];
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        commits.push(JSON.parse(req.postData()));
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "abc" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8811/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    await page.click("nav button[data-screen=boxes]");
+    await page.waitForSelector("#bxQuickAdd button");
+    await page.click("#bxQuickAdd button");
+    await page.waitForSelector("#dlgBody input");
+    await page.fill("#dlgBody input", "Box 7");
+    await page.click("#dlgFoot button.primary");
+
+    for (let i = 0; i < 40 && !commits.length; i++) await page.waitForTimeout(100);
+    check("adding a box was committed at all", commits.length === 1, commits.length);
+    if (commits.length) {
+      const paths = commits[0].files.map((f) => f.path);
+      check("the shared tree gained the new box",
+        paths.includes("cellstocks/lab-storage.json"), JSON.stringify(paths));
+      check("the other member's workbook was regenerated in the same commit",
+        paths.includes("cellstocks/data/baris.xlsx"), JSON.stringify(paths));
+      check("but never the other member's actual inventory",
+        !paths.includes("cellstocks/data/baris.json"), JSON.stringify(paths));
+    }
+  } catch (err) {
+    check("a member adding a box regenerates every affected workbook", false, String(err));
+  } finally {
+    await browser14.close();
+    server14.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

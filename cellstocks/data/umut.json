@@ -10902,6 +10902,26 @@
       "addedAt": "2026-09-08T20:05:13.592Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mtt5ckqo-0",
+      "name": "khk",
+      "lineId": "l-khk",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-08",
+      "frozenOn": "2026-09-08",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "D4"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-08T20:53:21.794Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -11131,7 +11151,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T20:05:20.630Z"
+    "savedAt": "2026-09-08T20:53:22.803Z"
   },
   "removedVialIds": [
     "v-205",

@@ -892,6 +892,19 @@
       // fetched, which is the ancestor for the NEXT save, not for reconciling edits made
       // before this fetch happened.
       var priorSynced = syncedState;
+      // raw.githubusercontent can serve the PREVIOUS version of a file for a while after
+      // a commit -- documented already for lab-storage.json and recipients.json, and it
+      // bites here too: Umut froze a vial, reopened the app (or tapped refresh) a couple
+      // of minutes later, and watched the box go back to empty. Nothing was "dirty" to
+      // protect against it -- the save had already landed -- so the clean branch below
+      // just trusted this read and overwrote a state this device already knew, for a
+      // fact, to be newer. A clean reload must never regress past the last copy this
+      // device has actually seen the server accept: if what just came back claims to be
+      // OLDER than that, the CDN is lagging, not the vial gone, and the newer copy wins.
+      if (!dirty && priorSynced && priorSynced._meta && own && own._meta &&
+          String(own._meta.savedAt || "") < String(priorSynced._meta.savedAt || "")){
+        own = priorSynced;
+      }
       // This is now the last copy we know for a fact the server actually holds --
       // save()'s ancestor for the next reconciliation, whichever branch below runs.
       syncedState = own;
@@ -1296,6 +1309,13 @@
         ], message + " from " + getDevice());
       }
       dirty = false;
+      // syncedState was set from whatever the pre-commit merge fetched, which is the
+      // server's copy from BEFORE this write -- state._meta.savedAt above is stamped
+      // after that read, so it was never reflected there. What the server holds now IS
+      // exactly `state`, since that is exactly what was just written, so the ancestor
+      // for the next reconciliation -- and the freshness marker load() checks on the
+      // next reopen -- has to move to match, not stay one commit behind.
+      syncedState = state;
       cacheSave();
       setStatus("Saved", "saved");
       setTimeout(function(){ if ($("status").textContent === "Saved") setStatus("Ready", ""); }, 2500);

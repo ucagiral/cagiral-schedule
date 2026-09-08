@@ -2484,6 +2484,114 @@ try {
   }
 }
 
+// ============================================================================
+// Two edits close together must never fire two overlapping saves
+// ============================================================================
+//
+// The real incident: Umut took several vials out in a row on his phone and got
+// "Someone else saved first" over and over, watching vials seem to "come back" each
+// time. The inventory itself turned out fine on every commit -- each withdrawal really
+// did land -- because the worker's own ref retry covers a real race between two
+// DIFFERENT devices. What it was never built to cover is this device racing itself:
+// markDirty's debounce only ever cancels a still-PENDING timer, never a save that has
+// already fired and is mid-flight, so a second edit ~1s later starts a second commit
+// before the first's response has come back over a slow phone connection -- and each one
+// reconciles against a server snapshot the other is about to invalidate. Reproduced here
+// with a deliberately slow first /commit response and a second "Took it" fired while it
+// is still in flight.
+{
+  const server16 = await serve(8813);
+  const browser16 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-1", name: "Box 1", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 2, cols: 2, scheme: "grid" }
+      ] }
+    ], unplaced: [] };
+    const vial = (id, name, position) => ({
+      id, name, lineId: "racetest", passage: "p1", passageNumber: 1, passageKind: "absolute",
+      frozenOn: "2025-01-01", frozenRaw: "01-01-25", notes: "", flags: [],
+      location: { boxId: "b-1", position, path: [] }, status: "stored"
+    });
+    const own = { lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [vial("v-1", "RaceTest Alpha", "A1"), vial("v-2", "RaceTest Beta", "A2")] };
+
+    const context = await browser16.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(own) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    let commitCount16 = 0;
+    await page.route("https://fake-worker.example/**", async (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        const n = commitCount16++;
+        // Only the FIRST commit is slow -- a stand-in for the round trip over a real
+        // phone connection that gave the second edit room to start overlapping it.
+        if (n === 0) await new Promise((r) => setTimeout(r, 1200));
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "sha" + n }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8813/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    await page.click('nav button[data-screen="find"]');
+    await page.fill("#q", "RaceTest");
+    await page.waitForFunction(() => document.querySelectorAll("#results button").length >= 2);
+
+    const takeButton = (name) => page.evaluate((n) => {
+      const card = [...document.querySelectorAll("#results .card, #results > div")]
+        .find((c) => c.textContent.includes(n));
+      const btn = card && [...card.querySelectorAll("button")].find((b) => b.textContent.trim() === "Took it");
+      if (btn) btn.click();
+      return !!btn;
+    }, name);
+
+    check("the first vial's 'Took it' button is found", await takeButton("RaceTest Alpha"), "");
+    // The debounce is 900ms; wait past it so the first save is genuinely in flight
+    // (its slow /commit response has not landed yet) before the second edit fires.
+    await page.waitForTimeout(1000);
+    check("the second vial's 'Took it' button is found while the first save is still in flight",
+      await takeButton("RaceTest Beta"), "");
+
+    for (let i = 0; i < 60 && commitCount16 < 2; i++) await page.waitForTimeout(100);
+    check("both edits are eventually committed, neither lost", commitCount16 === 2, commitCount16);
+    // The authoritative check: save() itself never let two doSave() cycles run at once,
+    // rather than inferring it from network timing a shared-connection browser can mask.
+    const maxConcurrent = await page.evaluate(() => window.__cstMaxConcurrentSaves || 0);
+    check("save() never let two doSave() cycles overlap, even with one edit landing mid-flight",
+      maxConcurrent === 1, maxConcurrent);
+  } catch (err) {
+    check("two edits close together never fire overlapping saves", false, String(err));
+  } finally {
+    await browser16.close();
+    server16.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

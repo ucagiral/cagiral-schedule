@@ -1185,10 +1185,51 @@
     saveTimer = setTimeout(function(){ save(message || "Update cell stocks"); }, 900);
   }
 
+  // Two edits close enough together used to start two overlapping save()s: the debounce
+  // in markDirty only ever cancels a still-PENDING timer, not a save that already fired
+  // and is mid-flight (a real cost on a slow phone connection, exactly what this app runs
+  // on) -- a second edit 900ms later starts a second commit before the first's has
+  // landed. Both eventually succeed (the worker's own retry sees to that), which is why
+  // the inventory itself came through this correct every time it was checked -- but each
+  // one reconciles against a server snapshot the OTHER is about to invalidate, so either
+  // can lose its race against the other and surface "someone else saved first" for a
+  // save that was never really about anyone but this same device. So at most one save()
+  // actually talks to the network at a time; a call that arrives while one is already
+  // running is remembered rather than launched, and runs once the current one is done --
+  // covering every edit made in the meantime, including its own, since save() always
+  // serialises whatever `state` currently holds rather than a snapshot taken at call time.
+  var saveInFlight = false;
+  var savePending = null;
   async function save(message){
     if (!canWrite()) return;
     clearTimeout(saveTimer);
+    if (saveInFlight){
+      savePending = message || savePending || "Update cell stocks";
+      return;
+    }
+    saveInFlight = true;
+    // A test-only counter, nothing else reads it: peak concurrency is otherwise
+    // unobservable from outside, since two overlapping doSave() calls could each still
+    // land a perfectly valid commit on their own -- the risk is in what they reconcile
+    // against mid-flight, not in whether either one, alone, succeeds.
+    try {
+      window.__cstConcurrentSaves = (window.__cstConcurrentSaves || 0) + 1;
+      window.__cstMaxConcurrentSaves = Math.max(window.__cstMaxConcurrentSaves || 0, window.__cstConcurrentSaves);
+    } catch(e){ /* no window, or a security error -- fine either way */ }
+    try {
+      await doSave(message);
+    } finally {
+      saveInFlight = false;
+      try { window.__cstConcurrentSaves = Math.max(0, (window.__cstConcurrentSaves || 1) - 1); } catch(e){}
+      if (savePending !== null){
+        var next = savePending;
+        savePending = null;
+        save(next);
+      }
+    }
+  }
 
+  async function doSave(message){
     // Reconcile with whatever is on the server right now before committing anything.
     // Without this, save() just serialised whatever this session's `state` happened to
     // hold -- fine for the tab that made the edit, but any tab/device whose own view

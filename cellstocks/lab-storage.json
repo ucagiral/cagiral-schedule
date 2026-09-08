@@ -92,7 +92,7 @@
       "id": "u-freezer-2",
       "name": "Liquid Nitrogen",
       "icon": "🥶",
-      "note": "-196",
+      "note": "-196°C · Left",
       "children": [
         {
           "id": "r-rack-1",

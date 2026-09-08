@@ -2676,6 +2676,125 @@ try {
   }
 }
 
+// ============================================================================
+// Picking the exact slot -- not only the box -- when freezing a vial
+// ============================================================================
+//
+// The other half of the same report: even after choosing a box, the app always picked
+// the position inside it -- there was no way to say "no, exactly there". Clicking an
+// empty cell in the plan's own grid (Add screen) or in the Boxes tab's grid ("Add into
+// this slot") now locks the placement to exactly that cell, via the new
+// E.suggestPlacementAt(), rather than the packing rule choosing regardless.
+{
+  const server18 = await serve(8815);
+  const browser18 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-mine", name: "Box Mine", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 2, cols: 2, scheme: "grid" }
+      ] }
+    ], unplaced: [] };
+    let own = { lines: [], withdrawals: [], rules: {}, settings: {}, vials: [] };
+
+    const context = await browser18.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(own) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    let lastCommit18 = null;
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        lastCommit18 = JSON.parse(req.postData());
+        const f = lastCommit18.files.find((x) => x.path === "cellstocks/data/umut.json");
+        if (f) own = JSON.parse(f.content);
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "sha" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8815/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    // ---- from the Add screen: click a cell other than the one it would have picked ----
+    await page.click('nav button[data-screen="freeze"]');
+    await page.fill("#fzName", "RaceTest Delta");
+    await page.waitForFunction(() => /Box Mine/.test(document.getElementById("fzPlanCard").textContent));
+
+    const clickCell = (position) => page.evaluate((pos) => {
+      const cell = [...document.querySelectorAll("#fzPlanCard .slot")].find((c) => c.title.startsWith(pos + " "));
+      if (cell) cell.click();
+      return !!cell;
+    }, position);
+
+    check("B2 is clickable in the plan's own grid", await clickCell("B2"), "");
+    await page.waitForFunction(() => /Placed exactly where you picked/.test(document.getElementById("fzPlanCard").textContent));
+    await page.click("#fzGo");
+    for (let i = 0; i < 40 && !lastCommit18; i++) await page.waitForTimeout(50);
+    check("the vial lands exactly where B2 was clicked, not wherever the packing rule preferred",
+      lastCommit18 && own.vials[0] && own.vials[0].location.position === "B2",
+      JSON.stringify(own.vials[0] && own.vials[0].location));
+
+    // ---- from the Boxes tab: "Add into this slot" carries the exact position along ----
+    lastCommit18 = null;
+    await page.click('nav button[data-screen="boxes"]');
+    await page.waitForSelector("#bxGrid .slot");
+    const foundA2 = await page.evaluate(() => {
+      const cell = [...document.querySelectorAll("#bxGrid .slot")].find((c) => c.title.startsWith("A2 "));
+      if (cell) cell.click();
+      return !!cell;
+    });
+    check("A2 (still empty) is clickable from the Boxes tab", foundA2, "");
+    await page.waitForSelector("#dlgFoot button");
+    await page.evaluate(() => {
+      const btn = [...document.querySelectorAll("#dlgFoot button")].find((b) => b.textContent.trim() === "Add into this slot");
+      btn.click();
+    });
+    await page.waitForFunction(() => document.getElementById("s-freeze").classList.contains("active"));
+    const countAfterSlotClick = await page.$eval("#fzCount", (el) => el.value);
+    check("picking a slot from the Boxes tab resets the count to one",
+      countAfterSlotClick === "1", countAfterSlotClick);
+
+    // Typing the name -- required before Add is enabled -- must not drop the pin the
+    // Boxes tab just set. This is exactly what broke on the first pass at this fix:
+    // fzName's oninput unconditionally cleared freeze.boxId, so the very first keystroke
+    // after "Add into this slot" undid the lock and fell back to the packing rule.
+    await page.fill("#fzName", "RaceTest Epsilon");
+    await page.waitForFunction(() => /Placed exactly where you picked/.test(document.getElementById("fzPlanCard").textContent));
+    await page.click("#fzGo");
+    for (let i = 0; i < 40 && !lastCommit18; i++) await page.waitForTimeout(50);
+    const added = own.vials.find((v) => v.name === "RaceTest Epsilon");
+    check("the Boxes-tab slot pick lands the new vial at that exact slot, even after typing a name",
+      added && added.location.position === "A2", JSON.stringify(added && added.location));
+  } catch (err) {
+    check("clicking an empty slot locks placement to exactly that cell", false, String(err));
+  } finally {
+    await browser18.close();
+    server18.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

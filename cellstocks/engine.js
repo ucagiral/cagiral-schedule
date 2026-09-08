@@ -1243,6 +1243,48 @@
     return GROUPING_STRATEGIES.indexOf(s) !== -1 ? s : "category-row";
   }
 
+  // A manual, exact-slot placement: the caller has already picked which cell (clicking
+  // an empty one in the box grid, on the Add screen or the Boxes tab), so this only
+  // validates it -- yours, free, actually in the freezer -- rather than choosing
+  // anything itself. Always exactly one vial: locking several onto one slot has no
+  // meaning. Umut's call, asked and answered: the automatic proposal stays the default,
+  // but a person standing at the freezer knows which tube goes where better than a
+  // packing rule does, and should be able to say so directly.
+  function suggestPlacementAt(state, req) {
+    var entry = findBox(state, req.boxId);
+    if (!entry) return { ok: false, reason: "That box does not exist." };
+    var owner = req.owner || state._owner;
+    if (owner && entry.box.owner && String(entry.box.owner).toLowerCase() !== String(owner).toLowerCase()) {
+      return { ok: false, reason: "That box is not yours." };
+    }
+    if (!entry.chain.length) {
+      return { ok: false, reason: "That box has no home in the freezer yet -- it is not in the freezer." };
+    }
+    var occ = occupancy(state, req.boxId);
+    var slot = occ && occ.slots.filter(function (s) { return s.position === req.position; })[0];
+    if (!slot) return { ok: false, reason: "That slot does not exist in this box." };
+    if (slot.vial) return { ok: false, reason: "That slot already holds a vial." };
+
+    var rules = state.rules || DEFAULT_RULES;
+    var origin = originForRequest(state, req, rules);
+    // Even a manual pick may not mix two cells into one row -- the placement rule this
+    // whole file is built around, not a default that only applies to the automatic path.
+    if (groupingStrategyFor(state) === "category-row") {
+      var row = rowsOf(state, req.boxId, rules).filter(function (r) {
+        return r.positions.indexOf(req.position) !== -1;
+      })[0];
+      if (row && !rowTakes(row, origin)) {
+        return { ok: false, origin: origin,
+          reason: "That row already holds " + row.origins.join(", ") +
+                  " -- a manual pick may not mix two cells in one row either." };
+      }
+    }
+
+    var segments = [segmentFor(state, entry, [req.position])];
+    return { ok: true, strategy: "manual", origin: origin, segments: segments, summary: summarise(segments),
+             reason: "Placed exactly where you picked." };
+  }
+
   function suggestPlacement(state, request) {
     var req = request || {};
     var strategy = groupingStrategyFor(state);
@@ -2875,7 +2917,8 @@
     searchExtents: searchExtents, search: search, searchGroups: searchGroups,
     // placement
     NO_ORIGIN: NO_ORIGIN, originOfVial: originOfVial, boxesFor: boxesFor, rowsOf: rowsOf, rowTakes: rowTakes,
-    mixedRows: mixedRows, suggestPlacement: suggestPlacement, applyPlacement: applyPlacement,
+    mixedRows: mixedRows, suggestPlacement: suggestPlacement, suggestPlacementAt: suggestPlacementAt,
+    applyPlacement: applyPlacement,
     GROUPING_STRATEGIES: GROUPING_STRATEGIES, IMPLEMENTED_GROUPING_STRATEGIES: IMPLEMENTED_GROUPING_STRATEGIES,
     groupingStrategyFor: groupingStrategyFor,
     // withdrawal

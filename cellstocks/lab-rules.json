@@ -1,6 +1,10 @@
 {
   "origin": [
     {
+      "match": "22Doce",
+      "value": "22Rv1"
+    },
+    {
       "match": "Du",
       "value": "Du145"
     },

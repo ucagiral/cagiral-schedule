@@ -1573,6 +1573,16 @@ try {
     // which is exactly what a stale CDN read is.
     let staleSettings = null;
     let lastCommit = null;
+    let commitCount = 0;
+    // Node-side polling: lastCommit lives out here, not in the page, so it needs its own
+    // wait rather than page.waitForFunction (which only ever sees the DOM).
+    async function waitForCommit(before, timeout = 5000) {
+      const start = Date.now();
+      while (commitCount <= before) {
+        if (Date.now() - start > timeout) throw new Error("no commit landed in time");
+        await new Promise((r) => setTimeout(r, 20));
+      }
+    }
     await page.route("https://raw.githubusercontent.com/**", (route) => {
       const url = route.request().url();
       if (url.includes("cellstocks/exports/recipients.json")) {
@@ -1601,6 +1611,7 @@ try {
         lastCommit = JSON.parse(req.postData());
         const f = lastCommit.files.find((x) => x.path.includes("recipients.json"));
         if (f) settings = JSON.parse(f.content);
+        commitCount++;
         return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
       }
       return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
@@ -1696,6 +1707,50 @@ try {
       afterRemove && !afterRemove.emails.includes("second@example.com"), JSON.stringify(afterRemove));
     check("and it does not resurrect the send time from the stale read",
       afterRemove && afterRemove.sendAt === "06:15", JSON.stringify(afterRemove));
+
+    // ---- the roster column picker ---------------------------------------------
+    //
+    // roster.xlsx (the flat, one-sheet-per-member export) lists every cell attribute as
+    // a column; this is where an admin trims that list. No members exist in this fixture,
+    // so the whole-lab load ensureLabCache() needs finishes with nothing extra to find --
+    // the fixed columns must still all render.
+    await page.waitForFunction(() =>
+      [...document.querySelectorAll("#admin-history label")].some((l) => /origin/.test(l.textContent)));
+    const fixedShown = await page.evaluate(() =>
+      [...document.querySelectorAll("#admin-history label")].map((l) => l.textContent.trim()));
+    for (const col of ["name", "origin", "koox", "resistance", "caspex", "guide", "location", "notes", "flags"]) {
+      check(`the "${col}" column is offered, checked by default`,
+        fixedShown.some((t) => t.includes(col)), JSON.stringify(fixedShown));
+    }
+    const allChecked = await page.evaluate(() =>
+      [...document.querySelectorAll("#admin-history label input[type=checkbox]")].every((cb) => cb.checked));
+    check("nothing is hidden by default", allChecked, String(allChecked));
+
+    // Hide one.
+    const commitsBeforeHide = commitCount;
+    await page.evaluate(() => {
+      const label = [...document.querySelectorAll("#admin-history label")].find((l) => /notes/.test(l.textContent));
+      label.querySelector("input[type=checkbox]").click();
+    });
+    await waitForCommit(commitsBeforeHide);
+    const afterHide = lastCommit && JSON.parse(lastCommit.files[0].content);
+    check("unchecking a column commits it into rosterHiddenColumns",
+      afterHide && Array.isArray(afterHide.rosterHiddenColumns) && afterHide.rosterHiddenColumns.includes("notes"),
+      JSON.stringify(afterHide));
+    check("hiding a column does not touch the recipients or the send time",
+      afterHide && afterHide.sendAt === "06:15" && !afterHide.emails.includes("second@example.com"),
+      JSON.stringify(afterHide));
+
+    // Re-check it: the column comes back, and the file no longer lists it as hidden.
+    const commitsBeforeUnhide = commitCount;
+    await page.evaluate(() => {
+      const label = [...document.querySelectorAll("#admin-history label")].find((l) => /notes/.test(l.textContent));
+      label.querySelector("input[type=checkbox]").click();
+    });
+    await waitForCommit(commitsBeforeUnhide);
+    const afterUnhide = lastCommit && JSON.parse(lastCommit.files[0].content);
+    check("re-checking a column removes it from rosterHiddenColumns again",
+      afterUnhide && !(afterUnhide.rosterHiddenColumns || []).includes("notes"), JSON.stringify(afterUnhide));
   } catch (err) {
     check("the export card sets who the daily mail goes to and when", false, String(err));
   } finally {
@@ -2426,6 +2481,114 @@ try {
   } finally {
     await browser15.close();
     server15.close();
+  }
+}
+
+// ============================================================================
+// Two edits close together must never fire two overlapping saves
+// ============================================================================
+//
+// The real incident: Umut took several vials out in a row on his phone and got
+// "Someone else saved first" over and over, watching vials seem to "come back" each
+// time. The inventory itself turned out fine on every commit -- each withdrawal really
+// did land -- because the worker's own ref retry covers a real race between two
+// DIFFERENT devices. What it was never built to cover is this device racing itself:
+// markDirty's debounce only ever cancels a still-PENDING timer, never a save that has
+// already fired and is mid-flight, so a second edit ~1s later starts a second commit
+// before the first's response has come back over a slow phone connection -- and each one
+// reconciles against a server snapshot the other is about to invalidate. Reproduced here
+// with a deliberately slow first /commit response and a second "Took it" fired while it
+// is still in flight.
+{
+  const server16 = await serve(8813);
+  const browser16 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-1", name: "Box 1", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 2, cols: 2, scheme: "grid" }
+      ] }
+    ], unplaced: [] };
+    const vial = (id, name, position) => ({
+      id, name, lineId: "racetest", passage: "p1", passageNumber: 1, passageKind: "absolute",
+      frozenOn: "2025-01-01", frozenRaw: "01-01-25", notes: "", flags: [],
+      location: { boxId: "b-1", position, path: [] }, status: "stored"
+    });
+    const own = { lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [vial("v-1", "RaceTest Alpha", "A1"), vial("v-2", "RaceTest Beta", "A2")] };
+
+    const context = await browser16.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(own) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+
+    let commitCount16 = 0;
+    await page.route("https://fake-worker.example/**", async (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        const n = commitCount16++;
+        // Only the FIRST commit is slow -- a stand-in for the round trip over a real
+        // phone connection that gave the second edit room to start overlapping it.
+        if (n === 0) await new Promise((r) => setTimeout(r, 1200));
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "sha" + n }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8813/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    await page.click('nav button[data-screen="find"]');
+    await page.fill("#q", "RaceTest");
+    await page.waitForFunction(() => document.querySelectorAll("#results button").length >= 2);
+
+    const takeButton = (name) => page.evaluate((n) => {
+      const card = [...document.querySelectorAll("#results .card, #results > div")]
+        .find((c) => c.textContent.includes(n));
+      const btn = card && [...card.querySelectorAll("button")].find((b) => b.textContent.trim() === "Took it");
+      if (btn) btn.click();
+      return !!btn;
+    }, name);
+
+    check("the first vial's 'Took it' button is found", await takeButton("RaceTest Alpha"), "");
+    // The debounce is 900ms; wait past it so the first save is genuinely in flight
+    // (its slow /commit response has not landed yet) before the second edit fires.
+    await page.waitForTimeout(1000);
+    check("the second vial's 'Took it' button is found while the first save is still in flight",
+      await takeButton("RaceTest Beta"), "");
+
+    for (let i = 0; i < 60 && commitCount16 < 2; i++) await page.waitForTimeout(100);
+    check("both edits are eventually committed, neither lost", commitCount16 === 2, commitCount16);
+    // The authoritative check: save() itself never let two doSave() cycles run at once,
+    // rather than inferring it from network timing a shared-connection browser can mask.
+    const maxConcurrent = await page.evaluate(() => window.__cstMaxConcurrentSaves || 0);
+    check("save() never let two doSave() cycles overlap, even with one edit landing mid-flight",
+      maxConcurrent === 1, maxConcurrent);
+  } catch (err) {
+    check("two edits close together never fire overlapping saves", false, String(err));
+  } finally {
+    await browser16.close();
+    server16.close();
   }
 }
 

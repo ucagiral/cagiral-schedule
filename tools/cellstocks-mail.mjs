@@ -376,7 +376,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const attachments = [
     { filename: "layout.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
     { filename: "layout.pdf", mimeType: "application/pdf" },
-    { filename: "layout.csv", mimeType: "text/csv; charset=UTF-8" }
+    { filename: "layout.csv", mimeType: "text/csv; charset=UTF-8" },
+    { filename: "roster.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
   ].map((a) => Object.assign({}, a, { content: readFileSync(join(EXPORTS, a.filename)) }));
 
   const areaCount = () => {
@@ -387,11 +388,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   };
   const today = new Date().toISOString().slice(0, 10);
   const text = [
-    "Today's freezer layout is attached, in three shapes:",
+    "Today's freezer layout is attached, in four shapes:",
     "",
     "  layout.xlsx  a grid sheet per box, every slot with its cell line and passage",
     "  layout.pdf   the printable map for the freezer door",
     "  layout.csv   one row per box: where it is, whose, how full",
+    "  roster.xlsx  one flat sheet per member, plus a lab-wide log of who froze and withdrew what",
     "",
     summarise(readFileSync(join(EXPORTS, "layout.csv"), "utf8"), areaCount()),
     "",

@@ -64,18 +64,30 @@ const vial = (id, name, boxId, position, passage) => ({
 });
 
 writeFileSync(join(root, "cellstocks", "data", "umut.json"), JSON.stringify({
-  lines: [], withdrawals: [], rules: {}, settings: {},
+  lines: [], rules: {}, settings: {},
+  // A live Add records who and when; the roster's "log" sheet reads exactly this, so an
+  // imported/pre-existing vial (v-1, v-4 below) with neither must contribute nothing to it.
   vials: [
     vial("v-1", "HEK293T ATP7B KO", "b-1", "A1", "p12"),
-    vial("v-2", "Du145 CASPEX g5.1", "b-1", "B2", "p7"),
+    Object.assign(vial("v-2", "Du145 CASPEX g5.1", "b-1", "B2", "p7"),
+                  { addedBy: "umut-phone", addedAt: "2026-09-07T10:00:00Z" }),
     vial("v-4", "Homeless Line", "b-3", "A1", "p2"),
     // A withdrawn vial must not appear anywhere in the export: it is not in the freezer.
     { id: "v-3", name: "Already Taken Out", status: "withdrawn", location: null, flags: [] }
+  ],
+  withdrawals: [
+    { date: "2026-09-08", name: "Already Taken Out", by: "umut-phone",
+      from: { boxId: "b-1", position: "C3" }, purpose: "thaw", notes: "", vialId: "v-3" }
   ]
 }, null, 2));
 writeFileSync(join(root, "cellstocks", "data", "busra.json"), JSON.stringify({
   lines: [], withdrawals: [], rules: {}, settings: {},
-  vials: [vial("v-1", "Şişli Line", "b-2", "A1", "p3")]   // same id as umut's, on purpose
+  vials: [
+    // A non-"cell" kind carries its own free-form attributes; the roster has to surface
+    // this as a column without it ever being named in code.
+    Object.assign(vial("v-1", "Şişli Line", "b-2", "A1", "p3"),
+                  { customFacets: { doxInducible: "yes" } })   // same id as umut's, on purpose
+  ]
 }, null, 2));
 
 const outDir = join(root, "out");
@@ -241,10 +253,98 @@ await check("a Turkish name survives into the PDF, folded rather than dropped", 
   return null;
 });
 
+// -------------------------------------------------------------- the roster (flat, per-person)
+await check("roster.xlsx is written, one sheet per member plus the lab-wide log", async () => {
+  if (!existsSync(join(outDir, "roster.xlsx"))) return "roster.xlsx is missing";
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "roster.xlsx")));
+  const names = wb.sheets.map((s) => s.name);
+  for (const want of ["umut", "busra", "log"]) {
+    if (!names.includes(want)) return `no "${want}" sheet: ${JSON.stringify(names)}`;
+  }
+  return null;
+});
+
+await check("a member's sheet lists only their active vials, with the fixed columns filled", async () => {
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "roster.xlsx")));
+  const sheet = wb.sheets.filter((s) => s.name === "umut")[0];
+  const rows = sheet.rows.map((r) => r.map((c) => (c ? c.value : "")));
+  const flat = JSON.stringify(rows);
+  if (!/HEK293T ATP7B KO/.test(flat) || !/Du145 CASPEX g5.1/.test(flat) || !/Homeless Line/.test(flat)) {
+    return `umut's active vials are not all present: ${flat}`;
+  }
+  if (/Already Taken Out/.test(flat)) return "a withdrawn vial leaked into the per-person sheet";
+  const hek = rows.filter((r) => r[0] === "HEK293T ATP7B KO")[0];
+  const originIdx = rows[0].indexOf("origin"), locationIdx = rows[0].indexOf("location");
+  if (!hek || hek[originIdx] !== "HEK293T") return `origin facet missing/wrong: ${JSON.stringify(hek)}`;
+  if (!/Rack 1/.test(hek[locationIdx] || "")) return `location is not the full chain path: ${JSON.stringify(hek)}`;
+  return null;
+});
+
+await check("a customFacets key becomes its own column, blank where a vial doesn't carry it", async () => {
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "roster.xlsx")));
+  const busra = wb.sheets.filter((s) => s.name === "busra")[0];
+  const header = busra.rows[0].map((c) => (c ? c.value : ""));
+  const idx = header.indexOf("doxInducible");
+  if (idx === -1) return `no doxInducible column on busra's sheet: ${JSON.stringify(header)}`;
+  const row = busra.rows[1].map((c) => (c ? c.value : ""));
+  if (row[idx] !== "yes") return `busra's Şişli Line should read "yes": ${JSON.stringify(row)}`;
+
+  const umut = wb.sheets.filter((s) => s.name === "umut")[0];
+  const uHeader = umut.rows[0].map((c) => (c ? c.value : ""));
+  if (uHeader.indexOf("doxInducible") === -1) return "the column must be shared across every sheet, not just busra's";
+  const uIdx = uHeader.indexOf("doxInducible");
+  const bad = umut.rows.slice(1).find((r) => (r[uIdx] ? r[uIdx].value : "") !== "");
+  if (bad) return `a vial with no customFacets should read blank, not ${JSON.stringify(bad)}`;
+  return null;
+});
+
+await check("the log sheet has one row for the addition and one for the withdrawal, correctly owned", async () => {
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "roster.xlsx")));
+  const log = wb.sheets.filter((s) => s.name === "log")[0];
+  const rows = log.rows.slice(1).map((r) => r.map((c) => (c ? c.value : "")));
+  const header = log.rows[0].map((c) => (c ? c.value : ""));
+  const added = rows.find((r) => r[header.indexOf("action")] === "added" &&
+                                  r[header.indexOf("name")] === "Du145 CASPEX g5.1");
+  if (!added) return `no "added" row for Du145 CASPEX g5.1: ${JSON.stringify(rows)}`;
+  if (added[header.indexOf("by")] !== "umut-phone" || added[header.indexOf("owner")] !== "umut") {
+    return `the added row's who/owner is wrong: ${JSON.stringify(added)}`;
+  }
+  const withdrawn = rows.find((r) => r[header.indexOf("action")] === "withdrawn");
+  if (!withdrawn || withdrawn[header.indexOf("name")] !== "Already Taken Out") {
+    return `no "withdrawn" row for Already Taken Out: ${JSON.stringify(rows)}`;
+  }
+  if (withdrawn[header.indexOf("owner")] !== "umut") return `withdrawn row has the wrong owner: ${JSON.stringify(withdrawn)}`;
+  // An imported/pre-existing vial with neither addedBy nor addedAt (v-1, v-4) must not
+  // fabricate an "added" entry -- only what was actually recorded shows up.
+  const fabricated = rows.find((r) => r[header.indexOf("action")] === "added" &&
+                                       (r[header.indexOf("name")] === "HEK293T ATP7B KO" ||
+                                        r[header.indexOf("name")] === "Homeless Line"));
+  if (fabricated) return `an addition was fabricated for a vial with no addedBy/addedAt: ${JSON.stringify(fabricated)}`;
+  return null;
+});
+
+await check("hiding a column via recipients.json's rosterHiddenColumns drops it from every sheet", async () => {
+  mkdirSync(join(root, "cellstocks", "exports"), { recursive: true });
+  writeFileSync(join(root, "cellstocks", "exports", "recipients.json"),
+    JSON.stringify({ emails: [], sendAt: "07:30", timeZone: "Europe/Istanbul",
+                     rosterHiddenColumns: ["notes", "doxInducible"] }, null, 2));
+  const outDir2 = join(root, "out2");
+  execFileSync("node", [join(HERE, "tools", "cellstocks-export.mjs"), "--root", root, "--out", outDir2],
+    { stdio: "pipe" });
+  const wb = await X.readWorkbook(readFileSync(join(outDir2, "roster.xlsx")));
+  const umut = wb.sheets.filter((s) => s.name === "umut")[0];
+  const header = umut.rows[0].map((c) => (c ? c.value : ""));
+  if (header.includes("notes") || header.includes("doxInducible")) {
+    return `a hidden column is still present: ${JSON.stringify(header)}`;
+  }
+  if (!header.includes("origin")) return `hiding two columns should not touch the others: ${JSON.stringify(header)}`;
+  return null;
+});
+
 console.log("");
 if (failures) {
-  console.log(`${failures} of 11 cell stocks export checks failed:\n`);
+  console.log(`${failures} of 16 cell stocks export checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 11 cell stocks export checks passed.");
+console.log("All 16 cell stocks export checks passed.");

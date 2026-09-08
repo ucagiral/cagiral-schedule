@@ -1185,10 +1185,51 @@
     saveTimer = setTimeout(function(){ save(message || "Update cell stocks"); }, 900);
   }
 
+  // Two edits close enough together used to start two overlapping save()s: the debounce
+  // in markDirty only ever cancels a still-PENDING timer, not a save that already fired
+  // and is mid-flight (a real cost on a slow phone connection, exactly what this app runs
+  // on) -- a second edit 900ms later starts a second commit before the first's has
+  // landed. Both eventually succeed (the worker's own retry sees to that), which is why
+  // the inventory itself came through this correct every time it was checked -- but each
+  // one reconciles against a server snapshot the OTHER is about to invalidate, so either
+  // can lose its race against the other and surface "someone else saved first" for a
+  // save that was never really about anyone but this same device. So at most one save()
+  // actually talks to the network at a time; a call that arrives while one is already
+  // running is remembered rather than launched, and runs once the current one is done --
+  // covering every edit made in the meantime, including its own, since save() always
+  // serialises whatever `state` currently holds rather than a snapshot taken at call time.
+  var saveInFlight = false;
+  var savePending = null;
   async function save(message){
     if (!canWrite()) return;
     clearTimeout(saveTimer);
+    if (saveInFlight){
+      savePending = message || savePending || "Update cell stocks";
+      return;
+    }
+    saveInFlight = true;
+    // A test-only counter, nothing else reads it: peak concurrency is otherwise
+    // unobservable from outside, since two overlapping doSave() calls could each still
+    // land a perfectly valid commit on their own -- the risk is in what they reconcile
+    // against mid-flight, not in whether either one, alone, succeeds.
+    try {
+      window.__cstConcurrentSaves = (window.__cstConcurrentSaves || 0) + 1;
+      window.__cstMaxConcurrentSaves = Math.max(window.__cstMaxConcurrentSaves || 0, window.__cstConcurrentSaves);
+    } catch(e){ /* no window, or a security error -- fine either way */ }
+    try {
+      await doSave(message);
+    } finally {
+      saveInFlight = false;
+      try { window.__cstConcurrentSaves = Math.max(0, (window.__cstConcurrentSaves || 1) - 1); } catch(e){}
+      if (savePending !== null){
+        var next = savePending;
+        savePending = null;
+        save(next);
+      }
+    }
+  }
 
+  async function doSave(message){
     // Reconcile with whatever is on the server right now before committing anything.
     // Without this, save() just serialised whatever this session's `state` happened to
     // hold -- fine for the tab that made the edit, but any tab/device whose own view
@@ -5144,7 +5185,7 @@
     var msg = el("div");
     var current = [];
     // The whole settings object, so saving one field never drops another.
-    var settings = mailSettings || { emails: [], sendAt: "07:30", timeZone: "Europe/Istanbul" };
+    var settings = mailSettings || { emails: [], sendAt: "07:30", timeZone: "Europe/Istanbul", rosterHiddenColumns: [] };
 
     function draw(){
       clear(list);
@@ -5259,7 +5300,8 @@
           settings = {
             emails: (body.emails || []).filter(function(a){ return typeof a === "string" && a; }),
             sendAt: /^\d{1,2}:\d{2}$/.test(body.sendAt || "") ? body.sendAt : "07:30",
-            timeZone: body.timeZone || "Europe/Istanbul"
+            timeZone: body.timeZone || "Europe/Istanbul",
+            rosterHiddenColumns: Array.isArray(body.rosterHiddenColumns) ? body.rosterHiddenColumns : []
           };
           mailSettings = settings;
           current = settings.emails;
@@ -5274,6 +5316,56 @@
       "hour and the mail goes out on the first check at or after this time, so it can be a few " +
       "minutes late — and a morning GitHub skips is picked up by the next check instead of lost.";
     draw();
+
+    // ---- which columns the roster shows ----------------------------------------
+    //
+    // roster.xlsx (built by the same scheduled job) lists every cell attribute as a
+    // column, including whatever a member typed on the Add screen for a non-"cell" kind
+    // (a Plasmid's dox-inducible/tet/FLAG...) -- so the set can't be hardcoded shut, and
+    // this is the one place an admin can trim it. Only what is explicitly hidden is
+    // stored: a column nobody has an opinion on yet, today's or tomorrow's, stays shown.
+    c.appendChild(el("h3", null, "Roster columns"));
+    c.appendChild(el("p", "note",
+      "roster.xlsx lists every cell attribute as a column, including one a member added " +
+      "themselves. Pick which ones actually show — a new attribute stays on until you turn it off."));
+    var colsBox = el("div");
+    c.appendChild(colsBox);
+
+    if (!labCache.members){
+      colsBox.appendChild(el("p", "note", "Reading the rest of the lab, so every account's own attributes can be listed…"));
+      ensureLabCache().then(renderAdminHistory);
+    } else {
+      var FIXED_ROSTER_COLUMNS = ["name", "origin", "koox", "resistance", "caspex", "guide", "passage",
+        "passage_kind", "frozen", "frozen_raw", "location", "position", "notes", "flags"];
+      // The lab's, not just this account's -- counting only your own vials would say a
+      // custom attribute nobody else uses is the whole list, the same trap ruleImpact()
+      // already avoids for the rules screen.
+      var customKeys = {};
+      [state].concat(Object.keys(labCache.data || {}).map(function(n){ return labCache.data[n]; })).forEach(function(st){
+        if (!st) return;
+        (st.vials || []).forEach(function(v){
+          if (v.customFacets) Object.keys(v.customFacets).forEach(function(k){ customKeys[k] = true; });
+        });
+      });
+      var allRosterColumns = FIXED_ROSTER_COLUMNS.concat(Object.keys(customKeys).sort());
+      var hiddenColumns = (settings.rosterHiddenColumns || []).slice();
+      allRosterColumns.forEach(function(col){
+        var row = el("label", "item");
+        var cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = hiddenColumns.indexOf(col) === -1;
+        cb.disabled = !canWrite();
+        cb.onchange = async function(){
+          cb.disabled = true;
+          var next = cb.checked ? hiddenColumns.filter(function(k){ return k !== col; }) : hiddenColumns.concat([col]);
+          await saveSettings({ rosterHiddenColumns: next }, (cb.checked ? "Show " : "Hide ") + col + " in the daily roster export");
+          cb.disabled = !canWrite();
+        };
+        row.appendChild(cb);
+        row.appendChild(document.createTextNode(" " + col));
+        colsBox.appendChild(row);
+      });
+    }
   }
 
   function renderAdminHistory(){

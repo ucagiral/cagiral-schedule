@@ -1060,25 +1060,39 @@
   // longer exists; doing that in a follow-up commit means any failure in between leaves
   // the repository in exactly the half-finished state validate() complains about.
   async function dependentFiles(nextStorage, nextRules){
-    // Admin edits the tree for the whole lab and may write anybody's files. A member
-    // only ever reaches their own boxes (Settings → Storage filters to them), so their
-    // own file is the only one they can make stale -- and the only one they may write.
+    // Every member's workbook carries a storage sheet describing the WHOLE shared tree,
+    // so a rename, a new box, or an import adding several at once can leave anybody's
+    // already-committed workbook wrong -- not just the boxes that moved, and not only
+    // when admin is the one making the change. "Who's affected" is always everyone in
+    // the lab; it was once "everyone, but only if I'm admin", which is how a member
+    // adding their own box (an everyday action, per the worker's own canWrite comment)
+    // silently left every other member's workbook stale.
+    if (!labCache.members) await ensureLabCache();
     var admin = isAdminUser();
     var me = (effectiveIdentity() || "").toLowerCase();
-    var owners = admin ? (labCache.members || []).slice() : (hasOwnInventory() && me ? [me] : []);
-    // labCache.members is everyone *else*, so an admin's own committed file -- which
-    // exists from before admin stopped having an inventory -- would never be refreshed
-    // and would drift the moment a freezer was renamed. Include it when it is really there.
-    if (admin && me && ownFileExists && owners.indexOf(me) === -1) owners.push(me);
+    var owners = (labCache.members || []).slice();
+    // labCache.members is everyone *else* (ensureLabCache excludes the caller's own
+    // name), so the caller's own file is added back explicitly. Admin has no inventory
+    // by role, but cellstocks/data/admin.json exists from before that rule and still
+    // needs refreshing if it is there -- hasOwnInventory() alone would miss it.
+    var meHasFile = admin ? ownFileExists : hasOwnInventory();
+    if (me && meHasFile && owners.indexOf(me) === -1) owners.push(me);
     var files = [];
     for (var i = 0; i < owners.length; i++){
       var name = owners[i];
-      var own = (name === me) ? state : (admin ? labCache.data[name] : null);
+      var own = (name === me) ? state : labCache.data[name];
       if (!own) continue;
       var after = E.hydrateRules(E.hydrateStorage(own, nextStorage, name), nextRules);
       var fixed = E.refreshPaths(after);
-      if (fixed.touched){
-        after = fixed.state;
+      after = fixed.state;
+      // Only a rename or move can leave another vial's stored route naming a shelf that
+      // no longer exists, and only admin's Structure screen can rename or move an
+      // existing node -- a member adding a box or importing a sheet never touches one,
+      // so there is nothing for either to fix in someone else's file. Writing another
+      // member's .json is also not something the worker's canWrite() allows a member to
+      // do at all; this mirrors that boundary rather than relying on it to reject a
+      // write that should never have been attempted.
+      if (fixed.touched && (name === me || admin)){
         files.push({ path: DATA_PREFIX + name + ".json", content: E.serialise(after) });
         if (name === me) state = after;
       }
@@ -1094,8 +1108,6 @@
   // The structure is not part of anybody's inventory, so it commits on its own -- plus
   // whatever the change makes stale in a member's files (see above).
   async function commitLabStorage(next, message){
-    // Admin needs everybody's vials to know whose files the change touches.
-    if (isAdminUser() && !labCache.members) await ensureLabCache();
     var files = [{ path: LAB_STORAGE_PATH, content: E.serialiseStorage(next) }]
       .concat(await dependentFiles(next, labRules));
     await workerCommit(files, message || "Update the lab's storage structure");
@@ -1111,7 +1123,6 @@
   // A member may do this: adding the label for a cell everyone works with is exactly the
   // kind of thing Umut wanted shared rather than kept in one person's copy.
   async function commitLabRules(next, message){
-    if (isAdminUser() && !labCache.members) await ensureLabCache();
     var files = [{ path: LAB_RULES_PATH, content: E.serialiseRules(next) }]
       .concat(await dependentFiles(labStorage, next));
     await workerCommit(files, message || "Update the lab's rules");
@@ -3986,16 +3997,23 @@
           });
           next.settings.customColumns = byHeader;
         }
-        // One commit: the member's vials, their workbook, and the lab's tree with the
-        // new boxes in it. Two commits would leave vials pointing at boxes that are not
-        // there yet if the second one failed.
+        // One commit: the member's vials, their workbook, the lab's tree with the new
+        // boxes in it, and every OTHER member's workbook the new boxes just made stale --
+        // every workbook's storage sheet describes the whole shared tree, not just its
+        // owner's boxes. Two commits would leave vials pointing at boxes that are not
+        // there yet if the second one failed; leaving the other regenerations for later
+        // is exactly the half-finished state that left admin's and umut's workbooks
+        // silently wrong the last time this ran without them.
         state = next;
         var bytes = await X.writeWorkbookAsync(E.vialsToSheets(state));
+        var elsewhere = (await dependentFiles(adopted.storage, state.rules)).filter(function(f){
+          return f.path !== dataPath() && f.path !== xlsxPath();
+        });
         await workerCommit([
           { path: dataPath(), content: E.serialise(state) },
           { path: xlsxPath(), content: bytesToBase64(bytes), base64: true },
           { path: LAB_STORAGE_PATH, content: E.serialiseStorage(adopted.storage) }
-        ], "Import " + rep.imported + " vials from " + fileName + " from " + getDevice());
+        ].concat(elsewhere), "Import " + rep.imported + " vials from " + fileName + " from " + getDevice());
         labStorage = E.mergeStorageDefaults(adopted.storage);
         labStorageLoaded = true;
         labCache.members = null; labCache.data = {}; labCache.failed = [];

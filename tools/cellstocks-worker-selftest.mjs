@@ -562,6 +562,43 @@ await check("a member may write their own .xlsx, not just their .json", () => {
   return canWrite(member, xlsxPathFor("Umut")) ? null : "a member could not write their own workbook path";
 });
 
+// ------------------------------------------------------------- a member's action can leave
+// every OTHER member's workbook stale (every workbook's storage sheet describes the WHOLE
+// shared tree), so a member may regenerate someone else's WORKBOOK -- never their .json --
+// but only as part of a commit that is itself legitimately touching the shared tree or rules.
+
+await check("a member may write another member's .xlsx when the batch also updates the shared tree", () => {
+  const member = { name: "Baris", role: "member" };
+  const batch = [LAB_STORAGE_PATH, xlsxPathFor("Baris"), xlsxPathFor("Umut"), xlsxPathFor("admin")];
+  if (!canWrite(member, xlsxPathFor("Umut"), batch)) return "could not regenerate another member's workbook alongside the tree";
+  if (!canWrite(member, xlsxPathFor("admin"), batch)) return "could not regenerate admin's workbook alongside the tree";
+  return null;
+});
+
+await check("...and the same, alongside a shared-rules update instead of the tree", () => {
+  const member = { name: "Baris", role: "member" };
+  const batch = ["cellstocks/lab-rules.json", xlsxPathFor("Umut")];
+  return canWrite(member, xlsxPathFor("Umut"), batch) ? null : "could not regenerate another member's workbook alongside a rules change";
+});
+
+await check("a member may still never write another member's .json, even in that same batch", () => {
+  const member = { name: "Baris", role: "member" };
+  const batch = [LAB_STORAGE_PATH, dataPathFor("Umut"), xlsxPathFor("Umut")];
+  return canWrite(member, dataPathFor("Umut"), batch) ? "wrote another member's actual inventory" : null;
+});
+
+await check("a member may not write another member's .xlsx outside a legitimate structural commit", () => {
+  const member = { name: "Baris", role: "member" };
+  // No LAB_STORAGE_PATH/LAB_RULES_PATH anywhere in this batch -- nothing legitimises it.
+  const batch = [dataPathFor("Baris"), xlsxPathFor("Baris"), xlsxPathFor("Umut")];
+  return canWrite(member, xlsxPathFor("Umut"), batch) ? "wrote another member's workbook unprompted" : null;
+});
+
+await check("without a batch at all, the new allowance never fires", () => {
+  const member = { name: "Baris", role: "member" };
+  return canWrite(member, xlsxPathFor("Umut")) ? "wrote another member's workbook with no batch context" : null;
+});
+
 // ==================================================================== /commit endpoint
 //
 // The app always saves the JSON and the generated .xlsx together (see

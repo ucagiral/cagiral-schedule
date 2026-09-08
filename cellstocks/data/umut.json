@@ -11168,6 +11168,57 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtt6vtcq",
+      "vialId": "v-mtt3mo6u-1",
+      "name": "jkl",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A3"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mtt6vuq8",
+      "vialId": "v-mtt3mo6u-2",
+      "name": "jkl",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A4"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mtt6vw7d",
+      "vialId": "v-mtt0h140-0",
+      "name": "klm ox",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A1"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11194,7 +11245,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T21:36:18.745Z"
+    "savedAt": "2026-09-08T21:36:23.119Z"
   },
   "removedVialIds": [
     "v-205",

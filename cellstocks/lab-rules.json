@@ -72,6 +72,10 @@
   ],
   "resistance": [
     {
+      "match": "Cis",
+      "value": "CisR"
+    },
+    {
       "match": "Caba",
       "value": "CabaR"
     },

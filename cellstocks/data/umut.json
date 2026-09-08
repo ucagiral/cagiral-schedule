@@ -10489,21 +10489,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-4",
-        "position": "B8"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-07T15:17:40.188Z",
       "addedBy": "unknown device"
     },
@@ -10748,21 +10734,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-4",
-        "position": "D3"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-07T15:20:40.838Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -10804,21 +10776,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-09-07",
       "frozenOn": "2026-09-07",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-4",
-        "position": "D5"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-07T15:21:12.672Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -10862,6 +10820,26 @@
       "frozenOn": "2026-09-08",
       "status": "withdrawn",
       "addedAt": "2026-09-08T11:09:47.786Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mtt0h140-0",
+      "name": "klm ox",
+      "lineId": "l-klm-ox",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-08",
+      "frozenOn": "2026-09-08",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A1"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-08T18:36:51.554Z",
       "addedBy": "unknown device",
       "kind": "Cell"
     }
@@ -10998,6 +10976,75 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtszufeb",
+      "vialId": "v-mtrdx0po-0",
+      "name": "HEK gNT",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "B8"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mtszvv8f",
+      "vialId": "v-mtre1ko0-0",
+      "name": "Huh7 ATF3 OX rep3",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "D5"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mtszvwlt",
+      "vialId": "v-mtre0w3q-0",
+      "name": "Huh7 3xFLAG",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "D3"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11024,7 +11071,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T17:23:04.322Z"
+    "savedAt": "2026-09-08T18:36:52.791Z"
   },
   "removedVialIds": [
     "v-205",

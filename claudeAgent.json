@@ -1563,7 +1563,7 @@
       "title": "LNCX and LUCX hygromycin selection — day 6 check",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "End of the 6-day transduction+selection window (2026-09-03 - 2026-09-08). Falls on a Tuesday, satisfying the no-Friday/weekend-end constraint. Duration is a short checkpoint, not a full protocol step.",
       "group": "LNCX/LUCX"
     },
@@ -2473,7 +2473,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-08T17:08:08.205Z",
+    "lastModified": "2026-09-08T17:08:09.879Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2263,16 +2263,24 @@ check("a plan aimed at one area stays in it, and says the whole way down", () =>
 
 check("no plan against the real freezer ever mixes two cells in a row", () => {
   if (!real) return null;
+  // This checks the one-cell-per-row invariant itself, not whatever grouping strategy
+  // the real account happens to have live right now -- "no rule" is a legitimate,
+  // deliberate Settings choice (E.suggestPlacementRandom has no row concept at all, by
+  // design) and switching to it broke this check the first time anyone actually did,
+  // even though nothing about the tree, the rules or the stored vials had changed.
+  // Pin category-row here regardless of the live setting, the same "any legitimate
+  // app action" rule this whole section already follows for everything else.
+  const realCategoryRow = { ...real, settings: { ...real.settings, groupingStrategy: "category-row" } };
   const names = ["Huh7 CBX3 KO g2", "HEK ATP7B KO g3", "DuDtxR CASPEX g5.1", "LnCap Canada",
                  "LuCap35CR", "MDA-MB-231 TOX4 OX", "HepG2 gNT", "LCC-V", "Brand New Cell"];
   for (const name of names) {
     for (const count of [1, 3, 9, 14]) {
-      const plan = E.suggestPlacement(real, { name, count });
+      const plan = E.suggestPlacement(realCategoryRow, { name, count });
       if (!plan.ok) continue;                       // a full freezer is a fair answer
-      const mine = E.classify(name, real.rules).origin || E.NO_ORIGIN;
+      const mine = E.classify(name, realCategoryRow.rules).origin || E.NO_ORIGIN;
       for (const seg of plan.segments) {
-        const occ = E.occupancy(real, seg.boxId);
-        const rows = E.rowsOf(real, seg.boxId);
+        const occ = E.occupancy(realCategoryRow, seg.boxId);
+        const rows = E.rowsOf(realCategoryRow, seg.boxId);
         for (const pos of seg.positions) {
           const parsed = E.parsePosition(occ.box, pos);
           if (occ.slots[parsed.index].vial) return `${name} x${count}: ${seg.boxName} ${pos} is taken`;
@@ -2283,9 +2291,9 @@ check("no plan against the real freezer ever mixes two cells in a row", () => {
         }
       }
       // And applying it must leave the freezer no more mixed than it started.
-      const before = E.mixedRows(real).length;
+      const before = E.mixedRows(realCategoryRow).length;
       const ids = plan.segments.reduce((n, seg) => n + seg.positions.length, 0);
-      const out = E.applyPlacement(real, plan, { name, passage: "p1", frozenOn: "2026-08-25" },
+      const out = E.applyPlacement(realCategoryRow, plan, { name, passage: "p1", frozenOn: "2026-08-25" },
         { ids: Array.from({ length: ids }, (_, i) => "probe-" + i), now: null, by: "test" });
       if (E.mixedRows(out.state).length !== before) return `${name} x${count} created a mixed row`;
     }

@@ -10830,15 +10830,7 @@
       "passageKind": "unknown",
       "frozenRaw": "2026-09-08",
       "frozenOn": "2026-09-08",
-      "location": {
-        "path": [
-          "u-ln2",
-          "t-1"
-        ],
-        "boxId": "b-unnamed-box",
-        "position": "A1"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-08T18:36:51.554Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -11236,6 +11228,23 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtt6wins",
+      "vialId": "v-mtt0h140-0",
+      "name": "klm ox",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "A1"
+      },
+      "date": "2026-09-08",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11262,7 +11271,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-08T21:36:26.905Z"
+    "savedAt": "2026-09-08T21:36:52.832Z"
   },
   "removedVialIds": [
     "v-205",

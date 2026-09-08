@@ -2330,6 +2330,105 @@ try {
   }
 }
 
+// ============================================================================
+// A member's workbook that couldn't be fetched is never silently skipped --
+// the structural change still lands, but the gap is said out loud
+// ============================================================================
+//
+// The real second incident: after the fix above shipped, Umut renamed the Liquid
+// Nitrogen tank from his phone and got another CI failure -- baris.xlsx (444KB, the
+// largest file in the lab) had gone stale again. dependentFiles() now depends on
+// fetching every other member's current .json via ensureLabCache(); on a real phone
+// connection that fetch can fail, and it used to fail *silently* -- the member was just
+// skipped, with nothing said, and the gap was only ever found by CI hours later, on a
+// commit that looked unrelated. Reproduced here with one member whose fetch fails
+// outright and one whose fetch succeeds, to prove the failure doesn't take down the
+// success case too.
+{
+  const server15 = await serve(8812);
+  const browser15 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [], unplaced: [] };
+    const own = { lines: [], withdrawals: [], vials: [], rules: {}, settings: {} };
+    const baris = { lines: [], withdrawals: [], vials: [], rules: {}, settings: {} };
+
+    const context = await browser15.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "Umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(own) });
+      }
+      if (url.includes("cellstocks/data/baris.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(baris) });
+      }
+      // cayhan's fetch fails outright -- a dropped mobile connection, not a slow one.
+      if (url.includes("cellstocks/data/cayhan.json")) {
+        return route.abort("connectionreset");
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([
+        { name: "baris.json", type: "file" }, { name: "cayhan.json", type: "file" }, { name: "umut.json", type: "file" }
+      ]) }));
+
+    const commits = [];
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        commits.push(JSON.parse(req.postData()));
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "abc" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8812/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    await page.click("nav button[data-screen=boxes]");
+    await page.waitForSelector("#bxQuickAdd button");
+    await page.click("#bxQuickAdd button");
+    await page.waitForSelector("#dlgBody input");
+    await page.fill("#dlgBody input", "Box 7");
+    await page.click("#dlgFoot button.primary");
+
+    for (let i = 0; i < 40 && !commits.length; i++) await page.waitForTimeout(100);
+    check("the structural change still commits even though one member's fetch failed",
+      commits.length === 1, commits.length);
+    if (commits.length) {
+      const paths = commits[0].files.map((f) => f.path);
+      check("the member whose fetch succeeded still gets their workbook regenerated",
+        paths.includes("cellstocks/data/baris.xlsx"), JSON.stringify(paths));
+      check("the member whose fetch failed is correctly absent, not committed with stale/empty data",
+        !paths.some((p) => p.startsWith("cellstocks/data/cayhan.")), JSON.stringify(paths));
+    }
+    await page.waitForFunction(() => document.getElementById("banner").classList.contains("show"),
+      { timeout: 5000 }).catch(() => {});
+    const bannerText = await page.evaluate(() => document.getElementById("banner").textContent);
+    check("the gap is said out loud, naming who couldn't be checked",
+      /cayhan/.test(bannerText) && /couldn.?t reach GitHub/.test(bannerText), bannerText);
+  } catch (err) {
+    check("a fetch failure for one member never silently skips them", false, String(err));
+  } finally {
+    await browser15.close();
+    server15.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

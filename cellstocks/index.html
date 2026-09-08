@@ -724,6 +724,35 @@
     return { html: html };
   }
 
+  // labCache.failed is populated by ensureLabCache() (called from inside this file's own
+  // dependentFiles()) -- read it, and only it, right after a commit that went through
+  // dependentFiles(), before the caller resets it below. A member it lists was never
+  // actually checked, so their workbook may now be stale; the structural change itself
+  // still went through, because refusing to rename a tank over someone else's workbook
+  // being unreachable would be a worse trade than saying so and moving on.
+  function workbookRefreshCaveat(){
+    if (!labCache.failed || !labCache.failed.length) return "";
+    return " (couldn't reach GitHub to check " +
+      (labCache.failed.length === 1 ? esc(labCache.failed[0]) + "'s workbook" :
+       labCache.failed.length + " members' workbooks") +
+      " just now — it'll catch up next time the tree or rules change.)";
+  }
+
+  // commitLabStorage()/commitLabRules() are called from a dozen small dialogs
+  // (addBoxDialog, rename/move/delete, handoff, the rules editor...), each of which shows
+  // its own "done" banner immediately after awaiting the commit -- on the same single
+  // #banner element this uses. A caveat shown synchronously here would just be overwritten
+  // a line later by whichever of those runs next. Deferred one tick, it always shows
+  // *after* that banner instead, so the rarer, more important message is the one left on
+  // screen rather than the routine one silently winning the race.
+  function showWorkbookRefreshCaveatIfAny(){
+    var caveat = workbookRefreshCaveat();
+    if (!caveat) return;
+    setTimeout(function(){
+      showBanner("Saved." + caveat, [{ label:"Got it", onClick: hideBanner }]);
+    }, 0);
+  }
+
   function utf8ToBase64(str){
     var bytes = new TextEncoder().encode(str), out = "", CH = 0x8000;
     for (var i = 0; i < bytes.length; i += CH) out += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
@@ -1115,6 +1144,7 @@
     labStorageLoaded = true;   // what was just written is the freshest copy there is
     // Every member's cached copy is now stale, including this session's own state.
     state = hydrate(state, effectiveIdentity());
+    showWorkbookRefreshCaveatIfAny();
     labCache.members = null; labCache.data = {}; labCache.failed = [];
   }
 
@@ -1129,6 +1159,7 @@
     labRules = E.mergeRulesDefaults(next);
     labRulesLoaded = true;
     state = hydrate(state, effectiveIdentity());
+    showWorkbookRefreshCaveatIfAny();
     labCache.members = null; labCache.data = {}; labCache.failed = [];
   }
 
@@ -1425,9 +1456,17 @@
         // blocked every save that account tried to make. A file committed minutes earlier
         // is the likeliest one to fail, because raw.githubusercontent serves the previous
         // version (or none at all) for a while after a commit.
+        //
+        // 30s rather than fetchWithTimeout's usual budget elsewhere: this fetch is also
+        // what dependentFiles() now depends on to know whose workbook a structural change
+        // touches (see engine.js/dependentFiles), and a real phone connection genuinely
+        // needs more than 10s for a file the size the largest member's now is (400+ KB) --
+        // 10s was timing this out mid-transfer, not because nothing was coming back, which
+        // silently dropped that member from every workbook-regenerating commit until CI
+        // caught it hours later.
         labCache.failed = [];
         await Promise.all(names.map(function(name){
-          return fetchWithTimeout(rawURL(DATA_PREFIX + name + ".json"), 10000)
+          return fetchWithTimeout(rawURL(DATA_PREFIX + name + ".json"), 30000)
             .then(function(r){ return r.ok ? r.text() : null; })
             .then(function(text){
               if (text) labCache.data[name] = hydrate(E.mergeDefaults(JSON.parse(text)), name);
@@ -4016,12 +4055,13 @@
         ].concat(elsewhere), "Import " + rep.imported + " vials from " + fileName + " from " + getDevice());
         labStorage = E.mergeStorageDefaults(adopted.storage);
         labStorageLoaded = true;
+        var caveat = workbookRefreshCaveat();
         labCache.members = null; labCache.data = {}; labCache.failed = [];
         dirty = false; cacheSave(); setStatus("Saved", "");
         $("dlg").close();
         var n = (labStorage.unplaced || []).length;
         showBanner("Imported " + rep.imported + " vials. Their box(es) are waiting under " +
-                   "<b>Not placed yet</b> — an admin says where they go. (" + n + " unplaced in the lab.)");
+                   "<b>Not placed yet</b> — an admin says where they go. (" + n + " unplaced in the lab.)" + caveat);
         renderAll();
       } catch(err){
         showBanner("Couldn't import: " + esc(err.message));

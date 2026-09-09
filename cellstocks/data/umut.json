@@ -10945,15 +10945,7 @@
       "passageKind": "unknown",
       "frozenRaw": "2026-09-09",
       "frozenOn": "2026-09-09",
-      "location": {
-        "path": [
-          "u-ln2",
-          "t-1"
-        ],
-        "boxId": "b-unnamed-box",
-        "position": "B3"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-09T13:48:02.210Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -11602,6 +11594,23 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtu5loqe",
+      "vialId": "v-mtu5lgdc-0",
+      "name": "deneme",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "B3"
+      },
+      "date": "2026-09-09",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11628,7 +11637,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-09T13:48:03.309Z"
+    "savedAt": "2026-09-09T13:48:14.165Z"
   },
   "removedVialIds": [
     "v-205",

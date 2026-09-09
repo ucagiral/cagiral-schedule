@@ -2278,6 +2278,7 @@
     // own data, but omitted while empty so an account that never used empty-row removal
     // does not gain a noisy field on its next unrelated save.
     if (!(copy.removedVialIds || []).length) delete copy.removedVialIds;
+    if (!(copy.reviewIgnored || []).length) delete copy.reviewIgnored;
     return copy;
   }
 
@@ -2534,7 +2535,7 @@
   function blankState() {
     return {
       storage: { labName: "CAA Lab Stocks", labIcon: "🏛️", children: [], unplaced: [] },
-      lines: [], vials: [], withdrawals: [], removedVialIds: [],
+      lines: [], vials: [], withdrawals: [], removedVialIds: [], reviewIgnored: [],
       rules: clone(DEFAULT_RULES),
       settings: { defaultUnitId: null, defaultOperator: "", placement: { allowSplit: true }, aliases: {}, columnMap: {}, customFlags: [] },
       _meta: { savedBy: null, savedAt: null }
@@ -2548,7 +2549,7 @@
     var s = state && typeof state === "object" ? clone(state) : {};
     if (!s.storage || typeof s.storage !== "object") s.storage = base.storage;
     s.storage = mergeStorageDefaults(s.storage);
-    ["lines", "vials", "withdrawals", "removedVialIds"].forEach(function (k) { if (!Array.isArray(s[k])) s[k] = []; });
+    ["lines", "vials", "withdrawals", "removedVialIds", "reviewIgnored"].forEach(function (k) { if (!Array.isArray(s[k])) s[k] = []; });
     if (!s.rules || typeof s.rules !== "object") s.rules = base.rules;
     FACETS.forEach(function (f) { if (!Array.isArray(s.rules[f])) s.rules[f] = clone(DEFAULT_RULES[f]); });
     if (!s.settings || typeof s.settings !== "object") s.settings = base.settings;
@@ -2780,13 +2781,43 @@
       if (!wById[w.id]) { next.withdrawals.push(clone(w)); kept++; }
     });
 
+    // Ignoring a Review card is low-stakes (it hides a nag, it never loses a tube), so
+    // a plain union is enough here -- unlike removedVialIds this has no tombstone, so
+    // bringing a card back on one device while another device's stale cache still
+    // carries the old ignore key can have it reappear once; hitting "Bring back" again
+    // settles it for good once that device's own cache catches up.
+    var ignoredSet = {};
+    (next.reviewIgnored || []).forEach(function (k) { ignoredSet[k] = true; });
+    (mine.reviewIgnored || []).forEach(function (k) { ignoredSet[k] = true; });
+    next.reviewIgnored = Object.keys(ignoredSet);
+
     // Settings are this device's own view (column maps, custom columns); the local copy
     // is the one the person has been using, so it stands.
     next.settings = clone(mine.settings || base.settings || {});
     return { state: next, kept: kept, added: added, conflicts: conflicts };
   }
 
+  // Review can't always be answered on the spot, and until now the only way off a card
+  // was to actually fix or fill it. These six categories are informational nags rather
+  // than structural breakage (unlike orphans/emptySlots, which each have one correct
+  // resolving action already), so they're the ones a key in state.reviewIgnored can
+  // silence -- reversibly, since the key is just data and removing it brings the card
+  // straight back. The key is "<category>:<id>"; reviewKey() is the one place that
+  // shape is built so reviewQueue() and the UI agree on it.
+  function reviewKey(category, id) { return category + ":" + id; }
+
   function reviewQueue(state) {
+    var ignored = {};
+    (state.reviewIgnored || []).forEach(function (k) { ignored[k] = true; });
+    function split(category, list, idOf) {
+      var active = [], off = [];
+      list.forEach(function (item) {
+        var key = reviewKey(category, idOf(item));
+        (ignored[key] ? off : active).push(item);
+      });
+      return { active: active, off: off.map(function (item) { return { key: reviewKey(category, idOf(item)), item: item }; }) };
+    }
+
     // A row import couldn't place at all (see importSheet()) is its own category below
     // -- it has neither a date nor a passage to speak of yet, so it is excluded from
     // every other category here rather than cluttering them with the same row twice.
@@ -2796,38 +2827,62 @@
     var emptySlots = emptyImportRows(state);
     var isEmpty = {};
     emptySlots.forEach(function (v) { isEmpty[v.id] = true; });
-    var ambiguousImport = (state.vials || []).filter(function (v) {
+    var ambiguousImportAll = (state.vials || []).filter(function (v) {
       return v.status !== "withdrawn" && v.importAmbiguous && !isEmpty[v.id];
     });
-    var dates = (state.vials || []).filter(function (v) {
+    var ambiguousImportSplit = split("ambiguousImport", ambiguousImportAll, function (v) { return v.id; });
+    var datesAll = (state.vials || []).filter(function (v) {
       // Anything without a confirmed date: the ambiguous ones, the unparseable one,
       // and the handful that were simply left blank. A vial marked dateUnknown has
       // already been asked about and answered "Unknown" -- a real, stable value (the
       // date's own equivalent of passage's "p?"), not a thing still waiting.
       return v.status !== "withdrawn" && !v.importAmbiguous && !v.frozenOn && !v.dateUnknown;
-    }).map(function (v) {
-      return { vial: v, date: parseDate(v.frozenRaw) };
     });
+    var datesSplit = split("dates", datesAll, function (v) { return v.id; });
+    var dates = datesSplit.active.map(function (v) { return { vial: v, date: parseDate(v.frozenRaw) }; });
     var ca = classifyAll(state);
-    var passages = (state.vials || []).filter(function (v) {
+    var gapsSplit = split("gaps", ca.gaps, function (g) { return g.vialId; });
+    var passagesAll = (state.vials || []).filter(function (v) {
       return v.status !== "withdrawn" && v.passageKind === "absolute" && v.passageNumber > IMPLAUSIBLE_PASSAGE;
     });
-    var rows = mixedRows(state);
+    var passagesSplit = split("passages", passagesAll, function (v) { return v.id; });
+    var rowsAll = mixedRows(state);
+    var rowsSplit = split("rows", rowsAll, function (m) { return m.boxId + "!" + m.index; });
     // Vials the sheet never recorded a passage for. Not an error and not urgent, but
     // it is missing information and the app should say so rather than let 68 vials
     // sit behind a "p?" nobody ever gets around to.
-    var unknownPassage = (state.vials || []).filter(function (v) {
+    var unknownPassageAll = (state.vials || []).filter(function (v) {
       return v.status !== "withdrawn" && !v.importAmbiguous && (v.passageKind || "unknown") === "unknown";
     });
+    var unknownPassageSplit = split("unknownPassage", unknownPassageAll, function (v) { return v.id; });
     // Listed first in the UI because it is the only category that stops the account
-    // saving anything at all until it is answered.
+    // saving anything at all until it is answered. Not ignorable: a vial pointing at a
+    // box that no longer exists is broken, not merely unanswered.
     var orphans = orphanedVials(state);
-    return { dates: dates, facets: ca.diffs, gaps: ca.gaps, passages: passages, rows: rows,
-             unknownPassage: unknownPassage, ambiguousImport: ambiguousImport, orphans: orphans,
-             emptySlots: emptySlots,
-             total: dates.length + ca.diffs.length + ca.gaps.length + passages.length +
-                    rows.length + unknownPassage.length + ambiguousImport.length +
+    var ignoredList = ambiguousImportSplit.off.concat(datesSplit.off, gapsSplit.off,
+      passagesSplit.off, rowsSplit.off, unknownPassageSplit.off);
+    return { dates: dates, facets: ca.diffs, gaps: gapsSplit.active, passages: passagesSplit.active,
+             rows: rowsSplit.active, unknownPassage: unknownPassageSplit.active,
+             ambiguousImport: ambiguousImportSplit.active, orphans: orphans, emptySlots: emptySlots,
+             ignored: ignoredList,
+             total: dates.length + ca.diffs.length + gapsSplit.active.length + passagesSplit.active.length +
+                    rowsSplit.active.length + unknownPassageSplit.active.length + ambiguousImportSplit.active.length +
                     orphans.length + emptySlots.length };
+  }
+
+  function ignoreReviewItem(state, category, id) {
+    var next = clone(state);
+    var key = reviewKey(category, id);
+    var have = {};
+    (next.reviewIgnored || []).forEach(function (k) { have[k] = true; });
+    if (!have[key]) next.reviewIgnored = (next.reviewIgnored || []).concat([key]);
+    return { ok: true, state: next, key: key };
+  }
+
+  function unignoreReviewItem(state, key) {
+    var next = clone(state);
+    next.reviewIgnored = (next.reviewIgnored || []).filter(function (k) { return k !== key; });
+    return { ok: true, state: next };
   }
 
   function confirmDate(state, vialId, iso) {
@@ -2937,6 +2992,7 @@
     reviewQueue: reviewQueue, orphanedVials: orphanedVials,
     emptyImportRows: emptyImportRows, dropEmptyImportRows: dropEmptyImportRows,
     confirmDate: confirmDate, markDateUnknown: markDateUnknown,
-    resolveImportRow: resolveImportRow
+    resolveImportRow: resolveImportRow,
+    reviewKey: reviewKey, ignoreReviewItem: ignoreReviewItem, unignoreReviewItem: unignoreReviewItem
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

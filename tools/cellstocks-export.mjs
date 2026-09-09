@@ -105,7 +105,7 @@ function gridSheets() {
     name: "boxes",
     rows: [["area", "location", "box", "owner", "rows", "cols", "used", "capacity", "free"]].concat(
       boxes.map((b) => [
-        b.area, b.path, b.box.name, b.box.owner || "",
+        b.area, b.path, b.box.name, b.box.common ? "Common" : (b.box.owner || ""),
         b.box.rows, b.box.cols, b.occ.used, b.occ.capacity, b.occ.capacity - b.occ.used
       ])
     )
@@ -131,7 +131,7 @@ function gridSheets() {
     // Two title rows above the grid, so a printed sheet says which box it is.
     sheets.push({
       name: safe,
-      rows: [[b.path], [b.box.name + (b.box.owner ? "  ·  " + b.box.owner : "") +
+      rows: [[b.path], [b.box.name + (b.box.common ? "  ·  Common" : (b.box.owner ? "  ·  " + b.box.owner : "")) +
              "  ·  " + b.occ.used + "/" + b.occ.capacity + " full"], []].concat(rows)
     });
   });
@@ -152,7 +152,7 @@ function buildPdf() {
     (list || []).forEach((node) => {
       if (node.isBox) {
         const b = boxes.filter((x) => x.box.id === node.id)[0];
-        doc.text(node.name + "  ·  " + (node.owner || "unassigned") +
+        doc.text(node.name + "  ·  " + (node.common ? "Common" : (node.owner || "unassigned")) +
                  "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity : "?") + " full",
                  { size: 9.5, indent: 6 + depth * 14 });
         return;
@@ -172,7 +172,7 @@ function buildPdf() {
     doc.text("Not placed yet", { size: 11, bold: true, indent: 6 });
     loose.forEach((box) => {
       const b = boxes.filter((x) => x.box.id === box.id)[0];
-      doc.text(box.name + "  ·  " + (box.owner || "unassigned") +
+      doc.text(box.name + "  ·  " + (box.common ? "Common" : (box.owner || "unassigned")) +
                "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity : "?") + " full",
                { size: 9.5, indent: 20 });
     });
@@ -183,7 +183,7 @@ function buildPdf() {
     doc.addPage();
     doc.text(b.box.name, { size: 16, bold: true });
     doc.text(b.path, { size: 10 });
-    doc.text((b.box.owner || "unassigned") + "  ·  " + b.occ.used + " of " + b.occ.capacity + " slots full",
+    doc.text((b.box.common ? "Common" : (b.box.owner || "unassigned")) + "  ·  " + b.occ.used + " of " + b.occ.capacity + " slots full",
              { size: 10 });
     doc.gap(6);
 
@@ -227,7 +227,7 @@ function buildCsv() {
   };
   const rows = [["area", "location", "box", "owner", "rows", "cols", "used", "capacity", "free"]];
   boxes.forEach((b) => rows.push([
-    b.area, b.path, b.box.name, b.box.owner || "",
+    b.area, b.path, b.box.name, b.box.common ? "Common" : (b.box.owner || ""),
     b.box.rows, b.box.cols, b.occ.used, b.occ.capacity, b.occ.capacity - b.occ.used
   ]));
   // A leading BOM, so Excel opens it as UTF-8 rather than mangling the first column.

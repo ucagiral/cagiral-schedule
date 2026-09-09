@@ -1223,6 +1223,35 @@ check("a box has to belong to somebody, at both add and edit", () => {
   return null;
 });
 
+// ---- a common box is the one exception: it answers "whose is it?" with "everyone's" ----
+
+check("a common box needs no owner; an ordinary box still does", () => {
+  const f = treeFixture();
+  const a = E.addNode(f.state.storage, f.rack, { name: "Shared", isBox: true, common: true, rows: 2, cols: 2 });
+  if (!a.ok) return `a common box was refused: ${a.reason}`;
+  const node = E.findNode(a.state, a.node.id).node;
+  if (!node.common) return "common was not set";
+  if (node.owner) return `a common box must not carry an owner, got ${json(node.owner)}`;
+  return null;
+});
+
+check("marking an existing box common clears its owner; un-marking it needs one again", () => {
+  const f = treeFixture();
+  const toCommon = E.editNode(f.state.storage, f.boxId, { common: true });
+  if (!toCommon.ok) return `refused: ${toCommon.reason}`;
+  const common = E.findNode(toCommon.state, f.boxId).node;
+  if (!common.common || common.owner) return `expected common with no owner, got ${json(common)}`;
+
+  const backOff = E.editNode(toCommon.state, f.boxId, { common: false });
+  if (!backOff.ok) return `refused: ${backOff.reason}`;
+  const uncommon = E.findNode(backOff.state, f.boxId).node;
+  if (uncommon.common) return "common was not cleared";
+
+  const noOwner = E.editNode(backOff.state, f.boxId, { owner: "" });
+  if (noOwner.ok) return "an ordinary box's owner was cleared without common to cover for it";
+  return null;
+});
+
 check("names, notes and icons are editable on any node; what a node IS is not", () => {
   const f = treeFixture();
   const r = E.editNode(f.state.storage, f.shelf, { name: "Shelf One", note: "top", icon: "🧊" });
@@ -1940,6 +1969,25 @@ check("placement only ever offers a member their own boxes", () => {
   return null;
 });
 
+check("boxesFor includes a common box for a non-owner, but automatic suggestion never picks it", () => {
+  const commonBox = Object.assign(box("b-common", "Common Box", 9, 9), { isBox: true, common: true });
+  delete commonBox.owner;
+  const lab = { units: [{ id: "u-1", name: "-80", childLabel: "Rack", racks: [{ id: "r-1", name: "Rack 1",
+    boxes: [commonBox] }] }] };
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "caa");
+
+  const forCaa = E.boxesFor(state, null, "caa").map((e) => e.box.id);
+  if (json(forCaa) !== json(["b-common"])) return `expected the common box visible to a non-owner, got ${json(forCaa)}`;
+  const excluded = E.boxesFor(state, null, "caa", { includeCommon: false }).map((e) => e.box.id);
+  if (excluded.length) return `{includeCommon:false} must drop it, got ${json(excluded)}`;
+
+  // The common box is the ONLY box in the lab, so if automatic suggestion will ever
+  // reach for one on its own, this is where it would have to.
+  const plan = E.suggestPlacement(state, { name: "HEK293T", count: 1, owner: "caa" });
+  if (plan.ok) return `automatic placement must never propose a common box, got ${json(plan.segments)}`;
+  return null;
+});
+
 // ---- suggestPlacementAt: a manual, exact-slot pick -------------------------------
 //
 // The automatic proposal is a proposal; Umut asked for a way to say exactly which
@@ -2008,6 +2056,40 @@ check("suggestPlacementAt still refuses to mix two cells in one row, even for a 
   const state = E.hydrateStorage(E.mergeDefaults({ vials: [vial("v-1", "HEK293T", "b-1", "A1")] }), lab, "umut");
   const plan = E.suggestPlacementAt(state, { name: "Du145", boxId: "b-1", position: "A2" });
   if (plan.ok) return "a manual pick into a row already holding a different cell must be refused, same as the plan";
+  return null;
+});
+
+check("suggestPlacementAt accepts a non-owner manually targeting a common box", () => {
+  const commonBox = Object.assign(box("b-1", "Box 1", 2, 2), { isBox: true, common: true });
+  delete commonBox.owner;
+  const lab = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [commonBox] }] });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "caa");
+  const plan = E.suggestPlacementAt(state, { name: "HEK293T", boxId: "b-1", position: "A1", owner: "caa" });
+  if (!plan.ok) return `a non-owner's manual pick into a common box must be allowed: ${plan.reason}`;
+  return null;
+});
+
+check("suggestPlacementAt skips the one-cell-per-row rule inside a common box", () => {
+  const commonBox = Object.assign(box("b-1", "Box 1", 1, 3), { isBox: true, common: true });
+  delete commonBox.owner;
+  const lab = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [commonBox] }] });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [vial("v-1", "HEK293T", "b-1", "A1")] }), lab, "caa");
+  const plan = E.suggestPlacementAt(state, { name: "Du145", boxId: "b-1", position: "A2", owner: "caa" });
+  if (!plan.ok) return `mixing must be allowed in a common box: ${plan.reason}`;
+  return null;
+});
+
+check("a common box mixing two cells in one row raises no mixed-row or box-unowned warning", () => {
+  const commonBox = Object.assign(box("b-1", "Box 1", 1, 3), { isBox: true, common: true });
+  delete commonBox.owner;
+  const lab = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [commonBox] }] });
+  const state = E.hydrateStorage(E.mergeDefaults({
+    vials: [vial("v-1", "HEK293T", "b-1", "A1"), vial("v-2", "Du145", "b-1", "A2")]
+  }), lab, "caa");
+  if (E.mixedRows(state).length) return "a common box's mixed row must not be reported";
+  const problems = E.validate(state);
+  if (problems.some((p) => p.code === "mixed-row")) return "validate() flagged mixing inside a common box";
+  if (problems.some((p) => p.code === "box-unowned")) return "validate() flagged a common box as unowned";
   return null;
 });
 

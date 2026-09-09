@@ -268,7 +268,9 @@
     var d = details || {};
     var name = String(d.name || "").trim();
     if (!name) return { ok: false, reason: "A name is required." };
-    if (d.isBox && !d.owner) return { ok: false, reason: "A box has to belong to somebody." };
+    // A common box answers "whose is it?" with "everyone's" rather than a name, so it is
+    // the one box that does not need d.owner.
+    if (d.isBox && !d.owner && !d.common) return { ok: false, reason: "A box has to belong to somebody." };
 
     var next = clone(root);
     var node = {
@@ -279,7 +281,8 @@
     };
     if (d.isBox) {
       node.isBox = true;
-      node.owner = String(d.owner).toLowerCase();
+      if (d.common) node.common = true;
+      else node.owner = String(d.owner).toLowerCase();
       node.rows = Math.max(1, Math.floor(Number(d.rows) || 9));
       node.cols = Math.max(1, Math.floor(Number(d.cols) || 9));
       node.scheme = d.scheme || "grid";
@@ -319,9 +322,19 @@
     if (d.note !== undefined) f.node.note = String(d.note);
     if (d.icon !== undefined) f.node.icon = d.icon;
     if (isBoxNode(f.node)) {
+      // Common comes first: turning a box common clears whatever owner it had (there is
+      // no one left to hand off to), and turning it back off is what makes the owner
+      // guard below apply again.
+      if (d.common !== undefined) {
+        if (d.common) { f.node.common = true; delete f.node.owner; }
+        else delete f.node.common;
+      }
       if (d.owner !== undefined) {
-        if (!d.owner) return { ok: false, reason: "A box has to belong to somebody." };
-        f.node.owner = String(d.owner).toLowerCase();
+        if (!d.owner) {
+          if (!f.node.common) return { ok: false, reason: "A box has to belong to somebody." };
+        } else {
+          f.node.owner = String(d.owner).toLowerCase();
+        }
       }
       if (d.rows !== undefined) f.node.rows = Math.max(1, Math.floor(Number(d.rows) || 1));
       if (d.cols !== undefined) f.node.cols = Math.max(1, Math.floor(Number(d.cols) || 1));
@@ -1134,7 +1147,14 @@
   // else's box, because every box in the lab is in state.storage. A box with no owner
   // recorded at all is nobody's in particular and stays available -- that is what an
   // unmigrated or hand-added box looks like, and refusing those would strand them.
-  function boxesFor(state, unitId, owner) {
+  //
+  // A common box (box.common) is a third case, neither "mine" nor "someone else's": it
+  // always passes the owner check below, on purpose, so a manual pick (the box-override
+  // picker, the Boxes tab) offers it to everyone. opts.includeCommon lets the automatic
+  // strategies opt back OUT of that -- reaching a common box is always a person picking
+  // it, never the app proposing it (see suggestPlacementRandom/CategoryRow).
+  function boxesFor(state, unitId, owner, opts) {
+    var includeCommon = !opts || opts.includeCommon !== false;
     var out = [];
     eachBox(state, function (box, rack, unit, chain) {
       if (box.archived) return;
@@ -1143,6 +1163,7 @@
       // proposal that named it would be sending someone to a shelf that does not exist.
       if (!chain.length) return;
       if (unitId && unit.id !== unitId) return;
+      if (box.common) { if (!includeCommon) return; out.push({ box: box, rack: rack, unit: unit, chain: chain }); return; }
       if (owner && box.owner && box.owner.toLowerCase() !== String(owner).toLowerCase()) return;
       out.push({ box: box, rack: rack, unit: unit, chain: chain });
     });
@@ -1254,7 +1275,8 @@
     var entry = findBox(state, req.boxId);
     if (!entry) return { ok: false, reason: "That box does not exist." };
     var owner = req.owner || state._owner;
-    if (owner && entry.box.owner && String(entry.box.owner).toLowerCase() !== String(owner).toLowerCase()) {
+    if (!entry.box.common && owner && entry.box.owner &&
+        String(entry.box.owner).toLowerCase() !== String(owner).toLowerCase()) {
       return { ok: false, reason: "That box is not yours." };
     }
     if (!entry.chain.length) {
@@ -1269,7 +1291,8 @@
     var origin = originForRequest(state, req, rules);
     // Even a manual pick may not mix two cells into one row -- the placement rule this
     // whole file is built around, not a default that only applies to the automatic path.
-    if (groupingStrategyFor(state) === "category-row") {
+    // A common box is the one exception: mixing there is the point.
+    if (!entry.box.common && groupingStrategyFor(state) === "category-row") {
       var row = rowsOf(state, req.boxId, rules).filter(function (r) {
         return r.positions.indexOf(req.position) !== -1;
       })[0];
@@ -1299,7 +1322,10 @@
   function suggestPlacementRandom(state, req) {
     var count = Math.max(1, Number(req.count) || 1);
     var unitId = req.unitId || (state.settings && state.settings.defaultUnitId) || null;
-    var boxes = boxesFor(state, unitId, req.owner || state._owner).filter(function (entry) {
+    // A common box only shows up here when req.boxId already names it -- someone picked
+    // it on purpose via the box override, and is just letting the app choose a slot
+    // inside it. Left to choose the box itself, this must never reach for one.
+    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId }).filter(function (entry) {
       return req.boxId ? entry.box.id === req.boxId : true;
     });
     if (!boxes.length) {
@@ -1351,7 +1377,9 @@
     var rules = state.rules || DEFAULT_RULES;
     var origin = originForRequest(state, req, rules);
 
-    var boxes = boxesFor(state, unitId, req.owner || state._owner).filter(function (entry) {
+    // Same rule as suggestPlacementRandom: a common box is only in play here when
+    // req.boxId already names it.
+    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId }).filter(function (entry) {
       return req.boxId ? entry.box.id === req.boxId : true;
     });
     if (!boxes.length) {
@@ -1360,9 +1388,11 @@
         : "There are no boxes to put anything in yet. Add one in Setup first." };
     }
 
-    // Every row that could take this origin, grouped by box.
+    // Every row that could take this origin, grouped by box -- except a common box,
+    // where the one-origin-per-row rule this whole file is built around does not apply:
+    // every row there is fair game regardless of what it already holds.
     var perBox = boxes.map(function (entry, boxOrder) {
-      var rows = rowsOf(state, entry.box.id, rules).filter(function (row) { return rowTakes(row, origin); });
+      var rows = rowsOf(state, entry.box.id, rules).filter(function (row) { return entry.box.common || rowTakes(row, origin); });
       var hasOrigin = rowsOf(state, entry.box.id, rules).some(function (r) { return r.counts[origin] > 0; });
       return {
         entry: entry, boxOrder: boxOrder, hasOrigin: hasOrigin, rows: rows,
@@ -1375,7 +1405,7 @@
       var blocked = 0;
       boxes.forEach(function (entry) {
         rowsOf(state, entry.box.id, rules).forEach(function (row) {
-          if (!rowTakes(row, origin)) blocked += row.free.length;
+          if (!entry.box.common && !rowTakes(row, origin)) blocked += row.free.length;
         });
       });
       return { ok: false, origin: origin,
@@ -1620,10 +1650,13 @@
 
   // Rows holding more than one kind of cell. Reported rather than repaired: which
   // vial is the odd one out, and where it should go instead, is not this code's call.
+  // A common box is excluded outright: mixing there is intentional, not a row that
+  // needs sorting out.
   function mixedRows(state) {
     var rules = state.rules || DEFAULT_RULES;
     var out = [];
     eachBox(state, function (box) {
+      if (box.common) return;
       rowsOf(state, box.id, rules).forEach(function (row) {
         if (row.origins.length > 1) {
           out.push({ boxId: box.id, box: box.name, label: row.label, index: row.index,
@@ -1644,7 +1677,7 @@
       if (boxIds[box.id]) err("duplicate-box", "Two boxes share the id " + box.id + ".", box.id);
       boxIds[box.id] = { box: box, rack: rack, unit: unit, chain: chain };
       if (capacity(box) <= 0) err("bad-grid", box.name + " has no rows or columns set.", box.id);
-      if (!box.owner) warn("box-unowned", box.name + " does not say whose it is.", box.id);
+      if (!box.owner && !box.common) warn("box-unowned", box.name + " does not say whose it is.", box.id);
     });
 
     var vialIds = {};
@@ -2419,7 +2452,7 @@
     var copy = clone(storage || {});
     copy.children = copy.children || [];
     copy.unplaced = copy.unplaced || [];
-    eachBox(copy, function (box) { stripEmpties(box, ["id", "name", "rows", "cols", "owner", "isBox"]); });
+    eachBox(copy, function (box) { stripEmpties(box, ["id", "name", "rows", "cols", "owner", "common", "isBox"]); });
     eachNode(copy, function (node) { if (!isBoxNode(node)) stripEmpties(node, ["id", "name", "children"]); });
     if (!copy.unplaced.length) delete copy.unplaced;
     return copy;

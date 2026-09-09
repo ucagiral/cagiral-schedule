@@ -4690,7 +4690,7 @@
       var cap = (Number(node.rows) || 0) * (Number(node.cols) || 0);
       return [node.rows + "×" + node.cols,
               (counts[node.id] || 0) + "/" + cap + " full",
-              node.owner || "nobody",
+              node.common ? "Common" : (node.owner || "nobody"),
               node.note].filter(Boolean).join(" · ");
     }
     var kids = (node.children || []).length;
@@ -4834,6 +4834,21 @@
     }
 
     var boxFields = el("div");
+    // A common box answers "whose is it?" with "everyone's" rather than a name -- ticking
+    // this hides the owner select below and, on save, sends no owner at all. It also
+    // keeps automatic freeze-placement from ever proposing this box on its own (see
+    // boxesFor/suggestPlacementRandom/CategoryRow in engine.js): reaching a common box is
+    // always a person picking it on purpose, on the Add screen's box override.
+    var common = document.createElement("input");
+    common.type = "checkbox";
+    common.id = "nodeCommon";
+    common.checked = !!initial.common;
+    var clbl = el("label", null);
+    clbl.style.cssText = "display:flex;align-items:center;gap:8px;margin:10px 0";
+    clbl.appendChild(common);
+    clbl.appendChild(document.createTextNode(
+      "Common box — anyone in the lab may freeze into it; nobody in particular owns it"));
+    boxFields.appendChild(clbl);
     var owner = document.createElement("select");
     var ownerNames = (labCache.members || []).slice().sort();
     var opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "Choose…";
@@ -4845,7 +4860,7 @@
     });
     var rows = document.createElement("input"); rows.type = "number"; rows.min = 1; rows.value = initial.rows || 9;
     var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = initial.cols || 9;
-    var of = el("div", "field"); of.appendChild(el("label", null, "Whose is it? (required)")); of.appendChild(owner);
+    var of = el("div", "field"); of.id = "nodeOwnerField"; of.appendChild(el("label", null, "Whose is it? (required)")); of.appendChild(owner);
     boxFields.appendChild(of);
     var grid = el("div", "two");
     [["Rows (A)", rows], ["Columns (B)", cols]].forEach(function(p){
@@ -4854,7 +4869,9 @@
     boxFields.appendChild(grid);
     body.appendChild(boxFields);
 
-    function sync(){ boxFields.hidden = !isBox.checked; }
+    function syncCommon(){ of.hidden = common.checked; }
+    common.onchange = syncCommon;
+    function sync(){ boxFields.hidden = !isBox.checked; syncCommon(); }
     isBox.onchange = sync;
     sync();
 
@@ -4864,10 +4881,13 @@
     ok.onclick = async function(){
       var details = {
         name: name.value, note: note.value, icon: icon.value,
-        isBox: isBox.checked, owner: owner.value, rows: rows.value, cols: cols.value
+        isBox: isBox.checked, common: common.checked,
+        owner: common.checked ? "" : owner.value, rows: rows.value, cols: cols.value
       };
       if (!details.name.trim()){ msg.textContent = "A name is required."; msg.style.color = "var(--bad)"; return; }
-      if (details.isBox && !details.owner){ msg.textContent = "A box has to belong to somebody."; msg.style.color = "var(--bad)"; return; }
+      if (details.isBox && !details.owner && !details.common){
+        msg.textContent = "A box has to belong to somebody."; msg.style.color = "var(--bad)"; return;
+      }
       ok.disabled = true;
       try {
         var r = await onSave(details);
@@ -4904,7 +4924,7 @@
   function editNodeDialog(node){
     nodeFieldsDialog("Edit " + node.name, {
       exists: true, id: node.id, name: node.name, note: node.note, icon: node.icon,
-      isBox: E.isBoxNode(node), owner: node.owner, rows: node.rows, cols: node.cols
+      isBox: E.isBoxNode(node), owner: node.owner, common: node.common, rows: node.rows, cols: node.cols
     }, async function(details){
       var r = E.editNode(labStorage, node.id, details);
       if (!r.ok) return r;
@@ -4958,7 +4978,7 @@
     var byOwner = {};
     contents.boxes.forEach(function(b){
       var n = counts[b.id] || 0;
-      if (n) byOwner[b.owner || ""] = (byOwner[b.owner || ""] || 0) + n;
+      if (n) { var k = b.common ? "__common__" : (b.owner || ""); byOwner[k] = (byOwner[k] || 0) + n; }
     });
     var owners = Object.keys(byOwner);
     var vialTotal = owners.reduce(function(n, o){ return n + byOwner[o]; }, 0);
@@ -4968,7 +4988,7 @@
     if (contents.boxes.length) lines.push(contents.boxes.length + " box(es) go with it.");
     if (vialTotal){
       lines.push(vialTotal + " vial(s) still inside (" +
-        owners.map(function(o){ return (o || "unassigned") + ": " + byOwner[o]; }).join(", ") +
+        owners.map(function(o){ return (o === "__common__" ? "Common" : (o || "unassigned")) + ": " + byOwner[o]; }).join(", ") +
         ") will be taken out and logged, not erased — they stay in the Log and in history.");
     } else if (!contents.boxes.length && !contents.layers){
       lines.push("Nothing is inside it.");

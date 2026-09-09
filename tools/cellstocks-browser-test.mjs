@@ -3369,6 +3369,237 @@ try {
   }
 }
 
+// ---- a common box: admin marks it, any member can freeze into it, withdrawal survives ----
+//
+// Umut's ask: admin ticks a checkbox on a box in Structure and it becomes everyone's --
+// any member can freeze into it, mixing cell lines in one row is fine there, and it is
+// never something automatic placement reaches for on its own (only a person picking it,
+// via the Boxes tab or the Add screen's box override, ever lands a vial in it). He also
+// asked, explicitly, that taking a vial back out of a common box behave exactly like any
+// other withdrawal -- logged, and not vulnerable to the same "silently reverts on the next
+// save" bug already fixed elsewhere in this session (see the syncedState-aliasing fix).
+{
+  const server23 = await serve(8820);
+  const browser23 = await chromium.launch();
+  try {
+    let labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "rack-1", name: "Rack 1", icon: "", note: "", children: [] }
+      ] }
+    ], unplaced: [] };
+    let labmateState = { lines: [], withdrawals: [], rules: {}, settings: {}, vials: [] };
+    let lastCommit23 = null;
+
+    const context = await browser23.newContext();
+    await context.addInitScript(() => {
+      localStorage.setItem("cst_cfg", JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" }));
+    });
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "labmate.json", type: "file" }]) }));
+    await ownFileRoute(page, (name) => {
+      if (name === "labmate.json") return labmateState;
+      return null; // admin has no own file
+    });
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/login" && req.method() === "POST") {
+        const posted = JSON.parse(req.postData());
+        if (posted.name === "admin") {
+          return route.fulfill({ status: 200, contentType: "application/json",
+            body: JSON.stringify({ token: "admin-token", user: { name: "admin", role: "admin", hidden: true } }) });
+        }
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ token: "labmate-token", user: { name: "labmate", role: "member", hidden: false } }) });
+      }
+      if (path === "/logout" && req.method() === "POST") {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+      }
+      if (path === "/admin/users" && req.method() === "GET") {
+        return route.fulfill({ status: 200, contentType: "application/json",
+          body: JSON.stringify({ users: [{ name: "labmate", role: "member", hidden: false }] }) });
+      }
+      if (path === "/commit" && req.method() === "POST") {
+        lastCommit23 = JSON.parse(req.postData());
+        lastCommit23.files.filter((f) => f.path.endsWith(".json")).forEach((f) => {
+          if (f.path.includes("lab-storage")) labStorage = JSON.parse(f.content);
+          else if (f.path.includes("labmate")) labmateState = JSON.parse(f.content);
+        });
+        return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    // ---- admin: mark a box common, in Structure ----
+    await page.goto("http://localhost:8820/cellstocks/");
+    await page.waitForSelector("#gateBody input");
+    let li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("admin");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+
+    await page.click("nav button[data-screen=admin]");
+    await page.click("#adminTabs button[data-admintab=structure]");
+    await page.waitForFunction(() => !!document.querySelector('#admin-structure .treeBody[data-title="Rack 1"]'));
+
+    // Same retry shape the existing Structure tests already use: a save's dialog-close
+    // is async, and clicking a row button before it lands opens nothing.
+    const clickRowButton = (title, label) => page.evaluate(([t, l]) => {
+      const body = document.querySelector(`#admin-structure .treeBody[data-title="${t}"]`);
+      const btn = body && [...body.parentElement.querySelectorAll(".structRowEdit")]
+        .filter((b) => b.textContent === l)[0];
+      if (!btn) return false;
+      btn.click();
+      return true;
+    }, [title, label]);
+    const noDialog = () => page.waitForFunction(() => !document.getElementById("dlg").open, null, { timeout: 15000 });
+    const dialogIsOpen = () => page.evaluate(() => document.getElementById("dlg").open);
+    async function openRowDialog(title, label){
+      for (let i = 0; i < 60; i++){
+        await noDialog().catch(() => {});
+        if (await clickRowButton(title, label)){
+          for (let j = 0; j < 10; j++){
+            if (await dialogIsOpen()) return;
+            await page.waitForTimeout(50);
+          }
+        }
+        await page.waitForTimeout(250);
+      }
+      throw new Error(`"${label}" on row ${JSON.stringify(title)} never opened a dialog.`);
+    }
+
+    await openRowDialog("Rack 1", "+");
+    // The Name field is the first plain input in the dialog -- it has no id of its own.
+    await page.evaluate(() => { document.querySelectorAll("#dlgBody input")[0].value = "Shared Box"; });
+    await page.check("#nodeIsBox");
+    const ownerFieldVisibleBefore = await page.$eval("#nodeOwnerField", (el) => !el.hidden);
+    check("the owner field shows once a box is ticked, before common is", ownerFieldVisibleBefore, "");
+    await page.check("#nodeCommon");
+    const ownerFieldHidden = await page.$eval("#nodeOwnerField", (el) => el.hidden);
+    check("ticking 'common' hides the owner field", ownerFieldHidden, "");
+
+    await page.evaluate(() => {
+      const save = [...document.querySelectorAll("#dlgFoot button")].find((b) => b.textContent.trim() === "Save");
+      save.click();
+    });
+    await noDialog();
+    await page.waitForFunction(() => !!document.querySelector('#admin-structure .treeBody[data-title="Shared Box"]'));
+    const commonBox = labStorage.children[0].children[0].children[0];
+    check("the saved box is common and carries no owner",
+      commonBox && commonBox.common === true && !commonBox.owner, JSON.stringify(commonBox));
+
+    // ---- labmate: owns nothing, freezes into the common box anyway ----
+    await page.click("nav button[data-screen=settings]");
+    await page.click("#workerLogoutBtn");
+    await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
+    await page.waitForSelector("#gateBody input");
+    li = await page.$$("#gateBody input");
+    await li[0].fill("https://fake-worker.example");
+    await li[1].fill("labmate");
+    await li[2].fill("anything");
+    await page.click("#workerLoginBtn");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "labmate-token");
+
+    // Automatic placement must never reach for the common box on its own: with no box
+    // of labmate's own, the plan must fail outright, the same "no boxes" refusal an
+    // owner-less member always got, common box or not.
+    await page.click('nav button[data-screen="freeze"]');
+    await page.fill("#fzName", "CommonBoxTest Alpha");
+    await page.waitForFunction(() =>
+      /no boxes/i.test(document.getElementById("fzPlanCard").textContent));
+    check("automatic placement never proposes the common box on its own",
+      true, await page.evaluate(() => document.getElementById("fzPlanCard").textContent));
+
+    // The Boxes tab lists it anyway (boxesOnThisScreen treats an unowned/common box as
+    // everyone's), and clicking an empty slot there carries the exact pick to Freeze --
+    // the actual, real "a person picked it on purpose" path.
+    await page.click('nav button[data-screen="boxes"]');
+    await page.waitForSelector("#bxGrid .slot");
+    const bxText = await page.evaluate(() => document.getElementById("bxPath").textContent);
+    check("labmate's Boxes tab lists the common box despite owning nothing",
+      /Shared Box/.test(bxText), bxText);
+    const pickedA1 = await page.evaluate(() => {
+      const cell = [...document.querySelectorAll("#bxGrid .slot")].find((c) => c.title.startsWith("A1 "));
+      if (cell) cell.click();
+      return !!cell;
+    });
+    check("A1 in the common box is clickable from the Boxes tab", pickedA1, "");
+    await page.waitForSelector("#dlgFoot button");
+    await page.evaluate(() => {
+      const btn = [...document.querySelectorAll("#dlgFoot button")].find((b) => b.textContent.trim() === "Add into this slot");
+      btn.click();
+    });
+    await page.waitForFunction(() => document.getElementById("s-freeze").classList.contains("active"));
+    await page.fill("#fzName", "CommonBoxTest Alpha");
+    await page.waitForFunction(() => /Placed exactly where you picked/.test(document.getElementById("fzPlanCard").textContent));
+    lastCommit23 = null; // still holding admin's earlier Structure commit otherwise
+    await page.click("#fzGo");
+    for (let i = 0; i < 80 && !lastCommit23; i++) await page.waitForTimeout(50);
+    check("labmate's vial lands in the common box despite owning no box of her own",
+      labmateState.vials[0] && labmateState.vials[0].location.boxId === commonBox.id,
+      JSON.stringify(labmateState.vials[0] && labmateState.vials[0].location));
+
+    // ---- withdrawing from a common box: logged and not silently undone ----
+    lastCommit23 = null;
+    const firstVialId = labmateState.vials[0].id;
+    await page.click('nav button[data-screen="find"]');
+    await page.fill("#q", "CommonBoxTest");
+    await page.waitForFunction(() => document.querySelectorAll("#results button").length >= 1);
+    await page.evaluate(() => {
+      const card = [...document.querySelectorAll("#results .card, #results > div")]
+        .find((c) => c.textContent.includes("CommonBoxTest Alpha"));
+      const btn = card && [...card.querySelectorAll("button")].find((b) => b.textContent.trim() === "Took it");
+      if (btn) btn.click();
+    });
+    for (let i = 0; i < 80 && !lastCommit23; i++) await page.waitForTimeout(50);
+    let afterWithdraw = labmateState.vials.find((v) => v.id === firstVialId);
+    check("withdrawing from a common box is logged, same as any other vial",
+      afterWithdraw && afterWithdraw.status === "withdrawn" && labmateState.withdrawals.length === 1,
+      JSON.stringify({ vial: afterWithdraw, withdrawals: labmateState.withdrawals }));
+
+    // One more, unrelated save in the same session -- the exact shape that caught the
+    // syncedState-aliasing bug -- must not revert the withdrawal that already landed.
+    lastCommit23 = null;
+    await page.click('nav button[data-screen="boxes"]');
+    await page.waitForSelector("#bxGrid .slot");
+    const pickedA2 = await page.evaluate(() => {
+      const cell = [...document.querySelectorAll("#bxGrid .slot")].find((c) => c.title.startsWith("A2 "));
+      if (cell) cell.click();
+      return !!cell;
+    });
+    check("A2 in the common box is clickable for a second, unrelated freeze", pickedA2, "");
+    await page.waitForSelector("#dlgFoot button");
+    await page.evaluate(() => {
+      const btn = [...document.querySelectorAll("#dlgFoot button")].find((b) => b.textContent.trim() === "Add into this slot");
+      btn.click();
+    });
+    await page.waitForFunction(() => document.getElementById("s-freeze").classList.contains("active"));
+    await page.fill("#fzName", "CommonBoxTest Beta");
+    await page.waitForFunction(() => /Placed exactly where you picked/.test(document.getElementById("fzPlanCard").textContent));
+    await page.click("#fzGo");
+    for (let i = 0; i < 80 && !lastCommit23; i++) await page.waitForTimeout(50);
+
+    afterWithdraw = labmateState.vials.find((v) => v.id === firstVialId);
+    check("the earlier withdrawal survives a later, unrelated save instead of silently reverting",
+      afterWithdraw && afterWithdraw.status === "withdrawn", JSON.stringify(afterWithdraw));
+  } catch (err) {
+    check("a common box: admin marks it, any member can freeze into it, withdrawal survives", false, String(err));
+  } finally {
+    await browser23.close();
+    server23.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

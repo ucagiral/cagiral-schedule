@@ -1571,6 +1571,17 @@
         "caspex": "-",
         "guide": "-"
       }
+    },
+    {
+      "id": "l-kkk",
+      "name": "kkk",
+      "facets": {
+        "origin": null,
+        "koox": "WT",
+        "resistance": "-",
+        "caspex": "-",
+        "guide": "-"
+      }
     }
   ],
   "vials": [
@@ -10882,6 +10893,50 @@
       "addedAt": "2026-09-08T20:53:21.794Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mttmmw7m-0",
+      "name": "kkk",
+      "lineId": "l-kkk",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-09",
+      "frozenOn": "2026-09-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H1"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-09T04:57:16.692Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mttmmypa-0",
+      "name": "kkk",
+      "lineId": "l-kkk",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-09",
+      "frozenOn": "2026-09-09",
+      "status": "withdrawn",
+      "addedAt": "2026-09-09T04:57:19.918Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mttmn045-0",
+      "name": "kkk",
+      "lineId": "l-kkk",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-09",
+      "frozenOn": "2026-09-09",
+      "status": "withdrawn",
+      "addedAt": "2026-09-09T04:57:21.749Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -11493,6 +11548,40 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mttmn4ag",
+      "vialId": "v-mttmn045-0",
+      "name": "kkk",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H3"
+      },
+      "date": "2026-09-09",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mttmn55i",
+      "vialId": "v-mttmmypa-0",
+      "name": "kkk",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H2"
+      },
+      "date": "2026-09-09",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11515,11 +11604,11 @@
       "notes": 10
     },
     "customFlags": [],
-    "groupingStrategy": "random"
+    "groupingStrategy": "category-row"
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-09T04:06:14.124Z"
+    "savedAt": "2026-09-09T04:57:29.308Z"
   },
   "removedVialIds": [
     "v-205",

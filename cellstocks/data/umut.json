@@ -11515,11 +11515,11 @@
       "notes": 10
     },
     "customFlags": [],
-    "groupingStrategy": "random"
+    "groupingStrategy": "category-row"
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-09T04:06:14.124Z"
+    "savedAt": "2026-09-09T04:56:52.761Z"
   },
   "removedVialIds": [
     "v-205",

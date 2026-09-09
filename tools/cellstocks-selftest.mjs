@@ -310,7 +310,9 @@ check("rules are data: a new label needs no code change", () => {
 check("passage keeps its kind, and p+2 is never p2", () => {
   const cases = [["p11", 11, "absolute"], ["p102", 102, "absolute"], ["p+2", 2, "relative"],
                  ["p+21", 21, "relative"], ["p?", null, "unknown"], ["", null, "unknown"],
-                 ["p", null, "unknown"], ["p|+7", 7, "relative"]];
+                 ["p", null, "unknown"], ["p|+7", 7, "relative"],
+                 ["P?", null, "unknown"], [" p? ", null, "unknown"], ["p ?", null, "unknown"],
+                 ["?", null, "unknown"], ["p??", null, "unknown"]];
   for (const [raw, n, kind] of cases) {
     const got = E.parsePassage(raw);
     if (got.number !== n || got.kind !== kind) return `${json(raw)} gave ${json(got)}`;
@@ -1729,6 +1731,53 @@ check("markDateUnknown records a permanent answer, and reviewQueue stops asking"
   if (!res.vial.dateUnknown) return "expected dateUnknown to be set";
   if (res.vial.frozenOn) return "Unknown is not a date -- frozenOn must stay unset";
   if (E.reviewQueue(res.state).dates.length !== 0) return "a vial marked Unknown must not keep reappearing in Review";
+  return null;
+});
+
+// ---- Review's Ignore: not every card can be answered right now ----
+
+check("ignoring a Review card hides it, and bringing it back reshows it", () => {
+  let state = fixture();
+  const v6 = "v-6"; // DuDtxR CASPEX g5.1, passage "p?" -- starts in unknownPassage
+  if (!E.reviewQueue(state).unknownPassage.some((v) => v.id === v6)) return "fixture assumption broke: v-6 should start unanswered";
+
+  const ignored = E.ignoreReviewItem(state, "unknownPassage", v6);
+  if (!ignored.ok) return "ignoreReviewItem refused";
+  state = ignored.state;
+  const q = E.reviewQueue(state);
+  if (q.unknownPassage.some((v) => v.id === v6)) return "an ignored card must not still show in its own list";
+  if (!q.ignored.some((e) => e.key === E.reviewKey("unknownPassage", v6))) return "an ignored card must be listed under Ignored";
+
+  // Ignoring the same card twice must not add a second, duplicate key.
+  state = E.ignoreReviewItem(state, "unknownPassage", v6).state;
+  if (state.reviewIgnored.filter((k) => k === E.reviewKey("unknownPassage", v6)).length !== 1) {
+    return "ignoring twice duplicated the key";
+  }
+
+  const brought = E.unignoreReviewItem(state, E.reviewKey("unknownPassage", v6));
+  if (!brought.ok) return "unignoreReviewItem refused";
+  state = brought.state;
+  if (!E.reviewQueue(state).unknownPassage.some((v) => v.id === v6)) return "bringing it back must reshow the card";
+  if (E.reviewQueue(state).ignored.length) return "nothing should be left in Ignored after bringing the only one back";
+  return null;
+});
+
+check("ignoring a mixed row and a rule gap uses the same key shape as the vial-scoped cards", () => {
+  let state = fixture();
+  // v-5 is Huh7 (a different origin than v-6's DuDtxR) -- moving it into v-6's row
+  // makes box-b row A hold two kinds of cell, which is what mixedRows() flags.
+  state.vials.find((v) => v.id === "v-5").location = { boxId: "b-b", position: "A2" };
+  const rowsBefore = E.reviewQueue(state).rows;
+  if (rowsBefore.length !== 1) return `expected exactly one mixed row, got ${json(rowsBefore)}`;
+  const rowKey = E.reviewKey("rows", rowsBefore[0].boxId + "!" + rowsBefore[0].index);
+
+  state = E.ignoreReviewItem(state, "rows", rowsBefore[0].boxId + "!" + rowsBefore[0].index).state;
+  const q = E.reviewQueue(state);
+  if (q.rows.length) return "an ignored mixed row must not still be listed";
+  if (!q.ignored.some((e) => e.key === rowKey)) return "the mixed row must be listed under Ignored";
+
+  state = E.unignoreReviewItem(state, rowKey).state;
+  if (E.reviewQueue(state).rows.length !== 1) return "bringing the row back must reshow it";
   return null;
 });
 

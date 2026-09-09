@@ -2802,6 +2802,25 @@
     renderReviewBody(box);
   }
 
+  // A Review card is informational, not structural (unlike orphans/emptySlots, each of
+  // which has exactly one correct resolving action) -- so the app offers a way to say
+  // "I see this, leave me alone about it" without requiring an actual answer. The key is
+  // just data (state.reviewIgnored), so it's reversible: see the "Ignored" list at the
+  // bottom of this screen.
+  function ignoreReview(category, id, label){
+    var r = E.ignoreReviewItem(state, category, id);
+    state = r.state;
+    markDirty(label);
+    renderAll();
+  }
+
+  function unignoreReview(key, label){
+    var r = E.unignoreReviewItem(state, key);
+    state = r.state;
+    markDirty(label);
+    renderAll();
+  }
+
   function renderReviewBody(box){
     var q = E.reviewQueue(state);
 
@@ -2925,6 +2944,10 @@
         fix.disabled = !canWrite() || ADMIN_MERGED;
         fix.onclick = function(){ resolveAmbiguousImport(v); };
         row.appendChild(fix);
+        var ign = el("button", null, "Ignore");
+        ign.disabled = !canWrite() || ADMIN_MERGED;
+        ign.onclick = function(){ ignoreReview("ambiguousImport", v.id, "Ignore a row we weren't sure about"); };
+        row.appendChild(ign);
         ic.appendChild(row);
       });
       if (q.ambiguousImport.length > 60) ic.appendChild(el("p", "note", "…and " + (q.ambiguousImport.length - 60) + " more."));
@@ -2993,6 +3016,10 @@
           state = r.state; markDirty("Mark a date Unknown"); renderAll();
         };
         row.appendChild(unk);
+        var ign = el("button", null, "Ignore");
+        ign.disabled = !canWrite() || ADMIN_MERGED;
+        ign.onclick = function(){ ignoreReview("dates", d.vial.id, "Ignore a date to confirm"); };
+        row.appendChild(ign);
         c.appendChild(row);
       });
       if (q.dates.length > 40) c.appendChild(el("p", "note", "…and " + (q.dates.length - 40) + " more."));
@@ -3038,13 +3065,27 @@
         "The sheet wrote #N/A for these, which reads like a value but isn't one. Add a rule and " +
         "they fill themselves in — that's what Settings → Rules is for."));
       var byName = {};
-      q.gaps.forEach(function(g){ byName[g.name] = (byName[g.name] || 0) + 1; });
+      q.gaps.forEach(function(g){
+        if (!byName[g.name]) byName[g.name] = [];
+        byName[g.name].push(g);
+      });
       Object.keys(byName).sort().forEach(function(n){
+        var list = byName[n];
         var row = el("div", "item");
         var grow = el("div", "grow");
         grow.appendChild(el("div", null, n));
-        grow.appendChild(el("div", "sub", byName[n] + " vial" + (byName[n] === 1 ? "" : "s")));
+        grow.appendChild(el("div", "sub", list.length + " vial" + (list.length === 1 ? "" : "s")));
         row.appendChild(grow);
+        var ign = el("button", null, "Ignore");
+        ign.disabled = ADMIN_MERGED;
+        ign.onclick = function(){
+          var next = state;
+          list.forEach(function(g){ next = E.ignoreReviewItem(next, "gaps", g.vialId).state; });
+          state = next;
+          markDirty("Ignore \"" + n + "\" (no rule covers it)");
+          renderAll();
+        };
+        row.appendChild(ign);
         gc.appendChild(row);
       });
       var add = el("button", "primary", "Add a rule");
@@ -3079,6 +3120,16 @@
         b.disabled = !canWrite() || ADMIN_MERGED;
         b.onclick = function(){ editVial(list[0]); };
         row.appendChild(b);
+        var ign = el("button", null, "Ignore");
+        ign.disabled = !canWrite() || ADMIN_MERGED;
+        ign.onclick = function(){
+          var next = state;
+          list.forEach(function(v){ next = E.ignoreReviewItem(next, "unknownPassage", v.id).state; });
+          state = next;
+          markDirty("Ignore \"" + n + "\" (passage not recorded)");
+          renderAll();
+        };
+        row.appendChild(ign);
         uc.appendChild(row);
       });
       if (Object.keys(byName).length > 60) uc.appendChild(el("p", "note", "…and more."));
@@ -3110,6 +3161,10 @@
           go("boxes");
         };
         row.appendChild(b);
+        var ign = el("button", null, "Ignore");
+        ign.disabled = ADMIN_MERGED;
+        ign.onclick = function(){ ignoreReview("rows", m.boxId + "!" + m.index, "Ignore " + m.box + " row " + m.label); };
+        row.appendChild(ign);
         rc.appendChild(row);
       });
       box.appendChild(rc);
@@ -3132,9 +3187,47 @@
         b.disabled = !canWrite() || ADMIN_MERGED;
         b.onclick = function(){ editVial(v); };
         row.appendChild(b);
+        var ign = el("button", null, "Ignore");
+        ign.disabled = !canWrite() || ADMIN_MERGED;
+        ign.onclick = function(){ ignoreReview("passages", v.id, "Ignore a passage that can't be right"); };
+        row.appendChild(ign);
         pc.appendChild(row);
       });
       box.appendChild(pc);
+    }
+
+    // ---- ignored ----
+    //
+    // Every Ignore button above just adds a key to state.reviewIgnored -- nothing is
+    // fixed, nothing is lost, and this is the reversing side of it. A card hidden here
+    // comes straight back to its own list above the moment it's brought back.
+    if ((q.ignored || []).length){
+      var xc = el("div", "card");
+      xc.appendChild(el("h3", null, "Ignored (" + q.ignored.length + ")"));
+      xc.appendChild(el("p", "note", "Hidden from the lists above. Nothing is fixed by ignoring it -- bring one back any time."));
+      function ignoredLabel(entry){
+        var cat = entry.key.slice(0, entry.key.indexOf(":"));
+        var item = entry.item;
+        if (cat === "ambiguousImport") return "Row we weren't sure about: " + (item.name || "(unnamed)");
+        if (cat === "dates") return "Date to confirm: " + item.name;
+        if (cat === "passages") return item.name + " — passage " + item.passage + " can't be right";
+        if (cat === "unknownPassage") return item.name + " — passage not recorded";
+        if (cat === "rows") return item.box + " row " + item.label + " — two kinds of cell";
+        if (cat === "gaps") return item.name + " — no rule covers it";
+        return entry.key;
+      }
+      q.ignored.forEach(function(entry){
+        var row = el("div", "item");
+        var grow = el("div", "grow");
+        grow.appendChild(el("div", null, ignoredLabel(entry)));
+        row.appendChild(grow);
+        var back = el("button", null, "Bring back");
+        back.disabled = !canWrite() || ADMIN_MERGED;
+        back.onclick = function(){ unignoreReview(entry.key, "Bring back an ignored Review card"); };
+        row.appendChild(back);
+        xc.appendChild(row);
+      });
+      box.appendChild(xc);
     }
   }
 
@@ -5008,9 +5101,11 @@
       if (!newName) { showBanner("A vial needs a name."); return; }
       var s = manageView.state;
       var derived = E.classify(newName, s.rules);
+      var p = E.parsePassage(passage.value.trim());
       var vial = {
         id: "v-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        name: newName, passage: passage.value.trim() || "p?", notes: notes.value.trim(),
+        name: newName, passage: p.raw, passageNumber: p.number, passageKind: p.kind,
+        notes: notes.value.trim(),
         frozenOn: date.value || null, status:"stored", lineId: E.lineIdFor(newName, s.rules),
         location: { unitId: manageView.unitId, rackId: E.findBox(s, manageView.boxId).rack.id, boxId: manageView.boxId, position: posSel.value }
       };

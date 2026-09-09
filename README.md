@@ -530,6 +530,15 @@ the reading is unambiguous, and the rest wait on the **Review** screen with the 
 to what the sheet says. Until one is confirmed the vial stays out of the date slider and is
 labelled *date unconfirmed* on its card — but it is still findable by name.
 
+Not every Review card can be answered on the spot. Six of its categories — ambiguous import rows,
+dates, implausible passages, rows holding two kinds of cell, vials with no passage recorded, and
+names no rule covers — carry an **Ignore** button next to the usual Fix/Fill-in one. Ignoring adds
+a key to that account's `reviewIgnored` list; nothing is fixed or fabricated, the card just stops
+being asked about. It's reversible from the **Ignored** list at the bottom of Review, which shows
+every hidden card with a **Bring back** button. (`orphans` and `emptySlots` aren't offered this —
+each already has one correct resolving action, taking the vial out or removing the empty row, and
+isn't an answerable question the way the other six are.)
+
 ### Importing a spreadsheet
 
 Settings → **Import a spreadsheet**. It reads the `.xlsx` in the browser, shows every sheet, then
@@ -577,11 +586,11 @@ rewrites those vials — in each owner's own file, in the same commit as the cha
 node tools/cellstocks-selftest.mjs
 ```
 
-A hundred and forty-one checks over a synthetic freezer and then over the real inventory — plus
+A hundred and eighty-one checks over a synthetic freezer and then over the real inventory — plus
 separate suites for the worker, the app in a real browser, the daily export and the mailer:
 
 ```
-node tools/cellstocks-selftest.mjs           # 141 checks on the engine
+node tools/cellstocks-selftest.mjs           # 181 checks on the engine
 node tools/cellstocks-worker-selftest.mjs    #  65 on the worker
 node tools/cellstocks-browser-test.mjs       # 116 driving the real app
 node tools/cellstocks-export-selftest.mjs    #  11 on the three daily files

@@ -49,6 +49,34 @@ const check = (name, cond, detail) => {
 const ROOT = REPO_ROOT;
 const TYPES = { ".html":"text/html", ".js":"text/javascript", ".json":"application/json" };
 
+// fetchOwnFileText()'s worker-login branch reads the logged-in account's own data file
+// through GitHub's Contents API now (.../contents/cellstocks/data/<name>.json), not
+// raw.githubusercontent -- see cellstocks/index.html. The CDN can keep serving a stale
+// copy of a file for a while after a commit, which is exactly the staleness doSave()'s
+// own reconcile read has to avoid, and the whole reason today's fix exists. Every block
+// below already has a raw.githubusercontent route describing what a given account's own
+// file currently holds; this hangs the identical answer off the new endpoint rather than
+// keeping two copies of that logic in step. `filesByName(name)` is called fresh on every
+// request with the bare filename ("umut.json") and returns either the JS value to
+// serve as that file's JSON body, or null/undefined for "this account has no file yet"
+// (404) -- so a variable that changes mid-block (a `let own` reassigned after a commit, a
+// stale-CDN toggle) is reflected exactly the way it already is on the raw route. The glob
+// requires a "/" and something after "data", so it never matches the bare directory-
+// listing route (".../contents/cellstocks/data", no trailing file) registered separately
+// for search-in-lab's own use.
+async function ownFileRoute(page, filesByName) {
+  await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data/*", (route) => {
+    const file = decodeURIComponent(new URL(route.request().url()).pathname.split("/").pop());
+    const value = filesByName(file);
+    if (value === null || value === undefined) {
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ message: "Not Found" }) });
+    }
+    const text = typeof value === "string" ? value : JSON.stringify(value);
+    return route.fulfill({ status: 200, contentType: "application/json",
+      body: JSON.stringify({ content: Buffer.from(text, "utf8").toString("base64") }) });
+  });
+}
+
 function serve(port){
   const server = createServer((req, res) => {
     let p = decodeURIComponent(req.url.split("?")[0]);
@@ -121,6 +149,14 @@ try {
       status: 200, contentType: "application/json",
       body: JSON.stringify([{ name: "umut.json", type: "file" }, { name: "labmate.json", type: "file" }])
     }));
+  // Umut, labmate, newbie and admin all log in through this block in turn -- mirror each
+  // one's own file exactly as the raw route above does. newbie and admin fall through to
+  // null (404): a brand-new account and an admin account both have nothing saved yet.
+  await ownFileRoute(page, (name) => {
+    if (name === "umut.json" || name === "cellstocks.json") return emptyState;
+    if (name === "labmate.json") return labmateState;
+    return null;
+  });
 
   // A stubbed cellstocks-worker -- just enough of /login and /logout to prove the app's
   // own side of the handshake, not a re-test of cellstocks-worker-selftest.mjs.
@@ -554,6 +590,8 @@ try {
     // Never fulfilled, never aborted -- a request that just sits there, the same as a
     // real stalled connection looks like from the page's own point of view.
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", () => {});
+    // admin's own file, mirroring the raw route's unconditional emptyState below.
+    await ownFileRoute(page, () => emptyState);
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -654,6 +692,10 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) }));
+    // admin has no data file of its own -- caa's and umut's own files are read by the
+    // handoff logic directly (rawURL), not through fetchOwnFileText, since neither of
+    // them is the account logged in this session.
+    await ownFileRoute(page, () => null);
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -781,6 +823,7 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await ownFileRoute(page, (name) => (name === "umut.json" || name === "cellstocks.json") ? nestedState : null);
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -914,6 +957,9 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json" }]) }));
+    // admin has no data file of its own -- the tree edits in this block go through the
+    // Structure screen's own commit path, never through admin's fetchOwnFileText().
+    await ownFileRoute(page, () => null);
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -1319,6 +1365,8 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // A PI has no inventory of their own, so "chief.json" never exists.
+    await ownFileRoute(page, () => null);
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -1410,6 +1458,8 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // Mirrors the raw route's own admin.json 404 -- admin has no inventory of its own.
+    await ownFileRoute(page, (name) => name === "admin.json" ? null : umutState);
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -1597,6 +1647,9 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) }));
+    // admin has no inventory of its own; recipients.json stays a rawURL read regardless
+    // (it lives outside DATA_PREFIX and is never fetched through fetchOwnFileText()).
+    await ownFileRoute(page, () => null);
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -1816,6 +1869,9 @@ try {
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json",
                       body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // load()'s own fetchOwnFileText() call on this reopen goes through here now --
+    // mirrors the raw route's committed copy exactly.
+    await ownFileRoute(page, (name) => name === "umut.json" ? committed : null);
 
     let committedFiles = null;
     await page.route("https://fake-worker.example/**", (route) => {
@@ -1943,6 +1999,15 @@ try {
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json",
                       body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // load()'s one-and-only read of this account's own file, and doSave()'s reconcile
+    // read right before the commit below, both land here now instead of on the raw
+    // route -- getCount has to move with it, or "the initial load actually read the
+    // stale copy" would never see a request at all.
+    await ownFileRoute(page, (name) => {
+      if (name !== "umut.json") return null;
+      getCount++;
+      return servedContent;
+    });
 
     const commits = [];
     await page.route("https://fake-worker.example/**", (route) => {
@@ -2052,6 +2117,8 @@ try {
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json",
                       body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // load()'s reopen read of this account's own file goes through here now.
+    await ownFileRoute(page, (name) => name === "umut.json" ? committed : null);
 
     let committedFiles = null;
     await page.route("https://fake-worker.example/**", (route) => {
@@ -2158,6 +2225,9 @@ try {
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json",
                       body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // doSave()'s own reconcile read, right before the commit below, lands here now --
+    // servedContent is read fresh on every request, same as the raw route.
+    await ownFileRoute(page, (name) => name === "umut.json" ? servedContent : null);
 
     const commits = [];
     await page.route("https://fake-worker.example/**", (route) => {
@@ -2249,6 +2319,9 @@ try {
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json",
                       body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // doSave()'s own reconcile read, right before the commit below, lands here now --
+    // servedContent is read fresh on every request, same as the raw route.
+    await ownFileRoute(page, (name) => name === "umut.json" ? servedContent : null);
 
     const commits = [];
     await page.route("https://fake-worker.example/**", (route) => {
@@ -2343,6 +2416,9 @@ try {
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json",
                       body: JSON.stringify([{ name: "baris.json", type: "file" }, { name: "umut.json", type: "file" }]) }));
+    // Only umut is logged in here -- baris's file is read by ensureLabCache() via
+    // rawURL, never through fetchOwnFileText().
+    await ownFileRoute(page, (name) => name === "umut.json" ? own : null);
 
     const commits = [];
     await page.route("https://fake-worker.example/**", (route) => {
@@ -2438,6 +2514,9 @@ try {
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([
         { name: "baris.json", type: "file" }, { name: "cayhan.json", type: "file" }, { name: "umut.json", type: "file" }
       ]) }));
+    // Only umut is logged in here -- baris's and cayhan's files are read by
+    // ensureLabCache() via rawURL, never through fetchOwnFileText().
+    await ownFileRoute(page, (name) => name === "umut.json" ? own : null);
 
     const commits = [];
     await page.route("https://fake-worker.example/**", (route) => {
@@ -2539,6 +2618,8 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // Both overlapping doSave() cycles' reconcile reads land here now.
+    await ownFileRoute(page, (name) => name === "umut.json" ? own : null);
 
     let commitCount16 = 0;
     await page.route("https://fake-worker.example/**", async (route) => {
@@ -2644,6 +2725,7 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await ownFileRoute(page, (name) => name === "umut.json" ? own : null);
     await page.route("https://fake-worker.example/**", (route) =>
       route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) }));
 
@@ -2719,6 +2801,9 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // `own` is reassigned after each commit below, and read fresh here on every request --
+    // so the second freeze's doSave() reconcile read sees the first freeze's own result.
+    await ownFileRoute(page, (name) => name === "umut.json" ? own : null);
 
     let lastCommit18 = null;
     await page.route("https://fake-worker.example/**", (route) => {
@@ -2847,6 +2932,9 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // load()'s reopen read of this account's own file goes through here too now --
+    // mirrors the same simulateStaleCdn toggle the raw route answers with.
+    await ownFileRoute(page, (name) => name === "umut.json" ? ((simulateStaleCdn || !postSaveOwn) ? preSaveOwn : postSaveOwn) : null);
 
     let lastCommit19 = null;
     await page.route("https://fake-worker.example/**", (route) => {
@@ -2940,6 +3028,15 @@ try {
     });
     await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // admin's own load() (both logins in this block) reads through here. umut never logs
+    // in through the worker in this block -- umutData is read by ensureLabCache() via
+    // rawURL -- but mapping it here too costs nothing and stays honest about what admin's
+    // own file (never umut's) actually resolves to.
+    await ownFileRoute(page, (name) => {
+      if (name === "admin.json") return admin;
+      if (name === "umut.json") return umutData;
+      return null;
+    });
     await page.route("https://fake-worker.example/**", (route) => {
       const req = route.request();
       const path = new URL(req.url()).pathname;
@@ -2996,6 +3093,155 @@ try {
   } finally {
     await browser20.close();
     server20.close();
+  }
+}
+
+// ============================================================================
+// doSave()'s own reconcile read must not undo a withdrawal that already
+// landed, when the endpoint it reads before every commit is lagging
+// ============================================================================
+//
+// The real incident this endpoint switch exists for: Umut froze 4 vials, withdrew them
+// within a minute, and each withdrawal appeared to succeed (banner + log entry) but the
+// box kept showing them as still present. Root cause: fetchOwnFileText()'s worker-login
+// branch used to read this account's own file from raw.githubusercontent, a CDN that can
+// keep serving the previous version of a file for a while after a commit -- and while it
+// was written to rapidly, doSave()'s reconcile step kept getting handed the
+// pre-withdrawal copy, and mergeInventories's "local matches its ancestor, so let remote
+// stand" shortcut (meant for a genuine newer edit made elsewhere) silently reverted the
+// withdrawal back to stored before the next commit. fetchOwnFileText() reads the
+// Contents API now instead, but a stale answer from that endpoint is the exact same
+// failure shape, so this drives it there: one vial is withdrawn and its own commit lands,
+// then, before the very next save, the Contents API mock for this account's own file is
+// switched to serve the PRE-withdrawal content -- staleness specifically on doSave()'s
+// own reconcile fetch, not on a reopen (load()'s freshness guard against the same kind of
+// staleness is covered separately, further up). The withdrawal must survive.
+{
+  const server21 = await serve(8816);
+  const browser21 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-1", name: "Box 1", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 2, cols: 2, scheme: "grid" }
+      ] }
+    ], unplaced: [] };
+    const vial = (id, name, position) => ({
+      id, name, lineId: "withdrawtest", passage: "p1", passageNumber: 1, passageKind: "absolute",
+      frozenOn: "2025-01-01", frozenRaw: "01-01-25", notes: "", flags: [],
+      location: { boxId: "b-1", position, path: [] }, status: "stored"
+    });
+    // What this account's own file holds BEFORE the withdrawal below -- and what a
+    // lagging read keeps handing doSave() even after that withdrawal's own commit lands.
+    const preWithdrawal = { lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [vial("v-1", "WithdrawTest Alpha", "A1"), vial("v-2", "WithdrawTest Beta", "A2")] };
+
+    let own = preWithdrawal;
+    let staleOwnFile = null;
+    const contentsApiRequestsForUmut = [];
+    const rawRequestsForUmut = [];
+
+    const context = await browser21.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      if (url.includes("cellstocks/data/umut.json")) {
+        // Should never be hit for this account's own file any more -- recorded so the
+        // check below can say so, rather than assuming. Answers with the same
+        // staleOwnFile toggle the Contents API mock uses, so this scenario reproduces the
+        // bug regardless of which endpoint fetchOwnFileText() actually calls (verified
+        // against the pre-fix code too -- see the report).
+        rawRequestsForUmut.push(url);
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(staleOwnFile || own) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    // The account's own file, mirrored onto the Contents API endpoint fetchOwnFileText()
+    // actually calls now. `staleOwnFile`, once set, stands in for that endpoint still
+    // handing back the pre-withdrawal copy right when doSave() reconciles -- the whole
+    // point of this test.
+    await ownFileRoute(page, (name) => {
+      if (name !== "umut.json") return null;
+      contentsApiRequestsForUmut.push(name);
+      return staleOwnFile || own;
+    });
+
+    let lastCommit21 = null;
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        lastCommit21 = JSON.parse(req.postData());
+        const f = lastCommit21.files.find((x) => x.path === "cellstocks/data/umut.json");
+        if (f) own = JSON.parse(f.content);
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "sha" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8816/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    const takeButton = (name) => page.evaluate((n) => {
+      const card = [...document.querySelectorAll("#results .card, #results > div")]
+        .find((c) => c.textContent.includes(n));
+      const btn = card && [...card.querySelectorAll("button")].find((b) => b.textContent.trim() === "Took it");
+      if (btn) btn.click();
+      return !!btn;
+    }, name);
+
+    // Withdraw the first vial and let its own save land cleanly, with nothing stale yet.
+    await page.click('nav button[data-screen="find"]');
+    await page.fill("#q", "WithdrawTest");
+    await page.waitForFunction(() => document.querySelectorAll("#results button").length >= 2);
+    check("the first vial's 'Took it' button is found", await takeButton("WithdrawTest Alpha"), "");
+    for (let i = 0; i < 80 && !lastCommit21; i++) await page.waitForTimeout(50);
+    check("the withdrawal's own save committed", !!lastCommit21, JSON.stringify(lastCommit21));
+    const afterFirstWithdraw = own.vials.find((v) => v.id === "v-1");
+    check("the withdrawn vial's own commit already shows it withdrawn",
+      afterFirstWithdraw && afterFirstWithdraw.status === "withdrawn", JSON.stringify(afterFirstWithdraw));
+    check("fetchOwnFileText()'s worker-login branch hit the Contents API for this account's own file",
+      contentsApiRequestsForUmut.length > 0, JSON.stringify(contentsApiRequestsForUmut));
+    check("and never the raw CDN, for this account's own file",
+      rawRequestsForUmut.length === 0, JSON.stringify(rawRequestsForUmut));
+
+    // Now the endpoint doSave() reconciles against starts lagging, specifically on the
+    // next reconcile fetch -- not on a reopen, since there is no reload here at all.
+    staleOwnFile = preWithdrawal;
+    lastCommit21 = null;
+
+    // A second, otherwise unrelated save: withdraw the other vial.
+    check("the second vial's 'Took it' button is found", await takeButton("WithdrawTest Beta"), "");
+    for (let i = 0; i < 80 && !lastCommit21; i++) await page.waitForTimeout(50);
+    check("the second withdrawal's own save committed", !!lastCommit21, JSON.stringify(lastCommit21));
+
+    const finalFirst = own.vials.find((v) => v.id === "v-1");
+    const finalSecond = own.vials.find((v) => v.id === "v-2");
+    check("the first vial's withdrawal survives a stale reconcile read on the very next save, " +
+      "instead of silently reverting to stored",
+      finalFirst && finalFirst.status === "withdrawn", JSON.stringify(finalFirst));
+    check("the second vial's withdrawal, made during the stale read, also goes through",
+      finalSecond && finalSecond.status === "withdrawn", JSON.stringify(finalSecond));
+  } catch (err) {
+    check("a withdrawal survives doSave()'s own reconcile hitting a stale read of this account's own file",
+      false, String(err));
+  } finally {
+    await browser21.close();
+    server21.close();
   }
 }
 

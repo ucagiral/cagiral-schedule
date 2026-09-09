@@ -3245,6 +3245,130 @@ try {
   }
 }
 
+// ---- Review's "p?" answer: a real click on "Mark Unknown", and typing "p?" by hand ----
+//
+// Umut reported both right after this shipped: clicking Review's own "Mark Unknown"
+// button (added alongside Ignore), and typing "p?" straight into the vial editor's
+// Passage field, must each permanently clear that vial's "Passage not recorded" card --
+// not just save the text "p?", which it already did before this fix (a blank field and
+// an explicit "p?" both parsed to the same passageKind:"unknown", so the card had no way
+// to tell "never answered" apart from "deliberately p?", and kept nagging either way).
+{
+  const server22 = await serve(8819);
+  const browser22 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-1", name: "Box 1", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 2, cols: 2, scheme: "grid" }
+      ] }
+    ], unplaced: [] };
+    const vial = (id, name, position) => ({
+      id, name, lineId: "passagetest", passage: "p?", passageNumber: null, passageKind: "unknown",
+      frozenOn: "2025-01-01", frozenRaw: "01-01-25", notes: "", flags: [],
+      location: { boxId: "b-1", position, path: [] }, status: "stored"
+    });
+    let own = { lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [vial("v-1", "HEK293T Passage Alpha", "A1"), vial("v-2", "HEK293T Passage Beta", "A2")] };
+
+    const context = await browser22.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) {
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      }
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await ownFileRoute(page, (name) => (name === "umut.json" ? own : null));
+
+    let lastCommit22 = null;
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      const path = new URL(req.url()).pathname;
+      if (path === "/commit" && req.method() === "POST") {
+        lastCommit22 = JSON.parse(req.postData());
+        const f = lastCommit22.files.find((x) => x.path === "cellstocks/data/umut.json");
+        if (f) own = JSON.parse(f.content);
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "sha" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+
+    await page.goto("http://localhost:8819/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+
+    await page.click('nav button[data-screen="review"]');
+    await page.waitForFunction(() => /Passage not recorded/.test(document.getElementById("reviewBody").textContent));
+    const bothListed = await page.evaluate(() => document.getElementById("reviewBody").textContent);
+    check("both unanswered-passage vials start listed in Review",
+      /HEK293T Passage Alpha/.test(bothListed) && /HEK293T Passage Beta/.test(bothListed), bothListed);
+
+    // ---- "Mark Unknown", clicked for real ----
+    // Scoped to the "Passage not recorded" card specifically, rather than any row in
+    // Review at all, in case some other category's fixture ever shares a name.
+    const clickRowButton = (name, label) => page.evaluate(([n, l]) => {
+      const card = [...document.querySelectorAll("#reviewBody .card")]
+        .find((c) => /Passage not recorded/.test(c.querySelector("h3").textContent));
+      const row = card && [...card.querySelectorAll(".item")].find((r) => r.textContent.includes(n));
+      const btn = row && [...row.querySelectorAll("button")].find((b) => b.textContent.trim() === l);
+      if (btn) btn.click();
+      return !!btn;
+    }, [name, label]);
+
+    check("the 'Mark Unknown' button is found for the first vial",
+      await clickRowButton("HEK293T Passage Alpha", "Mark Unknown"), "");
+    await page.waitForFunction(() => !document.getElementById("reviewBody").textContent.includes("HEK293T Passage Alpha"));
+    for (let i = 0; i < 80 && !lastCommit22; i++) await page.waitForTimeout(50);
+    const afterMark = own.vials.find((v) => v.id === "v-1");
+    check("Mark Unknown's own save actually landed",
+      afterMark && afterMark.passageConfirmedUnknown === true, JSON.stringify(afterMark));
+    // Loose equality on purpose: slim()'s stripEmpties() drops a null passageNumber
+    // from the committed file entirely, same as any other empty field on a vial.
+    check("marking it Unknown does not invent a passage number",
+      afterMark && afterMark.passageKind === "unknown" && afterMark.passageNumber == null, JSON.stringify(afterMark));
+
+    // ---- typing "p?" by hand into the vial editor, and saving ----
+    lastCommit22 = null;
+    check("the 'Fill in' button is found for the second vial",
+      await clickRowButton("HEK293T Passage Beta", "Fill in"), "");
+    await page.waitForSelector('input[placeholder="p12, p+3 or p?"]');
+    await page.fill('input[placeholder="p12, p+3 or p?"]', "p?");
+    await page.evaluate(() => {
+      const btns = [...document.querySelectorAll("#dlgFoot button")];
+      const save = btns.find((b) => b.textContent.trim() === "Save");
+      save.click();
+    });
+    await page.waitForFunction(() => !document.getElementById("reviewBody").textContent.includes("HEK293T Passage Beta"));
+    for (let i = 0; i < 80 && !lastCommit22; i++) await page.waitForTimeout(50);
+    const afterTyped = own.vials.find((v) => v.id === "v-2");
+    check("the second save (typing p? by hand) actually landed", !!lastCommit22, JSON.stringify(lastCommit22));
+    check("typing \"p?\" by hand and saving records the same permanent answer",
+      afterTyped && afterTyped.passageConfirmedUnknown === true, JSON.stringify(afterTyped));
+
+    const reviewAfterBoth = await page.evaluate(() => document.getElementById("reviewBody").textContent);
+    check("Review's 'Passage not recorded' card is gone once both are answered",
+      !/Passage not recorded/.test(reviewAfterBoth), reviewAfterBoth);
+  } catch (err) {
+    check("Review's Mark Unknown button and typing \"p?\" by hand both permanently clear the card",
+      false, String(err));
+  } finally {
+    await browser22.close();
+    server22.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

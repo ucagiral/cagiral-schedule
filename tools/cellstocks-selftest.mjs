@@ -1734,6 +1734,32 @@ check("markDateUnknown records a permanent answer, and reviewQueue stops asking"
   return null;
 });
 
+check("markPassageUnknown records a permanent answer, and reviewQueue stops asking", () => {
+  let state = fixture();
+  const v6 = "v-6"; // DuDtxR CASPEX g5.1, passage "p?" -- starts in unknownPassage
+  if (!E.reviewQueue(state).unknownPassage.some((v) => v.id === v6)) return "fixture assumption broke: v-6 should start unanswered";
+
+  const res = E.markPassageUnknown(state, v6);
+  if (!res.ok) return `markPassageUnknown failed: ${res.reason}`;
+  if (!res.vial.passageConfirmedUnknown) return "expected passageConfirmedUnknown to be set";
+  if (res.vial.passageKind !== "unknown") return "marking Unknown must not invent a passage number";
+  state = res.state;
+  if (E.reviewQueue(state).unknownPassage.some((v) => v.id === v6)) {
+    return "a vial marked Unknown must not keep reappearing in Review";
+  }
+
+  // A real passage given afterwards clears the mark, the same way confirmDate clears
+  // dateUnknown -- an answered "p?" is not sticky once real information arrives.
+  const vial = state.vials.find((v) => v.id === v6);
+  const p = E.parsePassage("p14");
+  vial.passage = p.raw; vial.passageNumber = p.number; vial.passageKind = p.kind;
+  delete vial.passageConfirmedUnknown;
+  if (E.reviewQueue(state).unknownPassage.some((v) => v.id === v6)) {
+    return "a real passage number must not still show as unrecorded";
+  }
+  return null;
+});
+
 // ---- Review's Ignore: not every card can be answered right now ----
 
 check("ignoring a Review card hides it, and bringing it back reshows it", () => {

@@ -2604,8 +2604,8 @@
     // Everything a row could have recorded. Listed rather than inferred, so a field
     // added later does not quietly start counting as "nothing".
     var carries = ["frozenOn", "frozenRaw", "dateUnknown", "passage", "passageNumber",
-                   "passageKind", "notes", "facets", "facetsFromSheet", "custom",
-                   "customFacets", "flags", "lineId", "kind"];
+                   "passageKind", "passageConfirmedUnknown", "notes", "facets", "facetsFromSheet",
+                   "custom", "customFacets", "flags", "lineId", "kind"];
     for (var i = 0; i < carries.length; i++) {
       var val = v[carries[i]];
       if (val === undefined || val === null) continue;
@@ -2850,9 +2850,12 @@
     var rowsSplit = split("rows", rowsAll, function (m) { return m.boxId + "!" + m.index; });
     // Vials the sheet never recorded a passage for. Not an error and not urgent, but
     // it is missing information and the app should say so rather than let 68 vials
-    // sit behind a "p?" nobody ever gets around to.
+    // sit behind a "p?" nobody ever gets around to. A vial marked passageConfirmedUnknown
+    // has already been asked about and answered "p?" on purpose -- dates' own dateUnknown,
+    // for the field that otherwise can't tell "never looked at" from "deliberately p?".
     var unknownPassageAll = (state.vials || []).filter(function (v) {
-      return v.status !== "withdrawn" && !v.importAmbiguous && (v.passageKind || "unknown") === "unknown";
+      return v.status !== "withdrawn" && !v.importAmbiguous && !v.passageConfirmedUnknown &&
+        (v.passageKind || "unknown") === "unknown";
     });
     var unknownPassageSplit = split("unknownPassage", unknownPassageAll, function (v) { return v.id; });
     // Listed first in the UI because it is the only category that stops the account
@@ -2905,6 +2908,18 @@
     var v = indexById(next.vials)[vialId];
     if (!v) return { ok: false, reason: "No such vial.", state: state };
     v.dateUnknown = true;
+    return { ok: true, state: next, vial: v };
+  }
+
+  // Passage's own dateUnknown -- a deliberate, permanent "nobody knows", recorded once
+  // so Review never asks about this vial's passage again. passage/passageNumber/
+  // passageKind are left as parsePassage() already set them ("p?", null, "unknown");
+  // this only adds the fact that a person, not a blank import cell, put them there.
+  function markPassageUnknown(state, vialId) {
+    var next = clone(state);
+    var v = indexById(next.vials)[vialId];
+    if (!v) return { ok: false, reason: "No such vial.", state: state };
+    v.passageConfirmedUnknown = true;
     return { ok: true, state: next, vial: v };
   }
 
@@ -2991,7 +3006,7 @@
     mergeInventories: mergeInventories,
     reviewQueue: reviewQueue, orphanedVials: orphanedVials,
     emptyImportRows: emptyImportRows, dropEmptyImportRows: dropEmptyImportRows,
-    confirmDate: confirmDate, markDateUnknown: markDateUnknown,
+    confirmDate: confirmDate, markDateUnknown: markDateUnknown, markPassageUnknown: markPassageUnknown,
     resolveImportRow: resolveImportRow,
     reviewKey: reviewKey, ignoreReviewItem: ignoreReviewItem, unignoreReviewItem: unignoreReviewItem
   };

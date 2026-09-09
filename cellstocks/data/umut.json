@@ -10903,8 +10903,14 @@
       "frozenOn": "2026-09-09",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H1"
@@ -10958,8 +10964,14 @@
       "name": "Hek caspex",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-duzenle",
         "position": "I8"
@@ -11159,8 +11171,14 @@
       "name": "khk",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "D4"
@@ -11176,8 +11194,14 @@
       "name": "klm ox",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A1"
@@ -11193,8 +11217,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A2"
@@ -11210,8 +11240,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A3"
@@ -11227,8 +11263,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A4"
@@ -11244,8 +11286,14 @@
       "name": "klm ox",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A1"
@@ -11261,8 +11309,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A2"
@@ -11278,8 +11332,14 @@
       "name": "klm ox",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A1"
@@ -11295,8 +11355,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A2"
@@ -11312,8 +11378,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A3"
@@ -11329,8 +11401,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A4"
@@ -11346,8 +11424,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A4"
@@ -11363,8 +11447,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A3"
@@ -11380,8 +11470,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A2"
@@ -11397,8 +11493,14 @@
       "name": "klm ox",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A1"
@@ -11414,8 +11516,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A4"
@@ -11431,8 +11539,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A3"
@@ -11448,8 +11562,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A4"
@@ -11465,8 +11585,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A3"
@@ -11482,8 +11608,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A4"
@@ -11499,8 +11631,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A4"
@@ -11516,8 +11654,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A3"
@@ -11533,8 +11677,14 @@
       "name": "jkl",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A2"
@@ -11550,8 +11700,14 @@
       "name": "klm ox",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A1"
@@ -11567,8 +11723,14 @@
       "name": "kkk",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H3"
@@ -11584,8 +11746,14 @@
       "name": "kkk",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H2"
@@ -11601,8 +11769,14 @@
       "name": "deneme",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "B3"

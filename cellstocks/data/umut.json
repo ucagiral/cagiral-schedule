@@ -10882,6 +10882,26 @@
       "addedAt": "2026-09-08T20:53:21.794Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mttmmw7m-0",
+      "name": "kkk",
+      "lineId": "l-kkk",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-09-09",
+      "frozenOn": "2026-09-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H1"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-09T04:57:16.692Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -11519,7 +11539,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-09T04:56:52.761Z"
+    "savedAt": "2026-09-09T04:57:17.842Z"
   },
   "removedVialIds": [
     "v-205",

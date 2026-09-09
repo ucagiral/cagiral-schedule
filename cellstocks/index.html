@@ -1352,7 +1352,17 @@
       // exactly `state`, since that is exactly what was just written, so the ancestor
       // for the next reconciliation -- and the freshness marker load() checks on the
       // next reopen -- has to move to match, not stay one commit behind.
-      syncedState = state;
+      //
+      // A deep copy, not `state` itself: `state` is the one object every future edit in
+      // this session keeps mutating in place (editVial's save handler, for one, does
+      // `E.indexById(state.vials)[id].field = ...` directly). Pointing syncedState at
+      // that same object made the "ancestor" drift forward with every later edit instead
+      // of staying still -- a brand-new field set on a vial after this point (Review's
+      // "Mark Unknown"/a passage typed by hand, right after an unrelated save had just
+      // landed) read as "local matches its ancestor, nothing happened here" on the very
+      // next save, because by then the ancestor WAS the edited object, and the edit was
+      // discarded in favour of remote's older copy. mergeDefaults() already clones.
+      syncedState = E.mergeDefaults(state);
       cacheSave();
       setStatus("Saved", "saved");
       setTimeout(function(){ if ($("status").textContent === "Saved") setStatus("Ready", ""); }, 2500);
@@ -2437,6 +2447,13 @@
 
       var p = E.parsePassage(passage.value);
       v.passage = p.raw; v.passageNumber = p.number; v.passageKind = p.kind;
+      // "p?" (or a bare "?") typed on purpose is the same permanent answer the
+      // "Mark Unknown" button on Review's own card gives -- dates' dateUnknown, for
+      // passage. A blank field parses to the same unknown kind but carries no "?", so
+      // it stays a real nag rather than a silently-confirmed one; a real number given
+      // instead clears the flag, the same way a real date clears dateUnknown above.
+      if (p.kind === "unknown" && /\?/.test(passage.value.trim())) v.passageConfirmedUnknown = true;
+      else delete v.passageConfirmedUnknown;
 
       if (date.value){
         var parsed = E.parseDate(date.value);
@@ -3120,6 +3137,19 @@
         b.disabled = !canWrite() || ADMIN_MERGED;
         b.onclick = function(){ editVial(list[0]); };
         row.appendChild(b);
+        // The real "p?" answer, dates' own "Mark date Unknown" for passage -- unlike
+        // Ignore below, this is permanent and clears the card the same way filling in a
+        // real number would, not just hiding it.
+        var unk = el("button", null, "Mark Unknown");
+        unk.disabled = !canWrite() || ADMIN_MERGED;
+        unk.onclick = function(){
+          var next = state;
+          list.forEach(function(v){ next = E.markPassageUnknown(next, v.id).state; });
+          state = next;
+          markDirty("Mark \"" + n + "\" passage Unknown");
+          renderAll();
+        };
+        row.appendChild(unk);
         var ign = el("button", null, "Ignore");
         ign.disabled = !canWrite() || ADMIN_MERGED;
         ign.onclick = function(){

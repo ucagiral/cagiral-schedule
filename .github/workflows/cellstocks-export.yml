@@ -86,6 +86,17 @@ jobs:
         if: steps.due.outputs.send == 'true'
         run: node tools/cellstocks-export.mjs
 
+      # secrets.* cannot be read directly in a step's `if:` -- GitHub Actions rejects the
+      # whole workflow file as invalid the moment it appears there, which is exactly what
+      # broke every run from the day this shipped (every push to main failed with "No
+      # jobs were run", because the file could no longer be parsed at all). So this is
+      # captured as a step output first, the same way "Check for the mail credentials"
+      # already does it, and only that output is ever used in a later `if:`.
+      - name: Check for the Drive credentials
+        id: drive
+        if: steps.due.outputs.send == 'true'
+        run: echo "configured=${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY != '' && secrets.GOOGLE_DRIVE_FOLDER_ID != '' }}" >> "$GITHUB_OUTPUT"
+
       # Mirrors grid-roster.xlsx to a fixed file in Umut's Google Drive, view-only for
       # anyone with the link. Runs before the commit below so drive-file-id.txt (the one
       # piece of state this writes) lands in the same commit as the export it points at --
@@ -188,7 +199,7 @@ jobs:
           echo "::warning::Add them under Settings -> Secrets and variables -> Actions. MAIL_PASSWORD is a Gmail app password, not the account password."
 
       - name: No Drive credentials configured
-        if: steps.due.outputs.send == 'true' && (secrets.GOOGLE_SERVICE_ACCOUNT_KEY == '' || secrets.GOOGLE_DRIVE_FOLDER_ID == '')
+        if: steps.due.outputs.send == 'true' && steps.drive.outputs.configured != 'true'
         run: |
           echo "::warning::GOOGLE_SERVICE_ACCOUNT_KEY / GOOGLE_DRIVE_FOLDER_ID are not set, so today's grid-roster.xlsx was not mirrored to Drive."
           echo "::warning::Add them under Settings -> Secrets and variables -> Actions -- see the PR description for setup steps."

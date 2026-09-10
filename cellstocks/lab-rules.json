@@ -72,6 +72,10 @@
   ],
   "resistance": [
     {
+      "match": "DtxR",
+      "value": "DtxR"
+    },
+    {
       "match": "Cis",
       "value": "CisR"
     },

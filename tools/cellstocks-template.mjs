@@ -98,6 +98,7 @@ copy("cellstocks-worker/worker.js");
 for (const f of ["cellstocks-selftest.mjs", "cellstocks-worker-selftest.mjs",
                  "cellstocks-export.mjs", "cellstocks-export-selftest.mjs",
                  "cellstocks-mail.mjs", "cellstocks-mail-selftest.mjs",
+                 "cellstocks-drive-upload.mjs", "cellstocks-drive-upload-selftest.mjs",
                  "cellstocks-merge-rules.mjs", "cellstocks-browser-test.mjs",
                  "cellstocks-admin-browser-test.mjs", "png.mjs"]) {
   copy(join("tools", f));
@@ -313,7 +314,8 @@ if (offences.length) {
 // And it has to actually run. The suites read the app out of the tree they are in, so
 // running them here is running them against the template, not against this repository.
 const suites = ["tools/cellstocks-selftest.mjs", "tools/cellstocks-worker-selftest.mjs",
-                "tools/cellstocks-export-selftest.mjs", "tools/cellstocks-mail-selftest.mjs"];
+                "tools/cellstocks-export-selftest.mjs", "tools/cellstocks-mail-selftest.mjs",
+                "tools/cellstocks-drive-upload-selftest.mjs"];
 for (const suite of suites) {
   try {
     execFileSync(process.execPath, [join(OUT, suite)], { cwd: OUT, stdio: ["ignore", "pipe", "pipe"] });

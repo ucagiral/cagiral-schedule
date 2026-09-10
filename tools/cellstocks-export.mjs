@@ -1,9 +1,12 @@
-// Builds the daily freezer layout exports, in the four shapes Umut asked for:
+// Builds the daily freezer layout exports, in the five shapes Umut asked for:
 //
-//   cellstocks/exports/layout.xlsx    one grid sheet per box, cell by cell
-//   cellstocks/exports/layout.pdf     the printable map that goes on the freezer door
-//   cellstocks/exports/layout.csv     one row per box -- where it is, whose, how full
-//   cellstocks/exports/roster.xlsx    one flat sheet per member, plus a lab-wide log
+//   cellstocks/exports/layout.xlsx      one grid sheet per box, cell by cell
+//   cellstocks/exports/layout.pdf       the printable map that goes on the freezer door
+//   cellstocks/exports/layout.csv       one row per box -- where it is, whose, how full
+//   cellstocks/exports/roster.xlsx      one flat sheet per member (active vials only), plus a log
+//   cellstocks/exports/grid-roster.xlsx one flat sheet per member, EVERY slot in EVERY of
+//                                       their boxes as its own row (empty or not), in the
+//                                       order the boxes actually sit in the tree
 //
 // Run: node tools/cellstocks-export.mjs [--out <dir>]
 //
@@ -262,6 +265,19 @@ allVials.forEach((v) => { if (v.customFacets) Object.keys(v.customFacets).forEac
 const allColumns = FIXED_COLUMNS.concat([...customKeys].sort());
 const columns = allColumns.filter((c) => !rosterHiddenColumns.includes(c));
 
+// Shared by rosterSheets() and gridRosterSheets(): the lab-wide log is the same sheet
+// either way, so it is built once rather than twice.
+function logSheet() {
+  const logSorted = logRows.slice().sort((a, b) => (String(b.date || "") < String(a.date || "") ? -1 : 1));
+  const logHeader = ["date", "action", "name", "by", "owner", "location", "purpose", "notes"];
+  const logBody = logSorted.map((r) => [
+    r.date || "", r.action, r.name, r.by || "", r.owner,
+    r.from ? (pathOfBox[r.from.boxId] || "") + (r.from.position ? " " + r.from.position : "") : "",
+    r.purpose || "", r.notes || ""
+  ]);
+  return { name: "log", rows: [logHeader].concat(logBody) };
+}
+
 function rosterSheets() {
   const sheets = [];
   for (const name of members) {
@@ -276,15 +292,52 @@ function rosterSheets() {
     });
     sheets.push({ name: sheetSafe(name), rows });
   }
+  sheets.push(logSheet());
+  return sheets;
+}
 
-  const logSorted = logRows.slice().sort((a, b) => (String(b.date || "") < String(a.date || "") ? -1 : 1));
-  const logHeader = ["date", "action", "name", "by", "owner", "location", "purpose", "notes"];
-  const logBody = logSorted.map((r) => [
-    r.date || "", r.action, r.name, r.by || "", r.owner,
-    r.from ? (pathOfBox[r.from.boxId] || "") + (r.from.position ? " " + r.from.position : "") : "",
-    r.purpose || "", r.notes || ""
-  ]);
-  sheets.push({ name: "log", rows: [logHeader].concat(logBody) });
+// The other view Umut asked for: not the active vials sorted by location (that's
+// roster.xlsx), but every position in every one of a member's boxes, in the order the
+// boxes actually sit in the tree -- a 9x9 box is 81 rows whether they're full or not,
+// so this reads like the physical sheet he handed over at the very start, not a filtered
+// list. `boxes` is already in tree order; a box with no owner (a common box) has nowhere
+// to go on any one member's sheet, so it gets its own "Common" sheet instead.
+const GRID_ROSTER_COLUMNS = ["box_unit", "location", "name", "kind"].concat(
+  columns.filter((c) => c !== "name" && c !== "location" && c !== "position")
+);
+function gridRosterCell(slot, column) {
+  if (column === "box_unit") return "";  // filled in per-row by the caller, not per-slot
+  if (column === "location") return slot.position;
+  if (!slot.vial) return "";
+  if (column === "name") return slot.vial.name || "";
+  if (column === "kind") return E.kindOf(slot.vial);
+  return cellFor(slot.vial, E.facetsFor(slot.vial, labRules), column);
+}
+function gridRosterSheets() {
+  const byOwner = {};
+  const commonBoxes = [];
+  boxes.forEach((b) => {
+    if (b.box.common) { commonBoxes.push(b); return; }
+    if (!b.box.owner) return;  // an unmigrated/legacy box with no owner and not marked common
+    (byOwner[b.box.owner] || (byOwner[b.box.owner] = [])).push(b);
+  });
+
+  function sheetFor(boxList) {
+    const rows = [GRID_ROSTER_COLUMNS];
+    boxList.forEach((b) => {
+      b.occ.slots.forEach((slot) => {
+        const boxUnit = `${b.path} → ${b.box.name}`;
+        rows.push(GRID_ROSTER_COLUMNS.map((c) => (c === "box_unit" ? boxUnit : gridRosterCell(slot, c))));
+      });
+    });
+    return rows;
+  }
+
+  const sheets = members
+    .filter((name) => byOwner[name])
+    .map((name) => ({ name: sheetSafe(name), rows: sheetFor(byOwner[name]) }));
+  if (commonBoxes.length) sheets.push({ name: "Common", rows: sheetFor(commonBoxes) });
+  sheets.push(logSheet());
   return sheets;
 }
 
@@ -322,9 +375,12 @@ writeFileSync(join(OUT_DIR, "layout.pdf"), Buffer.from(buildPdf()));
 writeFileSync(join(OUT_DIR, "layout.csv"), buildCsv());
 const rosterBytes = await X.writeWorkbookAsync(rosterSheets());
 writeFileSync(join(OUT_DIR, "roster.xlsx"), Buffer.from(rosterBytes));
+const gridRosterBytes = await X.writeWorkbookAsync(gridRosterSheets());
+writeFileSync(join(OUT_DIR, "grid-roster.xlsx"), Buffer.from(gridRosterBytes));
 
 const filled = boxes.filter((b) => b.occ.used).length;
 console.log(`${labName}: ${storage.children.length} top layer(s), ${boxes.length} box(es) (${filled} holding vials), ` +
             `${allVials.length} stored vial(s) across ${members.length} account(s)`);
 console.log(`wrote roster.xlsx (${columns.length} columns, ${logRows.length} log entries)`);
+console.log(`wrote grid-roster.xlsx (${GRID_ROSTER_COLUMNS.length} columns, every slot in every box)`);
 console.log(`wrote layout.xlsx, layout.pdf and layout.csv to ${OUT_DIR}`);

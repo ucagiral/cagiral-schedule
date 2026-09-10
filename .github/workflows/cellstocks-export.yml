@@ -1,8 +1,9 @@
 name: Cell stocks daily layout export
 
-# Rebuilds the freezer's layout every morning and commits it, in the three shapes Umut
-# asked for: an Excel workbook with a grid per box, a printable PDF map for the freezer
-# door, and a one-row-per-box summary.
+# Rebuilds the freezer's layout every morning and commits it, mails it, and mirrors
+# grid-roster.xlsx to Google Drive: an Excel workbook with a grid per box, a printable PDF
+# map for the freezer door, a one-row-per-box summary, a per-member roster, and a
+# per-member/every-slot grid that also goes to a link-stable Drive file.
 #
 # This used to be a single "0 5 * * *" -- 08:00 in Istanbul -- and the very first morning
 # it was due, nothing ran at all. The top of the hour is the most contended slot on
@@ -84,6 +85,20 @@ jobs:
       - name: Build the layout exports
         if: steps.due.outputs.send == 'true'
         run: node tools/cellstocks-export.mjs
+
+      # Mirrors grid-roster.xlsx to a fixed file in Umut's Google Drive, view-only for
+      # anyone with the link. Runs before the commit below so drive-file-id.txt (the one
+      # piece of state this writes) lands in the same commit as the export it points at --
+      # the same reason last-mailed.json is written before its own commit step.
+      #
+      # Skipped, not failed, when the two secrets are not set: tools/cellstocks-drive-upload.mjs
+      # says so and exits 0, the same way the mailer skips without MAIL_USER/MAIL_PASSWORD.
+      - name: Mirror grid-roster.xlsx to Google Drive
+        if: steps.due.outputs.send == 'true'
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        run: node tools/cellstocks-drive-upload.mjs
 
       # Only commits when something actually changed. Most mornings nothing has: the
       # freezer is the same as it was, and a commit a day saying so would bury the
@@ -171,3 +186,9 @@ jobs:
         run: |
           echo "::warning::MAIL_USER / MAIL_PASSWORD are not set, so today's layout was built and committed but not mailed."
           echo "::warning::Add them under Settings -> Secrets and variables -> Actions. MAIL_PASSWORD is a Gmail app password, not the account password."
+
+      - name: No Drive credentials configured
+        if: steps.due.outputs.send == 'true' && (secrets.GOOGLE_SERVICE_ACCOUNT_KEY == '' || secrets.GOOGLE_DRIVE_FOLDER_ID == '')
+        run: |
+          echo "::warning::GOOGLE_SERVICE_ACCOUNT_KEY / GOOGLE_DRIVE_FOLDER_ID are not set, so today's grid-roster.xlsx was not mirrored to Drive."
+          echo "::warning::Add them under Settings -> Secrets and variables -> Actions -- see the PR description for setup steps."

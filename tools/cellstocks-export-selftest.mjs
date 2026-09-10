@@ -40,7 +40,11 @@ writeFileSync(join(root, "cellstocks", "lab-storage.json"), JSON.stringify({
           { id: "b-1", name: "BOX ONE", icon: "📦", note: "", isBox: true,
             owner: "umut", rows: 3, cols: 3, scheme: "grid", archived: false },
           { id: "b-2", name: "BOX TWO", icon: "📦", note: "", isBox: true,
-            owner: "busra", rows: 2, cols: 2, scheme: "grid", archived: false }
+            owner: "busra", rows: 2, cols: 2, scheme: "grid", archived: false },
+          // A common box has no owner at all -- it does not belong on any one member's
+          // grid-roster sheet, so it needs its own.
+          { id: "b-4", name: "BOX FOUR", icon: "📦", note: "", isBox: true,
+            common: true, rows: 2, cols: 2, scheme: "grid", archived: false }
         ] }
       ] }
     ] },
@@ -72,6 +76,10 @@ writeFileSync(join(root, "cellstocks", "data", "umut.json"), JSON.stringify({
     Object.assign(vial("v-2", "Du145 CASPEX g5.1", "b-1", "B2", "p7"),
                   { addedBy: "umut-phone", addedAt: "2026-09-07T10:00:00Z" }),
     vial("v-4", "Homeless Line", "b-3", "A1", "p2"),
+    // Umut froze this one into the common box (BOX FOUR) -- it stays in his own file
+    // (a vial's file never changes just because the box has no single owner), but it
+    // belongs on grid-roster's "Common" sheet, not on his.
+    vial("v-5", "Common Stock A", "b-4", "A1", "p1"),
     // A withdrawn vial must not appear anywhere in the export: it is not in the freezer.
     { id: "v-3", name: "Already Taken Out", status: "withdrawn", location: null, flags: [] }
   ],
@@ -170,9 +178,9 @@ await check("the summary is one row per box, with a BOM so Excel reads it as UTF
   const csv = readFileSync(join(outDir, "layout.csv"), "utf8");
   if (csv.charCodeAt(0) !== 0xfeff) return "no BOM -- Excel will mangle the first column";
   const lines = csv.replace(/^﻿/, "").trim().split("\r\n");
-  // A header and the fixture's three boxes. Tower 1 holds none, so it contributes no row:
-  // this is a list of boxes, not of layers.
-  if (lines.length !== 4) return `expected a header and three boxes, got ${lines.length}: ${JSON.stringify(lines)}`;
+  // A header and the fixture's four boxes (including the common one). Tower 1 holds
+  // none, so it contributes no row: this is a list of boxes, not of layers.
+  if (lines.length !== 5) return `expected a header and four boxes, got ${lines.length}: ${JSON.stringify(lines)}`;
   if (!lines[0].startsWith("area,location,box,owner")) return `unexpected header: ${lines[0]}`;
   if (!lines.some((l) => l.includes("BOX ONE") && l.endsWith(",3,3,2,9,7"))) {
     return `BOX ONE's counts are wrong: ${JSON.stringify(lines)}`;
@@ -224,7 +232,7 @@ await check("the map names the freezer, the boxes and what is in them", () => {
   if (/Already Taken Out/.test(text)) return "a withdrawn vial was printed into the map";
   // One page for the tree, then one per box.
   const pages = (text.match(/\/Type \/Page[^s]/g) || []).length;
-  if (pages !== 1 + 3) return `expected the tree page plus one per box, got ${pages}`;
+  if (pages !== 1 + 4) return `expected the tree page plus one per box, got ${pages}`;
   return null;
 });
 
@@ -323,6 +331,82 @@ await check("the log sheet has one row for the addition and one for the withdraw
   return null;
 });
 
+// ------------------------------------------------------- the grid roster (every slot, per person)
+await check("grid-roster.xlsx is written, one sheet per member plus Common plus the log", async () => {
+  if (!existsSync(join(outDir, "grid-roster.xlsx"))) return "grid-roster.xlsx is missing";
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "grid-roster.xlsx")));
+  const names = wb.sheets.map((s) => s.name);
+  for (const want of ["umut", "busra", "Common", "log"]) {
+    if (!names.includes(want)) return `no "${want}" sheet: ${JSON.stringify(names)}`;
+  }
+  return null;
+});
+
+await check("a member's grid-roster sheet has one row per slot, boxes in tree order, blank ones included", async () => {
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "grid-roster.xlsx")));
+  const sheet = wb.sheets.filter((s) => s.name === "umut")[0];
+  const rows = sheet.rows.map((r) => r.map((c) => (c ? c.value : "")));
+  const header = rows[0];
+  const body = rows.slice(1);
+  // BOX ONE (3x3=9) comes before BOX THREE (2x2=4) in tree order: BOX ONE is placed,
+  // BOX THREE is unplaced -- and unplaced boxes are walked after the tree, same order
+  // gridSheets()'s own index already uses.
+  if (body.length !== 9 + 4) return `expected 9 (BOX ONE) + 4 (BOX THREE) = 13 rows, got ${body.length}: ${JSON.stringify(body)}`;
+  const boxUnitIdx = header.indexOf("box_unit"), locIdx = header.indexOf("location"), nameIdx = header.indexOf("name");
+  if (!body.slice(0, 9).every((r) => /BOX ONE/.test(r[boxUnitIdx]))) return `BOX ONE's rows are not all first: ${JSON.stringify(body)}`;
+  if (!body.slice(9).every((r) => /^Not placed yet.*BOX THREE/.test(r[boxUnitIdx]))) return `BOX THREE's rows are not last: ${JSON.stringify(body)}`;
+  // A1 and B2 are filled; every other one of BOX ONE's 9 slots must be empty.
+  const filled = body.slice(0, 9).filter((r) => r[nameIdx]);
+  if (filled.length !== 2) return `expected exactly 2 filled slots in BOX ONE, got ${filled.length}: ${JSON.stringify(filled)}`;
+  const empty = body.slice(0, 9).find((r) => !r[nameIdx]);
+  if (!empty || !empty[locIdx] || empty[boxUnitIdx] !== filled[0][boxUnitIdx]) {
+    return `an empty slot should still show its box/location and nothing else: ${JSON.stringify(empty)}`;
+  }
+  const originIdx = header.indexOf("origin");
+  if (empty[originIdx]) return `an empty slot must not carry a facet value: ${JSON.stringify(empty)}`;
+  return null;
+});
+
+await check("Content Type and a custom attribute show on the right row, blank on an unrelated one", async () => {
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "grid-roster.xlsx")));
+  const busra = wb.sheets.filter((s) => s.name === "busra")[0];
+  const rows = busra.rows.map((r) => r.map((c) => (c ? c.value : "")));
+  const header = rows[0];
+  const kindIdx = header.indexOf("kind"), doxIdx = header.indexOf("doxInducible"), nameIdx = header.indexOf("name");
+  const sisli = rows.slice(1).find((r) => r[nameIdx] === "Şişli Line");
+  if (!sisli || sisli[kindIdx] !== "cell" || sisli[doxIdx] !== "yes") {
+    return `Şişli Line's kind/doxInducible are wrong: ${JSON.stringify(sisli)}`;
+  }
+  const emptyRow = rows.slice(1).find((r) => !r[nameIdx]);
+  if (!emptyRow || emptyRow[doxIdx]) return `an empty slot must not inherit doxInducible: ${JSON.stringify(emptyRow)}`;
+  return null;
+});
+
+await check("the common box appears once, under its own Common sheet, not under any member's", async () => {
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "grid-roster.xlsx")));
+  for (const owner of ["umut", "busra"]) {
+    const sheet = wb.sheets.filter((s) => s.name === owner)[0];
+    const flat = JSON.stringify(sheet.rows.map((r) => r.map((c) => (c ? c.value : ""))));
+    if (/BOX FOUR/.test(flat)) return `BOX FOUR (common) leaked into ${owner}'s sheet: ${flat}`;
+  }
+  const common = wb.sheets.filter((s) => s.name === "Common")[0];
+  const rows = common.rows.map((r) => r.map((c) => (c ? c.value : "")));
+  const header = rows[0];
+  const nameIdx = header.indexOf("name");
+  if (rows.length - 1 !== 4) return `BOX FOUR is 2x2 -- expected 4 rows on Common, got ${rows.length - 1}`;
+  if (!rows.some((r) => r[nameIdx] === "Common Stock A")) return `Common Stock A is missing from the Common sheet: ${JSON.stringify(rows)}`;
+  return null;
+});
+
+await check("grid-roster's log sheet matches roster.xlsx's own log sheet", async () => {
+  const gridWb = await X.readWorkbook(readFileSync(join(outDir, "grid-roster.xlsx")));
+  const rosterWb = await X.readWorkbook(readFileSync(join(outDir, "roster.xlsx")));
+  const flatten = (wb) => wb.sheets.filter((s) => s.name === "log")[0].rows.map((r) => r.map((c) => (c ? c.value : "")));
+  const a = JSON.stringify(flatten(gridWb)), b = JSON.stringify(flatten(rosterWb));
+  if (a !== b) return `the two log sheets disagree:\n  grid-roster: ${a}\n  roster: ${b}`;
+  return null;
+});
+
 await check("hiding a column via recipients.json's rosterHiddenColumns drops it from every sheet", async () => {
   mkdirSync(join(root, "cellstocks", "exports"), { recursive: true });
   writeFileSync(join(root, "cellstocks", "exports", "recipients.json"),
@@ -343,8 +427,8 @@ await check("hiding a column via recipients.json's rosterHiddenColumns drops it 
 
 console.log("");
 if (failures) {
-  console.log(`${failures} of 16 cell stocks export checks failed:\n`);
+  console.log(`${failures} of 21 cell stocks export checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 16 cell stocks export checks passed.");
+console.log("All 21 cell stocks export checks passed.");

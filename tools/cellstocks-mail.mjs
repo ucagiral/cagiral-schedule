@@ -339,6 +339,27 @@ export function summarise(csvText, areaCount) {
   return out.join("\n");
 }
 
+// Pure, so the drive-link line can be checked without a real fixture repo or mail server:
+// present when today's grid-roster made it to Drive, absent when it didn't (no secrets
+// configured yet, or today's upload failed) -- either way the mail still goes out.
+export function buildBodyText({ summary, driveLink }) {
+  return [
+    "Today's freezer layout is attached, in five shapes:",
+    "",
+    "  layout.xlsx      a grid sheet per box, every slot with its cell line and passage",
+    "  layout.pdf       the printable map for the freezer door",
+    "  layout.csv       one row per box: where it is, whose, how full",
+    "  roster.xlsx      one flat sheet per member (active vials only), plus a lab-wide log",
+    "  grid-roster.xlsx one flat sheet per member, every slot in every one of their boxes,",
+    "                   empty or not, in the order the boxes actually sit in the freezer",
+    "",
+    summary,
+    "",
+    ...(driveLink ? [`Always-current copy of grid-roster.xlsx, view-only: ${driveLink}`, ""] : []),
+    "Rebuilt from the inventory this morning."
+  ].join("\n");
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   const settings = readMailSettings();
 
@@ -377,7 +398,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     { filename: "layout.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
     { filename: "layout.pdf", mimeType: "application/pdf" },
     { filename: "layout.csv", mimeType: "text/csv; charset=UTF-8" },
-    { filename: "roster.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+    { filename: "roster.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+    { filename: "grid-roster.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
   ].map((a) => Object.assign({}, a, { content: readFileSync(join(EXPORTS, a.filename)) }));
 
   const areaCount = () => {
@@ -386,19 +408,20 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       return (lab.children || []).length;
     } catch (err) { return undefined; }
   };
+  // Written by cellstocks-drive-upload.mjs, which runs before this in the workflow. Its
+  // absence (no Drive secrets configured yet, or today's upload failed) is not an error
+  // here -- the mail still goes out with five attachments and no link line.
+  const driveLink = () => {
+    try {
+      const id = readFileSync(join(EXPORTS, "drive-file-id.txt"), "utf8").trim();
+      return id ? `https://drive.google.com/file/d/${id}/view` : null;
+    } catch (err) { return null; }
+  };
   const today = new Date().toISOString().slice(0, 10);
-  const text = [
-    "Today's freezer layout is attached, in four shapes:",
-    "",
-    "  layout.xlsx  a grid sheet per box, every slot with its cell line and passage",
-    "  layout.pdf   the printable map for the freezer door",
-    "  layout.csv   one row per box: where it is, whose, how full",
-    "  roster.xlsx  one flat sheet per member, plus a lab-wide log of who froze and withdrew what",
-    "",
-    summarise(readFileSync(join(EXPORTS, "layout.csv"), "utf8"), areaCount()),
-    "",
-    "Rebuilt from the inventory this morning."
-  ].join("\n");
+  const text = buildBodyText({
+    summary: summarise(readFileSync(join(EXPORTS, "layout.csv"), "utf8"), areaCount()),
+    driveLink: driveLink()
+  });
 
   sendMail({
     host: process.env.MAIL_HOST || "smtp.gmail.com",

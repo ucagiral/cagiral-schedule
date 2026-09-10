@@ -58,6 +58,7 @@ node tools/cellstocks-selftest.mjs
 node tools/cellstocks-worker-selftest.mjs
 node tools/cellstocks-export-selftest.mjs
 node tools/cellstocks-mail-selftest.mjs
+node tools/cellstocks-drive-upload-selftest.mjs
 ```
 
 ## 4. Landing changes
@@ -190,12 +191,20 @@ from `origin/main`: people save from their phones mid-session and those edits ar
   never a follow-up — and works out who is affected by comparing the generated sheets, not by
   guessing which edits count as renames.
 - **The daily export is generated, mailed, and never dated.** `tools/cellstocks-export.mjs` writes
-  `cellstocks/exports/layout.{xlsx,pdf,csv}` under names that never change: git keeps every
-  previous morning, and a dated file would mean a new link daily. The mailer speaks SMTP itself
-  rather than using a ready-made action, because whatever sends this is handed the mailbox's app
-  password on every run and **this repository is public**; its error transcript redacts the
-  credentials because it ends up in a public build log. No secret, or nobody on the list, skips the
-  mail — it never fails the build and never claims to have sent something it did not.
+  `cellstocks/exports/layout.{xlsx,pdf,csv}`, `roster.xlsx` and `grid-roster.xlsx` under names that
+  never change: git keeps every previous morning, and a dated file would mean a new link daily.
+  The mailer speaks SMTP itself rather than using a ready-made action, because whatever sends this
+  is handed the mailbox's app password on every run and **this repository is public**; its error
+  transcript redacts the credentials because it ends up in a public build log. No secret, or
+  nobody on the list, skips the mail — it never fails the build and never claims to have sent
+  something it did not.
+- **`grid-roster.xlsx` can also be mirrored to Google Drive, same file and same link every day.**
+  `tools/cellstocks-drive-upload.mjs` reads a service account key and a target folder id from
+  secrets, creates the file once, and after that only ever calls `files.update` with the same file
+  id (persisted in `cellstocks/exports/drive-file-id.txt`, committed alongside the export it
+  points at) so the link never changes. Permission is fixed at `{type:"anyone", role:"reader"}` —
+  view-only, never editable. Missing secrets or a failed call are not fatal, the same way a missing
+  mail secret is not.
 - **The app is served by its own Cloudflare Worker**, which is also the API, so the page's calls
   are same-origin and CORS never applies to them. `resolveConfig()` reads owner/repo out of an
   `*.github.io` address and falls back to `DEFAULT_REPO` anywhere else; `sw.js` derives its scope

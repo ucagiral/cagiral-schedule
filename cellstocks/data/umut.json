@@ -8923,21 +8923,7 @@
       "passageKind": "unknown",
       "frozenRaw": "30-06-25",
       "frozenOn": "2025-06-30",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-ongoing",
-        "position": "F6"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 295"
     },
     {
@@ -11785,6 +11771,29 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtvxeqbf",
+      "vialId": "v-295",
+      "name": "Du145",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-ongoing",
+        "position": "F6"
+      },
+      "date": "2026-09-10",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11811,7 +11820,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-09T13:48:14.165Z"
+    "savedAt": "2026-09-10T19:34:26.773Z"
   },
   "removedVialIds": [
     "v-205",

@@ -1593,6 +1593,84 @@ try {
     // The rules are shared, so "how many vials does this change?" is the lab's number.
     check("the impact preview counts the lab's vials, not just your own",
       /the lab's 1 vials/.test(deleteBody), deleteBody);
+
+    // ---- the default value: what a facet becomes when no rule above it matched ----
+    // koox has no rules at all in this fixture, so "HEK ATP7B KO g3" is currently an
+    // unmatched gap -- a real vial for the impact preview to count, the same way the
+    // HEK origin rule above had one.
+    const koox = await page.evaluate((facet) => {
+      const row = document.evaluate(
+        `//div[contains(@class,"item")][.//div[text()="${facet}"]]`, document, null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+      const defRow = row.nextElementSibling;
+      return {
+        sub: defRow.querySelector(".sub").textContent,
+        buttons: Array.from(defRow.querySelectorAll("button")).map((b) => b.textContent.trim())
+      };
+    }, "koox");
+    check("a facet with no fallback shows \"not set\" and offers Set, not Edit/Delete",
+      /not set/.test(koox.sub) && JSON.stringify(koox.buttons) === JSON.stringify(["Set"]), JSON.stringify(koox));
+
+    await page.evaluate((facet) => {
+      const row = document.evaluate(
+        `//div[contains(@class,"item")][.//div[text()="${facet}"]]`, document, null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+      row.nextElementSibling.querySelector("button").click();
+    }, "koox");
+    await page.waitForSelector("dialog[open]");
+    await page.fill("#dlgBody input", "WT");
+    await page.waitForFunction(() => /This changes 1 of/.test(document.getElementById("dlgBody").textContent));
+    const setPreview = await page.evaluate(() => document.getElementById("dlgBody").textContent);
+    // Not "closes a gap": this vial still has an unmatched origin (its only origin rule
+    // was deleted earlier in this very test) -- classifyAll's gap count is per VIAL, not
+    // per facet, so a vial with several unmatched facets stays a gap until every one of
+    // them resolves. Fixing koox alone is still a real, countable change, just not a
+    // closed gap yet.
+    check("setting a default previews its impact the same way any other rule edit does",
+      /This changes 1 of the lab's 1 vials/.test(setPreview), setPreview);
+    await page.click("#dlgFoot button");
+    await page.waitForFunction(() => !document.querySelector("dialog[open]"));
+
+    const koox2 = await page.evaluate((facet) => {
+      const row = document.evaluate(
+        `//div[contains(@class,"item")][.//div[text()="${facet}"]]`, document, null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+      const defRow = row.nextElementSibling;
+      return {
+        sub: defRow.querySelector(".sub").textContent,
+        buttons: Array.from(defRow.querySelectorAll("button")).map((b) => b.textContent.trim())
+      };
+    }, "koox");
+    check("once set, the row reads \"otherwise koox is WT\" and offers Edit/Delete instead",
+      /otherwise koox is WT/.test(koox2.sub) && JSON.stringify(koox2.buttons) === JSON.stringify(["Edit", "Delete"]),
+      JSON.stringify(koox2));
+
+    const kooxCommitted = JSON.parse(lastCommit.files.find((f) => f.path === "cellstocks/lab-rules.json").content).koox;
+    check("the default is committed as a fallback rule -- no match, just a value, sorted last",
+      kooxCommitted.length === 1 && kooxCommitted[0].match === undefined && kooxCommitted[0].value === "WT",
+      JSON.stringify(kooxCommitted));
+
+    // Deleting it goes through the exact same deleteRuleDialog every other rule uses.
+    await page.evaluate((facet) => {
+      const row = document.evaluate(
+        `//div[contains(@class,"item")][.//div[text()="${facet}"]]`, document, null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+      const buttons = Array.from(row.nextElementSibling.querySelectorAll("button"));
+      buttons.find((b) => b.textContent.trim() === "Delete").click();
+    }, "koox");
+    await page.waitForSelector("dialog[open]");
+    const deleteDefaultBody = await page.evaluate(() => document.getElementById("dlgBody").textContent);
+    check("deleting the default describes it as \"else WT\", the same wording any fallback rule gets",
+      /Deleting: else WT/.test(deleteDefaultBody), deleteDefaultBody);
+    await page.click("#dlgFoot button");
+    await page.waitForFunction(() => !document.querySelector("dialog[open]"));
+    const koox3 = await page.evaluate((facet) => {
+      const row = document.evaluate(
+        `//div[contains(@class,"item")][.//div[text()="${facet}"]]`, document, null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+      return row.nextElementSibling.querySelector(".sub").textContent;
+    }, "koox");
+    check("deleting it goes back to \"not set\"", /not set/.test(koox3), koox3);
   } catch (err) {
     check("admin can rename a user, and rules can be edited and deleted", false, String(err));
   } finally {

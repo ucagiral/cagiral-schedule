@@ -3649,10 +3649,13 @@
     }
     E.FACETS.forEach(function(facet){
       var list = state.rules[facet] || [];
+      var fallbackIndex = -1;
+      list.forEach(function(rule, i){ if (E.ruleMatcher(rule) === "fallback") fallbackIndex = i; });
+      var specificCount = list.length - (fallbackIndex === -1 ? 0 : 1);
       var row = el("div", "item");
       var grow = el("div", "grow");
       grow.appendChild(el("div", null, facet));
-      grow.appendChild(el("div", "sub", list.length + " rule" + (list.length === 1 ? "" : "s") + ", tried in order"));
+      grow.appendChild(el("div", "sub", specificCount + " rule" + (specificCount === 1 ? "" : "s") + ", tried in order"));
       row.appendChild(grow);
       var add = el("button", null, "Add");
       add.disabled = !canWrite() || !labKnown;
@@ -3660,11 +3663,45 @@
       row.appendChild(add);
       r2.appendChild(row);
 
+      // The default is what this facet becomes when nothing above it matched --
+      // otherwise a name with no koox/resistance/etc. marker in it at all could never
+      // be covered by any rule, no matter how many get added, and sat in Review's
+      // "no rule covers this name" list forever. Shown as its own row, separate from
+      // the ordered list below, because it isn't tried in order -- it's what happens
+      // once nothing else fired. Editing and deleting it reuse editRuleDialog/
+      // deleteRuleDialog exactly as they already handle this shape (see their "the
+      // fallback" branch); only setting one where none exists yet is new.
+      var defRow = el("div", "item");
+      var defGrow = el("div", "grow");
+      defGrow.appendChild(el("div", null, "Default value"));
+      defGrow.appendChild(el("div", "sub", fallbackIndex === -1
+        ? "not set — a name nothing else matches stays a gap in Review"
+        : "otherwise " + facet + " is " + list[fallbackIndex].value));
+      defRow.appendChild(defGrow);
+      if (fallbackIndex === -1){
+        var setDef = el("button", null, "Set");
+        setDef.disabled = !canWrite() || !labKnown;
+        setDef.onclick = function(){ addDefaultDialog(facet); };
+        defRow.appendChild(setDef);
+      } else {
+        var editDef = el("button", null, "Edit");
+        editDef.disabled = !canWrite() || !labKnown;
+        editDef.onclick = function(){ editRuleDialog(facet, fallbackIndex); };
+        defRow.appendChild(editDef);
+        var delDef = el("button", "danger", "Delete");
+        delDef.style.marginLeft = "6px";
+        delDef.disabled = !canWrite() || !labKnown;
+        delDef.onclick = function(){ deleteRuleDialog(facet, fallbackIndex); };
+        defRow.appendChild(delDef);
+      }
+      r2.appendChild(defRow);
+
       // One row per rule rather than one grey line per facet: a rule that reads wrong
       // (or was typed wrong) has to be fixable and removable, not just addable. Both
       // buttons show what they would do to the real inventory before doing it -- see
-      // ruleImpact().
+      // ruleImpact(). The default value above is excluded here -- it has its own row.
       list.forEach(function(rule, index){
+        if (index === fallbackIndex) return;
         var rr = el("div", "item");
         var rg = el("div", "grow");
         rg.appendChild(el("div", "sub mono", "　" + ruleText(rule)));
@@ -4030,6 +4067,50 @@
       ok.disabled = true;
       try {
         await commitLabRules(trial, "Add a " + facet + " rule");
+        $("dlg").close();
+        renderAll();
+      } catch(err){ showBanner("Couldn't save that: " + esc(err.message)); }
+      ok.disabled = false;
+    };
+    foot.appendChild(ok);
+    $("dlg").showModal();
+  }
+
+  // Only reached when this facet has no fallback yet -- editRuleDialog/deleteRuleDialog
+  // already handle editing or removing one that exists (see their "the fallback" branch
+  // in editRuleDialog). This appends rather than unshifting, the one way it has to differ
+  // from addRuleDialog: a fallback that ran before a specific rule would win every time
+  // and the specific rule would never fire.
+  function addDefaultDialog(facet){
+    $("dlgTitle").textContent = "Default value for " + facet;
+    var body = clear($("dlgBody"));
+    body.appendChild(el("p", "note",
+      "What " + facet + " becomes when no rule above matches, instead of a name sitting in " +
+      "Review's \"no rule covers this name\" list forever because nothing in the text could " +
+      "ever match."));
+    var value = document.createElement("input"); value.placeholder = "-"; value.autocomplete = "off";
+    var f = el("div", "field");
+    f.appendChild(el("label", null, "Otherwise " + facet + " is"));
+    f.appendChild(value);
+    body.appendChild(f);
+    var preview = el("p", "note");
+    body.appendChild(preview);
+    function refresh(){
+      if (!value.value.trim()){ preview.textContent = ""; return; }
+      var trial = JSON.parse(JSON.stringify(state.rules));
+      trial[facet] = trial[facet].concat([{ value: value.value.trim() }]);
+      preview.textContent = impactSentence(ruleImpact(trial, facet));
+    }
+    value.oninput = refresh;
+    var foot = clear($("dlgFoot"));
+    var ok = el("button", "primary", "Set the default");
+    ok.onclick = async function(){
+      if (!value.value.trim()) return;
+      var trial = JSON.parse(JSON.stringify(state.rules));
+      trial[facet] = trial[facet].concat([{ value: value.value.trim() }]);
+      ok.disabled = true;
+      try {
+        await commitLabRules(trial, "Set a default " + facet + " value");
         $("dlg").close();
         renderAll();
       } catch(err){ showBanner("Couldn't save that: " + esc(err.message)); }

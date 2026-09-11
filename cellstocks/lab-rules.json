@@ -63,10 +63,6 @@
   ],
   "koox": [
     {
-      "match": "else",
-      "value": "no KO/OX"
-    },
-    {
       "match": "FLAG",
       "value": "FLAG"
     },

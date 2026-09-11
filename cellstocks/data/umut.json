@@ -10954,21 +10954,7 @@
       "passageKind": "unknown",
       "frozenRaw": "2026-09-09",
       "frozenOn": "2026-09-09",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-4",
-        "position": "H1"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-09T04:57:16.692Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -11861,6 +11847,29 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mtxgp6m0",
+      "vialId": "v-mttmmw7m-0",
+      "name": "kkk",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H1"
+      },
+      "date": "2026-09-11",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -11887,7 +11896,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-11T21:21:53.880Z"
+    "savedAt": "2026-09-11T21:22:11.826Z"
   },
   "removedVialIds": [
     "v-205",

@@ -28,8 +28,6 @@ on:
       - tools/cellstocks-export-selftest.mjs
       - tools/cellstocks-mail.mjs
       - tools/cellstocks-mail-selftest.mjs
-      - tools/cellstocks-drive-upload.mjs
-      - tools/cellstocks-drive-upload-selftest.mjs
       - tools/cellstocks-merge-rules.mjs
       - tools/cellstocks-browser-test.mjs
       - tools/cellstocks-admin-browser-test.mjs
@@ -44,8 +42,6 @@ on:
       - tools/cellstocks-export-selftest.mjs
       - tools/cellstocks-mail.mjs
       - tools/cellstocks-mail-selftest.mjs
-      - tools/cellstocks-drive-upload.mjs
-      - tools/cellstocks-drive-upload-selftest.mjs
       - tools/cellstocks-merge-rules.mjs
       - tools/cellstocks-browser-test.mjs
       - tools/cellstocks-admin-browser-test.mjs
@@ -97,12 +93,6 @@ jobs:
       # like "it sent" from the outside.
       - name: Mailer self-test
         run: node tools/cellstocks-mail-selftest.mjs
-
-      # The Drive mirror, against a fake token endpoint + fake Drive API written in the
-      # test (a real local HTTP server, so the JWT signature and the multipart upload
-      # body are actually exercised). No real Google credentials involved.
-      - name: Drive upload self-test
-        run: node tools/cellstocks-drive-upload-selftest.mjs
 
       # The browser suites drive the real app in a real Chromium: the login gate, the
       # Structure tree, the merged admin views, and the export card's recipients and send

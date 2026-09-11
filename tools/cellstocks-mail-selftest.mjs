@@ -300,19 +300,10 @@ await check("a location holding a comma does not shift every column after it", (
   return null;
 });
 
-await check("the mail body names grid-roster.xlsx and carries the Drive link when there is one", () => {
-  const withLink = buildBodyText({ summary: "1 box across 1 storage area.", driveLink: "https://drive.google.com/file/d/abc123/view" });
-  if (!/grid-roster\.xlsx/.test(withLink)) return `grid-roster.xlsx is not described: ${withLink}`;
-  if (!/Always-current copy of grid-roster\.xlsx, view-only: https:\/\/drive\.google\.com\/file\/d\/abc123\/view/.test(withLink)) {
-    return `the Drive link line is missing or malformed: ${withLink}`;
-  }
-  return null;
-});
-
-await check("the mail body has no Drive link line when nothing has been mirrored yet", () => {
-  const noLink = buildBodyText({ summary: "1 box across 1 storage area.", driveLink: null });
-  if (/drive\.google\.com/.test(noLink)) return `a Drive link appeared with no link given: ${noLink}`;
-  if (!/Rebuilt from the inventory this morning\.$/.test(noLink)) return `unexpected trailing content: ${JSON.stringify(noLink)}`;
+await check("the mail body names grid-roster.xlsx", () => {
+  const text = buildBodyText({ summary: "1 box across 1 storage area." });
+  if (!/grid-roster\.xlsx/.test(text)) return `grid-roster.xlsx is not described: ${text}`;
+  if (!/Rebuilt from the inventory this morning\.$/.test(text)) return `unexpected trailing content: ${JSON.stringify(text)}`;
   return null;
 });
 
@@ -523,8 +514,8 @@ await check("the workflow still guards the marker with something that sees a new
 
 console.log("");
 if (failures) {
-  console.log(`${failures} of 23 cell stocks mail checks failed:\n`);
+  console.log(`${failures} of 22 cell stocks mail checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 23 cell stocks mail checks passed.");
+console.log("All 22 cell stocks mail checks passed.");

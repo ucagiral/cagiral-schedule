@@ -339,10 +339,8 @@ export function summarise(csvText, areaCount) {
   return out.join("\n");
 }
 
-// Pure, so the drive-link line can be checked without a real fixture repo or mail server:
-// present when today's grid-roster made it to Drive, absent when it didn't (no secrets
-// configured yet, or today's upload failed) -- either way the mail still goes out.
-export function buildBodyText({ summary, driveLink }) {
+// Pure, so the mail body can be checked without a real fixture repo or mail server.
+export function buildBodyText({ summary }) {
   return [
     "Today's freezer layout is attached, in five shapes:",
     "",
@@ -355,7 +353,6 @@ export function buildBodyText({ summary, driveLink }) {
     "",
     summary,
     "",
-    ...(driveLink ? [`Always-current copy of grid-roster.xlsx, view-only: ${driveLink}`, ""] : []),
     "Rebuilt from the inventory this morning."
   ].join("\n");
 }
@@ -408,19 +405,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       return (lab.children || []).length;
     } catch (err) { return undefined; }
   };
-  // Written by cellstocks-drive-upload.mjs, which runs before this in the workflow. Its
-  // absence (no Drive secrets configured yet, or today's upload failed) is not an error
-  // here -- the mail still goes out with five attachments and no link line.
-  const driveLink = () => {
-    try {
-      const id = readFileSync(join(EXPORTS, "drive-file-id.txt"), "utf8").trim();
-      return id ? `https://drive.google.com/file/d/${id}/view` : null;
-    } catch (err) { return null; }
-  };
   const today = new Date().toISOString().slice(0, 10);
   const text = buildBodyText({
-    summary: summarise(readFileSync(join(EXPORTS, "layout.csv"), "utf8"), areaCount()),
-    driveLink: driveLink()
+    summary: summarise(readFileSync(join(EXPORTS, "layout.csv"), "utf8"), areaCount())
   });
 
   sendMail({

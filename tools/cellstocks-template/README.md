@@ -174,21 +174,6 @@ Workers yetkili bir token), `worker.js` her `main`'e girdiğinde kendiliğinden 
 Eklemezseniz her değişiklikten sonra elle `wrangler deploy` demek gerekir — ve unutulduğunda
 kod doğru ama canlıda eski sürüm çalışır durumda kalır, ki bu bir kere başa geldi.
 
-**`grid-roster.xlsx`'in Google Drive'da her zaman güncel bir kopyası.** İsterseniz her sabah
-üretilen `grid-roster.xlsx` (her üyenin her kutusundaki her pozisyon, dolu ya da boş, tek satır)
-aynı zamanda Drive'da linki hiç değişmeyen, herkesin görebildiği ama kimsenin düzenleyemediği bir
-dosyaya da yazılır. Kurulum:
-
-1. Google Cloud'da bir proje açın (veya var olanı kullanın), Drive API'yi etkinleştirin, bir
-   *service account* oluşturup JSON anahtarını indirin.
-2. Kendi Drive'ınızda bir klasör açın ve o service account'un e-postasını (`...@...
-   iam.gserviceaccount.com`) Editor olarak paylaşın.
-3. Depoda Settings → Secrets and variables → Actions altına `GOOGLE_SERVICE_ACCOUNT_KEY`
-   (JSON anahtarın tamamı, tek satır) ve `GOOGLE_DRIVE_FOLDER_ID` (o klasörün id'si, klasörün
-   linkindeki `/folders/` sonrası) ekleyin.
-
-Secret'lar yoksa iş yine çalışır, dosyaları üretir ve commit'ler, sadece Drive'a yazmaz.
-
 ---
 
 ## Sık karşılaşılan takıntılar

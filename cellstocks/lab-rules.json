@@ -1,6 +1,10 @@
 {
   "origin": [
     {
+      "match": "deneme",
+      "value": "deneme"
+    },
+    {
       "match": "DuDtxR",
       "value": "Du145"
     },

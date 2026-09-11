@@ -5757,7 +5757,8 @@
         "position": "I7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 161"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 161",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-162",
@@ -8913,7 +8914,8 @@
         "position": "F5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 294"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 294",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-295",
@@ -8949,7 +8951,8 @@
         "position": "F7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 296"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 296",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-297",
@@ -11820,7 +11823,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-11T16:10:02.383Z"
+    "savedAt": "2026-09-11T21:21:42.461Z"
   },
   "removedVialIds": [
     "v-205",

@@ -1,6 +1,10 @@
 {
   "origin": [
     {
+      "match": "Hn30",
+      "value": "HN30"
+    },
+    {
       "match": "deneme",
       "value": "deneme"
     },

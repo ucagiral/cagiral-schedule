@@ -73,6 +73,9 @@
     {
       "match": "KO",
       "value": "KO"
+    },
+    {
+      "value": "WT"
     }
   ],
   "resistance": [

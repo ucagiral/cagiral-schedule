@@ -77,6 +77,10 @@
   ],
   "resistance": [
     {
+      "match": "DuDtxR",
+      "value": "DtxR"
+    },
+    {
       "match": "DtxR",
       "value": "DtxR"
     },

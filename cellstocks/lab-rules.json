@@ -1,6 +1,10 @@
 {
   "origin": [
     {
+      "match": "Du145",
+      "value": "Du145"
+    },
+    {
       "match": "HeLa",
       "value": "HeLa"
     },

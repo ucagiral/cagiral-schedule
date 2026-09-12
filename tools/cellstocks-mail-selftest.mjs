@@ -512,10 +512,40 @@ await check("the workflow still guards the marker with something that sees a new
   return null;
 });
 
+// ------------------------------------------------ the checkout has to read live main
+//
+// Two workflow_dispatch calls land seconds apart every poll (the Cloudflare Worker's own
+// cron and the Claude Routine standing in for GitHub's), and github.sha for
+// workflow_dispatch resolves to whatever main was AT DISPATCH TIME, not whatever it is
+// when the job actually runs. Without an explicit `ref: main`, the second run's checkout
+// stays on that stale commit even after the concurrency queue lets it start, so its own
+// "Is this poll today's send?" step reads last-mailed.json from before the first run's
+// send and sends a second copy -- which is exactly what happened on the night of 11 Sep
+// (two runs six seconds apart, both pinned to the same pre-send commit; see the run logs).
+await check("the export workflow's checkout pins to main, not whatever workflow_dispatch resolved at dispatch time", () => {
+  const yml = readFileSync(new URL("../.github/workflows/cellstocks-export.yml", import.meta.url), "utf8");
+  const lines = yml.split("\n");
+  const idx = lines.findIndex((l) => l.includes("actions/checkout@"));
+  if (idx === -1) return "no actions/checkout step found in the export workflow";
+  // The ref has to live under this same step's `with:`, before the next step starts
+  // (a line back out to the "- uses/- name" indentation level).
+  const stepIndent = lines[idx].match(/^\s*/)[0].length;
+  const block = [];
+  for (let i = idx + 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() && line.match(/^\s*/)[0].length <= stepIndent) break;
+    block.push(line);
+  }
+  if (!block.some((l) => /^\s*ref:\s*main\s*$/.test(l))) {
+    return `no "ref: main" under the checkout step: ${JSON.stringify(block)}`;
+  }
+  return null;
+});
+
 console.log("");
 if (failures) {
-  console.log(`${failures} of 22 cell stocks mail checks failed:\n`);
+  console.log(`${failures} of 23 cell stocks mail checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 22 cell stocks mail checks passed.");
+console.log("All 23 cell stocks mail checks passed.");

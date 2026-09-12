@@ -58,7 +58,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      # `ref: main` matters here specifically: two workflow_dispatch calls fired seconds
+      # apart (the Cloudflare Worker's own cron and the Claude Routine standing in for
+      # GitHub's, both polling independently) both pin to whatever main's tip was AT
+      # DISPATCH TIME -- that's how github.sha resolves for workflow_dispatch -- not to
+      # main's live tip when the job actually runs. Without this, the second run's
+      # checkout stayed on the stale commit from before the first run's push, so its own
+      # "Is this poll today's send?" step read last-mailed.json from before the first run
+      # recorded anything and decided, correctly from its own stale view, that nothing
+      # had gone out yet -- and sent a second copy of the mail. Reproduced from the actual
+      # run logs of the night this happened (11 Sep, two runs six seconds apart, both
+      # pinned to the same pre-send commit). Pinning to the branch name instead of letting
+      # checkout default forces every run, however it queued, to read whatever main
+      # actually is the moment it checks out.
       - uses: actions/checkout@v5
+        with:
+          ref: main
 
       # xlsx.js needs CompressionStream, which node has had since 18. Pinned to 20 like
       # the rest of this repository's tooling.

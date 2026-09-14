@@ -2450,6 +2450,17 @@
       "notes": "",
       "start": "09:00",
       "end": "09:30"
+    },
+    {
+      "id": "emu0y5brlhvsn4",
+      "date": "2026-09-15",
+      "title": "qPCR1 & qPCR2",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "08:00",
+      "end": "09:00"
     }
   ],
   "_groups": {
@@ -2485,7 +2496,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-14T07:53:28.511Z",
+    "lastModified": "2026-09-14T07:53:56.580Z",
     "modifiedBy": "Umut MacBook Pro"
   }
 }

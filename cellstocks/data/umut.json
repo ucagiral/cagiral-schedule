@@ -10994,6 +10994,72 @@
       "addedAt": "2026-09-09T13:48:02.210Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fwwc6-0",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G2"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:01.686Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fwwc6-1",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G3"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:01.686Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fwwc6-2",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G4"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:01.686Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -11896,7 +11962,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-11T21:42:03.757Z"
+    "savedAt": "2026-09-15T08:59:03.417Z"
   },
   "removedVialIds": [
     "v-205",

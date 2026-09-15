@@ -11060,6 +11060,72 @@
       "addedAt": "2026-09-15T08:59:01.686Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fxi62-0",
+      "name": "LUCX",
+      "lineId": "l-lucx",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H1"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:29.978Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fxi62-1",
+      "name": "LUCX",
+      "lineId": "l-lucx",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H2"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:29.978Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fxi62-2",
+      "name": "LUCX",
+      "lineId": "l-lucx",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H3"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:29.978Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -11962,7 +12028,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-15T08:59:03.417Z"
+    "savedAt": "2026-09-15T08:59:31.508Z"
   },
   "removedVialIds": [
     "v-205",

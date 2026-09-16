@@ -11162,6 +11162,50 @@
       "addedAt": "2026-09-15T08:59:29.978Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mu473zot-0",
+      "name": "LNCX gP1",
+      "lineId": "l-lncx-gp1",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-16",
+      "frozenOn": "2026-09-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G5"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-16T14:28:08.430Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu473zot-1",
+      "name": "LNCX gP1",
+      "lineId": "l-lncx-gp1",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-16",
+      "frozenOn": "2026-09-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G6"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-16T14:28:08.430Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -12064,7 +12108,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-15T08:59:31.508Z"
+    "savedAt": "2026-09-16T14:28:10.331Z"
   },
   "removedVialIds": [
     "v-205",

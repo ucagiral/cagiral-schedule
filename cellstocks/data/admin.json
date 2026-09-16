@@ -1823,7 +1823,8 @@
         "position": "A9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 10"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 10",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-11",
@@ -1848,7 +1849,8 @@
         "position": "B1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 11"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 11",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-12",
@@ -1873,7 +1875,8 @@
         "position": "B2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 12"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 12",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-13",
@@ -1898,7 +1901,8 @@
         "position": "B3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 13"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 13",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-14",
@@ -1923,7 +1927,8 @@
         "position": "B4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 14"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 14",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-15",
@@ -1948,7 +1953,8 @@
         "position": "B5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 15"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 15",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-16",
@@ -1973,7 +1979,8 @@
         "position": "B6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 16"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 16",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-17",
@@ -1998,7 +2005,8 @@
         "position": "B7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 17"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 17",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-18",
@@ -2023,7 +2031,8 @@
         "position": "B8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 18"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 18",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-19",
@@ -2048,7 +2057,8 @@
         "position": "B9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 19"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 19",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-20",
@@ -2307,7 +2317,8 @@
         "position": "D1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 29"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 29",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-30",
@@ -2388,7 +2399,8 @@
         "position": "D4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 32"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 32",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-33",
@@ -2555,7 +2567,8 @@
         "position": "E1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 38"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 38",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-39",
@@ -2580,7 +2593,8 @@
         "position": "E2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 39"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 39",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-40",
@@ -2605,7 +2619,8 @@
         "position": "E3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 40"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 40",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-41",
@@ -2630,7 +2645,8 @@
         "position": "E4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 41"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 41",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-42",
@@ -2655,7 +2671,8 @@
         "position": "E5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 42"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 42",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-43",
@@ -2680,7 +2697,8 @@
         "position": "E6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 43"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 43",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-44",
@@ -2705,7 +2723,8 @@
         "position": "E7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 44"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 44",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-45",
@@ -2756,7 +2775,8 @@
         "position": "E9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 46"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 46",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-47",
@@ -3175,7 +3195,8 @@
         "position": "G7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 62"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 62",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-63",
@@ -3780,7 +3801,8 @@
         "position": "A3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 85"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 85",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-86",
@@ -4818,7 +4840,8 @@
       },
       "status": "stored",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 125",
-      "dateUnknown": true
+      "dateUnknown": true,
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-126",
@@ -5318,7 +5341,8 @@
       },
       "status": "stored",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 144",
-      "dateUnknown": true
+      "dateUnknown": true,
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-145",
@@ -5343,7 +5367,8 @@
         "position": "G9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 145"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 145",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-146",
@@ -5498,7 +5523,8 @@
         "position": "H6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 151"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 151",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-152",
@@ -5757,7 +5783,8 @@
         "position": "I7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 161"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 161",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-162",
@@ -6042,7 +6069,8 @@
         "position": "A9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 172"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 172",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-173",
@@ -6067,7 +6095,8 @@
         "position": "B1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 173"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 173",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-174",
@@ -6092,7 +6121,8 @@
         "position": "B2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 174"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 174",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-175",
@@ -6117,7 +6147,8 @@
         "position": "B3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 175"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 175",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-176",
@@ -6142,7 +6173,8 @@
         "position": "B4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 176"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 176",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-177",
@@ -6167,7 +6199,8 @@
         "position": "B5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 177"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 177",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-178",
@@ -6192,7 +6225,8 @@
         "position": "B6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 178"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 178",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-179",
@@ -6217,7 +6251,8 @@
         "position": "B7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 179"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 179",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-180",
@@ -6242,7 +6277,8 @@
         "position": "B8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 180"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 180",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-181",
@@ -6267,7 +6303,8 @@
         "position": "B9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 181"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 181",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-182",
@@ -6292,7 +6329,8 @@
         "position": "C1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 182"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 182",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-183",
@@ -6317,7 +6355,8 @@
         "position": "C2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 183"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 183",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-184",
@@ -6342,7 +6381,8 @@
         "position": "C3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 184"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 184",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-185",
@@ -6367,7 +6407,8 @@
         "position": "C4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 185"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 185",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-186",
@@ -6392,7 +6433,8 @@
         "position": "C5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 186"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 186",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-187",
@@ -6417,7 +6459,8 @@
         "position": "C6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 187"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 187",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-188",
@@ -6442,7 +6485,8 @@
         "position": "C7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 188"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 188",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-189",
@@ -6467,7 +6511,8 @@
         "position": "C8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 189"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 189",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-190",
@@ -6492,7 +6537,8 @@
         "position": "C9"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 190"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 190",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-191",
@@ -6517,7 +6563,8 @@
         "position": "D1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 191"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 191",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-192",
@@ -6542,7 +6589,8 @@
         "position": "D2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 192"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 192",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-193",
@@ -6567,7 +6615,8 @@
         "position": "D3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 193"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 193",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-194",
@@ -6596,7 +6645,8 @@
         "position": "D4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 194"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 194",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-195",
@@ -6625,7 +6675,8 @@
         "position": "D5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 195"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 195",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-196",
@@ -6654,7 +6705,8 @@
         "position": "D6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 196"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 196",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-197",
@@ -6683,7 +6735,8 @@
         "position": "D7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 197"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 197",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-198",
@@ -6760,7 +6813,8 @@
         "position": "E1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 200"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 200",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-201",
@@ -8161,7 +8215,8 @@
         "position": "B7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 260"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 260",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-261",
@@ -8186,7 +8241,8 @@
         "position": "B8"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 261"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 261",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-262",
@@ -8237,7 +8293,8 @@
         "position": "C1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 263"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 263",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-264",
@@ -8262,7 +8319,8 @@
         "position": "C2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 264"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 264",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-265",
@@ -8287,7 +8345,8 @@
         "position": "C3"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 265"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 265",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-266",
@@ -8810,7 +8869,8 @@
         "position": "F1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 290"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 290",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-291",
@@ -8913,7 +8973,8 @@
         "position": "F5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 294"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 294",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-295",
@@ -8923,21 +8984,7 @@
       "passageKind": "unknown",
       "frozenRaw": "30-06-25",
       "frozenOn": "2025-06-30",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-ongoing",
-        "position": "F6"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 295"
     },
     {
@@ -8963,7 +9010,8 @@
         "position": "F7"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 296"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 296",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-297",
@@ -9066,7 +9114,8 @@
         "position": "G2"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 300"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 300",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-301",
@@ -10284,7 +10333,8 @@
         "position": "E1"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 362"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 362",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-363",
@@ -10361,7 +10411,8 @@
         "position": "E4"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 365"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 365",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-366",
@@ -10386,7 +10437,8 @@
         "position": "E5"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 366"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 366",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-367",
@@ -10411,7 +10463,8 @@
         "position": "E6"
       },
       "status": "stored",
-      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 367"
+      "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 367",
+      "passageConfirmedUnknown": true
     },
     {
       "id": "v-371",
@@ -10901,21 +10954,7 @@
       "passageKind": "unknown",
       "frozenRaw": "2026-09-09",
       "frozenOn": "2026-09-09",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-4",
-        "position": "H1"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-09-09T04:57:16.692Z",
       "addedBy": "unknown device",
       "kind": "Cell"
@@ -10953,6 +10992,174 @@
       "frozenOn": "2026-09-09",
       "status": "withdrawn",
       "addedAt": "2026-09-09T13:48:02.210Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fwwc6-0",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G2"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:01.686Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fwwc6-1",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G3"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:01.686Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fwwc6-2",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G4"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:01.686Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fxi62-0",
+      "name": "LUCX",
+      "lineId": "l-lucx",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H1"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:29.978Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fxi62-1",
+      "name": "LUCX",
+      "lineId": "l-lucx",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H2"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:29.978Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
+    },
+    {
+      "id": "v-mu2fxi62-2",
+      "name": "LUCX",
+      "lineId": "l-lucx",
+      "passage": "p21",
+      "passageNumber": 21,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-15",
+      "frozenOn": "2026-09-15",
+      "location": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H3"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-15T08:59:29.978Z",
       "addedBy": "unknown device",
       "kind": "Cell"
     }
@@ -11176,8 +11383,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11199,8 +11406,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11222,8 +11429,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11245,8 +11452,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11268,8 +11475,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11291,8 +11498,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11314,8 +11521,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11337,8 +11544,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11360,8 +11567,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11383,8 +11590,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11406,8 +11613,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11429,8 +11636,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11452,8 +11659,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11475,8 +11682,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11498,8 +11705,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11521,8 +11728,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11544,8 +11751,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11567,8 +11774,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11590,8 +11797,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11613,8 +11820,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11636,8 +11843,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11659,8 +11866,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11682,8 +11889,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11705,8 +11912,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11774,14 +11981,60 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
         "position": "B3"
       },
       "date": "2026-09-09",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mtvxeqbf",
+      "vialId": "v-295",
+      "name": "Du145",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-ongoing",
+        "position": "F6"
+      },
+      "date": "2026-09-10",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mtxgp6m0",
+      "vialId": "v-mttmmw7m-0",
+      "name": "kkk",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H1"
+      },
+      "date": "2026-09-11",
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
@@ -11811,7 +12064,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-09T13:48:14.165Z"
+    "savedAt": "2026-09-15T08:59:31.508Z"
   },
   "removedVialIds": [
     "v-205",
@@ -11958,5 +12211,16 @@
     "v-485",
     "v-486",
     "v-487"
+  ],
+  "reviewIgnored": [
+    "gaps:v-mtt0h140-0",
+    "gaps:v-mttmmw7m-0",
+    "gaps:v-mttmmypa-0",
+    "gaps:v-mttmn045-0",
+    "gaps:v-mtt5ckqo-0",
+    "gaps:v-mtt3mo6u-0",
+    "gaps:v-mtt3mo6u-1",
+    "gaps:v-mtt3mo6u-2",
+    "passages:v-162"
   ]
 }

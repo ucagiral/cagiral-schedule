@@ -11006,8 +11006,14 @@
       "frozenOn": "2026-09-15",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "G2"
@@ -11028,8 +11034,14 @@
       "frozenOn": "2026-09-15",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "G3"
@@ -11050,8 +11062,14 @@
       "frozenOn": "2026-09-15",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "G4"
@@ -11072,8 +11090,14 @@
       "frozenOn": "2026-09-15",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H1"
@@ -11094,8 +11118,14 @@
       "frozenOn": "2026-09-15",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H2"
@@ -11116,8 +11146,14 @@
       "frozenOn": "2026-09-15",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H3"
@@ -11347,8 +11383,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11370,8 +11406,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11393,8 +11429,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11416,8 +11452,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11439,8 +11475,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11462,8 +11498,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11485,8 +11521,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11508,8 +11544,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11531,8 +11567,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11554,8 +11590,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11577,8 +11613,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11600,8 +11636,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11623,8 +11659,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11646,8 +11682,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11669,8 +11705,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11692,8 +11728,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11715,8 +11751,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11738,8 +11774,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11761,8 +11797,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11784,8 +11820,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11807,8 +11843,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11830,8 +11866,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11853,8 +11889,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11876,8 +11912,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",
@@ -11945,8 +11981,8 @@
             "name": "Freezer 1"
           },
           {
-            "id": "t-1",
-            "name": "Rack 1"
+            "id": "rack-2",
+            "name": "Rack 2"
           }
         ],
         "boxId": "b-unnamed-box",

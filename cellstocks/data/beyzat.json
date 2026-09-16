@@ -1833,7 +1833,16 @@
       "frozenRaw": "29.04.26",
       "frozenOn": "2026-04-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A1"
       },
@@ -1850,7 +1859,16 @@
       "frozenRaw": "29.04.26",
       "frozenOn": "2026-04-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A2"
       },
@@ -1867,7 +1885,16 @@
       "frozenRaw": "29.04.26",
       "frozenOn": "2026-04-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A3"
       },
@@ -1884,7 +1911,16 @@
       "frozenRaw": "29.04.26",
       "frozenOn": "2026-04-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A4"
       },
@@ -1901,7 +1937,16 @@
       "frozenRaw": "29.04.26",
       "frozenOn": "2026-04-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A5"
       },
@@ -1918,7 +1963,16 @@
       "frozenRaw": "29.04.26",
       "frozenOn": "2026-04-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A6"
       },
@@ -1935,7 +1989,16 @@
       "frozenRaw": "18.04.26",
       "frozenOn": "2026-04-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A7"
       },
@@ -1952,7 +2015,16 @@
       "frozenRaw": "29.04.26",
       "frozenOn": "2026-04-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A8"
       },
@@ -1967,7 +2039,16 @@
       "frozenRaw": "26.05.26",
       "frozenOn": "2026-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "A9"
       },
@@ -1984,7 +2065,16 @@
       "frozenRaw": "29.04.26",
       "frozenOn": "2026-04-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B1"
       },
@@ -2000,7 +2090,16 @@
       "passageKind": "absolute",
       "frozenRaw": "01.05.26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B2"
       },
@@ -2016,7 +2115,16 @@
       "passageKind": "absolute",
       "frozenRaw": "01.05.26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B3"
       },
@@ -2032,7 +2140,16 @@
       "passageKind": "absolute",
       "frozenRaw": "01.05.26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B4"
       },
@@ -2049,7 +2166,16 @@
       "frozenRaw": "15.05.26",
       "frozenOn": "2026-05-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B5"
       },
@@ -2066,7 +2192,16 @@
       "frozenRaw": "15.05.26",
       "frozenOn": "2026-05-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B6"
       },
@@ -2083,7 +2218,16 @@
       "frozenRaw": "15.05.26",
       "frozenOn": "2026-05-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B7"
       },
@@ -2100,7 +2244,16 @@
       "frozenRaw": "26.05.26",
       "frozenOn": "2026-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B8"
       },
@@ -2117,7 +2270,16 @@
       "frozenRaw": "26.05.26",
       "frozenOn": "2026-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "B9"
       },
@@ -2134,7 +2296,16 @@
       "frozenRaw": "25.05.26",
       "frozenOn": "2026-05-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C1"
       },
@@ -2151,7 +2322,16 @@
       "frozenRaw": "25.05.26",
       "frozenOn": "2026-05-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C2"
       },
@@ -2168,7 +2348,16 @@
       "frozenRaw": "25.05.26",
       "frozenOn": "2026-05-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C3"
       },
@@ -2185,7 +2374,16 @@
       "frozenRaw": "25.05.26",
       "frozenOn": "2026-05-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C4"
       },
@@ -2202,7 +2400,16 @@
       "frozenRaw": "25.05.26",
       "frozenOn": "2026-05-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C5"
       },
@@ -2219,7 +2426,16 @@
       "frozenRaw": "25.05.26",
       "frozenOn": "2026-05-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C6"
       },
@@ -2236,7 +2452,16 @@
       "frozenRaw": "25.05.26",
       "frozenOn": "2026-05-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C7"
       },
@@ -2253,7 +2478,16 @@
       "frozenRaw": "26.05.26",
       "frozenOn": "2026-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C8"
       },
@@ -2270,7 +2504,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "C9"
       },
@@ -2287,7 +2530,16 @@
       "frozenRaw": "28.05.26",
       "frozenOn": "2026-05-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D1"
       },
@@ -2304,7 +2556,16 @@
       "frozenRaw": "28.05.26",
       "frozenOn": "2026-05-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D2"
       },
@@ -2321,7 +2582,16 @@
       "frozenRaw": "28.05.26",
       "frozenOn": "2026-05-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D3"
       },
@@ -2338,7 +2608,16 @@
       "frozenRaw": "28.05.26",
       "frozenOn": "2026-05-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D4"
       },
@@ -2355,7 +2634,16 @@
       "frozenRaw": "28.05.26",
       "frozenOn": "2026-05-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D5"
       },
@@ -2372,7 +2660,16 @@
       "frozenRaw": "28.05.26",
       "frozenOn": "2026-05-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D6"
       },
@@ -2389,7 +2686,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D7"
       },
@@ -2406,7 +2712,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D8"
       },
@@ -2423,7 +2738,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "D9"
       },
@@ -2440,7 +2764,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E1"
       },
@@ -2457,7 +2790,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E2"
       },
@@ -2474,7 +2816,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E3"
       },
@@ -2491,7 +2842,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E4"
       },
@@ -2508,7 +2868,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E5"
       },
@@ -2525,7 +2894,16 @@
       "frozenRaw": "27.07.26",
       "frozenOn": "2026-07-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E6"
       },
@@ -2542,7 +2920,16 @@
       "frozenRaw": "25.05.26",
       "frozenOn": "2026-05-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E7"
       },
@@ -2559,7 +2946,16 @@
       "frozenRaw": "29.05.26",
       "frozenOn": "2026-05-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E8"
       },
@@ -2576,7 +2972,16 @@
       "frozenRaw": "25.06.26",
       "frozenOn": "2026-06-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "E9"
       },
@@ -2593,7 +2998,16 @@
       "frozenRaw": "15.06.26",
       "frozenOn": "2026-06-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F1"
       },
@@ -2610,7 +3024,16 @@
       "frozenRaw": "15.06.26",
       "frozenOn": "2026-06-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F2"
       },
@@ -2627,7 +3050,16 @@
       "frozenRaw": "25.06.26",
       "frozenOn": "2026-06-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F3"
       },
@@ -2644,7 +3076,16 @@
       "frozenRaw": "24.07.26",
       "frozenOn": "2026-07-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F4"
       },
@@ -2661,7 +3102,16 @@
       "frozenRaw": "24.07.26",
       "frozenOn": "2026-07-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F5"
       },
@@ -2678,7 +3128,16 @@
       "frozenRaw": "27.07.26",
       "frozenOn": "2026-07-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F6"
       },
@@ -2695,7 +3154,16 @@
       "frozenRaw": "27.07.26",
       "frozenOn": "2026-07-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F7"
       },
@@ -2712,7 +3180,16 @@
       "frozenRaw": "27.07.26",
       "frozenOn": "2026-07-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F8"
       },
@@ -2729,7 +3206,16 @@
       "frozenRaw": "27.07.26",
       "frozenOn": "2026-07-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "F9"
       },
@@ -2746,7 +3232,16 @@
       "frozenRaw": "27.07.26",
       "frozenOn": "2026-07-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G1"
       },
@@ -2763,7 +3258,16 @@
       "frozenRaw": "27.07.26",
       "frozenOn": "2026-07-27",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G2"
       },
@@ -2780,7 +3284,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G3"
       },
@@ -2797,7 +3310,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G4"
       },
@@ -2813,7 +3335,16 @@
       "passageKind": "absolute",
       "frozenRaw": "03.01.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G5"
       },
@@ -2830,7 +3361,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G6"
       },
@@ -2847,7 +3387,16 @@
       "frozenRaw": "15.05.25",
       "frozenOn": "2025-05-15",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G7"
       },
@@ -2864,7 +3413,16 @@
       "frozenRaw": "14.02.25",
       "frozenOn": "2025-02-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G8"
       },
@@ -2881,7 +3439,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "G9"
       },
@@ -2898,7 +3465,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "H1"
       },
@@ -2914,7 +3490,16 @@
       "passageKind": "absolute",
       "frozenRaw": "06.01.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "H2"
       },
@@ -2931,7 +3516,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "H3"
       },
@@ -2948,7 +3542,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "H4"
       },
@@ -2965,7 +3568,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "H5"
       },
@@ -2982,7 +3594,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "H6"
       },
@@ -2999,7 +3620,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "beyza-shelf",
+            "name": "Beyza Shelf"
+          }
+        ],
         "boxId": "b-beyza-caa-h-cre-box-2",
         "position": "H7"
       },
@@ -8042,7 +8672,7 @@
   ],
   "withdrawals": [],
   "settings": {
-    "defaultUnitId": "u-left-liquid-nitrogen",
+    "defaultUnitId": "u-ln2",
     "placement": {
       "allowSplit": true
     },

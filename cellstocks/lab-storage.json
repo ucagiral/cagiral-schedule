@@ -98,7 +98,19 @@
         {
           "id": "r-rack-1",
           "name": "Rack 1",
-          "children": []
+          "children": [
+            {
+              "id": "b-liqnitro-1",
+              "name": "LiqNitro 1",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "baris"
+            }
+          ]
         },
         {
           "id": "r-rack-2",
@@ -236,17 +248,6 @@
     }
   ],
   "unplaced": [
-    {
-      "id": "b-liqnitro-1",
-      "name": "LiqNitro 1",
-      "rows": 9,
-      "cols": 9,
-      "scheme": "grid",
-      "note": "from the sheet: -80 °C Freezer → Rack 1",
-      "archived": false,
-      "isBox": true,
-      "owner": "baris"
-    },
     {
       "id": "b-liqnitro-2",
       "name": "LiqNitro 2",

@@ -16759,7 +16759,16 @@
       "lineId": "l-hek-ki-9-p19-10-7-6-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A1"
       },
@@ -16776,7 +16785,16 @@
       "lineId": "l-dupar-flucmcherry-sorted-20-4-21",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A2"
       },
@@ -16793,7 +16811,16 @@
       "lineId": "l-hek-ki-9-15-3-21",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A3"
       },
@@ -16810,7 +16837,16 @@
       "lineId": "l-hek-ki-1-15-3-21",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A4"
       },
@@ -16827,7 +16863,16 @@
       "lineId": "l-ducabar-flucmcherry-sorted-16-1-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A5"
       },
@@ -16844,7 +16889,16 @@
       "lineId": "l-dupar-parc-p75-26-11-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A6"
       },
@@ -16861,7 +16915,16 @@
       "lineId": "l-dupar-15cr-p130-1-2-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A7"
       },
@@ -16878,7 +16941,16 @@
       "lineId": "l-dudocer-8cr-p99-1-2-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A8"
       },
@@ -16895,7 +16967,16 @@
       "lineId": "l-ducabar-25cr-p130-1-2-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "A9"
       },
@@ -16912,7 +16993,16 @@
       "lineId": "l-ducabar-2-5cr-p78-29-11-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B1"
       },
@@ -16929,7 +17019,16 @@
       "lineId": "l-dudocer-2-5cr-p75-29-11-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B2"
       },
@@ -16946,7 +17045,16 @@
       "lineId": "l-ducabar-2-5cr-p85-5-1-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B3"
       },
@@ -16963,7 +17071,16 @@
       "lineId": "l-dupar-15cr-p121-8-12-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B4"
       },
@@ -16980,7 +17097,16 @@
       "lineId": "l-ducabar-10cr-p110-13-7-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B5"
       },
@@ -16997,7 +17123,16 @@
       "lineId": "l-dupar-15cr-p122-16-12-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B6"
       },
@@ -17014,7 +17149,16 @@
       "lineId": "l-dupar-15cr-p121-8-12-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B7"
       },
@@ -17031,7 +17175,16 @@
       "lineId": "l-dupar-2-5cr-reminded-p75-3-12-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B8"
       },
@@ -17048,7 +17201,16 @@
       "lineId": "l-ducabar-10cr-p110-13-7-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "B9"
       },
@@ -17065,7 +17227,16 @@
       "lineId": "l-dudocer-15cr-p117-1-2-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C1"
       },
@@ -17082,7 +17253,16 @@
       "lineId": "l-ducabar-25cr-p124-16-12-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C2"
       },
@@ -17099,7 +17279,16 @@
       "lineId": "l-dupar-15cr-p121-8-12-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C3"
       },
@@ -17116,7 +17305,16 @@
       "lineId": "l-ducabar-10cr-p112-1-2-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C4"
       },
@@ -17133,7 +17331,16 @@
       "lineId": "l-dupar-10cr-p106-1-2-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C5"
       },
@@ -17150,7 +17357,16 @@
       "lineId": "l-dupar-2-5cr-p74-29-11-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C6"
       },
@@ -17167,7 +17383,16 @@
       "lineId": "l-dupar-15cr-p122-16-12-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C7"
       },
@@ -17184,7 +17409,16 @@
       "lineId": "l-dudocer-1-5cr-p62-1-10-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C8"
       },
@@ -17201,7 +17435,16 @@
       "lineId": "l-ducabar-parc-p61-25-9-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "C9"
       },
@@ -17218,7 +17461,16 @@
       "lineId": "l-ducabar-p56-7-8-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D1"
       },
@@ -17235,7 +17487,16 @@
       "lineId": "l-hek-ki-3-15-3-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D2"
       },
@@ -17252,7 +17513,16 @@
       "lineId": "l-22par-flucmcherry-sorted-16-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D3"
       },
@@ -17269,7 +17539,16 @@
       "lineId": "l-hek-ki-10-15-3-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D4"
       },
@@ -17286,7 +17565,16 @@
       "lineId": "l-hek-ki-12-15-3-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D5"
       },
@@ -17303,7 +17591,16 @@
       "lineId": "l-hek-ki-9-15-3-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D6"
       },
@@ -17320,7 +17617,16 @@
       "lineId": "l-hek-ki-1-p19-10-7-6-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D7"
       },
@@ -17337,7 +17643,16 @@
       "lineId": "l-hek-ki-3-p19-10-7-6-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D8"
       },
@@ -17354,7 +17669,16 @@
       "lineId": "l-hek-flucmcherry-15-3-21-baro-flucmcherry",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "D9"
       },
@@ -17371,7 +17695,16 @@
       "lineId": "l-ducabar-flucmcherry-sorted-20-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E1"
       },
@@ -17388,7 +17721,16 @@
       "lineId": "l-ducabar-flucmcherry-sorted-16-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E2"
       },
@@ -17405,7 +17747,16 @@
       "lineId": "l-ducabar-1-5cr-p60-21-9-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E3"
       },
@@ -17422,7 +17773,16 @@
       "lineId": "l-dudocer-parc-p61-25-9-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E4"
       },
@@ -17439,7 +17799,16 @@
       "lineId": "l-hek-ki-3-15-3-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E5"
       },
@@ -17456,7 +17825,16 @@
       "lineId": "l-hek-ki-12-p19-10-7-6-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E6"
       },
@@ -17473,7 +17851,16 @@
       "lineId": "l-hek-ki-12-15-3-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E7"
       },
@@ -17490,7 +17877,16 @@
       "lineId": "l-22cabar-flucmcherry-sorted-22-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E8"
       },
@@ -17507,7 +17903,16 @@
       "lineId": "l-dudocer-1-5cr-p62-1-10-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "E9"
       },
@@ -17524,7 +17929,16 @@
       "lineId": "l-22docer-flucmcherry-sorted-22-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F1"
       },
@@ -17541,7 +17955,16 @@
       "lineId": "l-22par-flucmcherry-sorted-16-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F2"
       },
@@ -17558,7 +17981,16 @@
       "lineId": "l-dudocer-parc-p61-25-9-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F3"
       },
@@ -17575,7 +18007,16 @@
       "lineId": "l-22par-flucmcherry-sorted-20-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F4"
       },
@@ -17592,7 +18033,16 @@
       "lineId": "l-22docer-flucmcherry-sorted-16-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F5"
       },
@@ -17609,7 +18059,16 @@
       "lineId": "l-ducabar-flucmcherry-sorted-16-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F6"
       },
@@ -17626,7 +18085,16 @@
       "lineId": "l-hek-ki-1-15-3-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F7"
       },
@@ -17643,7 +18111,16 @@
       "lineId": "l-mcf7-p3-7-11-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F8"
       },
@@ -17660,7 +18137,16 @@
       "lineId": "l-mda-mb-231-mf-p8-7-11-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "F9"
       },
@@ -17677,7 +18163,16 @@
       "lineId": "l-dudocer-parc-p62-1-10-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G1"
       },
@@ -17694,7 +18189,16 @@
       "lineId": "l-22par-flucmcherry-sorted-20-04-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G2"
       },
@@ -17711,7 +18215,16 @@
       "lineId": "l-hek-flucmcherry-15-3-21-baro-flucmcherry",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G3"
       },
@@ -17728,7 +18241,16 @@
       "lineId": "l-ducabar-flucmcherry-sorted-16-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G4"
       },
@@ -17745,7 +18267,16 @@
       "lineId": "l-ducabar-parc-p60-21-9-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G5"
       },
@@ -17762,7 +18293,16 @@
       "lineId": "l-ducabar-flucmcherry-sorted-20-4-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G6"
       },
@@ -17779,7 +18319,16 @@
       "lineId": "l-hek-ki-10-p19-10-7-6-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G7"
       },
@@ -17796,7 +18345,16 @@
       "lineId": "l-rpe-p35-12-1-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G8"
       },
@@ -17813,7 +18371,16 @@
       "lineId": "l-h1299-20-10-20-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-1",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-liqnitro-1",
         "position": "G9"
       },

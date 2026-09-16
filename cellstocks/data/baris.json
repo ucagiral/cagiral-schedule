@@ -5620,12 +5620,7 @@
       "frozenRaw": "17.12.20",
       "frozenOn": "2020-12-17",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A1"
       },
@@ -5651,12 +5646,7 @@
       "frozenRaw": "17.12.20",
       "frozenOn": "2020-12-17",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A2"
       },
@@ -5682,12 +5672,7 @@
       "frozenRaw": "17.12.20",
       "frozenOn": "2020-12-17",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A3"
       },
@@ -5713,12 +5698,7 @@
       "frozenRaw": "17.12.20",
       "frozenOn": "2020-12-17",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A4"
       },
@@ -5744,12 +5724,7 @@
       "frozenRaw": "17.12.20",
       "frozenOn": "2020-12-17",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A5"
       },
@@ -5775,12 +5750,7 @@
       "frozenRaw": "17.12.20",
       "frozenOn": "2020-12-17",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A6"
       },
@@ -5806,12 +5776,7 @@
       "frozenRaw": "04.09.20",
       "frozenOn": "2020-09-04",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A7"
       },
@@ -5836,12 +5801,7 @@
       "frozenRaw": "04.09.20",
       "frozenOn": "2020-09-04",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A8"
       },
@@ -5866,12 +5826,7 @@
       "frozenRaw": "04.09.20",
       "frozenOn": "2020-09-04",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "A9"
       },
@@ -5896,12 +5851,7 @@
       "frozenRaw": "06.08.20",
       "frozenOn": "2020-08-06",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B1"
       },
@@ -5927,12 +5877,7 @@
       "frozenRaw": "06.08.20",
       "frozenOn": "2020-08-06",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B2"
       },
@@ -5958,12 +5903,7 @@
       "frozenRaw": "01.08.20",
       "frozenOn": "2020-08-01",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B3"
       },
@@ -5989,12 +5929,7 @@
       "frozenRaw": "01.08.20",
       "frozenOn": "2020-08-01",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B4"
       },
@@ -6020,12 +5955,7 @@
       "frozenRaw": "01.08.20",
       "frozenOn": "2020-08-01",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B5"
       },
@@ -6051,12 +5981,7 @@
       "frozenRaw": "01.08.20",
       "frozenOn": "2020-08-01",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B6"
       },
@@ -6082,12 +6007,7 @@
       "frozenRaw": "01.08.20",
       "frozenOn": "2020-08-01",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B7"
       },
@@ -6113,12 +6033,7 @@
       "frozenRaw": "01.08.20",
       "frozenOn": "2020-08-01",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B8"
       },
@@ -6143,12 +6058,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "B9"
       },
@@ -6173,12 +6083,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C1"
       },
@@ -6203,12 +6108,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C2"
       },
@@ -6233,12 +6133,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C3"
       },
@@ -6263,12 +6158,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C4"
       },
@@ -6293,12 +6183,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C5"
       },
@@ -6324,12 +6209,7 @@
       "frozenRaw": "16.07.20",
       "frozenOn": "2020-07-16",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C6"
       },
@@ -6355,12 +6235,7 @@
       "frozenRaw": "08.07.20",
       "frozenOn": "2020-07-08",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C7"
       },
@@ -6386,12 +6261,7 @@
       "frozenRaw": "08.07.20",
       "frozenOn": "2020-07-08",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C8"
       },
@@ -6417,12 +6287,7 @@
       "frozenRaw": "08.07.20",
       "frozenOn": "2020-07-08",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "C9"
       },
@@ -6448,12 +6313,7 @@
       "frozenRaw": "08.07.20",
       "frozenOn": "2020-07-08",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D1"
       },
@@ -6478,12 +6338,7 @@
       "frozenRaw": "31.07.20",
       "frozenOn": "2020-07-31",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D2"
       },
@@ -6508,12 +6363,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D3"
       },
@@ -6539,12 +6389,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D4"
       },
@@ -6570,12 +6415,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D5"
       },
@@ -6601,12 +6441,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D6"
       },
@@ -6632,12 +6467,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D7"
       },
@@ -6663,12 +6493,7 @@
       "frozenRaw": "20.07.20",
       "frozenOn": "2020-07-20",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D8"
       },
@@ -6694,12 +6519,7 @@
       "frozenRaw": "14.07.20",
       "frozenOn": "2020-07-14",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "D9"
       },
@@ -6724,12 +6544,7 @@
       "frozenRaw": "14.07.20",
       "frozenOn": "2020-07-14",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E1"
       },
@@ -6754,12 +6569,7 @@
       "frozenRaw": "10.07.20",
       "frozenOn": "2020-07-10",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E2"
       },
@@ -6785,12 +6595,7 @@
       "frozenRaw": "10.07.20",
       "frozenOn": "2020-07-10",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E3"
       },
@@ -6816,12 +6621,7 @@
       "frozenRaw": "10.07.20",
       "frozenOn": "2020-07-10",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E4"
       },
@@ -6846,12 +6646,7 @@
       "frozenRaw": "17.02.20",
       "frozenOn": "2020-02-17",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E5"
       },
@@ -6877,12 +6672,7 @@
       "frozenRaw": "17.02.20",
       "frozenOn": "2020-02-17",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E6"
       },
@@ -6907,12 +6697,7 @@
       "frozenRaw": "13.03.20",
       "frozenOn": "2020-03-13",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E7"
       },
@@ -6937,12 +6722,7 @@
       "frozenRaw": "13.03.20",
       "frozenOn": "2020-03-13",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E8"
       },
@@ -6968,12 +6748,7 @@
       "frozenRaw": "14.07.20",
       "frozenOn": "2020-07-14",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "E9"
       },
@@ -6998,12 +6773,7 @@
       "frozenRaw": "14.07.20",
       "frozenOn": "2020-07-14",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F1"
       },
@@ -7028,12 +6798,7 @@
       "frozenRaw": "10.07.20",
       "frozenOn": "2020-07-10",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F2"
       },
@@ -7059,12 +6824,7 @@
       "frozenRaw": "10.07.20",
       "frozenOn": "2020-07-10",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F3"
       },
@@ -7090,12 +6850,7 @@
       "frozenRaw": "02.03.20",
       "frozenOn": "2020-03-02",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F4"
       },
@@ -7120,12 +6875,7 @@
       "frozenRaw": "02.03.20",
       "frozenOn": "2020-03-02",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F5"
       },
@@ -7150,12 +6900,7 @@
       "frozenRaw": "02.03.20",
       "frozenOn": "2020-03-02",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F6"
       },
@@ -7180,12 +6925,7 @@
       "frozenRaw": "02.03.20",
       "frozenOn": "2020-03-02",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F7"
       },
@@ -7210,12 +6950,7 @@
       "frozenRaw": "02.03.20",
       "frozenOn": "2020-03-02",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F8"
       },
@@ -7240,12 +6975,7 @@
       "frozenRaw": "02.03.20",
       "frozenOn": "2020-03-02",
       "location": {
-        "path": [
-          {
-            "id": "freezer-2",
-            "name": "Freezer 2"
-          }
-        ],
+        "path": [],
         "boxId": "b-80-box2",
         "position": "F9"
       },
@@ -7755,7 +7485,12 @@
       "frozenRaw": "28.04.21",
       "frozenOn": "2021-04-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A1"
       },
@@ -7775,7 +7510,12 @@
       "frozenRaw": "28.04.21",
       "frozenOn": "2021-04-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A2"
       },
@@ -7795,7 +7535,12 @@
       "frozenRaw": "28.04.21",
       "frozenOn": "2021-04-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A3"
       },
@@ -7815,7 +7560,12 @@
       "frozenRaw": "28.04.21",
       "frozenOn": "2021-04-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A4"
       },
@@ -7835,7 +7585,12 @@
       "frozenRaw": "28.04.21",
       "frozenOn": "2021-04-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A5"
       },
@@ -7855,7 +7610,12 @@
       "frozenRaw": "28.04.21",
       "frozenOn": "2021-04-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A6"
       },
@@ -7876,7 +7636,12 @@
       "frozenRaw": "29.03.21",
       "frozenOn": "2021-03-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A7"
       },
@@ -7897,7 +7662,12 @@
       "frozenRaw": "29.03.21",
       "frozenOn": "2021-03-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A8"
       },
@@ -7918,7 +7688,12 @@
       "frozenRaw": "11.06.21",
       "frozenOn": "2021-06-11",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "A9"
       },
@@ -7939,7 +7714,12 @@
       "frozenRaw": "29.03.21",
       "frozenOn": "2021-03-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B1"
       },
@@ -7960,7 +7740,12 @@
       "frozenRaw": "29.03.21",
       "frozenOn": "2021-03-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B2"
       },
@@ -7981,7 +7766,12 @@
       "frozenRaw": "29.03.21",
       "frozenOn": "2021-03-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B3"
       },
@@ -8002,7 +7792,12 @@
       "frozenRaw": "29.03.21",
       "frozenOn": "2021-03-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B4"
       },
@@ -8023,7 +7818,12 @@
       "frozenRaw": "29.03.21",
       "frozenOn": "2021-03-29",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B5"
       },
@@ -8044,7 +7844,12 @@
       "frozenRaw": "07.06.21",
       "frozenOn": "2021-06-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B6"
       },
@@ -8065,7 +7870,12 @@
       "frozenRaw": "07.06.21",
       "frozenOn": "2021-06-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B7"
       },
@@ -8086,7 +7896,12 @@
       "frozenRaw": "07.06.21",
       "frozenOn": "2021-06-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B8"
       },
@@ -8107,7 +7922,12 @@
       "frozenRaw": "07.06.21",
       "frozenOn": "2021-06-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "B9"
       },
@@ -8128,7 +7948,12 @@
       "frozenRaw": "07.06.21",
       "frozenOn": "2021-06-07",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C1"
       },
@@ -8149,7 +7974,12 @@
       "frozenRaw": "13.07.21",
       "frozenOn": "2021-07-13",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C2"
       },
@@ -8170,7 +8000,12 @@
       "frozenRaw": "13.07.21",
       "frozenOn": "2021-07-13",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C3"
       },
@@ -8191,7 +8026,12 @@
       "frozenRaw": "26.12.19",
       "frozenOn": "2019-12-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C4"
       },
@@ -8210,7 +8050,12 @@
       "passageNumber": 99,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C5"
       },
@@ -8229,7 +8074,12 @@
       "passageNumber": 24,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C6"
       },
@@ -8248,7 +8098,12 @@
       "passageNumber": 134,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C7"
       },
@@ -8267,7 +8122,12 @@
       "passageNumber": 99,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C8"
       },
@@ -8286,7 +8146,12 @@
       "passageNumber": 84,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "C9"
       },
@@ -8305,7 +8170,12 @@
       "passageNumber": 40,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D1"
       },
@@ -8324,7 +8194,12 @@
       "passageNumber": 45,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D2"
       },
@@ -8343,7 +8218,12 @@
       "passageNumber": 110,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D3"
       },
@@ -8362,7 +8242,12 @@
       "passageNumber": 111,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D4"
       },
@@ -8381,7 +8266,12 @@
       "passageNumber": 112,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D5"
       },
@@ -8400,7 +8290,12 @@
       "passageNumber": 134,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D6"
       },
@@ -8418,7 +8313,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D7"
       },
@@ -8436,7 +8336,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D8"
       },
@@ -8454,7 +8359,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "D9"
       },
@@ -8472,7 +8382,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E1"
       },
@@ -8490,7 +8405,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E2"
       },
@@ -8508,7 +8428,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E3"
       },
@@ -8526,7 +8451,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E4"
       },
@@ -8544,7 +8474,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E5"
       },
@@ -8562,7 +8497,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E6"
       },
@@ -8580,7 +8520,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E7"
       },
@@ -8598,7 +8543,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E8"
       },
@@ -8616,7 +8566,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "E9"
       },
@@ -8634,7 +8589,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F1"
       },
@@ -8652,7 +8612,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F2"
       },
@@ -8670,7 +8635,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F3"
       },
@@ -8688,7 +8658,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F4"
       },
@@ -8706,7 +8681,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F5"
       },
@@ -8724,7 +8704,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F6"
       },
@@ -8742,7 +8727,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F7"
       },
@@ -8760,7 +8750,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F8"
       },
@@ -8779,7 +8774,12 @@
       "passageNumber": 134,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "F9"
       },
@@ -8798,7 +8798,12 @@
       "passageNumber": 130,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G1"
       },
@@ -8817,7 +8822,12 @@
       "passageNumber": 39,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G2"
       },
@@ -8836,7 +8846,12 @@
       "passageNumber": 39,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G3"
       },
@@ -8855,7 +8870,12 @@
       "passageNumber": 15,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G4"
       },
@@ -8874,7 +8894,12 @@
       "passageNumber": 116,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G5"
       },
@@ -8893,7 +8918,12 @@
       "passageNumber": 116,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G6"
       },
@@ -8912,7 +8942,12 @@
       "passageNumber": 116,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G7"
       },
@@ -8931,7 +8966,12 @@
       "passageNumber": 122,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G8"
       },
@@ -8950,7 +8990,12 @@
       "passageNumber": 116,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "G9"
       },
@@ -8969,7 +9014,12 @@
       "passageNumber": 11,
       "passageKind": "relative",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H1"
       },
@@ -8988,7 +9038,12 @@
       "passageNumber": 32,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H2"
       },
@@ -9007,7 +9062,12 @@
       "passageNumber": 122,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H3"
       },
@@ -9025,7 +9085,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H4"
       },
@@ -9044,7 +9109,12 @@
       "passageNumber": 32,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H5"
       },
@@ -9062,7 +9132,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H6"
       },
@@ -9081,7 +9156,12 @@
       "passageNumber": 116,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H7"
       },
@@ -9099,7 +9179,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H8"
       },
@@ -9117,7 +9202,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "H9"
       },
@@ -9135,7 +9225,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "I1"
       },
@@ -9153,7 +9248,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "I2"
       },
@@ -9171,7 +9271,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "I3"
       },
@@ -9189,7 +9294,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "I4"
       },
@@ -9207,7 +9317,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "I5"
       },
@@ -9225,7 +9340,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "I6"
       },
@@ -9243,7 +9363,12 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          }
+        ],
         "boxId": "b-80-box3",
         "position": "I7"
       },

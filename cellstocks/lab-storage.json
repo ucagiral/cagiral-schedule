@@ -142,8 +142,8 @@
       "note": "-80 (-80 room left)",
       "children": [
         {
-          "id": "b-80-box2",
-          "name": "-80 Box2",
+          "id": "b-80-box3",
+          "name": "-80 Box3",
           "rows": 9,
           "cols": 9,
           "scheme": "grid",
@@ -168,8 +168,8 @@
       "owner": "baris"
     },
     {
-      "id": "b-80-box3",
-      "name": "-80 Box3",
+      "id": "b-80-box2",
+      "name": "-80 Box2",
       "rows": 9,
       "cols": 9,
       "scheme": "grid",

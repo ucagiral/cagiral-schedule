@@ -142,8 +142,8 @@
       "note": "-80 (-80 room left)",
       "children": [
         {
-          "id": "b-80-box1",
-          "name": "-80 Box1",
+          "id": "b-80-box2",
+          "name": "-80 Box2",
           "rows": 9,
           "cols": 9,
           "scheme": "grid",
@@ -157,8 +157,8 @@
   ],
   "unplaced": [
     {
-      "id": "b-80-box2",
-      "name": "-80 Box2",
+      "id": "b-80-box1",
+      "name": "-80 Box1",
       "rows": 9,
       "cols": 9,
       "scheme": "grid",

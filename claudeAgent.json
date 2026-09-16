@@ -2450,6 +2450,17 @@
       "notes": "",
       "start": "09:00",
       "end": "09:30"
+    },
+    {
+      "id": "emu4bip8nv9900",
+      "date": "2026-09-17",
+      "title": "Ders seçimlerine bak",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "09:00",
+      "end": "09:30"
     }
   ],
   "_groups": {
@@ -2485,7 +2496,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-16T16:30:56.622Z",
+    "lastModified": "2026-09-16T16:31:34.096Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

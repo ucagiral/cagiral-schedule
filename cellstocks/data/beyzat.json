@@ -4528,7 +4528,16 @@
       "passageKind": "absolute",
       "frozenRaw": "12.03.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A1"
       },
@@ -4544,7 +4553,16 @@
       "passageKind": "absolute",
       "frozenRaw": "11.08.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A2"
       },
@@ -4560,7 +4578,16 @@
       "passageKind": "absolute",
       "frozenRaw": "11.08.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A3"
       },
@@ -4576,7 +4603,16 @@
       "passageKind": "absolute",
       "frozenRaw": "03.02.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A4"
       },
@@ -4593,7 +4629,16 @@
       "frozenRaw": "22.01.25",
       "frozenOn": "2025-01-22",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A5"
       },
@@ -4609,7 +4654,16 @@
       "passageKind": "absolute",
       "frozenRaw": "03.02.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A6"
       },
@@ -4626,7 +4680,16 @@
       "frozenRaw": "28.01.25",
       "frozenOn": "2025-01-28",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A7"
       },
@@ -4643,7 +4706,16 @@
       "frozenRaw": "14.07.25",
       "frozenOn": "2025-07-14",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A8"
       },
@@ -4659,7 +4731,16 @@
       "passageKind": "absolute",
       "frozenRaw": "10.07.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "A9"
       },
@@ -4676,7 +4757,16 @@
       "frozenRaw": "24.07.25",
       "frozenOn": "2025-07-24",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B1"
       },
@@ -4692,7 +4782,16 @@
       "passageKind": "absolute",
       "frozenRaw": "04.08.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B2"
       },
@@ -4708,7 +4807,16 @@
       "passageKind": "absolute",
       "frozenRaw": "02.06.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B3"
       },
@@ -4725,7 +4833,16 @@
       "frozenRaw": "26.05.25",
       "frozenOn": "2025-05-26",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B4"
       },
@@ -4741,7 +4858,16 @@
       "passageKind": "absolute",
       "frozenRaw": "03.07.25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B5"
       },
@@ -4758,7 +4884,16 @@
       "frozenRaw": "21.11.24",
       "frozenOn": "2024-11-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B6"
       },
@@ -4775,7 +4910,16 @@
       "frozenRaw": "25.11.24",
       "frozenOn": "2024-11-25",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B7"
       },
@@ -4792,7 +4936,16 @@
       "frozenRaw": "21.04.25",
       "frozenOn": "2025-04-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B8"
       },
@@ -4809,7 +4962,16 @@
       "frozenRaw": "21.11.24",
       "frozenOn": "2024-11-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "B9"
       },
@@ -4826,7 +4988,16 @@
       "frozenRaw": "21.11.24",
       "frozenOn": "2024-11-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "C1"
       },
@@ -4843,7 +5014,16 @@
       "frozenRaw": "21.11.24",
       "frozenOn": "2024-11-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "C2"
       },
@@ -4860,7 +5040,16 @@
       "frozenRaw": "21.11.24",
       "frozenOn": "2024-11-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "C3"
       },
@@ -4877,7 +5066,16 @@
       "frozenRaw": "21.11.24",
       "frozenOn": "2024-11-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "C4"
       },
@@ -4894,7 +5092,16 @@
       "frozenRaw": "21.11.24",
       "frozenOn": "2024-11-21",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "C5"
       },
@@ -4911,7 +5118,16 @@
       "frozenRaw": "18.04.25",
       "frozenOn": "2025-04-18",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-2",
+            "name": "Liquid Nitrogen"
+          },
+          {
+            "id": "r-rack-2",
+            "name": "Rack 2"
+          }
+        ],
         "boxId": "b-beyza-caa-s-v-azot-box-1",
         "position": "C6"
       },

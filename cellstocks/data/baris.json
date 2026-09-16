@@ -12639,7 +12639,16 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A1"
       },
@@ -12658,7 +12667,16 @@
       "passageNumber": 142,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A2"
       },
@@ -12676,7 +12694,16 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A3"
       },
@@ -12695,7 +12722,16 @@
       "passageNumber": 34,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A4"
       },
@@ -12714,7 +12750,16 @@
       "passageNumber": 34,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A5"
       },
@@ -12733,7 +12778,16 @@
       "passageNumber": 34,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A6"
       },
@@ -12752,7 +12806,16 @@
       "passageNumber": 34,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A7"
       },
@@ -12771,7 +12834,16 @@
       "passageNumber": 28,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A8"
       },
@@ -12789,7 +12861,16 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "A9"
       },
@@ -12808,7 +12889,16 @@
       "passageNumber": 162,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B1"
       },
@@ -12827,7 +12917,16 @@
       "passageNumber": 39,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B2"
       },
@@ -12845,7 +12944,16 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B3"
       },
@@ -12864,7 +12972,16 @@
       "passageNumber": 93,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B4"
       },
@@ -12882,7 +12999,16 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B5"
       },
@@ -12900,7 +13026,16 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B6"
       },
@@ -12919,7 +13054,16 @@
       "passageNumber": 6,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B7"
       },
@@ -12938,7 +13082,16 @@
       "passageNumber": 29,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B8"
       },
@@ -12957,7 +13110,16 @@
       "passageNumber": 130,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "B9"
       },
@@ -12976,7 +13138,16 @@
       "passageNumber": 126,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C1"
       },
@@ -12995,7 +13166,16 @@
       "passageNumber": 46,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C2"
       },
@@ -13014,7 +13194,16 @@
       "passageNumber": 39,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C3"
       },
@@ -13033,7 +13222,16 @@
       "passageNumber": 135,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C4"
       },
@@ -13052,7 +13250,16 @@
       "passageNumber": 46,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C5"
       },
@@ -13071,7 +13278,16 @@
       "passageNumber": 39,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C6"
       },
@@ -13089,7 +13305,16 @@
       "passage": "-",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C7"
       },
@@ -13108,7 +13333,16 @@
       "passageNumber": 28,
       "passageKind": "absolute",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C8"
       },
@@ -13125,7 +13359,16 @@
       "lineId": "l-du145-p34-prmt6-sh2-2-10-3-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "C9"
       },
@@ -13142,7 +13385,16 @@
       "lineId": "l-dupar-20cr-7-p169-20-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D1"
       },
@@ -13159,7 +13411,16 @@
       "lineId": "l-du145-atp7b-ko-g3-10-p46-26-12-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D2"
       },
@@ -13176,7 +13437,16 @@
       "lineId": "l-ducabar-parc-p121-29-12-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D3"
       },
@@ -13193,7 +13463,16 @@
       "lineId": "l-hek293t-p6-29-12-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D4"
       },
@@ -13210,7 +13489,16 @@
       "lineId": "l-dupar-flucmcherry-14-7-21-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D5"
       },
@@ -13227,7 +13515,16 @@
       "lineId": "l-ducabar-parc-p127-19-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D6"
       },
@@ -13244,7 +13541,16 @@
       "lineId": "l-du145-p30-5-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D7"
       },
@@ -13261,7 +13567,16 @@
       "lineId": "l-ducabar-parc-p119-22-12-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D8"
       },
@@ -13278,7 +13593,16 @@
       "lineId": "l-du145-atp7b-ko-g3-13-p46-26-12-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "D9"
       },
@@ -13295,7 +13619,16 @@
       "lineId": "l-du145-p30-5-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E1"
       },
@@ -13312,7 +13645,16 @@
       "lineId": "l-dudocer-25cr-p131-3-2-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E2"
       },
@@ -13329,7 +13671,16 @@
       "lineId": "l-dudocer-parc-p132-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E3"
       },
@@ -13346,7 +13697,16 @@
       "lineId": "l-ducabar-50cr-2-p144-19-1-23",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E4"
       },
@@ -13363,7 +13723,16 @@
       "lineId": "l-dudocer-parc-p128-9-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E5"
       },
@@ -13380,7 +13749,16 @@
       "lineId": "l-huh7-p60-9-11-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E6"
       },
@@ -13397,7 +13775,16 @@
       "lineId": "l-ducabar-parc-p128-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E7"
       },
@@ -13414,7 +13801,16 @@
       "lineId": "l-du145-tet-prmt1-sh2-p61-21-2-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E8"
       },
@@ -13431,7 +13827,16 @@
       "lineId": "l-ducabar-parc-p131-7-2-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "E9"
       },
@@ -13448,7 +13853,16 @@
       "lineId": "l-du145-p34-prmt6-sh1-1-10-3-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F1"
       },
@@ -13465,7 +13879,16 @@
       "lineId": "l-dupar-bche-sh2-1-3-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F2"
       },
@@ -13482,7 +13905,16 @@
       "lineId": "l-dudocer-50cr-1-p150-6-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F3"
       },
@@ -13499,7 +13931,16 @@
       "lineId": "l-du145-tet-prmt1-sh2-p56-31-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F4"
       },
@@ -13516,7 +13957,16 @@
       "lineId": "l-dudocer-parc-p132-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F5"
       },
@@ -13533,7 +13983,16 @@
       "lineId": "l-du145-tet-prmt1-sh2-p61-21-2-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F6"
       },
@@ -13550,7 +14009,16 @@
       "lineId": "l-du145-tet-prmt1-sh2-p55-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F7"
       },
@@ -13567,7 +14035,16 @@
       "lineId": "l-ducabar-parc-p128-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F8"
       },
@@ -13584,7 +14061,16 @@
       "lineId": "l-dudocer-50cr-1-p149-22-12-22-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "F9"
       },
@@ -13601,7 +14087,16 @@
       "lineId": "l-dupar-30cr-1-p163-22-3-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G1"
       },
@@ -13618,7 +14113,16 @@
       "lineId": "l-dupar-30cr-1-p163-22-3-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G2"
       },
@@ -13635,7 +14139,16 @@
       "lineId": "l-dupar-30cr-1-p163-22-3-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G3"
       },
@@ -13652,7 +14165,16 @@
       "lineId": "l-dupar-30cr-1-p163-22-3-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G4"
       },
@@ -13669,7 +14191,16 @@
       "lineId": "l-a375-p19-7-2-23-i-pek",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G5"
       },
@@ -13686,7 +14217,16 @@
       "lineId": "l-ducabar-50cr-2-p147-7-2-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G6"
       },
@@ -13703,7 +14243,16 @@
       "lineId": "l-dudocer-50cr-2-p153-7-2-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G7"
       },
@@ -13720,7 +14269,16 @@
       "lineId": "l-dupar-1x40cr-p160-7-2-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G8"
       },
@@ -13737,7 +14295,16 @@
       "lineId": "l-du145-tet-prmt1-sh2-2-p36-7-2-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "G9"
       },
@@ -13754,7 +14321,16 @@
       "lineId": "l-ducabar-parc-p128-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "H1"
       },
@@ -13771,7 +14347,16 @@
       "lineId": "l-du145-tet-prmt1-sh2-p55-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "H2"
       },
@@ -13788,7 +14373,16 @@
       "lineId": "l-dudocer-50cr-1-p153-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "H3"
       },
@@ -13805,7 +14399,16 @@
       "lineId": "l-dudocer-50cr-1-p153-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "H4"
       },
@@ -13822,7 +14425,16 @@
       "lineId": "l-ducabar-50cr-2-p144-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "H5"
       },
@@ -13839,7 +14451,16 @@
       "lineId": "l-dudocer-50cr-1-p153-26-1-23-baro",
       "passageKind": "unknown",
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "freezer-2",
+            "name": "Freezer 2"
+          },
+          {
+            "id": "baris-shelf",
+            "name": "Baris Shelf"
+          }
+        ],
         "boxId": "b-80-box5",
         "position": "H6"
       },

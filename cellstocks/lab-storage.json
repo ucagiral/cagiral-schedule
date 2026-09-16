@@ -162,6 +162,12 @@
           "archived": false,
           "isBox": true,
           "owner": "baris"
+        },
+        {
+          "id": "baris-shelf",
+          "name": "Baris Shelf",
+          "icon": "📁",
+          "children": []
         }
       ]
     }

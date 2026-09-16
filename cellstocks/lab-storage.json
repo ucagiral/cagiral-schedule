@@ -213,6 +213,12 @@
               "owner": "baris"
             }
           ]
+        },
+        {
+          "id": "beyza-shelf",
+          "name": "Beyza Shelf",
+          "icon": "📁",
+          "children": []
         }
       ]
     }

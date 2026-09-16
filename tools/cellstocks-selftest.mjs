@@ -2403,6 +2403,12 @@ check("a plan aimed at one area stays in it, and says the whole way down", () =>
   for (const area of areas) {
     const summary = E.unitSummary(real, area.id);
     if (summary.capacity - summary.used < 5) continue;   // full, which is a fair answer
+    // unitSummary counts every box in the area regardless of whose it is; suggestPlacement
+    // (asked without an explicit box) only ever offers umut's own boxes, or a common one.
+    // An area can have plenty of room and still have none of it be umut's -- e.g. a rack
+    // that is entirely someone else's boxes -- and "nothing here is mine" is as fair an
+    // answer as "full", not a bug to chase.
+    if (!E.boxesFor(real, area.id, "umut").length) continue;
     const plan = E.suggestPlacement(real, { name: "LnCap Canada", count: 5, unitId: area.id });
     if (!plan.ok) return `nothing can be placed into ${area.name}: ${plan.reason}`;
     for (const seg of plan.segments) {

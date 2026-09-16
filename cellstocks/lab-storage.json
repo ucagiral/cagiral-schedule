@@ -134,6 +134,13 @@
           "children": []
         }
       ]
+    },
+    {
+      "id": "freezer-2",
+      "name": "Freezer 2",
+      "icon": "🧊",
+      "note": "-80 (-80 room left)",
+      "children": []
     }
   ],
   "unplaced": [

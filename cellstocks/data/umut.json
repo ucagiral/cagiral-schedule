@@ -11250,6 +11250,28 @@
       "addedAt": "2026-09-16T14:28:18.882Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mu474j9w-0",
+      "name": "LNCX gP3",
+      "lineId": "l-lncx-gp3",
+      "passage": "p+24",
+      "passageNumber": 24,
+      "passageKind": "relative",
+      "frozenRaw": "2026-09-16",
+      "frozenOn": "2026-09-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "G9"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-16T14:28:33.812Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -12152,7 +12174,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-16T14:28:20.078Z"
+    "savedAt": "2026-09-16T14:28:34.954Z"
   },
   "removedVialIds": [
     "v-205",

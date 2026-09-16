@@ -178,6 +178,17 @@
               "archived": false,
               "isBox": true,
               "owner": "baris"
+            },
+            {
+              "id": "b-80-box4",
+              "name": "-80 Box4",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "baris"
             }
           ]
         }
@@ -185,17 +196,6 @@
     }
   ],
   "unplaced": [
-    {
-      "id": "b-80-box4",
-      "name": "-80 Box4",
-      "rows": 9,
-      "cols": 9,
-      "scheme": "grid",
-      "note": "from the sheet: -80 °C Freezer → Rack 1",
-      "archived": false,
-      "isBox": true,
-      "owner": "baris"
-    },
     {
       "id": "b-80-box5",
       "name": "-80 Box5",

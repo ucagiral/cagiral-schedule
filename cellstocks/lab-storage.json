@@ -142,17 +142,6 @@
       "note": "-80 (-80 room left)",
       "children": [
         {
-          "id": "b-80-box1",
-          "name": "-80 Box1",
-          "rows": 9,
-          "cols": 9,
-          "scheme": "grid",
-          "note": "from the sheet: -80 °C Freezer → Rack 1",
-          "archived": false,
-          "isBox": true,
-          "owner": "baris"
-        },
-        {
           "id": "b-80-box2",
           "name": "-80 Box2",
           "rows": 9,
@@ -167,7 +156,19 @@
           "id": "baris-shelf",
           "name": "Baris Shelf",
           "icon": "📁",
-          "children": []
+          "children": [
+            {
+              "id": "b-80-box1",
+              "name": "-80 Box1",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "baris"
+            }
+          ]
         }
       ]
     }

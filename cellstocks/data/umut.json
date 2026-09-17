@@ -11558,6 +11558,28 @@
       "addedAt": "2026-09-17T07:20:55.862Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mu57aupv-0",
+      "name": "HEK ATF3 OX rep3",
+      "lineId": "l-hek-atf3-ox-rep3",
+      "passage": "p29",
+      "passageNumber": 29,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-17",
+      "frozenOn": "2026-09-17",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "A6"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-17T07:21:14.755Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -12460,7 +12482,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-17T07:20:56.990Z"
+    "savedAt": "2026-09-17T07:21:15.832Z"
   },
   "removedVialIds": [
     "v-205",

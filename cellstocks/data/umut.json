@@ -11624,6 +11624,28 @@
       "addedAt": "2026-09-17T08:54:36.349Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mu5anec8-0",
+      "name": "Huh7 3xFLAG",
+      "lineId": "l-huh7-3xflag",
+      "passage": "p19",
+      "passageNumber": 19,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-17",
+      "frozenOn": "2026-09-17",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "D3"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-17T08:54:58.904Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -12526,7 +12548,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-17T08:54:37.508Z"
+    "savedAt": "2026-09-17T08:55:00.039Z"
   },
   "removedVialIds": [
     "v-205",

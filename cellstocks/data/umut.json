@@ -11517,8 +11517,8 @@
     },
     {
       "id": "v-mu579vy6-0",
-      "name": "HEK ATF3 KO",
-      "lineId": "l-hek-atf3-ko",
+      "name": "HEK ATF3 KO rep2",
+      "lineId": "l-hek-atf3-ko-rep2",
       "passage": "p26",
       "passageNumber": 26,
       "passageKind": "absolute",
@@ -11534,8 +11534,7 @@
       },
       "status": "stored",
       "addedAt": "2026-09-17T07:20:29.694Z",
-      "addedBy": "unknown device",
-      "kind": "Cell"
+      "addedBy": "unknown device"
     },
     {
       "id": "v-mu57ag51-0",
@@ -12570,7 +12569,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-17T14:01:31.308Z"
+    "savedAt": "2026-09-17T14:01:55.447Z"
   },
   "removedVialIds": [
     "v-205",

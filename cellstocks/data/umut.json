@@ -11602,6 +11602,28 @@
       "addedAt": "2026-09-17T08:54:15.940Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mu5amwxp-0",
+      "name": "Huh7 ATF3 KO rep3",
+      "lineId": "l-huh7-atf3-ko-rep3",
+      "passage": "p19",
+      "passageNumber": 19,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-17",
+      "frozenOn": "2026-09-17",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-duzenle",
+        "position": "E8"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-17T08:54:36.349Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -12504,7 +12526,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-17T08:54:17.655Z"
+    "savedAt": "2026-09-17T08:54:37.508Z"
   },
   "removedVialIds": [
     "v-205",

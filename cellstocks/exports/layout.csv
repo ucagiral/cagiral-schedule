@@ -1,9 +1,9 @@
 ﻿area,location,box,owner,rows,cols,used,capacity,free
 Freezer 1,Freezer 1 → Rack 1,UMUT CAA CELLS,umut,9,9,81,81,0
 Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -80,umut,9,9,81,81,0
-Freezer 1,Freezer 1 → Rack 1,DUZENLE,umut,9,9,76,81,5
+Freezer 1,Freezer 1 → Rack 1,DUZENLE,umut,9,9,79,81,2
 Freezer 1,Freezer 1 → Rack 1,ONGOING,umut,9,9,75,81,6
-Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -4-,umut,9,9,56,81,25
+Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -4-,umut,9,9,61,81,20
 Freezer 1,Freezer 1 → Rack 2,Common Box #1,umut,9,9,0,81,81
 Liquid Nitrogen,Liquid Nitrogen → Rack 1,LiqNitro 1,baris,9,9,63,81,18
 Liquid Nitrogen,Liquid Nitrogen → Rack 1,LiqNitro 2,baris,9,9,75,81,6

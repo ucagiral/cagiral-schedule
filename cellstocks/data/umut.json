@@ -11492,6 +11492,28 @@
       "addedAt": "2026-09-16T14:29:52.847Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-mu577a35-0",
+      "name": "HEK gNT",
+      "lineId": "l-hek-gnt",
+      "passage": "p23",
+      "passageNumber": 23,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-17",
+      "frozenOn": "2026-09-17",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-duzenle",
+        "position": "I8"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-17T07:18:28.049Z",
+      "addedBy": "unknown device",
+      "kind": "Cell"
     }
   ],
   "withdrawals": [
@@ -12394,7 +12416,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-16T14:29:54.827Z"
+    "savedAt": "2026-09-17T07:18:29.181Z"
   },
   "removedVialIds": [
     "v-205",

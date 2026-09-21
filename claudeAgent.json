@@ -2567,7 +2567,7 @@
       "title": "pLJC2 ligations — overnight at 16 °C",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Runs unattended overnight (~12–16 h), per the 30 Aug 2026 rule: an overnight ligation moves transformation off the same evening. Continues past this grid’s 23:00 window.",
       "group": "pLJC2 — SART3/SMARCA2"
     },
@@ -2920,7 +2920,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:15:46.424Z",
+    "lastModified": "2026-09-21T18:15:48.498Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

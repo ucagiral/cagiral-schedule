@@ -2621,14 +2621,14 @@
     },
     {
       "id": "e-virus-medium",
-      "date": "2026-09-22",
-      "start": "15:20",
-      "end": "15:50",
+      "date": "2026-09-23",
       "title": "Virus — medium change (6.5 mL per vessel)",
       "category": "experiment",
       "type": "active",
       "status": "pending",
       "notes": "~5.5 h post-transfection; protocols quote ~6 h.",
+      "start": "15:20",
+      "end": "15:50",
       "group": "Virus prep"
     },
     {
@@ -2920,7 +2920,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:15:48.498Z",
+    "lastModified": "2026-09-21T18:16:28.239Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

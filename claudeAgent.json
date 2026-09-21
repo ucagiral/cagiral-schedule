@@ -2585,7 +2585,7 @@
     },
     {
       "id": "e-yy1-sequencing",
-      "date": "2026-09-24",
+      "date": "2026-09-25",
       "start": "10:50",
       "end": "11:10",
       "title": "YY1 plasmids to sequencing",
@@ -2908,7 +2908,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T21:40:45.070Z",
+    "lastModified": "2026-09-21T21:41:19.290Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

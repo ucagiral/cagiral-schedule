@@ -2622,7 +2622,7 @@
     {
       "id": "e-virus-medium",
       "date": "2026-09-23",
-      "title": "Virus — medium change (6.5 mL per vessel)",
+      "title": "Virus — medium change",
       "category": "experiment",
       "type": "active",
       "status": "pending",
@@ -2702,18 +2702,6 @@
       "status": "pending",
       "notes": "12–16 h at 37 °C shaking. Continues past this grid’s 23:00 window.",
       "group": "pLJC2 — SART3/SMARCA2"
-    },
-    {
-      "id": "e-chip-purify",
-      "date": "2026-09-24",
-      "start": "09:30",
-      "end": "13:00",
-      "title": "ChIP — RNase A / Proteinase K + DNA purification",
-      "category": "experiment",
-      "type": "passive",
-      "status": "pending",
-      "notes": "RNase A 2 h at 37 °C, Proteinase K 1 h at 55 °C, then spin-column clean-up (~25 min). Mostly incubation — ~40 min hands-on, so the cloning steps below sit inside it.",
-      "group": "LNCX/LUCX"
     },
     {
       "id": "e-pljc2-miniprep",
@@ -2920,7 +2908,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:16:28.239Z",
+    "lastModified": "2026-09-21T18:17:19.365Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

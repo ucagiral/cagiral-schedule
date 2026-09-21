@@ -368,6 +368,11 @@ The planner proposes; nothing is written until the events are reviewed and accep
 - Repeating commitments are stored as individual dated events — there is no recurrence engine, so
   they need regenerating when they run past their last date.
 - Days should not run past roughly **18:00** unless there is no alternative.
+- **A booked instrument slot is an active block, whatever the protocol says about hands-on time.**
+  A qPCR run is ~5 min of attention and would normally be passive, but a reservation is two hours
+  that belong to that run — so it goes on the calendar as active and the prep is placed to finish
+  before it, not to overlap it. Same for anything else that has to be booked (the Western imager).
+  First noted 24 Sep 2026, a 16:00–18:00 ChIP-qPCR booking.
 
 ### A "gel check" needs a gel and a finished digest, not just a load step
 

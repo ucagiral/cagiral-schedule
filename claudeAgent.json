@@ -2462,6 +2462,342 @@
       "notes": "",
       "start": "09:00",
       "end": "09:30"
+    },
+    {
+      "id": "e-pljc2-digest-ap",
+      "date": "2026-09-21",
+      "start": "10:00",
+      "end": "12:30",
+      "title": "pLJC2 — digest + AP treatment",
+      "category": "experiment",
+      "type": "passive",
+      "status": "done",
+      "notes": "Backbone cut, then Antarctic Phosphatase to suppress self-religation (1 h 37 °C + 20 min 80 °C inactivation). Umut confirmed 21 Sep this was already done — clock times here are reconstructed, the step is not.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-pljc2-gel-cast",
+      "date": "2026-09-21",
+      "start": "12:00",
+      "end": "12:40",
+      "title": "Agarose gel — cast and solidify",
+      "category": "experiment",
+      "type": "active",
+      "status": "done",
+      "notes": "Cast inside the digest/AP incubation so it costs nothing on the critical path. 20–30 min at RT to solidify.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-pljc2-gel-run",
+      "date": "2026-09-21",
+      "start": "12:40",
+      "end": "13:25",
+      "title": "pLJC2 — gel run",
+      "category": "experiment",
+      "type": "passive",
+      "status": "done",
+      "notes": "1% gel, ~40 min at 50 V. Load is the only hands-on part.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-pljc2-gel-extract",
+      "date": "2026-09-21",
+      "start": "13:25",
+      "end": "13:55",
+      "title": "pLJC2 — band excision + gel extraction",
+      "category": "experiment",
+      "type": "active",
+      "status": "done",
+      "notes": "Umut: \"jel döktüm, jelde yürüttüm, kestim, izole ettim.\" Kit recovery ~30% — a yield risk, not a timing one.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-inserts-cleanup",
+      "date": "2026-09-21",
+      "start": "14:05",
+      "end": "14:35",
+      "title": "SART3 + SMARCA2 inserts — clean-up after digestion",
+      "category": "experiment",
+      "type": "active",
+      "status": "done",
+      "notes": "Spin-column clean-up of the digested inserts. Confirmed done 21 Sep.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-caspex-chip-fix",
+      "date": "2026-09-21",
+      "start": "15:00",
+      "end": "16:00",
+      "title": "LNCaP CASPEX gNT + gP4 — ChIP fixation",
+      "category": "experiment",
+      "type": "active",
+      "status": "done",
+      "notes": "Dox + Shield-1 already given (2-day lead-in, per workflows.md). 1% formaldehyde 10 min RT, quench with 125 mM glycine 5 min, harvest and wash, pellets kept for ChIP day 1. Umut: \"21 Eylül hücreleri topladım, fikse ettim.\"",
+      "group": "LNCX/LUCX"
+    },
+    {
+      "id": "e-seed-hek-busra",
+      "date": "2026-09-21",
+      "start": "21:15",
+      "end": "22:00",
+      "title": "Cell seeding — HEK293T (virus) + Büşra’s plate",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "HEK293T seeded the evening before the YY1 transfection so the dish is at 50–70% confluence tomorrow. Second plate is for Büşra; line not specified and not schedule-relevant. Late slot because the day was already spent when the week was planned.",
+      "group": "Virus prep"
+    },
+    {
+      "id": "e-pljc2-ligation-setup",
+      "date": "2026-09-21",
+      "start": "22:10",
+      "end": "22:40",
+      "title": "pLJC2-SART3 + pLJC2-SMARCA2 — ligation set-up",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Two ligations plus the backbone-only negative control (AP-treated backbone through ligation without insert). Positive control = undigested stock, transformed directly tomorrow.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-pljc2-ligation-on",
+      "date": "2026-09-21",
+      "start": "22:40",
+      "end": "23:00",
+      "title": "pLJC2 ligations — overnight at 16 °C",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "Runs unattended overnight (~12–16 h), per the 30 Aug 2026 rule: an overnight ligation moves transformation off the same evening. Continues past this grid’s 23:00 window.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-yy1-transfection",
+      "date": "2026-09-22",
+      "start": "09:40",
+      "end": "10:40",
+      "title": "YY1 plasmids — transfection for virus",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "First thing, so the 6 h medium change lands inside the afternoon rather than at midnight.",
+      "group": "Virus prep"
+    },
+    {
+      "id": "e-yy1-sequencing",
+      "date": "2026-09-22",
+      "start": "10:50",
+      "end": "11:10",
+      "title": "YY1 plasmids to sequencing",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Umut: \"sekansa da göndereceğim.\" Data back next business day.",
+      "group": "Cloning"
+    },
+    {
+      "id": "e-chip-day1",
+      "date": "2026-09-22",
+      "start": "11:20",
+      "end": "15:10",
+      "title": "ChIP day 1 — lysis, sonication, antibody (with Büşra; + Bursalı MDA)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Fixed pellets from yesterday: lysis, sonication to 150–200 bp, clearing spin, input aside, antibody + beads added. Run together with Büşra, including the Bursalı lab MDA samples.",
+      "group": "LNCX/LUCX"
+    },
+    {
+      "id": "e-chip-ip-on",
+      "date": "2026-09-22",
+      "start": "15:10",
+      "end": "23:00",
+      "title": "ChIP — immunoprecipitation overnight at 4 °C",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "Unattended on the rotator in the cold room; continues past this grid’s 23:00 window. Everything else today is placed inside this stretch.",
+      "group": "LNCX/LUCX"
+    },
+    {
+      "id": "e-virus-medium",
+      "date": "2026-09-22",
+      "start": "15:20",
+      "end": "15:50",
+      "title": "Virus — medium change (6.5 mL per vessel)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "~5.5 h post-transfection; protocols quote ~6 h.",
+      "group": "Virus prep"
+    },
+    {
+      "id": "e-pljc2-transformation",
+      "date": "2026-09-22",
+      "start": "16:00",
+      "end": "17:30",
+      "title": "pLJC2-SART3 + pLJC2-SMARCA2 — transformation",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Heat shock 30 s at 42 °C, 60 min SOC recovery at 37 °C shaking, then plating. Carries the ligation-negative control and the undigested-stock positive control.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-pljc2-plates-on",
+      "date": "2026-09-22",
+      "start": "17:30",
+      "end": "23:00",
+      "title": "Transformation plates — 37 °C overnight",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "Colonies ready to pick tomorrow.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-chip-day2",
+      "date": "2026-09-23",
+      "start": "09:30",
+      "end": "12:30",
+      "title": "ChIP day 2 — washes and elution",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Low-salt / high-salt / LiCl / TE washes, 5 min each with rotation, then elution (65 °C, ~30–60 min, vortexing every 15 min).",
+      "group": "LNCX/LUCX"
+    },
+    {
+      "id": "e-chip-revxlink",
+      "date": "2026-09-23",
+      "start": "12:30",
+      "end": "23:00",
+      "title": "ChIP — reverse cross-linking at 65 °C, overnight",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "At least 5 h, overnight is standard (8–18 h). Unattended; continues past this grid’s 23:00 window.",
+      "group": "LNCX/LUCX"
+    },
+    {
+      "id": "e-pljc2-pick",
+      "date": "2026-09-23",
+      "start": "13:00",
+      "end": "13:30",
+      "title": "pLJC2 colonies — pick and inoculate",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Added, not on Umut’s list: the transformation plates come due today and colonies have to go into culture tonight for a Thursday miniprep.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-pljc2-culture",
+      "date": "2026-09-23",
+      "start": "13:30",
+      "end": "23:00",
+      "title": "Bacterial culture — overnight",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "12–16 h at 37 °C shaking. Continues past this grid’s 23:00 window.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-chip-purify",
+      "date": "2026-09-24",
+      "start": "09:30",
+      "end": "13:00",
+      "title": "ChIP — RNase A / Proteinase K + DNA purification",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "RNase A 2 h at 37 °C, Proteinase K 1 h at 55 °C, then spin-column clean-up (~25 min). Mostly incubation — ~40 min hands-on, so the cloning steps below sit inside it.",
+      "group": "LNCX/LUCX"
+    },
+    {
+      "id": "e-pljc2-miniprep",
+      "date": "2026-09-24",
+      "start": "10:00",
+      "end": "10:45",
+      "title": "Miniprep — pLJC2-SART3 / pLJC2-SMARCA2",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Added, not on Umut’s list. Spin-column miniprep, 30–45 min.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-pljc2-diag",
+      "date": "2026-09-24",
+      "start": "11:00",
+      "end": "12:05",
+      "title": "Diagnostic restriction digest + gel check",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Added, not on Umut’s list. The digest incubation elapses first, then a 1% gel — the gel is poured during the ChIP incubation above, not on the critical path.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-pljc2-seq",
+      "date": "2026-09-24",
+      "start": "12:15",
+      "end": "12:35",
+      "title": "pLJC2-SART3 / pLJC2-SMARCA2 to sequencing",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Added, not on Umut’s list. Only the clones the diagnostic digest passes.",
+      "group": "pLJC2 — SART3/SMARCA2"
+    },
+    {
+      "id": "e-chip-qpcr-prep",
+      "date": "2026-09-24",
+      "start": "13:00",
+      "end": "13:30",
+      "title": "ChIP-qPCR — plate set-up",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Run and prep are on the same day here because the purified ChIP DNA only exists this morning — the dependency is what matters, the day-before preference cannot apply.",
+      "group": "LNCX/LUCX"
+    },
+    {
+      "id": "e-chip-qpcr-run",
+      "date": "2026-09-24",
+      "start": "13:30",
+      "end": "15:30",
+      "title": "ChIP-qPCR — run",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "~2 h on the instrument, ~5 min hands-on. This is replicate 1 of the AR-CasPEx funnel: occupancy screen, no biotinylation.",
+      "group": "LNCX/LUCX"
+    },
+    {
+      "id": "e-virus-harvest-1",
+      "date": "2026-09-24",
+      "start": "16:00",
+      "end": "17:00",
+      "title": "Virus harvest — first collection (~54 h)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Added, not on Umut’s list. 48–72 h post-transfection is the usual window and virus left on the cells past it is lost.",
+      "group": "Virus prep"
+    },
+    {
+      "id": "e-virus-harvest-2",
+      "date": "2026-09-25",
+      "start": "13:20",
+      "end": "14:20",
+      "title": "Virus harvest — second collection (~72 h)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Added, not on Umut’s list. Harvesting twice is standard; drop it if the first collection is enough. After the weekly meeting.",
+      "group": "Virus prep"
     }
   ],
   "_groups": {
@@ -2494,10 +2830,13 @@
     },
     "Colony formation": {
       "color": "#ea580c"
+    },
+    "pLJC2 — SART3/SMARCA2": {
+      "color": "#0369a1"
     }
   },
   "_meta": {
-    "lastModified": "2026-09-20T22:10:54.968Z",
-    "modifiedBy": "Umut iPhone 16 Plus"
+    "lastModified": "2026-09-21T18:07:23.815Z",
+    "modifiedBy": "Claude (weekly plan 21–25 Sep)"
   }
 }

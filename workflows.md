@@ -147,6 +147,45 @@ APEX2 activity itself is already established: the **no-guide biotin Western** ha
 | Biotinylation | **replicate 3 only** — replicates 1 and 2 are ChIP-qPCR on dox + Shield-1 alone |
 | Nuclear fractionation | before the streptavidin pulldown, replicate 3 |
 
+## ChIP-qPCR
+
+Run as **four calendar days**, not the three the published timings imply — fixation gets its own day
+because the pellet keeps at −80 °C and the day it is collected is usually already spent on something
+else.
+
+| Day | What happens | Blocks the day? |
+|---|---|---|
+| Fixation day | 1% formaldehyde 10 min, glycine quench, harvest, wash, freeze the pellet | ~1 h active |
+| Day 1 | Lysis, sonication to 150–200 bp, input aside, antibody + beads, then **overnight IP at 4 °C** | ~4 h active, then passive |
+| Day 2 | Washes, elution, then **65 °C reverse cross-link overnight** | ~3 h active, then passive |
+| Day 3 | RNase A / Proteinase K, column clean-up, qPCR prep, qPCR run | ~40 min inside a long passive stretch, then prep + run |
+
+- **Day 3 is the exception to the "qPCR prep goes the day before" rule.** The purified ChIP DNA only
+  exists that morning, so prep and run sit on the same day, prep first. The dependency is what
+  matters; the day-before is only the preference.
+- **The two overnights are the schedule's gift.** The IP and the reverse cross-link both run
+  unattended, so the afternoon of day 1 and day 2 carries other bench work — transformation,
+  colony picking, minipreps — without touching the ChIP.
+- **Büşra runs it with him, and the Bursalı lab's MDA samples ride along in the same session.**
+  Scale is the thing that stretches day 1; the clock on each step does not change.
+- The AR-CasPEx ChIP-qPCR needs **dox + Shield-1 two days before fixation**, not before day 1 —
+  the induction is about the cells, and the cells are fixed on the fixation day.
+
+---
+
+## pLJC2 — SART3 and SMARCA2
+
+A second cloning project, unrelated to Nek2→YY1: SART3 and SMARCA2 into the **pLJC2** backbone.
+Method is the same shape — digest, AP-treat the backbone, gel-isolate, ligate, transform — see
+[`protocols/cloning.md`](protocols/cloning.md) for what is fixed about it.
+
+- **Ligation runs overnight at 16 °C**, as it now does everywhere: it doesn't need watching either
+  way, and it moves transformation off the same evening.
+- It has its own colour group, **`pLJC2 — SART3/SMARCA2`**, sky `#0369a1` — not the generic
+  "Cloning" group, which tags one-off plasmid-prep errands.
+
+---
+
 ## Cell culture
 
 ### The thaw-cell rule
@@ -207,6 +246,7 @@ group exists but isn't:
 | Zoom — Wednesday | purple `#9333ea` | the standing Wednesday 21:10 Zoom |
 | Weekly meeting | olive `#65a30d` | the standing Friday 09:30 meeting. Was "lime" `#84cc16` — renamed with the 30 Aug 2026 palette widening, see below. |
 | Colony formation | orange `#ea580c` | fixation across consecutive days, then drying |
+| pLJC2 — SART3/SMARCA2 | sky `#0369a1` | the SART3 and SMARCA2 clone into pLJC2 — digest, AP, gel isolation, ligation, transformation, colony picking, miniprep, sequencing. Added 21 Sep 2026 from `PALETTE`, a colour nothing else was using. |
 
 **Nek2→YY1** (fuchsia-ish, currently `#a21caf` under the new palette) tags the cancelled
 Nek2(K37R)→YY1 swap — see [`protocols/cloning.md`](protocols/cloning.md). It has never actually had a

@@ -98,3 +98,34 @@ Timing baselines that Umut's values above supersede — see
 [`durations.md`](durations.md#sources) for the full reference list (NEB Q5 PCR, NEB Faster Digests,
 NEB Antarctic Phosphatase, Addgene gel electrophoresis, QIAGEN QIAquick handbook, NEB T4 ligation,
 NEB high-efficiency transformation, Takara/Sigma colony PCR, GENEWIZ/Azenta Sanger sequencing).
+
+
+---
+
+## SART3 and SMARCA2 into pLJC2
+
+Started the week of 21 Sep 2026. Same route as the swap above — restriction digest and ligation —
+with two inserts going into one backbone in parallel.
+
+1. **pLJC2 backbone**: digest, then Antarctic Phosphatase straight after, then run out on a 1% gel
+   and gel-extract the linearised backbone. Done 21 Sep.
+2. **SART3 and SMARCA2 inserts**: digested, then spin-column clean-up (not gel-extracted — the
+   digest is clean enough). Done 21 Sep.
+3. **Ligation overnight at 16 °C**, both constructs plus the backbone-only negative control.
+4. **Transformation** the next day: heat shock, 60 min SOC, plating — with the negative control
+   (AP-treated backbone through ligation, no insert) and a positive control (undigested stock
+   transformed directly).
+5. Colony pick and overnight culture, then miniprep, diagnostic digest, sequencing.
+
+### Fixed parameters
+
+| Parameter | Value | Note |
+|---|---|---|
+| Ligation | **overnight, 16 °C** | The standing value since 30 Aug 2026 — not the 10 min RT quick protocol. |
+| Backbone AP treatment | 1 h 37 °C + 20 min 80 °C | Standard Antarctic Phosphatase protocol. |
+| Backbone isolation | gel extraction | Kit recovery is ~30% — suspect this before suspecting the ligation. |
+| Insert isolation | spin-column clean-up after digest | Umut's route, 21 Sep 2026. |
+
+The digest itself was already done when the week was planned, so no duration for this enzyme pair
+has been stated. **Ask before scheduling the next one** rather than inheriting the Nek2→YY1 values,
+which are specific to those enzymes.

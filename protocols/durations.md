@@ -48,6 +48,8 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | Agarose gel run (1%, standard fragment sizes) | ~40 min | ~5 min load | ~35 min run | Common protocol: 1% gel, 40 min at 50 V. |
 | Gel extraction / PCR cleanup (spin column) | ~20–25 min | all | — | Gel dissolve ~10 min @ 50 °C plus successive 1-min spins. **Umut flags ~30% recovery efficiency for the kit in use — a yield risk, not a time change.** |
 | Ligation (T4 DNA ligase, sticky ends, published default) | 10 min | all | — | NEB's standard quick protocol: 10 min RT for cohesive ends. **Superseded for the Nek2→YY1 swap by Umut's 2 h value below.** |
+| Competent cell prep (CaCl₂/glycerol) — growth | ~2.5–3 h | ~15 min | rest | 1:100 from a saturated overnight into LB, 37 °C shaking to OD₆₀₀ ≈ 0.4 (2–3 h). Needs a starter culture inoculated the evening before. Overshooting mid-log costs efficiency. |
+| Competent cell prep (CaCl₂/glycerol) — harvest, washes, aliquot | ~2 h | ~1.5 h | 20–30 min on ice between washes | Chill on ice ~10 min, cold spin, ice-cold CaCl₂ resuspension, 20–30 min on ice, second resuspension in CaCl₂ + glycerol, aliquot and snap-freeze to −80 °C. Some protocols hold the cells 12–16 h at 4 °C for the best efficiency — that is an overnight, not an afternoon. |
 | Bacterial transformation (heat shock + SOC recovery + plating) | ~75–90 min | ~15–20 min (heat shock, plating) | ~60 min SOC recovery | 30 s heat shock @ 42 °C, then 60 min SOC @ 37 °C shaking. |
 | Colony PCR screening (+ quick gel check) | ~90 min | ~25 min setup/load | ~65 min (PCR run + gel run) | Fast master mixes screen ≤2 kb inserts in ~60 min; extension ≥1 min/kb for standard mixes. |
 | Diagnostic restriction digest + gel check | ~60–65 min | ~15 min | ~45–50 min | Same digest + 1% gel sources as above. |
@@ -117,6 +119,10 @@ These came from Umut directly and override any published range — see
 - [QIAGEN — QIAquick Spin Handbook (PCR/gel cleanup)](https://www.qiagen.com/en-US/resources/download/Protocols/hb-0901-003-1114358-pcard-qq-pcr-gel-cleanup-kit-0718-ww)
 - [NEB — DNA ligation with T4 DNA Ligase (M0202)](https://www.neb.com/en/protocols/dna-ligation-with-t4-dna-ligase-m0202?pdf=true)
 - [NEB — high efficiency transformation protocol](https://www.neb.com/en/protocols/high-efficiency-transformation-protocol-c2987)
+- [Barrick Lab — preparing chemically competent cells using the CaCl₂/glycerol method](https://barricklab.org/twiki/bin/view/Lab/ProtocolsChemCompCellsCaCl2Glycerol)
+- [NeoSynBio — chemically competent E. coli by the calcium chloride method](https://www.neosynbio.com/cacl2-chemically-competent-cells)
+- [Kerr Lab — preparing calcium chloride competent cells](http://kerrlab.org/Public/PreparingCalciumChlorideCompetentCells)
+- [Bio-protocol — the Inoue method for ultracompetent E. coli](https://en.bio-protocol.org/pdf/bio-protocol143.pdf)
 - [Takara — colony PCR in under an hour](https://www.takarabio.com/learning-centers/pcr/technical-notes/colony-pcr-in-under-an-hour)
 - [Sigma-Aldrich — colony PCR](https://www.sigmaaldrich.com/US/en/technical-documents/technical-article/genomics/pcr/colony-pcr)
 - [GENEWIZ/Azenta — Sanger sequencing services](https://www.genewiz.com/en-gb/public/services/sanger-sequencing)

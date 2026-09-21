@@ -173,6 +173,24 @@ else.
 
 ---
 
+## Competent cells
+
+**CaCl₂ with glycerol** — Umut's method, stated 21 Sep 2026. Not Inoue, not TSS; don't schedule
+either of those without asking again.
+
+- **It is a one-day prep with a tail the evening before.** A saturated overnight starter has to be
+  inoculated the night before, or the morning has nothing to subculture from. Schedule the starter,
+  not just the prep day.
+- **The shape of the day:** 1:100 subculture first thing → 2–3 h growth to OD₆₀₀ ≈ 0.4 (unattended,
+  other bench work goes here) → chill, harvest, CaCl₂ wash → 20–30 min on ice → final resuspension
+  in CaCl₂/glycerol, aliquot, snap-freeze.
+- **The ice step is a real passive window**, and a short bench task belongs in it — on 24 Sep 2026
+  that is the ChIP-qPCR plate set-up.
+- The growth must not overshoot mid-log, so the OD is the deadline, not the clock. Don't stack an
+  active step against the end of the growth block.
+
+---
+
 ## pLJC2 — SART3 and SMARCA2
 
 A second cloning project, unrelated to Nek2→YY1: SART3 and SMARCA2 into the **pLJC2** backbone.

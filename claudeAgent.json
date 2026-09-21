@@ -2718,8 +2718,8 @@
     {
       "id": "e-pljc2-miniprep",
       "date": "2026-09-24",
-      "start": "10:00",
-      "end": "10:45",
+      "start": "10:05",
+      "end": "10:50",
       "title": "Miniprep — pLJC2-SART3 / pLJC2-SMARCA2",
       "category": "experiment",
       "type": "active",
@@ -2741,14 +2741,14 @@
     },
     {
       "id": "e-pljc2-seq",
-      "date": "2026-09-24",
-      "start": "12:15",
-      "end": "12:35",
+      "date": "2026-09-25",
+      "start": "14:30",
+      "end": "14:50",
       "title": "pLJC2-SART3 / pLJC2-SMARCA2 to sequencing",
       "category": "experiment",
       "type": "active",
       "status": "pending",
-      "notes": "Added, not on Umut’s list. Only the clones the diagnostic digest passes.",
+      "notes": "Added, not on Umut’s list. Only the clones the diagnostic digest passes. Moved to Friday 24→25 Sep: Thursday noon is taken by the CaCl₂ harvest.",
       "group": "pLJC2 — SART3/SMARCA2"
     },
     {
@@ -2798,6 +2798,90 @@
       "status": "pending",
       "notes": "Added, not on Umut’s list. Harvesting twice is standard; drop it if the first collection is enough. After the weekly meeting.",
       "group": "Virus prep"
+    },
+    {
+      "id": "e-comp-starter-inoc",
+      "date": "2026-09-23",
+      "start": "17:00",
+      "end": "17:15",
+      "title": "Competent cells — starter culture inoculation",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Single colony into LB for tomorrow’s competent prep. Ten minutes, but it has to happen tonight — without it Thursday has nothing to subculture from.",
+      "group": "Cloning"
+    },
+    {
+      "id": "e-comp-starter",
+      "date": "2026-09-23",
+      "start": "17:15",
+      "end": "23:00",
+      "title": "Competent cells — starter culture, 37 °C overnight",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "Saturated overnight culture. Continues past this grid’s 23:00 window.",
+      "group": "Cloning"
+    },
+    {
+      "id": "e-comp-subculture",
+      "date": "2026-09-24",
+      "start": "09:40",
+      "end": "09:55",
+      "title": "Competent cells — 1:100 subculture",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "1 mL of the saturated overnight into 100 mL LB, 37 °C shaking.",
+      "group": "Cloning"
+    },
+    {
+      "id": "e-comp-growth",
+      "date": "2026-09-24",
+      "start": "09:55",
+      "end": "12:25",
+      "title": "Competent cells — growth to OD₆₀₀ ≈ 0.4",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "2–3 h at 37 °C. Unattended apart from reading the OD, so the miniprep and the diagnostic digest sit inside it. Do not let it overshoot — past mid-log the efficiency drops.",
+      "group": "Cloning"
+    },
+    {
+      "id": "e-comp-harvest",
+      "date": "2026-09-24",
+      "start": "12:25",
+      "end": "12:50",
+      "title": "Competent cells — chill, harvest, first CaCl₂ wash",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Ice 10 min to stop growth, spin cold, resuspend in ice-cold CaCl₂. Everything stays on ice and cold from here.",
+      "group": "Cloning"
+    },
+    {
+      "id": "e-comp-ice",
+      "date": "2026-09-24",
+      "start": "12:50",
+      "end": "13:40",
+      "title": "Competent cells — on ice",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "20–30 min on ice between washes. The ChIP-qPCR plate set-up goes here.",
+      "group": "Cloning"
+    },
+    {
+      "id": "e-comp-aliquot",
+      "date": "2026-09-24",
+      "start": "13:40",
+      "end": "14:40",
+      "title": "Competent cells — final CaCl₂/glycerol resuspension, aliquot and snap-freeze",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Resuspend in CaCl₂ with glycerol, aliquot, snap-freeze, straight to −80 °C. Transform one aliquot with a known plasmid to measure the efficiency before trusting the batch.",
+      "group": "Cloning"
     }
   ],
   "_groups": {
@@ -2836,7 +2920,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:07:23.815Z",
-    "modifiedBy": "Claude (weekly plan 21–25 Sep)"
+    "lastModified": "2026-09-21T18:11:36.494Z",
+    "modifiedBy": "Claude (competent cell prep, 24 Sep)"
   }
 }

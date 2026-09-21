@@ -33,6 +33,10 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | Dox + Shield-1 induction | **2 days before labelling** | ~20 min to dose | rest | Umut's value. Makes a labelling date a three-day commitment. |
 | Streptavidin pulldown + on-bead digest | ~1 day hands-on, overnight digest | ~4–5 h | overnight | Bead capture and washes are a long bench day; the tryptic digest runs overnight. |
 | ChIP-qPCR (to the plate) | **2–3 days** | ~5–6 h total | 2 overnights | 10 min formaldehyde crosslink + glycine, lysis, sonication to 150–200 bp, **overnight IP at 4 °C**, elution 65 °C, then reverse-crosslink ≥5 h or overnight, cleanup, qPCR. Not a one-day assay. |
+| ChIP — fixation day (crosslink + harvest) | ~1 h | all | — | 1% formaldehyde 10 min RT with rocking, quench 125 mM glycine 5 min, pellet, wash, freeze. The pellet can sit at −80 °C, so fixation is its own day and does not have to touch day 1. |
+| ChIP day 1 — lysis, sonication, antibody | ~3.5–4 h | all | overnight IP after | Lysis 10 min on ice, sonication in 15 s pulses / 1 min rests (~5 min total sonication, far longer in wall-clock with the rests and the ice), clearing spin, input aside, antibody + beads on. Then **overnight rotation at 4 °C**. Scale is what stretches this — two lines plus a second lab's samples is the top of the range. |
+| ChIP day 2 — washes + elution | ~2.5–3 h | all | reverse-crosslink after | Four to five washes, 5 min each with rotation (low salt, high salt, LiCl, TE), then elution — 15 min RT, or 65 °C for 30–60 min with vortexing every 15 min. Ends with the 65 °C reverse-crosslink, ≥5 h and overnight is standard (8–18 h, not past ~15–18 h). |
+| ChIP day 3 — RNase/Proteinase K + clean-up | ~3–3.5 h | ~40 min | ~2.5 h of incubation | RNase A 2 h at 37 °C, Proteinase K 1 h at 55 °C, then a standard spin-column PCR clean-up. Mostly unattended — this is where other bench work goes. |
 | FACS sorting (mCherry) | ~2–4 h | all | — | Instrument time plus prep; needs booking, and cells need recovery afterwards. |
 | Nuclear / cytoplasmic fractionation | ~2–3 h | ~2.5 h | — | Kit protocols quote under 2 h; a full stepwise fractionation runs to ~3 h with ~2.5 h hands-on. Ice incubations of 15–20 min and low-speed spins throughout. |
 | Colony formation — fixation | **15 min** | all | — | **Umut's value.** Published fixations sit in the same range: ice-cold methanol 10 min, or methanol/acetic acid. Glutaraldehyde 6% is the other common choice. |
@@ -92,6 +96,10 @@ These came from Umut directly and override any published range — see
 - [STAR Protocols — APEX2 biotin-labeling in mammalian cells](https://www.cell.com/star-protocols/fulltext/S2666-1667(24)00533-1)
 - [Rockland — chromatin immunoprecipitation (ChIP) protocol](https://www.rockland.com/globalassets/documents/protocols/chromatin-immunoprecipitation-chip-protocol.pdf)
 - [Antibodies.com — ChIP protocol](https://www.antibodies.com/applications/chromatin-immunoprecipitation/chip-protocol)
+- [Cell Signaling Technology — SimpleChIP Plus sonication ChIP protocol](https://www.cellsignal.com/learn-and-support/protocols/protocol-simplechip-plus-sonication)
+- [Proteintech — ChIP protocol](https://www.ptglab.com/support/immunoprecipitation-protocol/chip-protocol/)
+- [Sigma-Aldrich — ChIP: washing and elution](https://www.sigmaaldrich.com/US/en/technical-documents/technical-article/protein-biology/protein-and-nucleic-acid-interactions/chip-immunoprecipitation-washing-and-elution)
+- [Thermo Fisher — step-by-step guide to successful ChIP assays](https://www.thermofisher.com/us/en/home/life-science/antibodies/antibodies-learning-center/antibodies-resource-library/antibody-application-notes/step-by-step-guide-successful-chip-assays.html)
 - [Thermo Fisher — NE-PER nuclear and cytoplasmic extraction reagents](https://www.thermofisher.com/order/catalog/product/78833)
 - [Abcam — nuclear extraction and fractionation protocol](https://www.abcam.com/en-us/technical-resources/protocols/nuclear-extraction-and-fractionation)
 - [STAR Protocols — nucleo-cytoplasmic fractionation of mammalian cells](https://www.cell.com/star-protocols/fulltext/S2666-1667(25)00671-9)

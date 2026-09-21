@@ -2598,13 +2598,13 @@
     {
       "id": "e-chip-day1",
       "date": "2026-09-22",
-      "start": "11:20",
-      "end": "15:10",
-      "title": "ChIP day 1 — lysis, sonication, antibody (with Büşra; + Bursalı MDA)",
+      "title": "ChIP day 1 — (with Büşra; + Bursalı MDA cells)",
       "category": "experiment",
       "type": "active",
       "status": "pending",
       "notes": "Fixed pellets from yesterday: lysis, sonication to 150–200 bp, clearing spin, input aside, antibody + beads added. Run together with Büşra, including the Bursalı lab MDA samples.",
+      "start": "11:20",
+      "end": "15:10",
       "group": "LNCX/LUCX"
     },
     {
@@ -2908,7 +2908,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:17:51.232Z",
+    "lastModified": "2026-09-21T18:18:55.199Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

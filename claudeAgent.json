@@ -2555,7 +2555,7 @@
       "title": "pLJC2-SART3 + pLJC2-SMARCA2 — ligation set-up",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Two ligations plus the backbone-only negative control (AP-treated backbone through ligation without insert). Positive control = undigested stock, transformed directly tomorrow.",
       "group": "pLJC2 — SART3/SMARCA2"
     },
@@ -2920,7 +2920,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:15:43.794Z",
+    "lastModified": "2026-09-21T18:15:46.424Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2543,7 +2543,7 @@
       "title": "Cell seeding — HEK293T (virus) + Büşra’s plate",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "HEK293T seeded the evening before the YY1 transfection so the dish is at 50–70% confluence tomorrow. Second plate is for Büşra; line not specified and not schedule-relevant. Late slot because the day was already spent when the week was planned.",
       "group": "Virus prep"
     },
@@ -2920,7 +2920,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:15:27.466Z",
+    "lastModified": "2026-09-21T18:15:43.794Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

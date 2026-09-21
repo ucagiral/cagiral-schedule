@@ -2458,7 +2458,7 @@
       "title": "Ders seçimlerine bak",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "09:00",
       "end": "09:30"
@@ -2920,7 +2920,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:11:36.494Z",
-    "modifiedBy": "Claude (competent cell prep, 24 Sep)"
+    "lastModified": "2026-09-21T18:15:09.303Z",
+    "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

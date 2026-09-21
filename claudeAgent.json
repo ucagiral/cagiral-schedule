@@ -2718,13 +2718,13 @@
     {
       "id": "e-pljc2-diag",
       "date": "2026-09-24",
-      "start": "11:00",
-      "end": "12:05",
-      "title": "Diagnostic restriction digest + gel check",
+      "title": "Colony PCR + gel check",
       "category": "experiment",
       "type": "active",
       "status": "pending",
       "notes": "Added, not on Umut’s list. The digest incubation elapses first, then a 1% gel — the gel is poured during the ChIP incubation above, not on the critical path.",
+      "start": "11:00",
+      "end": "12:05",
       "group": "pLJC2 — SART3/SMARCA2"
     },
     {
@@ -2908,7 +2908,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-21T18:17:19.365Z",
+    "lastModified": "2026-09-21T18:17:41.042Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2579,7 +2579,7 @@
       "title": "YY1 plasmids — transfection for virus",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "First thing, so the 6 h medium change lands inside the afternoon rather than at midnight.",
       "group": "Virus prep"
     },
@@ -2908,7 +2908,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-09-23T04:05:20.538Z",
+    "lastModified": "2026-09-23T04:05:25.432Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

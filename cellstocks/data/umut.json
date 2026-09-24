@@ -9654,21 +9654,7 @@
       "passageKind": "relative",
       "frozenRaw": "23-03-26",
       "frozenOn": "2026-03-23",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-ongoing",
-        "position": "I5"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 321"
     },
     {
@@ -12552,6 +12538,29 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mufqieli",
+      "vialId": "v-321",
+      "name": "LnCap Canada",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-ongoing",
+        "position": "I5"
+      },
+      "date": "2026-09-24",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -12578,7 +12587,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-24T16:16:40.355Z"
+    "savedAt": "2026-09-24T16:16:45.927Z"
   },
   "removedVialIds": [
     "v-205",

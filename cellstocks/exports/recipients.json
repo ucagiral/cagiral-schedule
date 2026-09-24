@@ -1,8 +1,8 @@
 {
   "emails": [
-    "ucagiral24@ku.edu.tr",
-    "umut.cagiral@gmail.com"
+    "ucagiral24@ku.edu.tr"
   ],
   "sendAt": "00:00",
-  "timeZone": "Europe/Istanbul"
+  "timeZone": "Europe/Istanbul",
+  "rosterHiddenColumns": []
 }

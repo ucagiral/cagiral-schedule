@@ -9408,21 +9408,7 @@
       "passageKind": "absolute",
       "frozenRaw": "12/6/2026",
       "frozenOn": "2026-06-12",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-ongoing",
-        "position": "H4"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 311"
     },
     {
@@ -12543,6 +12529,29 @@
       "by": "unknown device",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mufqibz2",
+      "vialId": "v-311",
+      "name": "LuCap35CR",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-ongoing",
+        "position": "H4"
+      },
+      "date": "2026-09-24",
+      "by": "unknown device",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -12569,7 +12578,7 @@
   },
   "_meta": {
     "savedBy": "unknown device",
-    "savedAt": "2026-09-17T14:02:07.846Z"
+    "savedAt": "2026-09-24T16:16:40.355Z"
   },
   "removedVialIds": [
     "v-205",

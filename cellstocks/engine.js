@@ -287,6 +287,8 @@
       node.cols = Math.max(1, Math.floor(Number(d.cols) || 9));
       node.scheme = d.scheme || "grid";
       node.archived = false;
+      // Absent means Cell, same convention as vial.kind -- never write kind: "Cell".
+      if (d.kind && String(d.kind).toLowerCase() !== "cell") node.kind = String(d.kind);
     } else {
       node.children = [];
     }
@@ -338,6 +340,10 @@
       }
       if (d.rows !== undefined) f.node.rows = Math.max(1, Math.floor(Number(d.rows) || 1));
       if (d.cols !== undefined) f.node.cols = Math.max(1, Math.floor(Number(d.cols) || 1));
+      if (d.kind !== undefined) {
+        if (d.kind && String(d.kind).toLowerCase() !== "cell") f.node.kind = String(d.kind);
+        else delete f.node.kind;
+      }
     }
     return { ok: true, state: next };
   }
@@ -704,6 +710,10 @@
     var r = rules || state.rules || DEFAULT_RULES;
     var diffs = [], gaps = [];
     (state.vials || []).forEach(function (v) {
+      // Origin/koox/resistance/CASPEX/guide are Cell's own five formulas over a name --
+      // a Primer's name has none of them, so running classify() over it would only
+      // ever report spurious "unmatched facet" gaps.
+      if (kindOf(v).toLowerCase() !== "cell") return;
       var f = facetsFor(v, r);
       var changed = {};
       FACETS.forEach(function (facet) {
@@ -1155,6 +1165,11 @@
   // it, never the app proposing it (see suggestPlacementRandom/CategoryRow).
   function boxesFor(state, unitId, owner, opts) {
     var includeCommon = !opts || opts.includeCommon !== false;
+    // opts.kind scopes this to boxes of one kind -- a Primer never belongs beside a
+    // Cell box and vice versa, so any caller that already knows what it is placing
+    // (an automatic strategy, the manual box-override picker) should never even be
+    // offered the other kind's boxes.
+    var kind = opts && opts.kind;
     var out = [];
     eachBox(state, function (box, rack, unit, chain) {
       if (box.archived) return;
@@ -1163,6 +1178,7 @@
       // proposal that named it would be sending someone to a shelf that does not exist.
       if (!chain.length) return;
       if (unitId && unit.id !== unitId) return;
+      if (kind && kindOf(box).toLowerCase() !== String(kind).toLowerCase()) return;
       if (box.common) { if (!includeCommon) return; out.push({ box: box, rack: rack, unit: unit, chain: chain }); return; }
       if (owner && box.owner && box.owner.toLowerCase() !== String(owner).toLowerCase()) return;
       out.push({ box: box, rack: rack, unit: unit, chain: chain });
@@ -1282,6 +1298,12 @@
     if (!entry.chain.length) {
       return { ok: false, reason: "That box has no home in the freezer yet -- it is not in the freezer." };
     }
+    // A box holds one kind of thing, cell or otherwise: a Primer can never land in a
+    // Cell box and vice versa, even if some UI filter upstream is bypassed.
+    var wantKind = (req.kind || DEFAULT_KIND).toLowerCase();
+    if (kindOf(entry.box).toLowerCase() !== wantKind) {
+      return { ok: false, reason: "That box holds " + kindOf(entry.box) + ", not " + (req.kind || "Cell") + "." };
+    }
     var occ = occupancy(state, req.boxId);
     var slot = occ && occ.slots.filter(function (s) { return s.position === req.position; })[0];
     if (!slot) return { ok: false, reason: "That slot does not exist in this box." };
@@ -1291,8 +1313,10 @@
     var origin = originForRequest(state, req, rules);
     // Even a manual pick may not mix two cells into one row -- the placement rule this
     // whole file is built around, not a default that only applies to the automatic path.
-    // A common box is the one exception: mixing there is the point.
-    if (!entry.box.common && groupingStrategyFor(state) === "category-row") {
+    // A common box is one exception (mixing there is the point); a non-Cell box is the
+    // other -- there is no "origin" per vial there, so every row would spuriously read
+    // as mixed.
+    if (!entry.box.common && wantKind === "cell" && groupingStrategyFor(state) === "category-row") {
       var row = rowsOf(state, req.boxId, rules).filter(function (r) {
         return r.positions.indexOf(req.position) !== -1;
       })[0];
@@ -1325,7 +1349,7 @@
     // A common box only shows up here when req.boxId already names it -- someone picked
     // it on purpose via the box override, and is just letting the app choose a slot
     // inside it. Left to choose the box itself, this must never reach for one.
-    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId }).filter(function (entry) {
+    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId, kind: req.kind || DEFAULT_KIND }).filter(function (entry) {
       return req.boxId ? entry.box.id === req.boxId : true;
     });
     if (!boxes.length) {
@@ -1379,7 +1403,7 @@
 
     // Same rule as suggestPlacementRandom: a common box is only in play here when
     // req.boxId already names it.
-    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId }).filter(function (entry) {
+    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId, kind: req.kind || DEFAULT_KIND }).filter(function (entry) {
       return req.boxId ? entry.box.id === req.boxId : true;
     });
     if (!boxes.length) {
@@ -1657,6 +1681,10 @@
     var out = [];
     eachBox(state, function (box) {
       if (box.common) return;
+      // A non-Cell box (Primer, and anything else) has no per-vial "origin" -- every
+      // row there would read as everything and nothing sharing it, which is not a row
+      // that needs sorting out.
+      if (kindOf(box).toLowerCase() !== "cell") return;
       rowsOf(state, box.id, rules).forEach(function (row) {
         if (row.origins.length > 1) {
           out.push({ boxId: box.id, box: box.name, label: row.label, index: row.index,
@@ -1941,6 +1969,11 @@
     var customFlags = o.customFlags || [];
     var headerRow = o.headerRow || 1;
     var map = o.columns || {};             // role -> column index
+    // Cell's own five formulas (origin/koox/resistance/CASPEX/guide) only mean
+    // something over a cell name -- a sheet of anything else (Primer, and whatever
+    // else gets typed in) skips reading them and never runs classify() over the name.
+    var kind = o.kind || "Cell";
+    var isCell = kind.toLowerCase() === "cell";
     var rows = sheet.rows || [];
     var report = { rows: 0, imported: 0, skipped: [], dateQueue: 0, uncalculated: 0,
                    facetDiffs: 0, gaps: [], boxes: [], collisions: [], emptySlots: 0 };
@@ -1995,6 +2028,7 @@
       }
       var grid = gridFromPositions(positions) || { rows: o.defaultRows || 9, cols: o.defaultCols || 9, scheme: "grid" };
       var box = { id: boxId, name: label, rows: grid.rows, cols: grid.cols, scheme: grid.scheme, note: "", archived: false };
+      if (!isCell) box.kind = kind;
       unit.boxes.push(box);
       report.boxes.push({ id: boxId, name: label, rows: grid.rows, cols: grid.cols, slots: block.endRow - block.startRow + 1 });
 
@@ -2044,12 +2078,14 @@
         var notes = cellText("notes");
 
         var fromSheet = {};
-        ["origin", "koox", "resistance", "caspex", "guide"].forEach(function (facet) {
-          var t = cellText(facet);
-          // "#N/A" and "-" are what the sheet writes when a formula found nothing.
-          // They are not values, so they are not imported as ones.
-          if (t && t !== "#N/A" && t !== "-") fromSheet[facet] = t;
-        });
+        if (isCell) {
+          ["origin", "koox", "resistance", "caspex", "guide"].forEach(function (facet) {
+            var t = cellText(facet);
+            // "#N/A" and "-" are what the sheet writes when a formula found nothing.
+            // They are not values, so they are not imported as ones.
+            if (t && t !== "#N/A" && t !== "-") fromSheet[facet] = t;
+          });
+        }
 
         // A column the guesser (and the person mapping it) couldn't place under any
         // known role still isn't lost -- it becomes a real, named field on the vial
@@ -2082,8 +2118,15 @@
             importRaw: { row: rr, name: name, position: positionText, box: label },
             importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
           };
+          if (!isCell) v.kind = kind;
           if (Object.keys(fromSheet).length) v.facetsFromSheet = fromSheet;
-          if (custom) v.custom = clone(custom);
+          if (custom) {
+            // A non-Cell import has no vial.custom reader in the app -- the vial editor's
+            // attribute table only ever looks at customFacets, so an imported column
+            // lands there directly rather than in a second, dead field.
+            if (isCell) v.custom = clone(custom);
+            else v.customFacets = clone(custom);
+          }
           return v;
         }
 
@@ -2136,7 +2179,6 @@
           var vial = {
             id: o.idPrefix ? (o.idPrefix + "-" + rr + (pi ? "-" + (pi + 1) : "")) : ("v-" + rr + (pi ? "-" + (pi + 1) : "")),
             name: name,
-            lineId: lineIdFor(name, rules),
             passage: passage.raw, passageNumber: passage.number, passageKind: passage.kind,
             frozenRaw: dateRaw,
             frozenOn: date.iso,
@@ -2146,12 +2188,19 @@
             status: "stored",
             importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
           };
+          // lineId is Cell's own concept (classify()'s five formulas run over the name);
+          // a Primer has no line to belong to, and no classify() runs over it at all.
+          if (isCell) vial.lineId = lineIdFor(name, rules);
+          else vial.kind = kind;
           // Nothing else is stored about an ambiguous date: frozenRaw is kept, frozenOn
           // is left null, and everything else (the proposal, the as-written reading,
           // why it is ambiguous) comes back from parseDate whenever it is needed.
           // A field that can be recomputed is a field that can go stale.
           if (Object.keys(fromSheet).length) vial.facetsFromSheet = fromSheet;
-          if (custom) vial.custom = clone(custom);
+          if (custom) {
+            if (isCell) vial.custom = clone(custom);
+            else vial.customFacets = clone(custom);
+          }
           vials.push(vial);
           report.imported++;
         });
@@ -2359,6 +2408,58 @@
     return { storage: lab, state: next, renamed: remap };
   }
 
+  // Onto an account that already has real vials, an import adds to the inventory
+  // rather than replacing it. Umut's 396-vial Cell inventory is exactly the case this
+  // guards: importing a Primer sheet through the unmodified path used to build a
+  // brand-new state from scratch and the save then overwrote the account's file with
+  // it outright, so a primer import would have deleted every one of those 396 vials.
+  // Every existing vial, line and withdrawal here is untouched byte-for-byte; only the
+  // imported ones are appended, with fresh ids where an id happens to collide (the
+  // importer numbers its own vials "v-<row>", and two independent imports -- or an
+  // import alongside hand-frozen vials sharing that scheme -- can land on the same one).
+  //
+  // Built on `imported` (post-adoptImportedBoxes, so its storage tree and box
+  // references already reflect the new boxes) rather than on `existing`: the tree,
+  // rules and settings this produces are the current, post-import ones, and only
+  // vials/lines/withdrawals are a union of both.
+  function mergeImportedVials(imported, existing) {
+    var next = clone(imported);
+    // Settings (customFlags, aliases, defaultUnitId, the remembered column mapping) are
+    // the account's own preferences, not something a sheet has an opinion about -- an
+    // import that happens to be the second one that day must not reset them to the
+    // freshly-derived defaults importSheet() builds for a state made from scratch.
+    next.settings = clone(existing.settings || imported.settings);
+    var takenIds = {};
+    (existing.vials || []).forEach(function (v) { takenIds[v.id] = true; });
+    var idRemap = {};
+    var importedVials = (imported.vials || []).map(function (v) {
+      var fresh = clone(v);
+      if (takenIds[fresh.id]) {
+        var freshId = nodeId(fresh.id, Object.keys(takenIds));
+        idRemap[fresh.id] = freshId;
+        fresh.id = freshId;
+      }
+      takenIds[fresh.id] = true;
+      return fresh;
+    });
+    next.vials = clone(existing.vials || []).concat(importedVials);
+
+    // A line is Cell's own concept and a non-Cell import never produces one, but the
+    // same merge shape covers both: existing lines win, an imported line with the same
+    // id is skipped rather than overwriting what is already recorded about it.
+    var lines = clone(existing.lines || []);
+    var lineIds = {};
+    lines.forEach(function (l) { lineIds[l.id] = true; });
+    (imported.lines || []).forEach(function (l) {
+      if (lineIds[l.id]) return;
+      lineIds[l.id] = true;
+      lines.push(l);
+    });
+    next.lines = lines;
+    next.withdrawals = clone(existing.withdrawals || []).concat(clone(imported.withdrawals || []));
+    return { state: next, idRemap: idRemap };
+  }
+
   // =====================================================================
   // Rules are the lab's, not one account's
   // =====================================================================
@@ -2452,7 +2553,7 @@
     var copy = clone(storage || {});
     copy.children = copy.children || [];
     copy.unplaced = copy.unplaced || [];
-    eachBox(copy, function (box) { stripEmpties(box, ["id", "name", "rows", "cols", "owner", "common", "isBox"]); });
+    eachBox(copy, function (box) { stripEmpties(box, ["id", "name", "rows", "cols", "owner", "common", "isBox", "kind"]); });
     eachNode(copy, function (node) { if (!isBoxNode(node)) stripEmpties(node, ["id", "name", "children"]); });
     if (!copy.unplaced.length) delete copy.unplaced;
     return copy;
@@ -2996,7 +3097,7 @@
     // the tree: one recursive kind of node, marked isBox where it stops
     eachNode: eachNode, findNode: findNode, layers: layers, isBoxNode: isBoxNode,
     addNode: addNode, editNode: editNode, moveNode: moveNode, removeNode: removeNode,
-    adoptImportedBoxes: adoptImportedBoxes,
+    adoptImportedBoxes: adoptImportedBoxes, mergeImportedVials: mergeImportedVials,
     mergeRuleSets: mergeRuleSets, ruleMatcher: ruleMatcher, hydrateRules: hydrateRules,
     mergeRulesDefaults: mergeRulesDefaults, serialiseRules: serialiseRules,
     nodeContents: nodeContents, pathOf: pathOf, pathKey: pathKey, pathNames: pathNames,

@@ -2117,12 +2117,26 @@
     // the pin rather than silently ignoring it.
     if (freeze.position && freeze.count !== 1) freeze.position = null;
 
+    // A non-Cell kind (Primer, and anything else typed in) has no origin/koox facets to
+    // group rows by, so there is nothing for an automatic proposal to base a suggestion
+    // on -- placement there is manual-only, by decision. Force the slot-click path
+    // rather than ever calling E.suggestPlacement for one.
+    if (freeze.kind !== "Cell" && !(freeze.boxId && freeze.position)) {
+      freeze.plan = null;
+      card.appendChild(el("p", "note", "Pick a box and click an empty slot -- " + freeze.kind + " has no automatic placement."));
+      var pickBtn = el("button", null, "Choose a box");
+      pickBtn.onclick = pickBox;
+      card.appendChild(pickBtn);
+      return;
+    }
+
     var plan = freeze.boxId && freeze.position
-      ? E.suggestPlacementAt(state, { name: name, boxId: freeze.boxId, position: freeze.position })
+      ? E.suggestPlacementAt(state, { name: name, boxId: freeze.boxId, position: freeze.position, kind: freeze.kind })
       : E.suggestPlacement(state, {
           name: name, count: freeze.count,
           unitId: freeze.unitId || state.settings.defaultUnitId,
-          boxId: freeze.boxId || null
+          boxId: freeze.boxId || null,
+          kind: freeze.kind
         });
     freeze.plan = plan;
 
@@ -2180,7 +2194,7 @@
     // list every box in the whole lab, including other members' and anything still
     // sitting in "Not placed yet": an override that is supposed to offer a different
     // box of YOURS was instead offering to freeze a vial straight into Barış's box.
-    var mine = E.boxesFor(state, null, effectiveIdentity());
+    var mine = E.boxesFor(state, null, effectiveIdentity(), { kind: freeze.kind });
     if (!mine.length){
       body.appendChild(el("p", "note", "You have no boxes with room yet — ask an admin for one."));
     }
@@ -3846,7 +3860,8 @@
   // A member makes a box; where it goes is an admin's call, so it lands in "Not placed
   // yet" and admin puts it away from the Structure screen. Umut's rule, and it is also
   // the flow he described: fill the box first, then choose the cabinet.
-  function addBoxDialog(){
+  async function addBoxDialog(){
+    await ensureTypesCache();
     $("dlgTitle").textContent = "Add a box";
     var body = clear($("dlgBody"));
     var name = document.createElement("input"); name.placeholder = "Box 7"; name.autocomplete = "off";
@@ -3854,6 +3869,39 @@
     var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = 9;
     var f = el("div", "field"); f.appendChild(el("label", null, "Name")); f.appendChild(name);
     body.appendChild(f);
+    // Kind, same list Add offers (Cell plus whatever the lab has typed in). Defaults to
+    // Cell so this stays a no-op for the ordinary case; it is the one second field this
+    // dialog is allowed, since Umut asked for it here specifically -- a member's quick
+    // box-add, not just admin Structure.
+    var kind = document.createElement("select");
+    var boxKind = "Cell";
+    function fillKindOptions(){
+      clear(kind);
+      typeNames().forEach(function(n){
+        var o = document.createElement("option");
+        o.value = n; o.textContent = n; o.selected = n === boxKind;
+        kind.appendChild(o);
+      });
+      var newOpt = document.createElement("option");
+      newOpt.value = "__new__"; newOpt.textContent = "+ New type…";
+      kind.appendChild(newOpt);
+    }
+    fillKindOptions();
+    kind.onchange = function(){
+      if (kind.value === "__new__"){
+        var n = prompt("Name this type:", "");
+        if (!n || !n.trim()){ kind.value = boxKind; return; }
+        var trimmed = n.trim();
+        workerFetch("/types", { method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() },
+          body: JSON.stringify({ name: trimmed }) })
+          .then(function(cfg){ typesCache = cfg; boxKind = trimmed; fillKindOptions(); })
+          .catch(function(err){ showBanner(esc(err.message)); kind.value = boxKind; });
+        return;
+      }
+      boxKind = kind.value;
+    };
+    var kf = el("div", "field"); kf.appendChild(el("label", null, "Kind")); kf.appendChild(kind);
+    body.appendChild(kf);
     var grid = el("div", "two");
     [["Rows", rows], ["Columns", cols]].forEach(function(p){
       var g = el("div", "field"); g.appendChild(el("label", null, p[0])); g.appendChild(p[1]); grid.appendChild(g);
@@ -3875,7 +3923,7 @@
         var fresh = await fetchLabStorage();
         var r = E.addNode(fresh, "unplaced", {
           name: name.value.trim(), rows: rows.value, cols: cols.value, icon: "📦",
-          isBox: true, owner: (effectiveIdentity() || "").toLowerCase()
+          isBox: true, owner: (effectiveIdentity() || "").toLowerCase(), kind: boxKind
         });
         if (!r.ok){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; ok.disabled = false; return; }
         await commitLabStorage(r.state, "Add a box");
@@ -4188,10 +4236,47 @@
     $("dlg").showModal();
   }
 
-  function mapColumns(fileName, sheet){
+  async function mapColumns(fileName, sheet){
+    await ensureTypesCache();
     $("dlgTitle").textContent = "What is in each column?";
     var body = clear($("dlgBody"));
     var guesses = E.guessColumns(sheet.rows, 0, sheet.merges);
+
+    // What is this sheet a sheet of? Cell's own origin/koox/resistance/CASPEX/guide
+    // columns below only apply when it is Cell -- anything else (Primer, and whatever
+    // else has been typed in) skips them entirely and maps its own columns via "New…".
+    var importKind = "Cell";
+    var kindSel = document.createElement("select");
+    typeNames().forEach(function(n){
+      var o = document.createElement("option");
+      o.value = n; o.textContent = n; o.selected = n === importKind;
+      kindSel.appendChild(o);
+    });
+    var newKindOpt = document.createElement("option");
+    newKindOpt.value = "__new__"; newKindOpt.textContent = "+ New type…";
+    kindSel.appendChild(newKindOpt);
+    kindSel.onchange = function(){
+      if (kindSel.value === "__new__"){
+        var n = prompt("Name this type:", "");
+        if (!n || !n.trim()){ kindSel.value = importKind; return; }
+        var trimmed = n.trim();
+        workerFetch("/types", { method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() },
+          body: JSON.stringify({ name: trimmed }) })
+          .then(function(cfg){
+            typesCache = cfg;
+            var o = document.createElement("option"); o.value = trimmed; o.textContent = trimmed; o.selected = true;
+            kindSel.insertBefore(o, kindSel.lastChild);
+            importKind = trimmed;
+          })
+          .catch(function(err){ showBanner(esc(err.message)); kindSel.value = importKind; });
+        return;
+      }
+      importKind = kindSel.value;
+    };
+    var kindField = el("div", "field");
+    kindField.appendChild(el("label", null, "What kind of sheet is this?"));
+    kindField.appendChild(kindSel);
+    body.appendChild(kindField);
     var map = {};
     // A returning member's own confirmed layout (from the last time they imported)
     // takes priority over a fresh guess -- but it is still only ever a pre-selection
@@ -4290,25 +4375,40 @@
     var foot = clear($("dlgFoot"));
     var next = el("button", "primary", "Look at what it found");
     next.onclick = function(){
-      if (map.name === undefined || map.position === undefined){
-        showBanner("At least a name column and a position column are needed.");
+      // A Cell sheet always has a position column -- that is how the app has always
+      // read a freezer sheet. A non-Cell sheet (Umut's primer one: Owner, Unit, Box
+      // Name, Primer Name, Sequence, Notes, Updated) has no position column at all,
+      // by decision -- placement there is manual, one slot-click at a time -- so every
+      // row of it already goes through the existing ambiguous-import/Review path
+      // (no position parses -> no location -> waits in Review, placed by hand after).
+      if (map.name === undefined || (importKind === "Cell" && map.position === undefined)){
+        showBanner(importKind === "Cell"
+          ? "At least a name column and a position column are needed."
+          : "At least a name column is needed.");
         return;
       }
-      previewImport(fileName, sheet, map, customColumns, headerByIndex);
+      previewImport(fileName, sheet, map, customColumns, headerByIndex, importKind);
     };
     foot.appendChild(next);
     $("dlg").showModal();
   }
 
-  function previewImport(fileName, sheet, map, customColumns, headerByIndex){
+  function previewImport(fileName, sheet, map, customColumns, headerByIndex, importKind){
     var out = E.importSheet(sheet, {
       headerRow: 1, columns: map, rules: state.rules, customFlags: state.settings.customFlags,
       unitId: "u-f80", rackId: "r-1", unitName: "-80 °C Freezer", unitType: "freezer",
       rackName: "Rack 1",
       sourceName: fileName, idPrefix: "v", unnamedBoxName: "Unnamed box",
-      customColumns: customColumns
+      customColumns: customColumns, kind: importKind
     });
     var rep = out.report;
+    // Merge is the default the moment there is a real inventory to lose -- an import
+    // used to build a brand-new state from scratch and the save then overwrote the
+    // account's file with it outright, so any import into an account with vials
+    // already in it would have deleted every one of them. "Replace everything" stays
+    // available (useful for an empty account's very first import) but is no longer
+    // what a click does by default once there is something here to protect.
+    var mergeMode = state.vials.length > 0;
 
     $("dlgTitle").textContent = "Before anything is written";
     var body = clear($("dlgBody"));
@@ -4339,12 +4439,36 @@
 
     var warn = el("p", "note");
     warn.style.color = "var(--warn-text)";
-    warn.textContent = "This replaces the whole inventory — all " + state.vials.length +
-      " vials currently here, and the boxes they live in.";
+    var replaceLabel = null, replaceToggle = null;
+    function syncWarn(){
+      warn.textContent = mergeMode
+        ? "Adds " + rep.imported + " to what's already here — the " + state.vials.length +
+          " vials currently in your inventory are untouched."
+        : "This replaces the whole inventory — all " + state.vials.length +
+          " vials currently here, and the boxes they live in.";
+    }
     body.appendChild(warn);
+    // Merge is the default the moment there is something to lose; "replace everything"
+    // is still there for a first-ever import into an empty account, but it is an
+    // explicit switch now, not a click away from wiping a real inventory.
+    if (state.vials.length){
+      replaceLabel = el("label", "toggle");
+      replaceToggle = document.createElement("input");
+      replaceToggle.type = "checkbox";
+      replaceToggle.onchange = function(){
+        mergeMode = !replaceToggle.checked;
+        go3.textContent = mergeMode ? "Add to the inventory" : "Replace the inventory";
+        syncWarn();
+      };
+      replaceLabel.appendChild(replaceToggle);
+      replaceLabel.appendChild(el("span", null,
+        "Replace the whole inventory instead of adding to it"));
+      body.appendChild(replaceLabel);
+    }
+    syncWarn();
 
     var foot = clear($("dlgFoot"));
-    var go3 = el("button", "primary", "Replace the inventory");
+    var go3 = el("button", "primary", mergeMode ? "Add to the inventory" : "Replace the inventory");
     go3.disabled = !canWrite() || !!errs.length;
 
     // Dropping a row outright is exactly the kind of quiet data loss this app exists
@@ -4372,7 +4496,9 @@
       go3.disabled = true;
       try {
         var adopted = E.adoptImportedBoxes(labStorage, out.state, effectiveIdentity());
-        var next = E.mergeDefaults(adopted.state);
+        var next = mergeMode
+          ? E.mergeDefaults(E.mergeImportedVials(adopted.state, state).state)
+          : E.mergeDefaults(adopted.state);
         next.rules = state.rules;               // the rules are the lab's, not the sheet's
         next.settings.columnMap = map;
         if (customColumns && Object.keys(customColumns).length){
@@ -4878,7 +5004,8 @@
   //
   // One dialog for both, because there is one kind of thing. Ticking "this is a box"
   // reveals the grid and the owner and hides nothing else: a box is a layer that stopped.
-  function nodeFieldsDialog(title, initial, onSave){
+  async function nodeFieldsDialog(title, initial, onSave){
+    await ensureTypesCache();
     $("dlgTitle").textContent = title;
     var body = clear($("dlgBody"));
     var msg = el("p", "note");
@@ -4943,6 +5070,42 @@
     var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = initial.cols || 9;
     var of = el("div", "field"); of.id = "nodeOwnerField"; of.appendChild(el("label", null, "Whose is it? (required)")); of.appendChild(owner);
     boxFields.appendChild(of);
+    // Kind, same list the Add screen offers -- lets admin mark (or retag) a box as
+    // Primer or anything else, for parity with a member's own quick "Add a box".
+    var kind = document.createElement("select");
+    var initialKind = initial.kind || "Cell";
+    (function(){
+      typeNames().forEach(function(n){
+        var o = document.createElement("option");
+        o.value = n; o.textContent = n; o.selected = n === initialKind;
+        kind.appendChild(o);
+      });
+      var newOpt = document.createElement("option");
+      newOpt.value = "__new__"; newOpt.textContent = "+ New type…";
+      kind.appendChild(newOpt);
+    })();
+    kind.onchange = function(){
+      if (kind.value === "__new__"){
+        var n = prompt("Name this type:", "");
+        if (!n || !n.trim()){ kind.value = initialKind; return; }
+        var trimmed = n.trim();
+        workerFetch("/types", { method:"POST", headers:{ Authorization:"Bearer " + getWorkerToken() },
+          body: JSON.stringify({ name: trimmed }) })
+          .then(function(cfg){
+            typesCache = cfg;
+            var o = document.createElement("option"); o.value = trimmed; o.textContent = trimmed; o.selected = true;
+            kind.insertBefore(o, kind.lastChild);
+            initialKind = trimmed;
+          })
+          .catch(function(err){ showBanner(esc(err.message)); kind.value = initialKind; });
+      }
+    };
+    var kf = el("div", "field"); kf.appendChild(el("label", null, "Kind")); kf.appendChild(kind);
+    if (initial.exists && initial.kind && initial.kind !== "Cell" && initial.vialCount){
+      kf.appendChild(el("p", "sub", "Changing this away from what it holds today (" +
+        initial.vialCount + " vial(s)) won't move anything -- decide deliberately."));
+    }
+    boxFields.appendChild(kf);
     var grid = el("div", "two");
     [["Rows (A)", rows], ["Columns (B)", cols]].forEach(function(p){
       var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); grid.appendChild(f);
@@ -4963,7 +5126,8 @@
       var details = {
         name: name.value, note: note.value, icon: icon.value,
         isBox: isBox.checked, common: common.checked,
-        owner: common.checked ? "" : owner.value, rows: rows.value, cols: cols.value
+        owner: common.checked ? "" : owner.value, rows: rows.value, cols: cols.value,
+        kind: kind.value === "__new__" ? initialKind : kind.value
       };
       if (!details.name.trim()){ msg.textContent = "A name is required."; msg.style.color = "var(--bad)"; return; }
       if (details.isBox && !details.owner && !details.common){
@@ -5003,9 +5167,11 @@
   }
 
   function editNodeDialog(node){
+    var counts = labVialCounts();
     nodeFieldsDialog("Edit " + node.name, {
       exists: true, id: node.id, name: node.name, note: node.note, icon: node.icon,
-      isBox: E.isBoxNode(node), owner: node.owner, common: node.common, rows: node.rows, cols: node.cols
+      isBox: E.isBoxNode(node), owner: node.owner, common: node.common, rows: node.rows, cols: node.cols,
+      kind: E.kindOf(node), vialCount: counts[node.id] || 0
     }, async function(details){
       var r = E.editNode(labStorage, node.id, details);
       if (!r.ok) return r;

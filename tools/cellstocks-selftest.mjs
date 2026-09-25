@@ -2969,6 +2969,221 @@ check("merging still changes nothing the second time once a tombstone is involve
   return null;
 });
 
+// ------------------------------------------------------------ box-level kind
+//
+// A box holds one kind of thing, cell or otherwise. Absent means Cell, the same
+// convention vial.kind already uses -- these checks guard the round trip and the
+// places Cell-only logic must not reach a non-Cell box.
+
+check("addNode sets box.kind only for a non-Cell kind, and editNode clears it back", () => {
+  var r1 = E.addNode({ children: [], unplaced: [] }, "unplaced", { name: "Box 1", isBox: true, owner: "umut" });
+  if (!r1.ok) return "plain add failed: " + r1.reason;
+  if (r1.node.kind !== undefined) return "a Cell box must never carry kind: \"Cell\" explicitly, got " + json(r1.node.kind);
+
+  var r2 = E.addNode({ children: [], unplaced: [] }, "unplaced", { name: "Primers", isBox: true, owner: "umut", kind: "Primer" });
+  if (!r2.ok) return "primer add failed: " + r2.reason;
+  if (r2.node.kind !== "Primer") return "expected kind: Primer, got " + json(r2.node.kind);
+
+  var r3 = E.editNode(r2.state, r2.node.id, { kind: "Cell" });
+  if (!r3.ok) return "edit back to Cell failed: " + r3.reason;
+  var edited = E.findNode(r3.state, r2.node.id).node;
+  if (edited.kind !== undefined) return "setting kind back to Cell must clear the field, got " + json(edited.kind);
+  return null;
+});
+
+check("slimStorage keeps a box's non-default kind through a save/load round trip", () => {
+  var added = E.addNode({ children: [], unplaced: [] }, "unplaced", { name: "Primers", isBox: true, owner: "umut", kind: "Primer" });
+  var slimmed = E.slimStorage(added.state);
+  var reloaded = JSON.parse(JSON.stringify(slimmed));
+  var box1 = E.findNode(reloaded, added.node.id).node;
+  if (box1.kind !== "Primer") return "kind did not survive slimStorage: " + json(box1);
+  return null;
+});
+
+check("mixedRows and validate() skip a non-Cell box entirely", () => {
+  // Names chosen to classify as two DIFFERENT cell origins (HEK293T, Du145) under the
+  // real rules -- if the kind guard were missing, this row would light up as mixed for
+  // the same reason a real HEK+Du145 row does; the point of the check is that it doesn't.
+  var primerBox = Object.assign(box("b-1", "Primers", 1, 3), { isBox: true, owner: "umut", kind: "Primer" });
+  var lab = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [primerBox] }] });
+  var state = E.hydrateStorage(E.mergeDefaults({
+    vials: [
+      Object.assign(vial("v-1", "HEK293T primer", "b-1", "A1"), { kind: "Primer" }),
+      Object.assign(vial("v-2", "Du145 primer", "b-1", "A2"), { kind: "Primer" })
+    ]
+  }), lab, "umut");
+  if (E.mixedRows(state).length) return "a Primer box's row must never read as mixed -- it has no per-vial origin";
+  var problems = E.validate(state);
+  if (problems.some((p) => p.code === "mixed-row")) return "validate() must not raise mixed-row for a non-Cell box";
+  return null;
+});
+
+check("suggestPlacementAt allows mixing distinct names in one row of a non-Cell box, but a Cell box still refuses", () => {
+  // Same reasoning as the mixedRows check above: names that would classify as two
+  // different cell origins, so an unguarded row-mixing refusal would still fire here.
+  var primerBox = Object.assign(box("b-1", "Primers", 1, 3), { isBox: true, owner: "umut", kind: "Primer" });
+  var lab = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [primerBox] }] });
+  var state = E.hydrateStorage(E.mergeDefaults({
+    vials: [Object.assign(vial("v-1", "HEK293T primer", "b-1", "A1"), { kind: "Primer" })]
+  }), lab, "umut");
+  var plan = E.suggestPlacementAt(state, { name: "Du145 primer", boxId: "b-1", position: "A2", kind: "Primer" });
+  if (!plan.ok) return "a manual pick mixing two primers in one row must be allowed: " + plan.reason;
+
+  var cellBox = Object.assign(box("b-2", "Box 2", 1, 3), { isBox: true, owner: "umut" });
+  var lab2 = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [cellBox] }] });
+  var state2 = E.hydrateStorage(E.mergeDefaults({ vials: [vial("v-1", "HEK293T", "b-2", "A1")] }), lab2, "umut");
+  var plan2 = E.suggestPlacementAt(state2, { name: "Du145", boxId: "b-2", position: "A2" });
+  if (plan2.ok) return "a Cell box must still refuse to mix two cells in one row";
+  return null;
+});
+
+check("suggestPlacementAt refuses a kind mismatch between the vial and the box", () => {
+  var primerBox = Object.assign(box("b-1", "Primers", 1, 3), { isBox: true, owner: "umut", kind: "Primer" });
+  var cellBox = Object.assign(box("b-2", "Box 2", 1, 3), { isBox: true, owner: "umut" });
+  var lab = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [primerBox, cellBox] }] });
+  var state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "umut");
+
+  var intoPrimerBox = E.suggestPlacementAt(state, { name: "HEK293T", boxId: "b-1", position: "A1" });
+  if (intoPrimerBox.ok) return "a Cell vial must never be placed into a Primer box";
+
+  var intoCellBox = E.suggestPlacementAt(state, { name: "M13F", boxId: "b-2", position: "A1", kind: "Primer" });
+  if (intoCellBox.ok) return "a Primer vial must never be placed into a Cell box";
+  return null;
+});
+
+check("boxesFor's kind filter keeps an automatic Cell placement out of a Primer box", () => {
+  var primerBox = Object.assign(box("b-1", "Primers", 9, 9), { isBox: true, owner: "umut", kind: "Primer" });
+  var cellBox = Object.assign(box("b-2", "Box 2", 9, 9), { isBox: true, owner: "umut" });
+  var lab = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [primerBox, cellBox] }] });
+  var state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "umut");
+
+  var cellOnly = E.boxesFor(state, null, "umut", { kind: "Cell" });
+  if (cellOnly.some((e) => e.box.id === "b-1")) return "a Cell-scoped boxesFor must not return the Primer box";
+  if (!cellOnly.some((e) => e.box.id === "b-2")) return "a Cell-scoped boxesFor must still return the Cell box";
+
+  var primerOnly = E.boxesFor(state, null, "umut", { kind: "Primer" });
+  if (primerOnly.some((e) => e.box.id === "b-2")) return "a Primer-scoped boxesFor must not return the Cell box";
+  if (!primerOnly.some((e) => e.box.id === "b-1")) return "a Primer-scoped boxesFor must still return the Primer box";
+
+  var plan = E.suggestPlacement(state, { name: "HEK293T", count: 1 });
+  if (!plan.ok) return "expected an automatic Cell placement to succeed: " + plan.reason;
+  if (plan.segments.some((s) => s.boxId === "b-1")) return "an automatic Cell placement must never land in the Primer box";
+  return null;
+});
+
+// -------------------------------------------------------- kind-aware import
+
+check("importSheet with options.kind = \"Primer\" skips Cell facets/classify and tags the vial and box", () => {
+  var cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  var rows = [
+    [cell("Box Name"), cell("Primer Name"), cell("Sequence"), cell("Owner")],
+    [cell("Primer Box 1"), cell("M13F"), cell("GTAAAACGACGGCCAGT"), cell("Umut")]
+  ];
+  var sheet = { name: "Sheet1", rows, merges: [] };
+  var out = E.importSheet(sheet, {
+    columns: { box: 0, name: 1 }, headerRow: 1, kind: "Primer",
+    customColumns: { 2: "Sequence", 3: "Owner" }
+  });
+  var v = out.state.vials[0];
+  if (v.kind !== "Primer") return "expected vial.kind Primer, got " + json(v.kind);
+  if (v.lineId) return "a Primer must never get a Cell lineId, got " + json(v.lineId);
+  if (v.facetsFromSheet) return "a Primer sheet has no origin/koox/etc columns to read, got " + json(v.facetsFromSheet);
+  if (v.custom) return "a non-Cell import's \"New\" columns must land in customFacets, not the dead custom field";
+  if (!v.customFacets || v.customFacets.Sequence !== "GTAAAACGACGGCCAGT" || v.customFacets.Owner !== "Umut") {
+    return "expected Sequence/Owner in customFacets, got " + json(v.customFacets);
+  }
+  var builtBox = out.state.storage.children[0].children[0].children[0];
+  if (builtBox.kind !== "Primer") return "the box importSheet built must carry kind: Primer too, got " + json(builtBox.kind);
+  if (out.state.lines.length) return "a Primer import must never build Cell lines";
+  return null;
+});
+
+check("importSheet with no options.kind behaves exactly as before (regression guard)", () => {
+  var cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  var rows = [
+    [cell("Position"), cell("Cell Name")],
+    [cell("A1"), cell("HEK293T p12")]
+  ];
+  var sheet = { name: "Sheet1", rows, merges: [] };
+  var out = E.importSheet(sheet, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  var v = out.state.vials[0];
+  if (v.kind !== undefined) return "an ordinary Cell import must never write kind: \"Cell\" explicitly, got " + json(v.kind);
+  if (!v.lineId) return "an ordinary Cell import must still get a lineId";
+  if (out.state.storage.children[0].children[0].children[0].kind !== undefined) {
+    return "an ordinary Cell import's box must never carry kind: \"Cell\" explicitly";
+  }
+  return null;
+});
+
+// -------------------------------------------------------------- merge import
+//
+// The data-loss bug this whole plan exists to fix: importing used to build a brand
+// new state from scratch, and the save then overwrote the account's file with it --
+// so importing anything at all into an account that already had real vials deleted
+// every one of them. This is the test that guards that directly: it asserts the
+// BEFORE vials are still present, byte-identical, not just that the total count grew.
+
+check("mergeImportedVials leaves every pre-existing vial byte-identical and only adds the imported ones", () => {
+  var existing = fixture();
+  var before = JSON.parse(JSON.stringify(existing.vials));
+
+  var cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  var rows = [
+    [cell("Box Name"), cell("Primer Name")],
+    [cell("Primer Box 1"), cell("M13F")]
+  ];
+  var sheet = { name: "Sheet1", rows, merges: [] };
+  var imported = E.importSheet(sheet, { columns: { box: 0, name: 1 }, headerRow: 1, kind: "Primer" }).state;
+
+  var merged = E.mergeImportedVials(imported, existing).state;
+
+  before.forEach((v) => {
+    var still = merged.vials.find((x) => x.id === v.id);
+    if (!still) return `pre-existing vial ${v.id} vanished after a merge import`;
+    if (json(still) !== json(v)) return `pre-existing vial ${v.id} changed shape after a merge import: ${json(still)} vs ${json(v)}`;
+  });
+  if (merged.vials.length !== before.length + 1) {
+    return `expected ${before.length + 1} vials after the merge, got ${merged.vials.length}`;
+  }
+  if (!merged.vials.some((v) => v.name === "M13F" && v.kind === "Primer")) {
+    return "the imported primer did not make it into the merged state";
+  }
+  return null;
+});
+
+check("mergeImportedVials renames a colliding imported vial id rather than overwriting the existing one", () => {
+  var existing = fixture(); // has a vial with id "v-1" already
+  var imported = { vials: [{ id: "v-1", name: "Collider", kind: "Primer", status: "stored", location: null }], lines: [] };
+  var merged = E.mergeImportedVials(imported, existing).state;
+  var originalV1 = existing.vials.find((v) => v.id === "v-1");
+  var stillThere = merged.vials.find((v) => v.id === "v-1");
+  if (json(stillThere) !== json(originalV1)) return "the existing vial at a colliding id must survive untouched";
+  if (!merged.vials.some((v) => v.name === "Collider")) return "the colliding imported vial must still be added, under a new id";
+  var ids = merged.vials.map((v) => v.id);
+  if (ids.length !== new Set(ids).size) return "two vials ended up sharing one id: " + json(ids);
+  return null;
+});
+
+check("mergeImportedVials keeps the existing account's own settings, not the sheet's freshly-derived defaults", () => {
+  var existing = fixture();
+  existing.settings.customFlags = ["myco -"];
+  existing.settings.aliases = { hek: "hek293t" };
+
+  var cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  var rows = [[cell("Box Name"), cell("Primer Name")], [cell("Primer Box 1"), cell("M13F")]];
+  var sheet = { name: "Sheet1", rows, merges: [] };
+  var imported = E.importSheet(sheet, { columns: { box: 0, name: 1 }, headerRow: 1, kind: "Primer" }).state;
+
+  var merged = E.mergeImportedVials(imported, existing).state;
+  if (json(merged.settings.customFlags) !== json(existing.settings.customFlags)) {
+    return "customFlags must survive a merge import, got " + json(merged.settings.customFlags);
+  }
+  if (json(merged.settings.aliases) !== json(existing.settings.aliases)) {
+    return "aliases must survive a merge import, got " + json(merged.settings.aliases);
+  }
+  return null;
+});
+
 // ---------------------------------------------------------------------- report
 const total = passed + failures.length;
 

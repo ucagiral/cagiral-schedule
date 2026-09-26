@@ -3,93 +3,6 @@
   "labIcon": "",
   "children": [
     {
-      "id": "u-ln2",
-      "name": "Freezer 1",
-      "icon": "🧊",
-      "note": "-80°C · 269 Middle Door",
-      "children": [
-        {
-          "id": "t-1",
-          "name": "Rack 1",
-          "children": [
-            {
-              "id": "b-umut-caa-cells",
-              "name": "UMUT CAA CELLS",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: -80 °C Freezer → Rack 1",
-              "archived": false,
-              "isBox": true,
-              "owner": "umut"
-            },
-            {
-              "id": "b-umut-cells-80",
-              "name": "UMUT CELLS -80",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: -80 °C Freezer → Rack 1",
-              "archived": false,
-              "isBox": true,
-              "owner": "umut"
-            },
-            {
-              "id": "b-duzenle",
-              "name": "DUZENLE",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: -80 °C Freezer → Rack 1",
-              "archived": false,
-              "isBox": true,
-              "owner": "umut"
-            },
-            {
-              "id": "b-ongoing",
-              "name": "ONGOING",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: -80 °C Freezer → Rack 1",
-              "archived": false,
-              "isBox": true,
-              "owner": "umut"
-            },
-            {
-              "id": "b-umut-cells-4",
-              "name": "UMUT CELLS -4-",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: -80 °C Freezer → Rack 1",
-              "archived": false,
-              "isBox": true,
-              "owner": "umut"
-            }
-          ],
-          "icon": "📁"
-        },
-        {
-          "id": "rack-2",
-          "name": "Rack 2",
-          "children": [
-            {
-              "id": "b-unnamed-box",
-              "name": "Common Box #1",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: -80 °C Freezer → Rack 1",
-              "archived": false,
-              "isBox": true,
-              "owner": "umut"
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": "u-freezer-2",
       "name": "Liquid Nitrogen",
       "icon": "🥶",
@@ -324,6 +237,93 @@
               "archived": false,
               "isBox": true,
               "owner": "beyzat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "u-ln2",
+      "name": "Freezer 1",
+      "icon": "🧊",
+      "note": "-80°C · 269 Middle Door",
+      "children": [
+        {
+          "id": "t-1",
+          "name": "Rack 1",
+          "children": [
+            {
+              "id": "b-umut-caa-cells",
+              "name": "UMUT CAA CELLS",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "umut"
+            },
+            {
+              "id": "b-umut-cells-80",
+              "name": "UMUT CELLS -80",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "umut"
+            },
+            {
+              "id": "b-duzenle",
+              "name": "DUZENLE",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "umut"
+            },
+            {
+              "id": "b-ongoing",
+              "name": "ONGOING",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "umut"
+            },
+            {
+              "id": "b-umut-cells-4",
+              "name": "UMUT CELLS -4-",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "umut"
+            }
+          ],
+          "icon": "📁"
+        },
+        {
+          "id": "rack-2",
+          "name": "Rack 2",
+          "children": [
+            {
+              "id": "b-unnamed-box",
+              "name": "Common Box #1",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: -80 °C Freezer → Rack 1",
+              "archived": false,
+              "isBox": true,
+              "owner": "umut"
             }
           ]
         }

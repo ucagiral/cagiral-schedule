@@ -3313,6 +3313,25 @@ check("date and passage filters never hide a primer, which has neither", () => {
   return null;
 });
 
+check("Review never asks about a primer's frozen date or passage", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");
+  const q = E.reviewQueue(state);
+  if (q.dates.length) return "a primer was queued for a frozen date";
+  if (q.unknownPassage.length) return "a primer was queued for a passage";
+  if (q.gaps.length) return "a primer was queued as a rule gap";
+  if (q.total) return "Review has " + q.total + " items for one loose primer";
+  return null;
+});
+
+check("Review never asks about a vial already taken out", () => {
+  const s = fixture();
+  s.vials.push(Object.assign(vial("v-gone", "kkk", "b-a", "I9"), { status: "withdrawn", location: null }));
+  const q = E.reviewQueue(s);
+  if (q.gaps.some((g) => g.vialId === "v-gone")) return "a withdrawn test vial is still a rule gap";
+  if (q.facets.some((f) => f.vialId === "v-gone")) return "a withdrawn vial is still a facet disagreement";
+  return null;
+});
+
 // ---------------------------------------------------------------------- report
 const total = passed + failures.length;
 

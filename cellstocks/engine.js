@@ -3002,19 +3002,27 @@
       return v.status !== "withdrawn" && v.importAmbiguous && !isEmpty[v.id];
     });
     var ambiguousImportSplit = split("ambiguousImport", ambiguousImportAll, function (v) { return v.id; });
+    // A frozen date, a passage and the five name facets describe a cell line. A primer
+    // has none of them, and asking about each of its 157 missing dates and passages is
+    // 314 questions nobody can answer, burying the dozen that are real.
+    function isCellVial(v) { return kindOf(v).toLowerCase() === "cell"; }
     var datesAll = (state.vials || []).filter(function (v) {
       // Anything without a confirmed date: the ambiguous ones, the unparseable one,
       // and the handful that were simply left blank. A vial marked dateUnknown has
       // already been asked about and answered "Unknown" -- a real, stable value (the
       // date's own equivalent of passage's "p?"), not a thing still waiting.
-      return v.status !== "withdrawn" && !v.importAmbiguous && !v.frozenOn && !v.dateUnknown;
+      return v.status !== "withdrawn" && isCellVial(v) && !v.importAmbiguous && !v.frozenOn && !v.dateUnknown;
     });
     var datesSplit = split("dates", datesAll, function (v) { return v.id; });
     var dates = datesSplit.active.map(function (v) { return { vial: v, date: parseDate(v.frozenRaw) }; });
-    var ca = classifyAll(state);
+    // A vial already taken out is history, not a question: a name no rule covers on a
+    // tube that left the freezer (the test vials "kkk", "jkl"...) has nothing to fix.
+    var storedOnly = clone(state);
+    storedOnly.vials = (state.vials || []).filter(function (v) { return v.status !== "withdrawn"; });
+    var ca = classifyAll(storedOnly);
     var gapsSplit = split("gaps", ca.gaps, function (g) { return g.vialId; });
     var passagesAll = (state.vials || []).filter(function (v) {
-      return v.status !== "withdrawn" && v.passageKind === "absolute" && v.passageNumber > IMPLAUSIBLE_PASSAGE;
+      return v.status !== "withdrawn" && isCellVial(v) && v.passageKind === "absolute" && v.passageNumber > IMPLAUSIBLE_PASSAGE;
     });
     var passagesSplit = split("passages", passagesAll, function (v) { return v.id; });
     var rowsAll = mixedRows(state);
@@ -3025,7 +3033,7 @@
     // has already been asked about and answered "p?" on purpose -- dates' own dateUnknown,
     // for the field that otherwise can't tell "never looked at" from "deliberately p?".
     var unknownPassageAll = (state.vials || []).filter(function (v) {
-      return v.status !== "withdrawn" && !v.importAmbiguous && !v.passageConfirmedUnknown &&
+      return v.status !== "withdrawn" && isCellVial(v) && !v.importAmbiguous && !v.passageConfirmedUnknown &&
         (v.passageKind || "unknown") === "unknown";
     });
     var unknownPassageSplit = split("unknownPassage", unknownPassageAll, function (v) { return v.id; });

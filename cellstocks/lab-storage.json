@@ -198,6 +198,18 @@
               "kind": "Primer",
               "isBox": true,
               "owner": "umut"
+            },
+            {
+              "id": "b-umut-20-box-1",
+              "name": "Umut -20 Box -1-",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: Umut -20 → Rack 1",
+              "archived": false,
+              "kind": "Primer",
+              "isBox": true,
+              "owner": "umut"
             }
           ]
         },
@@ -319,18 +331,6 @@
     }
   ],
   "unplaced": [
-    {
-      "id": "b-umut-20-box-1",
-      "name": "Umut -20 Box -1-",
-      "rows": 9,
-      "cols": 9,
-      "scheme": "grid",
-      "note": "from the sheet: Umut -20 → Rack 1",
-      "archived": false,
-      "kind": "Primer",
-      "isBox": true,
-      "owner": "umut"
-    },
     {
       "id": "b-unkown-for-now",
       "name": "Unkown FOR NOW",

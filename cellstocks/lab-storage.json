@@ -292,7 +292,8 @@
       "archived": false,
       "kind": "Primer",
       "isBox": true,
-      "owner": "umut"
+      "owner": "umut",
+      "icon": "❄️"
     },
     {
       "id": "b-chip-box-2",

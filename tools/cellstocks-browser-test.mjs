@@ -345,9 +345,10 @@ try {
   await page.waitForFunction(() => !/Special Guest Line/.test(document.getElementById("results").textContent));
   check("turning search-in-lab back off hides the lab-mate's vial again", true);
 
-  // The catch-all worker route is swapped for one that observes a real /logout --
-  // route.fulfill of the LATEST matching page.route() registration wins.
-  await page.unroute("https://fake-worker.example/**");
+  // A /logout route on top of the catch-all -- the LATEST matching page.route()
+  // registration wins. The catch-all stays: unrouting it let the reload below send every
+  // other worker call (types, data) to the real network, where fake-worker.example can
+  // hang instead of failing, and the Settings screen never finished drawing on CI.
   await page.route("https://fake-worker.example/logout", (route) => {
     workerCalls.push({ path: "/logout", method: route.request().method(), auth: route.request().headers()["authorization"] });
     return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
@@ -357,6 +358,7 @@ try {
   await page.waitForSelector("nav button[data-screen=settings]");
   await page.click("nav button[data-screen=settings]");
 
+  await page.waitForSelector("#workerLogoutBtn");
   await page.click("#workerLogoutBtn");
   await page.waitForFunction(() => !localStorage.getItem("cst_worker_token"));
   const afterLogout = await page.evaluate(() => ({

@@ -4372,6 +4372,15 @@
     var headerByIndex = {};
     guesses.forEach(function(g){ headerByIndex[g.index] = g.header || ""; });
 
+    // showBanner() writes to a plain <div> in the normal page flow -- invisible while
+    // this dialog is open, since a native <dialog>.showModal() and its backdrop sit in
+    // the browser's top layer, above everything else in the document regardless of
+    // z-index. A validation message here has to be inline in the dialog itself, the
+    // same way addBoxDialog/nodeFieldsDialog already show theirs, or clicking the
+    // button looks like it does nothing at all.
+    var msg = el("p", "note");
+    body.appendChild(msg);
+
     var foot = clear($("dlgFoot"));
     var next = el("button", "primary", "Look at what it found");
     next.onclick = function(){
@@ -4382,11 +4391,13 @@
       // row of it already goes through the existing ambiguous-import/Review path
       // (no position parses -> no location -> waits in Review, placed by hand after).
       if (map.name === undefined || (importKind === "Cell" && map.position === undefined)){
-        showBanner(importKind === "Cell"
+        msg.textContent = importKind === "Cell"
           ? "At least a name column and a position column are needed."
-          : "At least a name column is needed.");
+          : "At least a name column is needed. Pick “name” for the column that holds each row's name -- “New…” is only for extra fields like Sequence or Owner.";
+        msg.style.color = "var(--bad)";
         return;
       }
+      msg.textContent = "";
       previewImport(fileName, sheet, map, customColumns, headerByIndex, importKind);
     };
     foot.appendChild(next);

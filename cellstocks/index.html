@@ -83,7 +83,13 @@
     background:var(--panel); cursor:pointer; color:var(--text);
   }
   button:hover:not(:disabled){border-color:var(--accent)}
-  button.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+  button.primary{background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600}
+  /* Dark mode is black and white only, at Umut's word -- so the one button that matters
+     is the white one, not a grey that read exactly like a disabled button. */
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]) button.primary{background:var(--text); color:var(--bg); border-color:var(--text)}
+  }
+  html[data-theme="dark"] button.primary{background:var(--text); color:var(--bg); border-color:var(--text)}
   button.danger{color:var(--bad)}
   button:disabled{opacity:.45; cursor:not-allowed}
   input,select,textarea{
@@ -154,7 +160,7 @@
 
   h2{font-size:16px; margin:0 0 10px; font-weight:650}
   h3{font-size:13px; margin:18px 0 8px; font-weight:650; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
-  p.note{font-size:12.5px; color:var(--muted); line-height:1.55; margin:8px 0}
+  p.note, div.note{font-size:12.5px; color:var(--muted); line-height:1.55; margin:8px 0}
   .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:12px}
   .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
   .row.tight{gap:6px; margin-top:6px}
@@ -286,6 +292,8 @@
     padding:1px 7px; font-weight:700; margin-left:4px;
   }
   .res .meta{font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.5}
+  .res .row.tight{margin-top:8px}
+  .res .row.tight button{padding:6px 10px; font-size:13px}
   .res .miss{font-size:11.5px; color:var(--guess); margin-top:4px}
   .res.gone{border-left-color:var(--muted); opacity:.72}
 
@@ -1416,6 +1424,41 @@
   // makes each row read as a single band and a stray vial obvious at a glance --
   // which is the whole reason the freezer is laid out that way.
   function originOf(vial){ return E.originOfVial(vial, state.rules); }
+
+  // The grid is the one place these colours are compared, so they are assigned per box:
+  // every cell origin in a box gets its own colour, where a hash of the name used to
+  // paint HEK293T and LnCap the same pink and Du145 and LuCap35CR the same green, side by
+  // side. Five tints, checked with the dataviz validator to stay apart for full colour
+  // vision (every slot also carries its label, so colour is never the only cue). The
+  // order follows the lab's origin rules, so the same cells get the same colours in
+  // every box that holds the same set. Grey is "no origin rule"; a non-Cell item has no
+  // origin to tell apart and takes one neutral tint.
+  var BOX_TINTS = ["#6fa8ee", "#f49262", "#3fbf8f", "#f0cc45", "#ec86d0"];
+  var NO_ORIGIN_TINT = "#c2c7cf", ITEM_TINT = "#d6dbe2";
+  function boxTints(occ){
+    var ruleOrder = [];
+    ((state.rules && state.rules.origin) || []).forEach(function(r){
+      if (r && r.value && ruleOrder.indexOf(r.value) === -1) ruleOrder.push(r.value);
+    });
+    var present = [];
+    occ.slots.forEach(function(s){
+      if (!s.vial || !isCellKind(s.vial)) return;
+      var o = originOf(s.vial);
+      if (o !== E.NO_ORIGIN && present.indexOf(o) === -1) present.push(o);
+    });
+    present.sort(function(a, b){
+      var ia = ruleOrder.indexOf(a), ib = ruleOrder.indexOf(b);
+      if (ia === -1) ia = 1e9; if (ib === -1) ib = 1e9;
+      return ia - ib || (a < b ? -1 : a > b ? 1 : 0);
+    });
+    var map = {};
+    present.forEach(function(o, i){ map[o] = BOX_TINTS[i % BOX_TINTS.length]; });
+    return function(vial){
+      if (!isCellKind(vial)) return ITEM_TINT;
+      var o = originOf(vial);
+      return map[o] || NO_ORIGIN_TINT;
+    };
+  }
   function shortOrigin(o){
     if (o === E.NO_ORIGIN) return "?";
     var t = String(o).replace(/[^A-Za-z0-9]/g, "").slice(0, 3);
@@ -2318,6 +2361,7 @@
     var occ = E.occupancy(state, boxId);
     var wrap = el("div");
     if (!occ) return wrap;
+    var tintOf = boxTints(occ);
     var cols = occ.box.cols, rows = occ.box.rows;
     var grid = el("div", "gridwrap");
     grid.style.gridTemplateColumns = "auto repeat(" + cols + ", minmax(26px, 1fr))";
@@ -2336,7 +2380,7 @@
           // A cell is coloured and labelled by its origin, which is what a row is
           // grouped by. Anything else has no origin -- its own name is the label.
           var cellOrigin = isCellKind(slot.vial) ? originOf(slot.vial) : slot.vial.name;
-          cell.style.background = tintFor(cellOrigin);
+          cell.style.background = tintOf(slot.vial);
           cell.title = slot.position + " · " + slot.vial.name + (isCellKind(slot.vial) ? " (" + cellOrigin + ")" : "");
           cell.textContent = shortOrigin(cellOrigin);
         } else {
@@ -2935,7 +2979,7 @@
     occ.slots.forEach(function(s){
       if (!s.vial) return;
       var o = originOf(s.vial);
-      if (!byOrigin[o]) byOrigin[o] = { n: 0, rows: {}, lines: {} };
+      if (!byOrigin[o]) byOrigin[o] = { n: 0, rows: {}, lines: {}, sample: s.vial };
       var g = byOrigin[o];
       g.n++;
       g.rows[s.position.replace(/\d+$/, "")] = true;
@@ -2950,11 +2994,12 @@
       loose.forEach(function(v){ lines.appendChild(itemRow(v, "slot not recorded")); });
     }
     if (!origins.length){ if (!loose.length) lines.appendChild(el("div", "empty", "Empty.")); return; }
+    var legendTint = boxTints(occ);
     origins.forEach(function(o){
       var g = byOrigin[o];
       var head = el("div", "item");
       var dot = el("div");
-      dot.style.cssText = "width:14px;height:14px;border-radius:4px;flex:0 0 auto;margin-top:3px;background:" + tintFor(o);
+      dot.style.cssText = "width:14px;height:14px;border-radius:4px;flex:0 0 auto;margin-top:3px;background:" + legendTint(byOrigin[o].sample);
       head.appendChild(dot);
       var grow = el("div", "grow");
       var title = el("div", null, o);

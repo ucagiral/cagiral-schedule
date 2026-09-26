@@ -11726,7 +11726,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11745,7 +11754,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11764,7 +11782,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11783,7 +11810,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11802,7 +11838,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11821,7 +11866,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11840,7 +11894,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11859,7 +11922,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11878,7 +11950,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11897,7 +11978,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11916,7 +12006,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11935,7 +12034,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11954,7 +12062,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }
@@ -11973,7 +12090,16 @@
         "Updated": "9/25/2026"
       },
       "location": {
-        "path": [],
+        "path": [
+          {
+            "id": "u-freezer-3",
+            "name": "Fridge 1"
+          },
+          {
+            "id": "r-rack-1-vjgl-0",
+            "name": "Rack 1"
+          }
+        ],
         "boxId": "b-chip-box",
         "position": null
       }

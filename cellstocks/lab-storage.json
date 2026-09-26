@@ -161,9 +161,21 @@
       "children": [
         {
           "id": "r-rack-1-vjgl-0",
-          "name": "Umut -20",
-          "children": [],
-          "icon": "❄️"
+          "name": "Rack 1",
+          "children": [
+            {
+              "id": "b-chip-box",
+              "name": "ChIP Box",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: Umut -20 → Rack 1",
+              "archived": false,
+              "kind": "Primer",
+              "isBox": true,
+              "owner": "umut"
+            }
+          ]
         },
         {
           "id": "r-rack-2-vjgl-1",
@@ -283,19 +295,6 @@
     }
   ],
   "unplaced": [
-    {
-      "id": "b-chip-box",
-      "name": "ChIP Box",
-      "rows": 9,
-      "cols": 9,
-      "scheme": "grid",
-      "note": "from the sheet: Umut -20 → Rack 1",
-      "archived": false,
-      "kind": "Primer",
-      "isBox": true,
-      "owner": "umut",
-      "icon": "❄️"
-    },
     {
       "id": "b-chip-box-2",
       "name": "ChIP Box -2-",

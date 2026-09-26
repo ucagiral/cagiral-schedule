@@ -161,8 +161,9 @@
       "children": [
         {
           "id": "r-rack-1-vjgl-0",
-          "name": "Rack 1",
-          "children": []
+          "name": "Umut -20",
+          "children": [],
+          "icon": "❄️"
         },
         {
           "id": "r-rack-2-vjgl-1",

@@ -317,6 +317,12 @@
   .item .sub{font-size:11.5px; color:var(--muted); margin-top:3px; line-height:1.5}
   .item button{padding:4px 9px; font-size:11.5px; white-space:nowrap}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px}
+  .item.tap{cursor:pointer}
+  .item.tap:hover{background:var(--hover, rgba(127,127,127,.08))}
+  .item .sub.mono{word-break:break-all}
+  .attr{display:flex; gap:10px; padding:4px 0; font-size:13px; border-bottom:1px solid var(--border)}
+  .attr-k{color:var(--muted); min-width:6.5em; flex:0 0 auto}
+  .attr-v{flex:1; min-width:0; word-break:break-all}
   .strike{text-decoration:line-through; color:var(--muted)}
 
   .empty{text-align:center; color:var(--muted); font-size:13px; padding:26px 10px; line-height:1.6}
@@ -1846,7 +1852,9 @@
     if (vial.frozenOn) bits.push("frozen " + prettyDate(vial.frozenOn));
     else if (vial.dateUnknown) bits.push("frozen Unknown");
     else if (vial.frozenRaw) bits.push("date unconfirmed (" + vial.frozenRaw + ")");
-    else bits.push("no date");
+    // "No date" is a gap worth saying for a frozen cell line; for a primer it is not
+    // something anybody recorded or needs.
+    else if (isCellKind(vial)) bits.push("no date");
     return bits.join(" · ");
   }
 
@@ -1866,7 +1874,7 @@
 
     var chips = el("div", "chips");
     chips.style.marginTop = "5px";
-    facetChips(v).forEach(function(c){ chips.appendChild(el("span", "chip", c)); });
+    if (isCellKind(v)) facetChips(v).forEach(function(c){ chips.appendChild(el("span", "chip", c)); });
     (v.flags || []).forEach(function(fl){ chips.appendChild(el("span", "chip on", fl)); });
     if (chips.childNodes.length) card.appendChild(chips);
 
@@ -1875,12 +1883,15 @@
     } else {
       var w = el("div", "where");
       var path = E.locationPath(owner ? owner.state : state, v.location).split(" → ");
-      var pos = path.pop();
+      // A loose vial's route ends at its box: there is no slot to pull off the end.
+      var pos = E.isLoose(v) ? "no slot" : path.pop();
       w.appendChild(document.createTextNode(path.join(" → ") + " → "));
       w.appendChild(el("span", "pos", pos));
       card.appendChild(w);
     }
-    card.appendChild(el("div", "meta", vialMeta(v)));
+    if (!isCellKind(v) && v.customFacets && Object.keys(v.customFacets).length) card.appendChild(attributeList(v));
+    var meta = vialMeta(v);
+    if (meta) card.appendChild(el("div", "meta", meta));
     if (r.missed && r.missed.length){
       card.appendChild(el("div", "miss",
         "matched " + r.matched.length + " of " + (r.matched.length + r.missed.length) +
@@ -2276,9 +2287,11 @@
           // Not `o`: that is the options object above, and `var` is function-scoped,
           // so reusing the name here silently emptied it for every later slot --
           // which killed the highlighting on the freeze proposal.
-          var cellOrigin = originOf(slot.vial);
+          // A cell is coloured and labelled by its origin, which is what a row is
+          // grouped by. Anything else has no origin -- its own name is the label.
+          var cellOrigin = isCellKind(slot.vial) ? originOf(slot.vial) : slot.vial.name;
           cell.style.background = tintFor(cellOrigin);
-          cell.title = slot.position + " · " + slot.vial.name + " (" + cellOrigin + ")";
+          cell.title = slot.position + " · " + slot.vial.name + (isCellKind(slot.vial) ? " (" + cellOrigin + ")" : "");
           cell.textContent = shortOrigin(cellOrigin);
         } else {
           cell.title = slot.position + " · empty";
@@ -2292,6 +2305,7 @@
           // the caller instead of opening the generic slot dialog. A taken cell still
           // shows what's in it either way.
           (function(s){
+            if (s.vial && o.pickOnly) return; // choosing an empty slot: a full one is not a choice
             cell.onclick = (!s.vial && o.onEmptyClick) ? function(){ o.onEmptyClick(s.position); }
                                                          : function(){ slotDialog(boxId, s); };
           })(slot);
@@ -2578,17 +2592,52 @@
       return;
     }
 
-    var v = slot.vial;
+    vialDialog(slot.vial, occ.box.name + " · " + slot.position);
+  }
+
+  function isCellKind(v){ return String(E.kindOf(v)).toLowerCase() === "cell"; }
+
+  // A non-Cell item's own attributes (a primer's Sequence, Owner...), as label/value
+  // rows -- the thing someone at the freezer actually needs to read off one.
+  function attributeList(v){
+    var wrap = el("div");
+    Object.keys(v.customFacets || {}).forEach(function(k){
+      var val = v.customFacets[k];
+      if (val === null || val === undefined || val === "") return;
+      var row = el("div", "attr");
+      row.appendChild(el("span", "attr-k", k));
+      row.appendChild(el("span", "attr-v" + (/sequence|seq/i.test(k) ? " mono" : ""), String(val)));
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  // One vial, read-only details plus what can be done with it. Used from a filled slot
+  // and from the "no slot recorded" list under a box, so both show the same thing.
+  function vialDialog(v, title){
+    $("dlgTitle").textContent = title || v.name;
+    var body = clear($("dlgBody"));
+    var foot = clear($("dlgFoot"));
     body.appendChild(el("div", "nm", v.name));
     var chips = el("div", "chips");
     chips.style.margin = "8px 0";
-    facetChips(v).forEach(function(c){ chips.appendChild(el("span", "chip", c)); });
+    if (isCellKind(v)) facetChips(v).forEach(function(c){ chips.appendChild(el("span", "chip", c)); });
     (v.flags || []).forEach(function(fl){ chips.appendChild(el("span", "chip on", fl)); });
-    body.appendChild(chips);
-    body.appendChild(el("p", "note", vialMeta(v)));
+    if (chips.childNodes.length) body.appendChild(chips);
+    if (!isCellKind(v)) body.appendChild(attributeList(v));
+    var meta = vialMeta(v);
+    if (meta) body.appendChild(el("p", "note", meta));
     if (v.notes) body.appendChild(el("p", "note", "Notes: " + v.notes));
+    body.appendChild(el("p", "note", "In " + E.locationPath(state, v.location) +
+      (E.isLoose(v) ? " — no slot recorded" : "")));
     if (v.importedFrom) body.appendChild(el("p", "note", "From " + v.importedFrom));
 
+    if (E.isLoose(v)){
+      var slotBtn = el("button", null, "Give it a slot");
+      slotBtn.disabled = !canWrite();
+      slotBtn.onclick = function(){ assignSlotDialog(v); };
+      foot.appendChild(slotBtn);
+    }
     var edit = el("button", null, "Edit");
     edit.disabled = !canWrite();
     edit.onclick = function(){ $("dlg").close(); editVial(v); };
@@ -2597,6 +2646,32 @@
     take.disabled = !canWrite();
     take.onclick = function(){ $("dlg").close(); takeVial(v); };
     foot.appendChild(take);
+    $("dlg").showModal();
+  }
+
+  // Tap an empty cell of the vial's own box to give a loose vial its slot. Only that
+  // box: a loose vial is known to be in it, so offering another box would be a move,
+  // not recording where it already is.
+  function assignSlotDialog(v){
+    var boxId = v.location.boxId;
+    var occ = E.occupancy(state, boxId);
+    $("dlgTitle").textContent = "Where in " + occ.box.name + "?";
+    var body = clear($("dlgBody"));
+    clear($("dlgFoot"));
+    body.appendChild(el("p", "note", "Tap the empty slot " + v.name + " is actually in."));
+    var msg = el("p", "note");
+    body.appendChild(boxGrid(boxId, { pickOnly: true, onEmptyClick: function(position){
+      var r = E.assignSlot(state, v.id, boxId, position);
+      if (!r.ok){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; return; }
+      var errs = E.errorsOnly(E.validate(r.state));
+      if (errs.length){ msg.textContent = errs[0].message; msg.style.color = "var(--bad)"; return; }
+      state = r.state;
+      markDirty("Put " + v.name + " in " + occ.box.name + " " + position);
+      $("dlg").close();
+      boxView.boxId = boxId; boxView.highlight = [position];
+      renderAll();
+    } }));
+    body.appendChild(msg);
     $("dlg").showModal();
   }
 
@@ -2743,9 +2818,11 @@
         if (label){ groups[label].label = label; bs.appendChild(groups[label]); }
       }
       var occ = E.occupancy(state, entry.box.id);
+      var nLoose = E.looseVials(state, entry.box.id).length;
       var o = document.createElement("option");
       o.value = entry.box.id;
-      o.textContent = entry.box.name + " — " + occ.used + "/" + occ.capacity;
+      o.textContent = entry.box.name + " — " + occ.used + "/" + occ.capacity +
+        (nLoose ? " + " + nLoose + " without a slot" : "");
       groups[label].appendChild(o);
     });
     if (!boxView.boxId || !here.some(function(e){ return e.box.id === boxView.boxId; })) {
@@ -2765,12 +2842,49 @@
     g.appendChild(boxGrid(boxView.boxId, { highlight: boxView.highlight, static: !!readOnly }));
 
     var occ = E.occupancy(state, boxView.boxId);
-    $("bxOcc").textContent = occ.used + " of " + occ.capacity + " slots full · " + occ.free + " free";
+    var loose = E.looseVials(state, boxView.boxId).slice().sort(function(a, b){
+      return String(a.name).localeCompare(String(b.name), undefined, { numeric: true, sensitivity: "base" });
+    });
+    $("bxOcc").textContent = occ.used + " of " + occ.capacity + " slots full · " + occ.free + " free" +
+      (loose.length ? " · " + loose.length + " more in the box without a slot" : "");
     $("bxBar").style.width = (occ.capacity ? (occ.used / occ.capacity * 100) : 0) + "%";
 
     // What is actually in this box, so the colours mean something.
     var lines = clear($("bxLines"));
     lines.appendChild(el("h3", null, "In this box"));
+
+    // One tappable row per item, for anything that is not grouped by origin: every
+    // item of a non-Cell box, and whatever sits in any box with no slot recorded.
+    function itemRow(v, where){
+      var row = el("div", "item tap");
+      var grow = el("div", "grow");
+      var t = el("div", null, v.name);
+      t.style.fontWeight = "600";
+      grow.appendChild(t);
+      var seq = v.customFacets && (v.customFacets.Sequence || v.customFacets.sequence);
+      var bits = [where];
+      if (seq) bits.push(seq);
+      else if (v.notes) bits.push(v.notes);
+      var sub = el("div", "sub" + (seq ? " mono" : ""), bits.join(" · "));
+      grow.appendChild(sub);
+      row.appendChild(grow);
+      if (!readOnly) row.onclick = function(){ vialDialog(v); };
+      return row;
+    }
+
+    var boxEntry = E.findBox(state, boxView.boxId);
+    if (boxEntry && String(E.kindOf(boxEntry.box)).toLowerCase() !== "cell"){
+      var slotted = occ.slots.filter(function(s){ return !!s.vial; });
+      if (!slotted.length && !loose.length){ lines.appendChild(el("div", "empty", "Empty.")); return; }
+      slotted.forEach(function(s){ lines.appendChild(itemRow(s.vial, s.position)); });
+      if (loose.length){
+        if (slotted.length) lines.appendChild(el("h3", null, "No slot recorded (" + loose.length + ")"));
+        else lines.lastChild.textContent = "In this box — no slot recorded (" + loose.length + ")";
+        lines.appendChild(el("p", "note", "These are in this box, but the sheet never said where. Tap one to give it its slot."));
+        loose.forEach(function(v){ lines.appendChild(itemRow(v, "slot not recorded")); });
+      }
+      return;
+    }
     var byOrigin = {};
     occ.slots.forEach(function(s){
       if (!s.vial) return;
@@ -2785,7 +2899,11 @@
       g.lines[k].positions.push(s.position);
     });
     var origins = Object.keys(byOrigin).sort(function(a, b){ return byOrigin[b].n - byOrigin[a].n; });
-    if (!origins.length){ lines.appendChild(el("div", "empty", "Empty.")); return; }
+    if (loose.length){
+      lines.appendChild(el("p", "note", loose.length + " in this box without a slot recorded:"));
+      loose.forEach(function(v){ lines.appendChild(itemRow(v, "slot not recorded")); });
+    }
+    if (!origins.length){ if (!loose.length) lines.appendChild(el("div", "empty", "Empty.")); return; }
     origins.forEach(function(o){
       var g = byOrigin[o];
       var head = el("div", "item");
@@ -4435,6 +4553,8 @@
     if (rep.emptySlots) line(rep.emptySlots + " lines held a slot and nothing else — empty " +
       "spaces in the sheet, not imported.");
     rep.boxes.forEach(function(b){ line("　" + b.name + " — " + b.rows + " × " + b.cols); });
+    if (rep.loose) line(rep.loose + " came in without a slot — the sheet names their box but not where in it. " +
+      "They show as a list under that box on the Boxes tab.");
     if (rep.dateQueue) line(rep.dateQueue + " dates can't be read unambiguously and will wait in Review.");
     if (rep.facetDiffs) line(rep.facetDiffs + " rows where the corrected rules disagree with the sheet.");
     if (rep.gaps.length) line(rep.gaps.length + " rows whose name no rule covers.");

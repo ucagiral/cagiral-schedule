@@ -504,6 +504,18 @@
     return (state.vials || []).filter(function (v) { return v.status !== "withdrawn"; });
   }
 
+  // A vial known to be in a box, whose slot nobody recorded. Umut's primer sheet names
+  // each primer's box and no position, and his answer was to show them as a list under
+  // the box rather than invent slots -- so the box is real and the slot is honestly
+  // blank. It holds no slot: occupancy() and slot collisions never see it.
+  function isLoose(v) {
+    return !!(v && v.status !== "withdrawn" && v.location && v.location.boxId && !v.location.position);
+  }
+
+  function looseVials(state, boxId) {
+    return storedVials(state).filter(function (v) { return isLoose(v) && v.location.boxId === boxId; });
+  }
+
   function occupancy(state, boxId) {
     var f = findBox(state, boxId);
     if (!f) return null;
@@ -920,7 +932,7 @@
   var STRONG_TOKEN = 6;
   var COVERAGE = 0.6;
   var FIELD_WEIGHTS = { name: 3, origin: 2, koox: 2, resistance: 2, caspex: 2, guide: 3,
-                        passage: 2, flags: 2, notes: 1, location: 1 };
+                        passage: 2, flags: 2, notes: 1, location: 1, attributes: 1 };
 
   function normaliseText(s) {
     return String(s === null || s === undefined ? "" : s)
@@ -964,7 +976,13 @@
       passage: vial.passage || "",
       flags: (vial.flags || []).join(" "),
       notes: vial.notes || "",
-      location: state ? locationPath(state, vial.location) : ""
+      location: state ? locationPath(state, vial.location) : "",
+      // A primer's sequence, a plasmid's backbone -- whatever attributes a non-Cell type
+      // carries. Searchable at notes weight: finding a primer by the start of its
+      // sequence is the everyday lookup for one.
+      attributes: vial.customFacets ? Object.keys(vial.customFacets).map(function (k) {
+        return String(vial.customFacets[k] == null ? "" : vial.customFacets[k]);
+      }).join(" ") : ""
     };
     var bag = {};   // token -> best weight
     Object.keys(fields).forEach(function (key) {
@@ -1021,6 +1039,7 @@
                     relative: { min: null, max: null, count: 0 }, unknown: 0 };
     storedVials(state).forEach(function (v) {
       if (v.importAmbiguous) return; // not in search results yet either -- see search()
+      if (kindOf(v).toLowerCase() !== "cell") return; // no frozen date or passage to speak of
       if (v.frozenOn) {
         frozen.dated++;
         if (!frozen.min || v.frozenOn < frozen.min) frozen.min = v.frozenOn;
@@ -1055,10 +1074,19 @@
     var results = [];
     pool.forEach(function (v) {
       // Filters run BEFORE scoring, so dragging a slider only ever removes rows.
-      if (q.unitId && (!v.location || v.location.unitId !== q.unitId)) return;
+      // The area is the top layer of the box's route in the live tree. A vial's location
+      // stopped carrying a unitId when the tree lost its fixed levels, and comparing
+      // against that absent field made every area tab on Find come back empty.
+      if (q.unitId) {
+        var route = v.location && v.location.boxId ? pathOf(state, v.location.boxId) : null;
+        if (!route || !route.length || route[0].id !== q.unitId) return;
+      }
       if (q.boxId && (!v.location || v.location.boxId !== q.boxId)) return;
 
-      if (q.frozenFrom || q.frozenTo) {
+      // Frozen date and passage describe a cell line. A primer has neither, and the
+      // sliders must not quietly hide one (or count it as "unconfirmed") for that.
+      var cellKind = kindOf(v).toLowerCase() === "cell";
+      if (cellKind && (q.frozenFrom || q.frozenTo)) {
         if (!v.frozenOn) { if (!q.includeUndated) return; }
         else {
           if (q.frozenFrom && v.frozenOn < q.frozenFrom) return;
@@ -1067,7 +1095,7 @@
       }
 
       var kind = v.passageKind || "unknown";
-      if (q.passageKind && q.passageKind !== "any") {
+      if (cellKind && q.passageKind && q.passageKind !== "any") {
         if (kind === "unknown") { if (!q.includeUnknownPassage) return; }
         else if (kind !== q.passageKind) return;
         else {
@@ -1746,6 +1774,7 @@
         }
       }
 
+      if (!v.location.position) return; // in the box, slot not recorded -- see isLoose()
       var p = parsePosition(entry.box, v.location.position);
       if (!p) {
         err("bad-position", v.name + ": " + v.location.position + " is not a position in " +
@@ -1976,7 +2005,7 @@
     var isCell = kind.toLowerCase() === "cell";
     var rows = sheet.rows || [];
     var report = { rows: 0, imported: 0, skipped: [], dateQueue: 0, uncalculated: 0,
-                   facetDiffs: 0, gaps: [], boxes: [], collisions: [], emptySlots: 0 };
+                   facetDiffs: 0, gaps: [], boxes: [], collisions: [], emptySlots: 0, loose: 0 };
 
     var boxCol = map.box !== undefined ? map.box : null;
     var blocks = boxCol === null ? [{ label: o.boxName || "Box 1", startRow: headerRow + 1, endRow: rows.length }]
@@ -2159,6 +2188,14 @@
           });
           if (allOk) parsed = candidates;
         }
+        // A non-Cell sheet that names a box and no slot (Umut's primer sheet, whole) is
+        // not a row nobody understood: the box is known and the slot honestly isn't.
+        // It comes in loose -- in the box, no slot -- rather than into Review, where 157
+        // questions nobody can answer would bury the real ones. See isLoose().
+        if (!parsed && !isCell && !positionText) {
+          parsed = [null];
+          report.loose++;
+        }
         if (!parsed) {
           var single = parsePosition(box, positionText);
           if (!single) {
@@ -2173,7 +2210,7 @@
           }
           parsed = [single];
         }
-        parsed.forEach(function (p) { takenHere[p.index] = rr; });
+        parsed.forEach(function (p) { if (p) takenHere[p.index] = rr; });
 
         parsed.forEach(function (p, pi) {
           var vial = {
@@ -2184,7 +2221,7 @@
             frozenOn: date.iso,
             notes: notes,
             flags: flagsFrom(notes, customFlags),
-            location: { path: [unit.id, rackId], boxId: boxId, position: p.label },
+            location: { path: [unit.id, rackId], boxId: boxId, position: p ? p.label : null },
             status: "stored",
             importedFrom: (o.sourceName || "workbook") + "!" + sheet.name + "!row " + rr
           };
@@ -2276,7 +2313,7 @@
       var box = v.location ? findBox(state, v.location.boxId) : null;
       vialRows.push([
         box ? box.unit.name : "", box ? box.rack.name : "", box ? box.box.name : "",
-        v.location ? v.location.position : "",
+        v.location ? v.location.position || "" : "",
         v.name, v.passage || "", v.passageKind || "",
         v.frozenOn || (v.dateUnknown ? "Unknown" : ""), v.frozenRaw || "",
         v.frozenOn || v.dateUnknown ? "" : "yes",
@@ -3076,14 +3113,88 @@
       return { ok: false, reason: found.box.name + " " + p.label + " already holds " + occ.slots[p.index].vial.name + ".", state: state };
     }
 
-    var rules = next.rules || DEFAULT_RULES;
-    var lineId = lineIdFor(name, rules);
-    next.lines = ensureLine(next, name, lineId, rules);
     v.name = name;
-    v.lineId = lineId;
+    // A line is Cell's own concept -- see importSheet(). A primer resolved here must not
+    // gain one, or it starts showing up in the Cell stock counts and search facets.
+    if (kindOf(v).toLowerCase() === "cell") {
+      var rules = next.rules || DEFAULT_RULES;
+      var lineId = lineIdFor(name, rules);
+      next.lines = ensureLine(next, name, lineId, rules);
+      v.lineId = lineId;
+    }
     v.location = locationFor(next, fields.boxId, p.label);
     delete v.importAmbiguous;
     delete v.importRaw;
+    return { ok: true, state: next, vial: v };
+  }
+
+  // The primer sheet came in before importSheet() knew how to bring a slotless row in
+  // loose, so its 157 rows are sitting in Review as unplaceable. Each one's box is
+  // written down in importRaw.box, and that box exists under the same name -- this
+  // moves them into it, loose. Only non-Cell rows with a name and no position: a Cell
+  // row without a slot, or a row whose position failed to parse, is still a question
+  // for a person. A name matching no box, or two, is left alone and reported.
+  function placeLooseImports(state) {
+    var next = clone(state);
+    var owner = String(next._owner || "").toLowerCase();
+    var byName = {};
+    eachBox(next, function (box) {
+      if (box.archived) return;
+      if (owner && box.owner && box.owner.toLowerCase() !== owner) return;
+      (byName[box.name] = byName[box.name] || []).push(box);
+    });
+    var placed = [], skipped = [];
+    (next.vials || []).forEach(function (v) {
+      if (!v.importAmbiguous || v.status === "withdrawn") return;
+      if (kindOf(v).toLowerCase() === "cell") return;
+      var raw = v.importRaw || {};
+      if (!raw.name || raw.position) return;
+      var boxes = (byName[raw.box] || []).filter(function (b) {
+        return kindOf(b).toLowerCase() === kindOf(v).toLowerCase();
+      });
+      if (boxes.length !== 1) {
+        skipped.push({ vialId: v.id, name: v.name, box: raw.box,
+                       why: boxes.length ? "two boxes share that name" : "no " + kindOf(v) + " box by that name" });
+        return;
+      }
+      v.location = locationFor(next, boxes[0].id, null);
+      delete v.importAmbiguous;
+      delete v.importRaw;
+      placed.push(v.id);
+    });
+    return { ok: true, state: next, placed: placed, skipped: skipped };
+  }
+
+  // Puts a vial into one exact slot of a box -- a loose one getting its slot, or a vial
+  // moved within/between boxes. Same guards as a manual freeze (suggestPlacementAt):
+  // the slot exists and is free, and the box holds this vial's kind.
+  function assignSlot(state, vialId, boxId, position) {
+    var next = clone(state);
+    var v = indexById(next.vials)[vialId];
+    if (!v || v.status === "withdrawn") return { ok: false, reason: "No such vial.", state: state };
+    var found = findBox(next, boxId);
+    if (!found) return { ok: false, reason: "That box does not exist.", state: state };
+    if (kindOf(found.box).toLowerCase() !== kindOf(v).toLowerCase()) {
+      return { ok: false, reason: found.box.name + " holds " + kindOf(found.box) + ", not " + kindOf(v) + ".", state: state };
+    }
+    var p = parsePosition(found.box, position);
+    if (!p) return { ok: false, reason: position + " is not a position in " + found.box.name + ".", state: state };
+    var occ = occupancy(next, boxId);
+    var there = occ.slots[p.index].vial;
+    if (there && there.id !== v.id) {
+      return { ok: false, reason: found.box.name + " " + p.label + " already holds " + there.name + ".", state: state };
+    }
+    if (kindOf(v).toLowerCase() === "cell" && !found.box.common && groupingStrategyFor(next) === "category-row") {
+      var rules = next.rules || DEFAULT_RULES;
+      var origin = originOfVial(v, rules);
+      var others = clone(next);
+      others.vials = others.vials.filter(function (x) { return x.id !== v.id; });
+      var row = rowsOf(others, boxId, rules).filter(function (r) { return r.positions.indexOf(p.label) !== -1; })[0];
+      if (row && !rowTakes(row, origin)) {
+        return { ok: false, reason: "That row already holds " + row.origins.join(", ") + " -- one cell per row.", state: state };
+      }
+    }
+    v.location = locationFor(next, boxId, p.label);
     return { ok: true, state: next, vial: v };
   }
 
@@ -3141,7 +3252,8 @@
     reviewQueue: reviewQueue, orphanedVials: orphanedVials,
     emptyImportRows: emptyImportRows, dropEmptyImportRows: dropEmptyImportRows,
     confirmDate: confirmDate, markDateUnknown: markDateUnknown, markPassageUnknown: markPassageUnknown,
-    resolveImportRow: resolveImportRow,
+    resolveImportRow: resolveImportRow, placeLooseImports: placeLooseImports, assignSlot: assignSlot,
+    isLoose: isLoose, looseVials: looseVials,
     reviewKey: reviewKey, ignoreReviewItem: ignoreReviewItem, unignoreReviewItem: unignoreReviewItem
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

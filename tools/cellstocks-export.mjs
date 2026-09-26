@@ -95,21 +95,31 @@ E.eachBox(lab, (box, rack, unit, chain) => {
     box, chain,
     area: chain.length ? chain[0].name : "Not placed yet",
     path: chain.length ? chain.map((n) => n.name).join(" → ") : "Not placed yet",
-    occ: E.occupancy(lab, box.id)
+    occ: E.occupancy(lab, box.id),
+    // In the box, slot not recorded (E.isLoose) -- a primer sheet named the box and no
+    // slot. They hold no cell of the grid, so without this list a box of 46 primers
+    // printed as empty on the freezer door and in the morning mail.
+    loose: E.looseVials(lab, box.id).slice().sort((a, b) =>
+      String(a.name).localeCompare(String(b.name), undefined, { numeric: true, sensitivity: "base" }))
   });
 });
 
 const today = new Date().toISOString().slice(0, 10);
+const looseNote = (b) => (b.loose.length ? " + " + b.loose.length + " without a slot" : "");
+const looseLabel = (v) => {
+  const seq = v.customFacets && (v.customFacets.Sequence || v.customFacets.sequence);
+  return [v.name, seq || v.passage].filter(Boolean).join("  ");
+};
 const labName = storage.labName || "Cell stocks";
 
 // ---------------------------------------------------------------- 1. the grid workbook
 function gridSheets() {
   const sheets = [{
     name: "boxes",
-    rows: [["area", "location", "box", "owner", "rows", "cols", "used", "capacity", "free"]].concat(
+    rows: [["area", "location", "box", "owner", "rows", "cols", "used", "capacity", "free", "without_slot"]].concat(
       boxes.map((b) => [
         b.area, b.path, b.box.name, b.box.common ? "Common" : (b.box.owner || ""),
-        b.box.rows, b.box.cols, b.occ.used, b.occ.capacity, b.occ.capacity - b.occ.used
+        b.box.rows, b.box.cols, b.occ.used, b.occ.capacity, b.occ.capacity - b.occ.used, b.loose.length
       ])
     )
   }];
@@ -131,11 +141,16 @@ function gridSheets() {
       }
       rows.push(line);
     }
+    if (b.loose.length) {
+      rows.push([]);
+      rows.push(["In this box, no slot recorded (" + b.loose.length + ")"]);
+      b.loose.forEach((v) => rows.push([looseLabel(v)]));
+    }
     // Two title rows above the grid, so a printed sheet says which box it is.
     sheets.push({
       name: safe,
       rows: [[b.path], [b.box.name + (b.box.common ? "  ·  Common" : (b.box.owner ? "  ·  " + b.box.owner : "")) +
-             "  ·  " + b.occ.used + "/" + b.occ.capacity + " full"], []].concat(rows)
+             "  ·  " + b.occ.used + "/" + b.occ.capacity + " full" + looseNote(b)], []].concat(rows)
     });
   });
   return sheets;
@@ -156,7 +171,7 @@ function buildPdf() {
       if (node.isBox) {
         const b = boxes.filter((x) => x.box.id === node.id)[0];
         doc.text(node.name + "  ·  " + (node.common ? "Common" : (node.owner || "unassigned")) +
-                 "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity : "?") + " full",
+                 "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity + " full" + looseNote(b) : "? full"),
                  { size: 9.5, indent: 6 + depth * 14 });
         return;
       }
@@ -176,7 +191,7 @@ function buildPdf() {
     loose.forEach((box) => {
       const b = boxes.filter((x) => x.box.id === box.id)[0];
       doc.text(box.name + "  ·  " + (box.common ? "Common" : (box.owner || "unassigned")) +
-               "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity : "?") + " full",
+               "  ·  " + (b ? b.occ.used + "/" + b.occ.capacity + " full" + looseNote(b) : "? full"),
                { size: 9.5, indent: 20 });
     });
   }
@@ -186,7 +201,7 @@ function buildPdf() {
     doc.addPage();
     doc.text(b.box.name, { size: 16, bold: true });
     doc.text(b.path, { size: 10 });
-    doc.text((b.box.common ? "Common" : (b.box.owner || "unassigned")) + "  ·  " + b.occ.used + " of " + b.occ.capacity + " slots full",
+    doc.text((b.box.common ? "Common" : (b.box.owner || "unassigned")) + "  ·  " + b.occ.used + " of " + b.occ.capacity + " slots full" + looseNote(b),
              { size: 10 });
     doc.gap(6);
 
@@ -217,6 +232,10 @@ function buildPdf() {
       }
     }
     doc.cursorY = top - rows * ch - 12;
+    if (b.loose.length) {
+      doc.text("In this box, no slot recorded (" + b.loose.length + ")", { size: 10, bold: true });
+      b.loose.forEach((v) => doc.text(looseLabel(v), { size: 8.5, indent: 8 }));
+    }
   });
 
   return doc.toBytes();
@@ -228,10 +247,10 @@ function buildCsv() {
     const s = String(v === null || v === undefined ? "" : v);
     return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   };
-  const rows = [["area", "location", "box", "owner", "rows", "cols", "used", "capacity", "free"]];
+  const rows = [["area", "location", "box", "owner", "rows", "cols", "used", "capacity", "free", "without_slot"]];
   boxes.forEach((b) => rows.push([
     b.area, b.path, b.box.name, b.box.common ? "Common" : (b.box.owner || ""),
-    b.box.rows, b.box.cols, b.occ.used, b.occ.capacity, b.occ.capacity - b.occ.used
+    b.box.rows, b.box.cols, b.occ.used, b.occ.capacity, b.occ.capacity - b.occ.used, b.loose.length
   ]));
   // A leading BOM, so Excel opens it as UTF-8 rather than mangling the first column.
   return "﻿" + rows.map((r) => r.map(esc).join(",")).join("\r\n") + "\r\n";
@@ -325,8 +344,13 @@ function gridRosterSheets() {
   function sheetFor(boxList) {
     const rows = [GRID_ROSTER_COLUMNS];
     boxList.forEach((b) => {
+      const boxUnit = `${b.path} → ${b.box.name}`;
       b.occ.slots.forEach((slot) => {
-        const boxUnit = `${b.path} → ${b.box.name}`;
+        rows.push(GRID_ROSTER_COLUMNS.map((c) => (c === "box_unit" ? boxUnit : gridRosterCell(slot, c))));
+      });
+      // After the box's own grid: what is in it with no slot recorded.
+      b.loose.forEach((v) => {
+        const slot = { position: "no slot", vial: v };
         rows.push(GRID_ROSTER_COLUMNS.map((c) => (c === "box_unit" ? boxUnit : gridRosterCell(slot, c))));
       });
     });
@@ -347,7 +371,11 @@ function sheetSafe(name) {
   return String(name || "").replace(/[:\\/?*\[\]]/g, "-").slice(0, 31);
 }
 
+// Origin, KO/OX, resistance, CASPEX and guide are a cell line's own five formulas; on
+// a primer they would read out as "WT", "-", "-"... -- facts nobody stated about it.
+const CELL_ONLY_COLUMNS = ["origin", "koox", "resistance", "caspex", "guide", "passage", "passage_kind"];
 function cellFor(v, f, column) {
+  if (String(E.kindOf(v)).toLowerCase() !== "cell" && CELL_ONLY_COLUMNS.includes(column)) return "";
   switch (column) {
     case "name": return v.name || "";
     case "origin": return f.origin || "";

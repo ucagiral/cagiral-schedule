@@ -3313,6 +3313,66 @@ check("date and passage filters never hide a primer, which has neither", () => {
   return null;
 });
 
+check("Review never asks about a primer's frozen date or passage", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");
+  const q = E.reviewQueue(state);
+  if (q.dates.length) return "a primer was queued for a frozen date";
+  if (q.unknownPassage.length) return "a primer was queued for a passage";
+  if (q.gaps.length) return "a primer was queued as a rule gap";
+  if (q.total) return "Review has " + q.total + " items for one loose primer";
+  return null;
+});
+
+check("Review never asks about a vial already taken out", () => {
+  const s = fixture();
+  s.vials.push(Object.assign(vial("v-gone", "kkk", "b-a", "I9"), { status: "withdrawn", location: null }));
+  const q = E.reviewQueue(s);
+  if (q.gaps.some((g) => g.vialId === "v-gone")) return "a withdrawn test vial is still a rule gap";
+  if (q.facets.some((f) => f.vialId === "v-gone")) return "a withdrawn vial is still a facet disagreement";
+  return null;
+});
+
+check("taking out a loose primer can be undone, back into its box, still slotless", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");
+  const out = E.withdraw(state, "p1", { date: "2026-09-26", by: "t", ids: ["w-1"] });
+  if (out.freed.length !== 1) return "withdraw freed nothing: " + json(out.warnings);
+  const back = E.undoWithdrawal(out.state, "w-1");
+  if (!back.ok) return "undo refused: " + back.reason;
+  const v = E.indexById(back.state.vials).p1;
+  if (!E.isLoose(v) || v.location.boxId !== "b-p") return "not back in its box without a slot: " + json(v.location);
+  return null;
+});
+
+check("freezing with the Add screen's \"Cell\" never writes kind: \"Cell\" onto the vial", () => {
+  const lab = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "F", children: [Object.assign(box("b-1", "Box 1", 2, 2), { isBox: true, owner: "umut" })] }] });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "umut");
+  const plan = E.suggestPlacementAt(state, { name: "HEK293T", boxId: "b-1", position: "A1", kind: "Cell" });
+  if (!plan.ok) return plan.reason;
+  const out = E.applyPlacement(state, plan, { name: "HEK293T", kind: "Cell" }, { ids: ["v1"], now: "2026-09-26T00:00:00Z", by: "t" });
+  if (out.vials[0].kind !== undefined) return "wrote kind " + json(out.vials[0].kind) + " -- the default is never written";
+  if (E.rulesForKind(state, "Cell") === null) return "rulesForKind is case-sensitive about Cell";
+  return null;
+});
+
+check("stock counts are per cell line: primers are not low-stock lines", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F"), loosePrimer("p2", "Region 1_R")] }), primerLab(), "umut");
+  const rows = E.stockCounts(state);
+  if (rows.length) return "primers were counted as stock lines: " + json(rows.map((r) => r.name));
+  return null;
+});
+
+check("a primer's workbook row leaves the cell facets and needs_review blank", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");
+  const sheets = E.vialsToSheets(state);
+  const vials = sheets[0].rows;
+  const head = vials[0], row = vials[1];
+  for (const col of ["origin", "ko_ox", "needs_review", "position"]) {
+    const val = row[head.indexOf(col)];
+    if (val !== "" && val !== null && val !== undefined) return col + " reads " + json(val) + " for a primer";
+  }
+  return null;
+});
+
 // ---------------------------------------------------------------------- report
 const total = passed + failures.length;
 

@@ -893,9 +893,13 @@
     return storedVials(state).filter(function (v) { return v.lineId === lineId; });
   }
 
+  // Stock is counted per cell line. A primer, a plasmid, anything else is one item
+  // with no line: counted here, every one of the 157 primers read as a "line" down to
+  // its last vial and buried the cell stocks that really are running low.
   function stockCounts(state) {
     var by = {};
     (state.vials || []).forEach(function (v) {
+      if (kindOf(v).toLowerCase() !== DEFAULT_KIND) return;
       var k = v.lineId || ("name:" + v.name);
       if (!by[k]) by[k] = { lineId: v.lineId, name: v.name, stored: 0, withdrawn: 0, boxes: {} };
       if (v.status === "withdrawn") by[k].withdrawn++;
@@ -1604,7 +1608,7 @@
         // always as typed/accepted on the Add screen -- there is no per-account rule
         // reconciliation for these the way facetsSetByHand has for cell facets, since
         // the rules they came from are lab-wide config this module never reads.
-        if (template.kind && template.kind !== DEFAULT_KIND) vial.kind = template.kind;
+        if (template.kind && String(template.kind).toLowerCase() !== DEFAULT_KIND) vial.kind = template.kind;
         if (template.customFacets && Object.keys(template.customFacets).length) {
           vial.customFacets = clone(template.customFacets);
         }
@@ -1679,6 +1683,14 @@
 
     var occ = occupancy(next, w.from.boxId);
     if (!occ) return { ok: false, reason: "That box no longer exists.", state: state };
+    // A loose vial (see isLoose) was taken out of a box it had no slot in; putting it
+    // back means back into that box, still slotless -- there is no slot to be taken.
+    if (!w.from.position) {
+      v.status = "stored";
+      v.location = clone(w.from);
+      next.withdrawals.splice(idx, 1);
+      return { ok: true, state: next, vial: v };
+    }
     var p = parsePosition(occ.box, w.from.position);
     if (!p) return { ok: false, reason: w.from.position + " is not a position in " + occ.box.name + " any more.", state: state };
     if (occ.slots[p.index].vial) {
@@ -2309,14 +2321,16 @@
       var bp = b.location ? locationPath(state, b.location) : "zzz";
       return ap < bp ? -1 : ap > bp ? 1 : (a.id < b.id ? -1 : 1);
     }).forEach(function (v) {
-      var f = facetsFor(v, rules);
+      // The five facets are a cell line's; a primer's row leaves them blank rather than
+      // reading "WT", "-", "-"... out of rules that were never about it.
+      var f = kindOf(v).toLowerCase() === DEFAULT_KIND ? facetsFor(v, rules) : {};
       var box = v.location ? findBox(state, v.location.boxId) : null;
       vialRows.push([
         box ? box.unit.name : "", box ? box.rack.name : "", box ? box.box.name : "",
         v.location ? v.location.position || "" : "",
         v.name, v.passage || "", v.passageKind || "",
         v.frozenOn || (v.dateUnknown ? "Unknown" : ""), v.frozenRaw || "",
-        v.frozenOn || v.dateUnknown ? "" : "yes",
+        v.frozenOn || v.dateUnknown || kindOf(v).toLowerCase() !== DEFAULT_KIND ? "" : "yes",
         f.origin || "", f.koox || "", f.resistance || "", f.caspex || "", f.guide || "",
         (v.flags || []).join(", "), v.notes || "", v.status || "stored", v.id
       ]);
@@ -2699,7 +2713,7 @@
   // plasmid or a reagent to test against until Umut defines one (CLAUDE.md: rules are data
   // he confirms, never invented).
   function rulesForKind(state, kind) {
-    if (kind === DEFAULT_KIND || !kind) return (state && state.rules) || DEFAULT_RULES;
+    if (!kind || String(kind).toLowerCase() === DEFAULT_KIND) return (state && state.rules) || DEFAULT_RULES;
     return (state && state.rulesByKind && state.rulesByKind[kind]) || null;
   }
 
@@ -3002,19 +3016,27 @@
       return v.status !== "withdrawn" && v.importAmbiguous && !isEmpty[v.id];
     });
     var ambiguousImportSplit = split("ambiguousImport", ambiguousImportAll, function (v) { return v.id; });
+    // A frozen date, a passage and the five name facets describe a cell line. A primer
+    // has none of them, and asking about each of its 157 missing dates and passages is
+    // 314 questions nobody can answer, burying the dozen that are real.
+    function isCellVial(v) { return kindOf(v).toLowerCase() === "cell"; }
     var datesAll = (state.vials || []).filter(function (v) {
       // Anything without a confirmed date: the ambiguous ones, the unparseable one,
       // and the handful that were simply left blank. A vial marked dateUnknown has
       // already been asked about and answered "Unknown" -- a real, stable value (the
       // date's own equivalent of passage's "p?"), not a thing still waiting.
-      return v.status !== "withdrawn" && !v.importAmbiguous && !v.frozenOn && !v.dateUnknown;
+      return v.status !== "withdrawn" && isCellVial(v) && !v.importAmbiguous && !v.frozenOn && !v.dateUnknown;
     });
     var datesSplit = split("dates", datesAll, function (v) { return v.id; });
     var dates = datesSplit.active.map(function (v) { return { vial: v, date: parseDate(v.frozenRaw) }; });
-    var ca = classifyAll(state);
+    // A vial already taken out is history, not a question: a name no rule covers on a
+    // tube that left the freezer (the test vials "kkk", "jkl"...) has nothing to fix.
+    var storedOnly = clone(state);
+    storedOnly.vials = (state.vials || []).filter(function (v) { return v.status !== "withdrawn"; });
+    var ca = classifyAll(storedOnly);
     var gapsSplit = split("gaps", ca.gaps, function (g) { return g.vialId; });
     var passagesAll = (state.vials || []).filter(function (v) {
-      return v.status !== "withdrawn" && v.passageKind === "absolute" && v.passageNumber > IMPLAUSIBLE_PASSAGE;
+      return v.status !== "withdrawn" && isCellVial(v) && v.passageKind === "absolute" && v.passageNumber > IMPLAUSIBLE_PASSAGE;
     });
     var passagesSplit = split("passages", passagesAll, function (v) { return v.id; });
     var rowsAll = mixedRows(state);
@@ -3025,7 +3047,7 @@
     // has already been asked about and answered "p?" on purpose -- dates' own dateUnknown,
     // for the field that otherwise can't tell "never looked at" from "deliberately p?".
     var unknownPassageAll = (state.vials || []).filter(function (v) {
-      return v.status !== "withdrawn" && !v.importAmbiguous && !v.passageConfirmedUnknown &&
+      return v.status !== "withdrawn" && isCellVial(v) && !v.importAmbiguous && !v.passageConfirmedUnknown &&
         (v.passageKind || "unknown") === "unknown";
     });
     var unknownPassageSplit = split("unknownPassage", unknownPassageAll, function (v) { return v.id; });

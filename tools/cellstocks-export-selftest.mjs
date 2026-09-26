@@ -80,6 +80,10 @@ writeFileSync(join(root, "cellstocks", "data", "umut.json"), JSON.stringify({
     // (a vial's file never changes just because the box has no single owner), but it
     // belongs on grid-roster's "Common" sheet, not on his.
     vial("v-5", "Common Stock A", "b-4", "A1", "p1"),
+    // In BOX THREE with no slot recorded -- a primer sheet names a box and no position.
+    // It holds no cell of the grid, and still has to be on every page that lists the box.
+    { id: "v-6", name: "Region 1_F", kind: "Primer", status: "stored", flags: [],
+      location: { boxId: "b-3", position: null, path: [] }, customFacets: { Sequence: "GTCTCGGCCACCTCG" } },
     // A withdrawn vial must not appear anywhere in the export: it is not in the freezer.
     { id: "v-3", name: "Already Taken Out", status: "withdrawn", location: null, flags: [] }
   ],
@@ -182,7 +186,7 @@ await check("the summary is one row per box, with a BOM so Excel reads it as UTF
   // none, so it contributes no row: this is a list of boxes, not of layers.
   if (lines.length !== 5) return `expected a header and four boxes, got ${lines.length}: ${JSON.stringify(lines)}`;
   if (!lines[0].startsWith("area,location,box,owner")) return `unexpected header: ${lines[0]}`;
-  if (!lines.some((l) => l.includes("BOX ONE") && l.endsWith(",3,3,2,9,7"))) {
+  if (!lines.some((l) => l.includes("BOX ONE") && l.endsWith(",3,3,2,9,7,0"))) {
     return `BOX ONE's counts are wrong: ${JSON.stringify(lines)}`;
   }
   // The full route travels as one cell, quoted where it needs to be, not flattened.
@@ -351,7 +355,8 @@ await check("a member's grid-roster sheet has one row per slot, boxes in tree or
   // BOX ONE (3x3=9) comes before BOX THREE (2x2=4) in tree order: BOX ONE is placed,
   // BOX THREE is unplaced -- and unplaced boxes are walked after the tree, same order
   // gridSheets()'s own index already uses.
-  if (body.length !== 9 + 4) return `expected 9 (BOX ONE) + 4 (BOX THREE) = 13 rows, got ${body.length}: ${JSON.stringify(body)}`;
+  // Plus one row after BOX THREE's grid for the primer it holds with no slot recorded.
+  if (body.length !== 9 + 4 + 1) return `expected 9 (BOX ONE) + 4 (BOX THREE) + 1 slotless = 14 rows, got ${body.length}: ${JSON.stringify(body)}`;
   const boxUnitIdx = header.indexOf("box_unit"), locIdx = header.indexOf("location"), nameIdx = header.indexOf("name");
   if (!body.slice(0, 9).every((r) => /BOX ONE/.test(r[boxUnitIdx]))) return `BOX ONE's rows are not all first: ${JSON.stringify(body)}`;
   if (!body.slice(9).every((r) => /^Not placed yet.*BOX THREE/.test(r[boxUnitIdx]))) return `BOX THREE's rows are not last: ${JSON.stringify(body)}`;
@@ -425,10 +430,32 @@ await check("hiding a column via recipients.json's rosterHiddenColumns drops it 
   return null;
 });
 
+await check("a vial with no slot recorded is listed under its box, not dropped", async () => {
+  const csv = readFileSync(join(outDir, "layout.csv"), "utf8");
+  if (!csv.replace(/^\uFEFF/, "").split("\r\n")[0].endsWith(",without_slot")) return "the summary has no without_slot column";
+  if (!csv.split("\r\n").some((l) => l.includes("BOX THREE") && l.endsWith(",1,4,3,1"))) {
+    return "BOX THREE should read 1 used and 1 without a slot: " + JSON.stringify(csv);
+  }
+  const wb = await X.readWorkbook(readFileSync(join(outDir, "layout.xlsx")));
+  const three = wb.sheets.filter((s) => s.name === "BOX THREE")[0];
+  const flat = JSON.stringify(three.rows.map((r) => r.map((c) => (c ? String(c.value) : ""))));
+  if (!/no slot recorded \(1\)/.test(flat) || !/Region 1_F  GTCTCGGCCACCTCG/.test(flat)) {
+    return "BOX THREE's sheet does not list its slotless primer: " + flat;
+  }
+  const gr = await X.readWorkbook(readFileSync(join(outDir, "grid-roster.xlsx")));
+  const umut = gr.sheets.filter((s) => s.name === "umut")[0];
+  const row = umut.rows.map((r) => r.map((c) => (c ? String(c.value) : ""))).find((r) => r.includes("Region 1_F"));
+  if (!row || !row.includes("no slot")) return "grid-roster has no 'no slot' row for it: " + JSON.stringify(row);
+  if (row.includes("WT")) return "a primer's row carries a cell facet it never had: " + JSON.stringify(row);
+  const pdf = readFileSync(join(outDir, "layout.pdf")).toString("latin1");
+  if (!/Region 1_F/.test(pdf)) return "the printed map never mentions it";
+  return null;
+});
+
 console.log("");
 if (failures) {
-  console.log(`${failures} of 21 cell stocks export checks failed:\n`);
+  console.log(`${failures} of 22 cell stocks export checks failed:\n`);
   results.forEach((r) => console.log(r + "\n"));
   process.exit(1);
 }
-console.log("All 21 cell stocks export checks passed.");
+console.log("All 22 cell stocks export checks passed.");

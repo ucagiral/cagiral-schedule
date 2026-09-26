@@ -1435,10 +1435,19 @@
   // account. Refreshed (not just fetched once) after adding a type or an attribute
   // name, since those changes should show up on this same device without a re-login.
   var typesCache = null;
-  async function ensureTypesCache(){
-    if (typesCache || !getWorkerUser()) return;
-    try { typesCache = await workerFetch("/types", { headers:{ Authorization:"Bearer " + getWorkerToken() } }); }
-    catch(e){ /* offline or not reachable yet -- callers fall back to just "Cell" */ }
+  // One request at a time, and a failure is remembered for half a minute: the Add screen
+  // re-renders on every change and used to re-ask on every render while the worker was
+  // unreachable, hammering it and redrawing the screen in a loop.
+  var typesPromise = null, typesFailedAt = 0;
+  function ensureTypesCache(){
+    if (typesCache || !getWorkerUser()) return Promise.resolve();
+    if (typesPromise) return typesPromise;
+    if (typesFailedAt && Date.now() - typesFailedAt < 30000) return Promise.resolve();
+    typesPromise = workerFetch("/types", { headers:{ Authorization:"Bearer " + getWorkerToken() } })
+      .then(function(cfg){ typesCache = cfg; typesFailedAt = 0; })
+      .catch(function(){ typesFailedAt = Date.now(); /* callers fall back to just "Cell" */ })
+      .then(function(){ typesPromise = null; });
+    return typesPromise;
   }
   function typeNames(){
     return (typesCache && typesCache.types && typesCache.types.map(function(t){ return t.name; })) || ["Cell"];
@@ -2033,7 +2042,9 @@
   // in). "+ New type…" posts the new name immediately (no approval needed, per Umut)
   // and switches to it.
   function renderFreezeType(){
-    if (!typesCache) { ensureTypesCache().then(renderAll); return; }
+    // Only wait for the list when a fetch can actually happen; otherwise draw the
+    // fallback ("Cell") now instead of scheduling another render that asks again.
+    if (!typesCache && getWorkerUser() && !typesFailedAt){ ensureTypesCache().then(renderAll); return; }
     var sel = $("fzType");
     var names = typeNames();
     var sig = names.join("|") + "|" + freeze.kind;
@@ -5206,7 +5217,14 @@
     var kind = document.createElement("select");
     var initialKind = initial.kind || "Cell";
     (function(){
-      typeNames().forEach(function(n){
+      // Case-blind: a box stores no kind for Cell and E.kindOf() answers "cell", while
+      // the type list says "Cell". And if the list failed to load (offline, worker down)
+      // the box's own kind is still offered -- otherwise saving a rename would quietly
+      // turn a Primer box into a Cell box.
+      var names = typeNames().slice();
+      var have = names.filter(function(n){ return n.toLowerCase() === String(initialKind).toLowerCase(); })[0];
+      if (have) initialKind = have; else names.unshift(initialKind);
+      names.forEach(function(n){
         var o = document.createElement("option");
         o.value = n; o.textContent = n; o.selected = n === initialKind;
         kind.appendChild(o);
@@ -5232,7 +5250,7 @@
       }
     };
     var kf = el("div", "field"); kf.appendChild(el("label", null, "Kind")); kf.appendChild(kind);
-    if (initial.exists && initial.kind && initial.kind !== "Cell" && initial.vialCount){
+    if (initial.exists && initial.vialCount){
       kf.appendChild(el("p", "sub", "Changing this away from what it holds today (" +
         initial.vialCount + " vial(s)) won't move anything -- decide deliberately."));
     }
@@ -5302,7 +5320,7 @@
     nodeFieldsDialog("Edit " + node.name, {
       exists: true, id: node.id, name: node.name, note: node.note, icon: node.icon,
       isBox: E.isBoxNode(node), owner: node.owner, common: node.common, rows: node.rows, cols: node.cols,
-      kind: E.kindOf(node), vialCount: counts[node.id] || 0
+      kind: node.kind || "Cell", vialCount: counts[node.id] || 0
     }, async function(details){
       var r = E.editNode(labStorage, node.id, details);
       if (!r.ok) return r;

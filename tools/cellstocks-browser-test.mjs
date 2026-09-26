@@ -296,6 +296,23 @@ try {
   await page.waitForSelector("#connectCard p.note");
   const loggedInNote = await page.evaluate(() => document.querySelector("#connectCard p.note").textContent);
   check("Settings shows who is logged in and through which worker", /Logged in as Umut/.test(loggedInNote) && /fake-worker\.example/.test(loggedInNote), loggedInNote);
+  const connectText = await page.evaluate(() => document.getElementById("connectCard").textContent);
+  check("logged in by name, Settings no longer offers the old GitHub-token login too", !/GitHub token/i.test(connectText), connectText);
+
+  // The date/passage filters fold away while they hide nothing, and open on a tap.
+  await page.click('nav button[data-screen="find"]');
+  const folded = await page.evaluate(() => {
+    const b = document.querySelector("#filters .linkish");
+    return { has: !!b, hidden: b ? b.nextElementSibling.hidden : null };
+  });
+  check("Find's date and passage filters start folded when they hide nothing", folded.has && folded.hidden === true, JSON.stringify(folded));
+  await page.click("#filters .linkish");
+  const unfolded = await page.evaluate(() => {
+    const b = document.querySelector("#filters .linkish");
+    return !b.nextElementSibling.hidden && /Passage/.test(b.nextElementSibling.textContent);
+  });
+  check("tapping the fold shows the passage filter", unfolded);
+  await page.click("#filters .linkish");
 
   // ---- search in lab (Phase 4a) ----
   await page.click("nav button[data-screen=find]");

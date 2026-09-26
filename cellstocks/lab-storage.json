@@ -164,8 +164,8 @@
           "name": "Rack 1",
           "children": [
             {
-              "id": "b-chip-box",
-              "name": "ChIP Box",
+              "id": "b-chip-box-2",
+              "name": "ChIP Box -2-",
               "rows": 9,
               "cols": 9,
               "scheme": "grid",
@@ -296,8 +296,8 @@
   ],
   "unplaced": [
     {
-      "id": "b-chip-box-2",
-      "name": "ChIP Box -2-",
+      "id": "b-chip-box",
+      "name": "ChIP Box",
       "rows": 9,
       "cols": 9,
       "scheme": "grid",

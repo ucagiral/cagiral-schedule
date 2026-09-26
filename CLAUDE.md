@@ -317,6 +317,14 @@ worker handles by sweeping only its own prefix.
   name rather than writing "unknown device" into every Log entry and commit.
 - **Absolute and relative passages are separate scales.** `p+2` must never be comparable with `p2`,
   and the 68 vials marked `p?` must never vanish from a search without the UI saying so.
+- **A box's colours are assigned per box, from five validated tints.** A hash of the origin
+  name painted HEK293T and LnCap the same pink and Du145 and LuCap35CR the same green, side
+  by side. `boxTints()` gives every origin in a box its own tint, in the lab's rule order
+  (so the same set of cells reads the same everywhere), grey for no rule, one neutral tint
+  for non-Cell items. The tints were checked with the dataviz validator for full-colour
+  separation; every slot also carries its label. Do not go back to hashing names.
+- **Dark mode's primary button is white on black.** The accent there is grey by Umut's word
+  (no blue), and a grey primary read exactly like a disabled one.
 - **Light/dark is per device and lives in its own card.** `renderAppearance(target)` draws
   it on the login gate *and* at the top of Settings — it was buried at the bottom of
   Connect, under the worker URL, and nobody found it. It is `localStorage` only: how this

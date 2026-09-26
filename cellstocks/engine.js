@@ -1364,6 +1364,32 @@
              reason: "Placed exactly where you picked." };
   }
 
+  // A non-Cell box (primers) is a list, not a grid: Umut's primers never had places in
+  // their box, and the Boxes screen draws no grid for one. So adding into one names the
+  // box and nothing else -- every vial goes in loose (isLoose), exactly like the ones the
+  // primer sheet brought in. A Cell box never takes this path: the row rule needs a slot.
+  function suggestPlacementInList(state, req) {
+    var entry = findBox(state, req.boxId);
+    if (!entry) return { ok: false, reason: "That box does not exist." };
+    var owner = req.owner || state._owner;
+    if (!entry.box.common && owner && entry.box.owner &&
+        String(entry.box.owner).toLowerCase() !== String(owner).toLowerCase()) {
+      return { ok: false, reason: "That box is not yours." };
+    }
+    var boxKind = kindOf(entry.box).toLowerCase();
+    if (boxKind === DEFAULT_KIND) return { ok: false, reason: "A cell box needs a slot for every vial." };
+    var wantKind = (req.kind || DEFAULT_KIND).toLowerCase();
+    if (boxKind !== wantKind) {
+      return { ok: false, reason: "That box holds " + kindOf(entry.box) + ", not " + (req.kind || "Cell") + "." };
+    }
+    var count = Math.max(1, Math.floor(Number(req.count) || 1));
+    var positions = [];
+    for (var i = 0; i < count; i++) positions.push(null);
+    var seg = segmentFor(state, entry, positions);
+    return { ok: true, strategy: "list", segments: [seg], summary: entry.box.name,
+             reason: "Listed under " + seg.path + " -- a " + kindOf(entry.box) + " box has no slots." };
+  }
+
   function suggestPlacement(state, request) {
     var req = request || {};
     var strategy = groupingStrategyFor(state);
@@ -3255,6 +3281,7 @@
     // placement
     NO_ORIGIN: NO_ORIGIN, originOfVial: originOfVial, boxesFor: boxesFor, rowsOf: rowsOf, rowTakes: rowTakes,
     mixedRows: mixedRows, suggestPlacement: suggestPlacement, suggestPlacementAt: suggestPlacementAt,
+    suggestPlacementInList: suggestPlacementInList,
     applyPlacement: applyPlacement,
     GROUPING_STRATEGIES: GROUPING_STRATEGIES, IMPLEMENTED_GROUPING_STRATEGIES: IMPLEMENTED_GROUPING_STRATEGIES,
     groupingStrategyFor: groupingStrategyFor,

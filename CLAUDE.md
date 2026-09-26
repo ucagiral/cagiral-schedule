@@ -248,7 +248,10 @@ worker handles by sweeping only its own prefix.
   be **loose**: `location.boxId` set, `location.position` null (`isLoose()`). It holds no
   slot, validates, is searchable (sequence included), and shows under its box as "no
   slot recorded" until someone taps "Give it a slot". A Cell row with no slot still goes
-  to Review — the row rule needs a slot. Import merges into an existing inventory by
+  to Review — the row rule needs a slot. **A non-Cell box is a list, not a grid** — at
+  Umut's word, after 81 empty squares hid 22 primers below the fold: the Boxes tab draws
+  no grid for one and counts items, a primer is never offered a slot, and adding one by
+  hand chooses the box and nothing more (`suggestPlacementInList`, every vial loose). Import merges into an existing inventory by
   default; "replace everything" is an explicit switch, because the old default would
   have deleted 396 vials to add 157 primers.
 - **Two stored vials in one slot is an error, not a warning.** `validate()` returns it as one and
@@ -280,6 +283,14 @@ worker handles by sweeping only its own prefix.
   `validate()` refuses the save, because picking a winner silently is how a tube ends up
   somewhere nobody looks. Only the inventory merges; the tree and the rules are the lab's
   and are re-hydrated from the shared files.
+- **What is in memory belongs to one account.** `state`, `dirty` and `syncedState` are
+  module-level, and `load()` trusts `syncedState` as "the newest copy this device has seen"
+  when the CDN lags. It never checked whose copy that was: Umut logged in as himself, then
+  as admin in the same tab, and because admin.json was older than his last save, admin's
+  state *became* his inventory — admin's workbook was written from it on the next tree
+  move, and admin's next save would have written his 500 vials into admin.json.
+  `memoryFor` names the account; `load()` for any other account starts from that
+  account's own cache, or from nothing.
 - **A ref update refused because the branch moved is retried, not reported as a conflict.**
   `commitFilesAtomic` gave up on GitHub's "Update is not a fast forward", and the app told
   somebody standing at a freezer that *someone else saved first* — for a save nobody else

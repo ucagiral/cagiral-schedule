@@ -317,6 +317,8 @@
   .item .sub{font-size:11.5px; color:var(--muted); margin-top:3px; line-height:1.5}
   .item button{padding:4px 9px; font-size:11.5px; white-space:nowrap}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px}
+  .linkish{background:none; border:none; padding:6px 0; color:var(--accent); font-size:13px; cursor:pointer}
+  .linkish:disabled{color:var(--muted); cursor:default}
   .item.tap{cursor:pointer}
   .item.tap:hover{background:var(--hover, rgba(127,127,127,.08))}
   .item .sub.mono{word-break:break-all}
@@ -404,8 +406,8 @@
     <div class="card" id="fzPlanCard"></div>
     <div class="card">
       <div class="two">
-        <div class="field"><label for="fzPassage">Passage</label><input id="fzPassage" placeholder="p12 or p+3" autocomplete="off"></div>
-        <div class="field"><label for="fzDate">Date frozen</label><input id="fzDate" type="date"></div>
+        <div class="field" id="fzPassageField"><label for="fzPassage">Passage</label><input id="fzPassage" placeholder="p12 or p+3" autocomplete="off"></div>
+        <div class="field"><label for="fzDate" id="fzDateLabel">Date frozen</label><input id="fzDate" type="date"></div>
       </div>
       <div class="field"><label for="fzNotes">Notes</label><input id="fzNotes" placeholder="myco -" autocomplete="off"></div>
       <div class="row"><button class="primary" id="fzGo">Put them in</button></div>
@@ -545,7 +547,17 @@
   var API = REPO ? "https://api.github.com/repos/" + REPO : null;
 
   function getToken(){ try { return localStorage.getItem(LS.token) || null; } catch(e){ return null; } }
-  function getDevice(){ try { return localStorage.getItem(LS.device) || "unknown device"; } catch(e){ return "unknown device"; } }
+  // Who did it, as the Log and every commit message say it. A device name is only asked
+  // for by the old GitHub-token login, so under the username login it was never set and
+  // every entry read "unknown device" -- the username is the honest answer there.
+  function getDevice(){
+    try {
+      var d = localStorage.getItem(LS.device);
+      if (d) return d;
+      var u = getWorkerUser();
+      return (u && u.name) || "unknown device";
+    } catch(e){ return "unknown device"; }
+  }
 
   // ---- worker auth (lab-wide login) -----------------------------------------------
   // Additive, alongside the GitHub-token flow above: whichever is present makes
@@ -1418,6 +1430,7 @@
     query: "", passageKind: "any", passageMin: null, passageMax: null,
     includeUnknownPassage: true, frozenFrom: null, frozenTo: null, includeUndated: true,
     unitId: null,
+    showMore: false,
     // What the handles were bounded by last time. Without this, freezing a vial dated
     // today leaves the ceiling where it was and the new vial is silently filtered out
     // of the very search you would run to check it landed.
@@ -1732,6 +1745,22 @@
       box.appendChild(seg);
     }
 
+    // The date and passage filters fold away while they are at rest -- the whole range,
+    // every undated and every p? vial included -- because at rest they hide nothing and
+    // on a phone they pushed every result below the fold. A filter that hides anything
+    // keeps the panel open, so a vial can never drop out of a search without the reason
+    // being on screen (the "p? must never vanish silently" rule).
+    var active = !filter.includeUndated || !filter.includeUnknownPassage || filter.passageKind !== "any";
+    var open = filter.showMore || active;
+    var more = el("button", "linkish", open ? "Hide date & passage filters" : "Date & passage filters");
+    more.type = "button";
+    more.disabled = active && open;
+    more.onclick = function(){ filter.showMore = !open; renderFilters(); };
+    box.appendChild(more);
+    var adv = el("div");
+    adv.hidden = !open;
+    box.appendChild(adv);
+
     // ---- frozen ----
     if (x.frozen.dated > 0){
       var f = el("div", "flt");
@@ -1782,7 +1811,7 @@
           " vials whose date isn't confirmed yet"));
         f.appendChild(t);
       }
-      box.appendChild(f);
+      adv.appendChild(f);
     }
 
     // ---- passage ----
@@ -1840,7 +1869,7 @@
         p.appendChild(t2);
       }
     }
-    box.appendChild(p);
+    adv.appendChild(p);
   }
 
   function facetChips(vial){
@@ -2076,7 +2105,13 @@
   function renderFreezeFacets(){
     var box = clear($("fzFacets"));
     var name = freeze.name.trim();
-    $("fzNameLabel").textContent = freeze.kind === "Cell" ? "What are you freezing?" : "What are you adding?";
+    var isCell = freeze.kind === "Cell";
+    $("fzNameLabel").textContent = isCell ? "What are you freezing?" : "What are you adding?";
+    $("fzName").placeholder = isCell ? "DuDtxR CASPEX g5.1" : freeze.kind + " name";
+    // A passage is a cell line's; a primer or a plasmid has none to record.
+    $("fzPassageField").hidden = !isCell;
+    $("fzDateLabel").textContent = isCell ? "Date frozen" : "Date added";
+    $("fzNotes").placeholder = isCell ? "myco -" : "anything worth remembering";
     // The origin/KO-OX/CASPEX/guide chips below, and the row-mixing rules they drive,
     // are cell-specific -- a Plasmid or a Protein gets its own facets instead, from
     // the lab-wide type rules (see renderFreezeCustomFacets), never these five.
@@ -2251,7 +2286,7 @@
     var customFacets = freeze.collectCustomFacets ? freeze.collectCustomFacets() : {};
     var out = E.applyPlacement(state, freeze.plan, {
       name: name,
-      passage: $("fzPassage").value.trim(),
+      passage: freeze.kind === "Cell" ? $("fzPassage").value.trim() : "",
       frozenOn: dateInput,
       notes: $("fzNotes").value.trim(),
       kind: freeze.kind,
@@ -3566,6 +3601,9 @@
     }
 
     // ---- GitHub token (the older, per-device way in) ----
+    // Once logged in by name there is nothing to do here, and a second login form
+    // under the first only asked the question "am I logged in or not?".
+    if (getWorkerUser() && !getToken()) return;
     c.appendChild(el("h3", null, "GitHub token"));
     if (getToken()){
       c.appendChild(el("p", "note", "Connected as " + getDevice() + ". Changes are committed to " + REPO + "."));
@@ -3737,12 +3775,14 @@
       var head = el("div", "item");
       var grow = el("div", "grow");
       grow.appendChild(el("div", null, area.name));
-      var used = 0, capacity = 0;
+      var used = 0, capacity = 0, loose = 0;
       area.boxes.forEach(function(entry){
         var o = E.occupancy(state, entry.box.id);
         used += o.used; capacity += o.capacity;
+        loose += E.looseVials(state, entry.box.id).length;
       });
-      grow.appendChild(el("div", "sub", used + " of " + capacity + " slots full \u00b7 " +
+      grow.appendChild(el("div", "sub", used + " of " + capacity + " slots full" +
+        (loose ? " + " + loose + " without a slot" : "") + " \u00b7 " +
         area.boxes.length + " box" + (area.boxes.length === 1 ? "" : "es") + " of yours"));
       head.appendChild(grow);
       s.appendChild(head);
@@ -3753,7 +3793,9 @@
         var row = el("div", "item");
         var g2 = el("div", "grow");
         g2.appendChild(el("div", null, "\u3000" + (inside ? inside + " \u2192 " : "") + box.name));
-        g2.appendChild(el("div", "sub", box.rows + " \u00d7 " + box.cols + " \u00b7 " + occ.used + "/" + occ.capacity));
+        var nl = E.looseVials(state, box.id).length;
+        g2.appendChild(el("div", "sub", box.rows + " \u00d7 " + box.cols + " \u00b7 " + occ.used + "/" + occ.capacity +
+          (nl ? " + " + nl + " without a slot" : "")));
         row.appendChild(g2);
         var ren = el("button", null, "Rename");
         ren.disabled = !canWrite();
@@ -3767,8 +3809,8 @@
       });
     });
 
-    s.appendChild(el("p", "note", "Adding a box or a freezer/tank moved to the Boxes tab — it's an everyday " +
-      "action, not a settings change. Renaming and resizing stay here."));
+    s.appendChild(el("p", "note", "Adding a box is on the Boxes tab — it's an everyday action, not a " +
+      "settings change. Renaming and resizing stay here."));
 
     // ---- rules ----
     var r2 = clear($("rulesCard"));

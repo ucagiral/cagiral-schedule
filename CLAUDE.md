@@ -308,6 +308,13 @@ worker handles by sweeping only its own prefix.
 - **Nothing is repaired behind his back.** The import queues ambiguous dates rather than swapping
   them, reports every row where the corrected rules disagree with the sheet, and needs an explicit
   tick before it throws any row away. `#N/A` is not a value and is never imported as one.
+- **Find's date and passage filters fold away only while they hide nothing.** At rest
+  (whole range, undated and `p?` vials included) they pushed every result below the fold on
+  a phone, so they collapse behind one link; the moment one hides anything, the panel is
+  forced open and cannot be folded. Do not let a folded panel hide a vial.
+- **Who did it is the logged-in name.** A device name is only asked for by the old
+  GitHub-token login, so under the username login `getDevice()` falls back to the user's
+  name rather than writing "unknown device" into every Log entry and commit.
 - **Absolute and relative passages are separate scales.** `p+2` must never be comparable with `p2`,
   and the 68 vials marked `p?` must never vanish from a search without the UI saying so.
 - **Light/dark is per device and lives in its own card.** `renderAppearance(target)` draws

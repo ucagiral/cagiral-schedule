@@ -807,6 +807,13 @@
   // cache (see cacheSave/cacheLoad) so it survives a reload, and refreshed every time
   // fetchOwnFileText() succeeds, in both load() and save().
   var syncedState = null;
+  // Whose inventory `state`, `dirty` and `syncedState` in memory belong to. They are
+  // module-level, so an account switch in one tab carried them across: logging in as
+  // umut and then as admin handed admin's load() umut's last synced copy as "the newest
+  // this device has seen" -- newer than admin.json -- and admin's state BECAME umut's.
+  // Admin's workbook was then written from it on the next tree move. load() starts a
+  // different account from that account's own cache, or from nothing.
+  var memoryFor = null;
   var lastWithdrawal = null;     // for the 10-second undo in the status line
 
   // Set for the exact duration of building one member's section inside a merged,
@@ -929,6 +936,12 @@
     // no network lag involved at all. load() runs on every fresh open and every account
     // switch alike, so it is where "as of right now" has to start meaning that again.
     labCache.members = null; labCache.data = {}; labCache.failed = [];
+    var who = String(effectiveIdentity() || "").toLowerCase();
+    if (memoryFor !== who){
+      state = E.blankState(); dirty = false; syncedState = null;
+      cacheLoad();
+      memoryFor = who;
+    }
     try {
       var text = await fetchOwnFileText();
       // A miss (404, or no token/legacy file yet) means this account has nothing saved yet --

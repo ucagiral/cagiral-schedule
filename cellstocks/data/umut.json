@@ -11757,6 +11757,3216 @@
       "addedAt": "2026-09-17T08:55:14.517Z",
       "addedBy": "unknown device",
       "kind": "Cell"
+    },
+    {
+      "id": "v-2-2",
+      "name": "Region 1_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 2,
+        "name": "Region 1_F",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 2",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GTCTCGGCCACCTCG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-3-2",
+      "name": "Region 1_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 3,
+        "name": "Region 1_R",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 3",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CAGAGCGGACCCGAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-4-2",
+      "name": "Region 2_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 4,
+        "name": "Region 2_F",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 4",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TCAATCACAGGCCACGC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-5-2",
+      "name": "Region 2_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 5,
+        "name": "Region 2_R",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 5",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GGGCCAATTGTGCGTTAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-6-2",
+      "name": "Region3_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 6,
+        "name": "Region3_F",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 6",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TACTTGCCCGTCCAGTGTA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-7-2",
+      "name": "Region3_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 7,
+        "name": "Region3_R",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 7",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AGCAGAAGAAAACGCGGTAA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-8-2",
+      "name": "Region4_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 8,
+        "name": "Region4_F",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 8",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "ACGATTGAGCCACGAGACAT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-9-2",
+      "name": "Region4_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 9,
+        "name": "Region4_R",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 9",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AAAAAGCAGAGGATTCAACATAAGC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-10-2",
+      "name": "Region5_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 10,
+        "name": "Region5_F",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 10",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GCCCTCCACTAATAAAACAGAAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-11-2",
+      "name": "Region5_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 11,
+        "name": "Region5_R",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 11",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GACAAAAACGAAGAAGAAATGCCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-12-2",
+      "name": "Region6_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 12,
+        "name": "Region6_F",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 12",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "ACTGTCCTCTGTAGTGTTGC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-13-2",
+      "name": "Region6_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 13,
+        "name": "Region6_R",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 13",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TTGAGGATCCATTGAAGGGC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-14-2",
+      "name": "Region7_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 14,
+        "name": "Region7_F",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 14",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TGTGGTCTAGCATCAGAGAAGAA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-15-2",
+      "name": "Region7_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "For ATP7B Re-designed",
+      "importRaw": {
+        "row": 15,
+        "name": "Region7_R",
+        "position": "",
+        "box": "ChIP Box"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 15",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCAGATAGTGGCTCCTCCTTTC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-16-2",
+      "name": "AR_gC1_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 16,
+        "name": "AR_gC1_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 16",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgAGCCCCCCCAAATCATTTAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-17-2",
+      "name": "AR_gC1_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 17,
+        "name": "AR_gC1_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 17",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTAAATGATTTGGGGGGGCTc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-18-2",
+      "name": "AR_gC2_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 18,
+        "name": "AR_gC2_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 18",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgGGAAGGATAGTGAACCATCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-19-2",
+      "name": "AR_gC2_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 19,
+        "name": "AR_gC2_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 19",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacGGATGGTTCACTATCCTTCCc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-20-2",
+      "name": "AR_gC3_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 20,
+        "name": "AR_gC3_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 20",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgCCACAAACTTGTACCTTGGA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-21-2",
+      "name": "AR_gC3_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 21,
+        "name": "AR_gC3_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 21",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacTCCAAGGTACAAGTTTGTGGc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-22-2",
+      "name": "AR_gC4_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 22,
+        "name": "AR_gC4_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 22",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgACTGCCTCTAAATGATTTGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-23-2",
+      "name": "AR_gC4_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 23,
+        "name": "AR_gC4_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 23",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCCAAATCATTTAGAGGCAGTc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-24-2",
+      "name": "AR_gP1_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 24,
+        "name": "AR_gP1_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 24",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgGGCTCCCCGGGATCTCGGAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-25-2",
+      "name": "AR_gP1_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 25,
+        "name": "AR_gP1_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 25",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTCCGAGATCCCGGGGAGCCc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-26-2",
+      "name": "AR_gP2_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 26,
+        "name": "AR_gP2_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 26",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgCTGGCTCCCCGGGATCTCGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-27-2",
+      "name": "AR_gP2_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 27,
+        "name": "AR_gP2_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 27",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCCGAGATCCCGGGGAGCCAGc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-28-2",
+      "name": "AR_gP3_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 28,
+        "name": "AR_gP3_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 28",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgAGTGCTGTACAGGAGCCGAA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-29-2",
+      "name": "AR_gP3_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 29,
+        "name": "AR_gP3_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 29",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacTTCGGCTCCTGTACAGCACTc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-30-2",
+      "name": "AR_gP4_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 30,
+        "name": "AR_gP4_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 30",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgGCTCCTGTACAGCACTGGAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-31-2",
+      "name": "AR_gP4_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 31,
+        "name": "AR_gP4_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 31",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTCCAGTGCTGTACAGGAGCc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-32-2",
+      "name": "ChIP_AR_C3_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 32,
+        "name": "ChIP_AR_C3_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 32",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCAACATCAAATAACATCAAGGAAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-33-2",
+      "name": "ChIP_AR_C3_F_2",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 33,
+        "name": "ChIP_AR_C3_F_2",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 33",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GGCAGTGATCTGCCACAAAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-34-2",
+      "name": "ChIP_AR_C3_F1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 34,
+        "name": "ChIP_AR_C3_F1",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 34",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GGCAGTGATCTGCCACAAAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-35-2",
+      "name": "ChIP_AR_C3_F2",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 35,
+        "name": "ChIP_AR_C3_F2",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 35",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCACCTCTGTGCCCTTCATT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-36-2",
+      "name": "ChIP_AR_C3_F3",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 36,
+        "name": "ChIP_AR_C3_F3",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 36",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GGCCCATTCTCTAGCCCTG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-37-2",
+      "name": "ChIP_AR_C3_F4",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 37,
+        "name": "ChIP_AR_C3_F4",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 37",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TCTGAATGCAGCCAAAACCAAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-38-2",
+      "name": "ChIP_AR_C3_F5",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 38,
+        "name": "ChIP_AR_C3_F5",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 38",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AACTCTCTGAATGCAGCCAAAAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-39-2",
+      "name": "ChIP_AR_C3_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 39,
+        "name": "ChIP_AR_C3_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 39",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TGGTGTATTCTGTTCACACTGC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-40-2",
+      "name": "ChIP_AR_C3_R_2",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 40,
+        "name": "ChIP_AR_C3_R_2",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 40",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "ACTGCAGGGCTAGAGAATGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-41-2",
+      "name": "ChIP_AR_C3_R1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 41,
+        "name": "ChIP_AR_C3_R1",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 41",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "ACTGCAGGGCTAGAGAATGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-42-2",
+      "name": "ChIP_AR_C3_R2",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 42,
+        "name": "ChIP_AR_C3_R2",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 42",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TGGGCCTGGATGGTTCACTA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-43-2",
+      "name": "ChIP_AR_C3_R3",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 43,
+        "name": "ChIP_AR_C3_R3",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 43",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CAGAAACAGTCTTTGCCGCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-44-2",
+      "name": "ChIP_AR_C3_R4",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 44,
+        "name": "ChIP_AR_C3_R4",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 44",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GGCAGGGGAAAAATTGTGGTG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-45-2",
+      "name": "ChIP_AR_C3_R5",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 45,
+        "name": "ChIP_AR_C3_R5",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 45",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AGGCAGGGGAAAAATTGTGGTG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-46-2",
+      "name": "ChIP_AR_P_F1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 46,
+        "name": "ChIP_AR_P_F1",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 46",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CTGTTGCATTTGCTCTCCAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-47-2",
+      "name": "ChIP_AR_P_F2",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 47,
+        "name": "ChIP_AR_P_F2",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 47",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCCGACTCGCAAACTGTTG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-48-2",
+      "name": "ChIP_AR_P_R1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 48,
+        "name": "ChIP_AR_P_R1",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 48",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CGGCTAGCTCGGCCCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-49-2",
+      "name": "ChIP_AR_P_R2",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 49,
+        "name": "ChIP_AR_P_R2",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 49",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TACAGCACTGGAGCGGC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-50-2",
+      "name": "ChIP_AR_P2_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 50,
+        "name": "ChIP_AR_P2_F",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 50",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CAAACTGTTGCATTTGCTCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-51-2",
+      "name": "ChIP_AR_P2_F2",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 51,
+        "name": "ChIP_AR_P2_F2",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 51",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CGACTCGCAAACTGTTGCAT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-52-2",
+      "name": "ChIP_AR_P2_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 52,
+        "name": "ChIP_AR_P2_R",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 52",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCTCTGGGCTTGCTCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-53-2",
+      "name": "ChIP_AR_P2_R2",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 53,
+        "name": "ChIP_AR_P2_R2",
+        "position": "",
+        "box": "ChIP Box -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 53",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TTTTTCCCTCTGTCGCCTCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-54-2",
+      "name": "AR45_qPCR_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 54,
+        "name": "AR45_qPCR_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 54",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AGAGGGATTCCTCGGAGGTC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-55-2",
+      "name": "AR45_qPCR_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 55,
+        "name": "AR45_qPCR_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 55",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GGCAATGTCAGGAGCACTCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-56-2",
+      "name": "CBX3_qPCR_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 56,
+        "name": "CBX3_qPCR_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 56",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GCCATCACAGCAGGTTTCCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-57-2",
+      "name": "CBX3_qPCR_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 57,
+        "name": "CBX3_qPCR_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 57",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TTTGCTAAGGAATGGCCCGC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-58-2",
+      "name": "FOXC1_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 58,
+        "name": "FOXC1_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 58",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CAGTCTCTGTACCGCACGTC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-59-2",
+      "name": "FOXC1_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 59,
+        "name": "FOXC1_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 59",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TTCGGCTTTGAGGGTGTGTC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-60-2",
+      "name": "Pac1_ZNF24",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 60,
+        "name": "Pac1_ZNF24",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 60",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "cccTTAATTAAatgtctgcacagtcagtgga",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-61-2",
+      "name": "POU3F3_qPCR_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 61,
+        "name": "POU3F3_qPCR_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 61",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "GGAGAAACGGACCAAGGAGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-62-2",
+      "name": "POU3F3_qPCR_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 62,
+        "name": "POU3F3_qPCR_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 62",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CGAGATCTCATGATCGCCCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-63-2",
+      "name": "SMARCE1_qPCR_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 63,
+        "name": "SMARCE1_qPCR_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 63",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AGAGGAACGACACCAGGAGA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-64-2",
+      "name": "SMARCE1_qPCR_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 64,
+        "name": "SMARCE1_qPCR_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 64",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCTCTGCCTGTGCAATCTCA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-65-2",
+      "name": "STAT1_qPCR_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 65,
+        "name": "STAT1_qPCR_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 65",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TAGTGGAGTGGAAGCGGAGA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-66-2",
+      "name": "STAT1_qPCR_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 66,
+        "name": "STAT1_qPCR_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 66",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TCTGCAGCTGATCCAAGCAA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-67-2",
+      "name": "Xba1_YY1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 67,
+        "name": "Xba1_YY1",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 67",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTCTAGAatggcctcgggcgacaccct",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-68-2",
+      "name": "YY1_BamH1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 68,
+        "name": "YY1_BamH1",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 68",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "cccGGATCCctggttgtttttggccttag",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-69-2",
+      "name": "ZNF24_g1_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 69,
+        "name": "ZNF24_g1_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 69",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CACCttggataccaggattcacct",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-70-2",
+      "name": "ZNF24_g1_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 70,
+        "name": "ZNF24_g1_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 70",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AAACaggtgaatcctggtatccaa",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-71-2",
+      "name": "ZNF24_g2_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 71,
+        "name": "ZNF24_g2_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 71",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CACCcttcatcaaagaattcacag",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-72-2",
+      "name": "ZNF24_g2_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 72,
+        "name": "ZNF24_g2_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 72",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AAACctgtgaattctttgatgaag",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-73-2",
+      "name": "ZNF24_Not1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 73,
+        "name": "ZNF24_Not1",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 73",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGCGGCCGCaactttcacaac",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-74-2",
+      "name": "ZNF24_qPCR_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 74,
+        "name": "ZNF24_qPCR_F",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 74",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AGCCGGAGGTTTGCGCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-75-2",
+      "name": "ZNF24_qPCR_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 75,
+        "name": "ZNF24_qPCR_R",
+        "position": "",
+        "box": "Umut -20 -2-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 75",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TGAGGCAGAATATAAGCCTCAGGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-76-2",
+      "name": "APEX1-g1-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 76,
+        "name": "APEX1-g1-F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 76",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgGATCAGAAAACCTCACCCAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-77-2",
+      "name": "APEX1-g1-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 77,
+        "name": "APEX1-g1-R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 77",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTGGGTGAGGTTTTCTGATCc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-78-2",
+      "name": "APEX1-g2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 78,
+        "name": "APEX1-g2-F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 78",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgGTAACGGGAATGCCGAAGCG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-79-2",
+      "name": "APEX1-g2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 79,
+        "name": "APEX1-g2-R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 79",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCGCTTCGGCATTCCCGTTACc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-80-2",
+      "name": "CBX3-g1.2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 80,
+        "name": "CBX3-g1.2-F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 80",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgAAACCAAGAGGATTTGCCAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-81-2",
+      "name": "CBX3-g1.2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 81,
+        "name": "CBX3-g1.2-R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 81",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTGGCAAATCCTCTTGGTTTc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-82-2",
+      "name": "CBX3-g2.2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 82,
+        "name": "CBX3-g2.2-F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 82",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgAGACTTGGTGCTGGCGAAAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-83-2",
+      "name": "CBX3-g2.2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 83,
+        "name": "CBX3-g2.2-R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 83",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTTTCGCCAGCACCAAGTCTc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-84-2",
+      "name": "EcoR1_FOXC1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 84,
+        "name": "EcoR1_FOXC1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 84",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGAATTCatgcaggcgcgctac",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-85-2",
+      "name": "EcoR1_GATA6",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 85,
+        "name": "EcoR1_GATA6",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 85",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGAATTCatggccttgactgacggc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-86-2",
+      "name": "EcoR1_SP1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 86,
+        "name": "EcoR1_SP1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 86",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGAATTCatggactacaaagaccatga",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-87-2",
+      "name": "EcoR1_YY1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 87,
+        "name": "EcoR1_YY1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 87",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGAATTCatggcctcgggcgacaccct",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-88-2",
+      "name": "FOXC1_BamH1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 88,
+        "name": "FOXC1_BamH1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 88",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGGATCCaaacttgctacagtcgtaga",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-89-2",
+      "name": "FOXC1_g1_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 89,
+        "name": "FOXC1_g1_F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 89",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CACCTCCAGCGGGAGCAGCCCCCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-90-2",
+      "name": "FOXC1_g1_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 90,
+        "name": "FOXC1_g1_R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 90",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AAACAGGTCGCCCTCGTCGGGGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-91-2",
+      "name": "FOXC1_g2_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 91,
+        "name": "FOXC1_g2_F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 91",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CACCGCGCCGCCGGAGCAGGCCGA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-92-2",
+      "name": "FOXC1_g2_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 92,
+        "name": "FOXC1_g2_R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 92",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AAACCGCGGCGGCCTCGTCCGGCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-93-2",
+      "name": "GATA6_BamH1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 93,
+        "name": "GATA6_BamH1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 93",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGGATCCggccagggccagg",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-94-2",
+      "name": "HOXB6_Not1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 94,
+        "name": "HOXB6_Not1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 94",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGCGGCCGCCTCGGCCTGTTTTTCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-95-2",
+      "name": "JUN_Not1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 95,
+        "name": "JUN_Not1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 95",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGCGGCCGCAAATGTTTGCAACTG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-96-2",
+      "name": "JUN_OX_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 96,
+        "name": "JUN_OX_F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 96",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "gggttaattaaATGACTGCAAAGATGGAAAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-97-2",
+      "name": "JUN_OX_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 97,
+        "name": "JUN_OX_R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 97",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaagcggccgcAAATGTTTGCAAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-98-2",
+      "name": "Pac1_HOXB6",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 98,
+        "name": "Pac1_HOXB6",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 98",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTTAATTAAATGAGTTCCTATTTCGTGAAC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-99-2",
+      "name": "Pac1_JUN",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 99,
+        "name": "Pac1_JUN",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 99",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTTAATTAAATGACTGCAAAGATG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-100-2",
+      "name": "Pac1_POU3F3",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 100,
+        "name": "Pac1_POU3F3",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 100",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTTAATTAAATGGCCACGGCGGCTT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-101-2",
+      "name": "Pac1_SMARCE1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 101,
+        "name": "Pac1_SMARCE1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 101",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTTAATTAAATGTCAAAAAGACCA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-102-2",
+      "name": "Pac1_STAT1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 102,
+        "name": "Pac1_STAT1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 102",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTTAATTAAATGTCAAAAAGACCA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-103-2",
+      "name": "pCBX3_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 103,
+        "name": "pCBX3_F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 103",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AATTAATTAAATGgaattcggaaaaaaacag",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-104-2",
+      "name": "pCBX3_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 104,
+        "name": "pCBX3_R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 104",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AAGCGGCCGCttgagcttcatcttctggacaa",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-105-2",
+      "name": "POU3F3_Not1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 105,
+        "name": "POU3F3_Not1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 105",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGCGGCCGCCTGAACGCTCGTCTGCAGCCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-106-2",
+      "name": "POU3F3_OX_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 106,
+        "name": "POU3F3_OX_F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 106",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaattaattaaATGGCCACGGCGGCTTCTAA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-107-2",
+      "name": "POU3F3_OX_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 107,
+        "name": "POU3F3_OX_R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 107",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaagcggccgcCTGAACGCTC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-108-2",
+      "name": "POU3F3-g1-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 108,
+        "name": "POU3F3-g1-F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 108",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgTGGAGGCGAGCTCGCCG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-109-2",
+      "name": "POU3F3-g1-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 109,
+        "name": "POU3F3-g1-R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 109",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCGGCGAGCTCGCCTCCAc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-110-2",
+      "name": "POU3F3-g2.2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 110,
+        "name": "POU3F3-g2.2-F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 110",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccggcggcgggtgaggatgcgcg",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-111-2",
+      "name": "POU3F3-g2.2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 111,
+        "name": "POU3F3-g2.2-R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 111",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaccgcgcatcctcacccgccgcc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-112-2",
+      "name": "SP1_BamH1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 112,
+        "name": "SP1_BamH1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 112",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGGATCCgaagccattgccactgatat",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-113-2",
+      "name": "STAT1_Not1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 113,
+        "name": "STAT1_Not1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 113",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGCGGCCGCTACTGTGTTCATCATACTGTC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-114-2",
+      "name": "STAT1_OX_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 114,
+        "name": "STAT1_OX_F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 114",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "gggttaattaaATGTCTCAGTGGTACGAACT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-115-2",
+      "name": "STAT1_OX_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 115,
+        "name": "STAT1_OX_R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 115",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaagcggccgcTACTGTGTTCATCATA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-116-2",
+      "name": "STAT1-g1-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 116,
+        "name": "STAT1-g1-F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 116",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgTCAGACAGTACCTGGCACAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-117-2",
+      "name": "STAT1-g1-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 117,
+        "name": "STAT1-g1-R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 117",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTGTGCCAGGTACTGTCTGAc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-118-2",
+      "name": "STAT1-g2.2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 118,
+        "name": "STAT1-g2.2-F",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 118",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgTCCACGGAATGAGACCATCG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-119-2",
+      "name": "STAT1-g2.2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 119,
+        "name": "STAT1-g2.2-R",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 119",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCGATGGTCTCATTCCGTGGAc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-120-2",
+      "name": "Xba1_GATA6",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 120,
+        "name": "Xba1_GATA6",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 120",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTCTAGAatggccttgactgacggc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-121-2",
+      "name": "Xba1_SP1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 121,
+        "name": "Xba1_SP1",
+        "position": "",
+        "box": "Umut -20 Box -1-"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 121",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTCTAGAatggactacaaagaccatga",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-122-2",
+      "name": "AR_C3_1_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 122,
+        "name": "AR_C3_1_F",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 122",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgTGAGAGCTAAACCTACCAGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-123-2",
+      "name": "AR_C3_1_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 123,
+        "name": "AR_C3_1_R",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 123",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCCTGGTAGGTTTAGCTCTCA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-124-2",
+      "name": "AR_C3_2_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 124,
+        "name": "AR_C3_2_F",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 124",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgAGCCCCCCCAAATCATTTAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-125-2",
+      "name": "AR_C3_2_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 125,
+        "name": "AR_C3_2_R",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 125",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTAAATGATTTGGGGGGGCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-126-2",
+      "name": "AR_C3_3_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 126,
+        "name": "AR_C3_3_F",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 126",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgTTCCAACAGGTTCCCCACAT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-127-2",
+      "name": "AR_C3_3_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 127,
+        "name": "AR_C3_3_F",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 127",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgGCAGGGCTAGAGAATGGGCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-128-2",
+      "name": "AR_C3_3_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 128,
+        "name": "AR_C3_3_R",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 128",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacATGTGGGGAACCTGTTGGAA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-129-2",
+      "name": "AR_C3_3_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 129,
+        "name": "AR_C3_3_R",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 129",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacGGCCCATTCTCTAGCCCTGCc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-130-2",
+      "name": "AR_gC5_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 130,
+        "name": "AR_gC5_F",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 130",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgAGCCCCCCCAAATCATTTAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-131-2",
+      "name": "AR_gC5_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 131,
+        "name": "AR_gC5_R",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 131",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTAAATGATTTGGGGGGGCTc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-132-2",
+      "name": "AR_P1_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 132,
+        "name": "AR_P1_F",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 132",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgaGCTTGCTGGGAGAGCGGGA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-133-2",
+      "name": "AR_P1_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 133,
+        "name": "AR_P1_R",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 133",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacTCCCGCTCTCCCAGCAAGCt",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-134-2",
+      "name": "AR_P2_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 134,
+        "name": "AR_P2_F",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 134",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgACGGTCCGGAGCAAGCCCAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-135-2",
+      "name": "AR_P2_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "notes": "No use",
+      "flags": [
+        "do-not-use"
+      ],
+      "importRaw": {
+        "row": 135,
+        "name": "AR_P2_R",
+        "position": "",
+        "box": "No use"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 135",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTGGGCTTGCTCCGGACCGT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-136-2",
+      "name": "APEX1_Not1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 136,
+        "name": "APEX1_Not1",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 136",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGCGGCCGCCAGTGCTAGGTATAGGGTGA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-137-2",
+      "name": "APEX1_qPCR_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 137,
+        "name": "APEX1_qPCR_F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 137",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "TTGTGCTCGGGTTAGGAGGA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-138-2",
+      "name": "APEX1_qPCR_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 138,
+        "name": "APEX1_qPCR_R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 138",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCAGCGAAGCCCCTCTTATG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-139-2",
+      "name": "CBX3-g1-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 139,
+        "name": "CBX3-g1-F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 139",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgTGTGGCTTGAGCTGTAGGCG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-140-2",
+      "name": "CBX3-g1-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 140,
+        "name": "CBX3-g1-R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 140",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCGCCTACAGCTCAAGCCACAc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-141-2",
+      "name": "CBX3-g2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 141,
+        "name": "CBX3-g2-F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 141",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgCGCGACCCGGAGCAGCTCGG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-142-2",
+      "name": "CBX3-g2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 142,
+        "name": "CBX3-g2-R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 142",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCCGAGCTGCTCCGGGTCGCGc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-143-2",
+      "name": "Pac1_APEX1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 143,
+        "name": "Pac1_APEX1",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 143",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaTTAATTAAATGCCGAAGCGTGGGA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-144-2",
+      "name": "POU3F3-g2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 144,
+        "name": "POU3F3-g2-F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 144",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgAACGCGGGAGAAACGGACCA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-145-2",
+      "name": "POU3F3-g2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 145,
+        "name": "POU3F3-g2-R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 145",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacTGGTCCGTTTCTCCCGCGTTc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-146-2",
+      "name": "shYY1-1-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 146,
+        "name": "shYY1-1-F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 146",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCGGAGAACTCACCTCCTGATTATTCTCGAGAATAATCAGGAGGTGAGTTCTTTTTTG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-147-2",
+      "name": "shYY1-1-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 147,
+        "name": "shYY1-1-R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 147",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AATTCAAAAAAGAACTCACCTCCTGATTATTCTCGAGAATAATCAGGAGGTGAGTTCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-148-2",
+      "name": "shYY1-2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 148,
+        "name": "shYY1-2-F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 148",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "CCGGCTCCTGATTATTCAGAATATACTCGAGTATATTCTGAATAATCAGGAGTTTTTG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-149-2",
+      "name": "shYY1-2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 149,
+        "name": "shYY1-2-R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 149",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "AATTCAAAAACTCCTGATTATTCAGAATATACTCGAGTATATTCTGAATAATCAGGAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-150-2",
+      "name": "SMARCE1_Not1",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 150,
+        "name": "SMARCE1_Not1",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 150",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaaGCGGCCGCTTCTTTTTTCTCATCTTCT",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-151-2",
+      "name": "SMARCE1_OX_F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 151,
+        "name": "SMARCE1_OX_F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 151",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "gggttaattaaATGTCAAAAAGACCATCTTA",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-152-2",
+      "name": "SMARCE1_OX_R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 152,
+        "name": "SMARCE1_OX_R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 152",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaagcggccgcTTCTTTTTTCTCATC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-153-2",
+      "name": "SMARCE1-g1-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 153,
+        "name": "SMARCE1-g1-F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 153",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgTTTTGGAATCGTGATACCAG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-154-2",
+      "name": "SMARCE1-g1-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 154,
+        "name": "SMARCE1-g1-R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 154",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCTGGTATCACGATTCCAAAAc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-155-2",
+      "name": "SMARCE1-g2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 155,
+        "name": "SMARCE1-g2-F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 155",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgGGATTGTATCCCACAAACCC",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-156-2",
+      "name": "SMARCE1-g2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 156,
+        "name": "SMARCE1-g2-R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 156",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacGGGTTTGTGGGATACAATCCc",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-157-2",
+      "name": "STAT1-g2-F",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 157,
+        "name": "STAT1-g2-F",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 157",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "caccgGTTAACCTAGACAGCTCTCG",
+        "Updated": "9/25/2026"
+      }
+    },
+    {
+      "id": "v-158-2",
+      "name": "STAT1-g2-R",
+      "status": "stored",
+      "importAmbiguous": true,
+      "passageKind": "unknown",
+      "importRaw": {
+        "row": 158,
+        "name": "STAT1-g2-R",
+        "position": "",
+        "box": "Unkown FOR NOW"
+      },
+      "importedFrom": "primers.xlsx!Sheet1!row 158",
+      "kind": "Primer",
+      "customFacets": {
+        "Owner": "Umut",
+        "Sequence": "aaacCGAGAGCTGTCTAGGTTAACc",
+        "Updated": "9/25/2026"
+      }
     }
   ],
   "withdrawals": [
@@ -12711,180 +15921,24 @@
     },
     "aliases": {},
     "columnMap": {
-      "box": 0,
-      "position": 1,
-      "name": 2,
-      "passage": 3,
-      "date": 4,
-      "origin": 5,
-      "koox": 6,
       "resistance": 7,
       "caspex": 8,
       "guide": 9,
-      "notes": 10
+      "notes": 5,
+      "unit": 1,
+      "box": 2,
+      "name": 3
     },
     "customFlags": [],
-    "groupingStrategy": "category-row"
+    "groupingStrategy": "category-row",
+    "customColumns": {
+      "Owner": "Owner",
+      "Sequence": "Sequence",
+      "Updated": "Updated"
+    }
   },
   "_meta": {
-    "savedBy": "unknown device",
-    "savedAt": "2026-09-24T16:16:55.628Z"
-  },
-  "removedVialIds": [
-    "v-205",
-    "v-206",
-    "v-207",
-    "v-208",
-    "v-234",
-    "v-235",
-    "v-243",
-    "v-285",
-    "v-286",
-    "v-287",
-    "v-288",
-    "v-289",
-    "v-329",
-    "v-330",
-    "v-331",
-    "v-332",
-    "v-333",
-    "v-334",
-    "v-342",
-    "v-343",
-    "v-355",
-    "v-356",
-    "v-357",
-    "v-358",
-    "v-359",
-    "v-360",
-    "v-361",
-    "v-368",
-    "v-369",
-    "v-370",
-    "v-373",
-    "v-374",
-    "v-375",
-    "v-376",
-    "v-377",
-    "v-378",
-    "v-379",
-    "v-381",
-    "v-382",
-    "v-383",
-    "v-384",
-    "v-385",
-    "v-386",
-    "v-387",
-    "v-388",
-    "v-389",
-    "v-390",
-    "v-391",
-    "v-392",
-    "v-393",
-    "v-394",
-    "v-395",
-    "v-396",
-    "v-397",
-    "v-398",
-    "v-399",
-    "v-400",
-    "v-401",
-    "v-402",
-    "v-403",
-    "v-404",
-    "v-405",
-    "v-406",
-    "v-407",
-    "v-408",
-    "v-409",
-    "v-410",
-    "v-411",
-    "v-412",
-    "v-413",
-    "v-414",
-    "v-415",
-    "v-416",
-    "v-417",
-    "v-418",
-    "v-419",
-    "v-420",
-    "v-421",
-    "v-422",
-    "v-423",
-    "v-424",
-    "v-425",
-    "v-426",
-    "v-427",
-    "v-428",
-    "v-429",
-    "v-430",
-    "v-431",
-    "v-432",
-    "v-433",
-    "v-434",
-    "v-435",
-    "v-436",
-    "v-437",
-    "v-438",
-    "v-439",
-    "v-440",
-    "v-441",
-    "v-442",
-    "v-443",
-    "v-444",
-    "v-445",
-    "v-446",
-    "v-447",
-    "v-448",
-    "v-449",
-    "v-450",
-    "v-451",
-    "v-452",
-    "v-453",
-    "v-454",
-    "v-455",
-    "v-456",
-    "v-457",
-    "v-458",
-    "v-459",
-    "v-460",
-    "v-461",
-    "v-462",
-    "v-463",
-    "v-464",
-    "v-465",
-    "v-466",
-    "v-467",
-    "v-468",
-    "v-469",
-    "v-470",
-    "v-471",
-    "v-472",
-    "v-473",
-    "v-474",
-    "v-475",
-    "v-476",
-    "v-477",
-    "v-478",
-    "v-479",
-    "v-480",
-    "v-481",
-    "v-482",
-    "v-483",
-    "v-484",
-    "v-485",
-    "v-486",
-    "v-487"
-  ],
-  "reviewIgnored": [
-    "gaps:v-mtt0h140-0",
-    "gaps:v-mttmmw7m-0",
-    "gaps:v-mttmmypa-0",
-    "gaps:v-mttmn045-0",
-    "gaps:v-mtt5ckqo-0",
-    "gaps:v-mtt3mo6u-0",
-    "gaps:v-mtt3mo6u-1",
-    "gaps:v-mtt3mo6u-2",
-    "passages:v-162"
-  ]
+    "savedBy": null,
+    "savedAt": null
+  }
 }

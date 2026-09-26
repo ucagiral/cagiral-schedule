@@ -2349,9 +2349,16 @@ check("the real inventory holds nothing that is double-booked or shapeless", () 
   // the same, as a warning rather than an error). Counting those as slot-holders is what
   // made this check go red the morning 486 vials were imported with 144 of them waiting
   // -- the data was right and the arithmetic here was wrong.
+  //
+  // A loose vial (in a box, slot not recorded -- the primer sheet named boxes and no
+  // slots) claims its box and no slot, so it is not one either. It still has to name a
+  // box that exists.
   const total = boxes.reduce((n, b) => n + E.occupancy(real, b.id).used, 0);
-  const placed = real.vials.filter((v) => v.status !== "withdrawn" && v.location && v.location.boxId).length;
+  const placed = real.vials.filter((v) => v.status !== "withdrawn" && v.location && v.location.boxId && !E.isLoose(v)).length;
   if (total !== placed) return `${total} slots are occupied but ${placed} vials claim one`;
+  const boxIds = new Set(boxes.map((b) => b.id));
+  const looseNowhere = real.vials.filter((v) => E.isLoose(v) && !boxIds.has(v.location.boxId));
+  if (looseNowhere.length) return `${looseNowhere.length} loose vials name a box that does not exist (first: ${looseNowhere[0].name})`;
   // And a vial without a slot is only allowed to be one Review has not answered yet.
   const homeless = real.vials.filter((v) => v.status !== "withdrawn" && !(v.location && v.location.boxId));
   const unexplained = homeless.filter((v) => !v.importAmbiguous);

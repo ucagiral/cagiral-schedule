@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash", "Edit", "Write", "Read", "Glob", "Grep",
+      "WebFetch", "WebSearch",
+      "mcp__github", "mcp__Claude_Code_Remote", "mcp__Claude_Docs"
+    ]
+  }
+}

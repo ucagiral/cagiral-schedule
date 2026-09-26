@@ -67,83 +67,6 @@
       ]
     },
     {
-      "id": "u-freezer-3",
-      "name": "Fridge 1",
-      "icon": "❄️",
-      "note": "-20",
-      "children": [
-        {
-          "id": "r-rack-1-vjgl-0",
-          "name": "Rack 1",
-          "children": [
-            {
-              "id": "b-chip-box",
-              "name": "ChIP Box",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: Umut -20 → Rack 1",
-              "archived": false,
-              "kind": "Primer",
-              "isBox": true,
-              "owner": "umut"
-            },
-            {
-              "id": "b-chip-box-2",
-              "name": "ChIP Box -2-",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: Umut -20 → Rack 1",
-              "archived": false,
-              "kind": "Primer",
-              "isBox": true,
-              "owner": "umut"
-            },
-            {
-              "id": "b-umut-20-2",
-              "name": "Umut -20 -2-",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: Umut -20 → Rack 1",
-              "archived": false,
-              "kind": "Primer",
-              "isBox": true,
-              "owner": "umut"
-            },
-            {
-              "id": "b-umut-20-box-1",
-              "name": "Umut -20 Box -1-",
-              "rows": 9,
-              "cols": 9,
-              "scheme": "grid",
-              "note": "from the sheet: Umut -20 → Rack 1",
-              "archived": false,
-              "kind": "Primer",
-              "isBox": true,
-              "owner": "umut"
-            }
-          ]
-        },
-        {
-          "id": "r-rack-2-vjgl-1",
-          "name": "Rack 2",
-          "children": []
-        },
-        {
-          "id": "r-rack-3",
-          "name": "Rack 3",
-          "children": []
-        },
-        {
-          "id": "r-rack-4",
-          "name": "Rack 4",
-          "children": []
-        }
-      ]
-    },
-    {
       "id": "freezer-2",
       "name": "Freezer 2",
       "icon": "🧊",
@@ -326,6 +249,83 @@
               "owner": "umut"
             }
           ]
+        }
+      ]
+    },
+    {
+      "id": "u-freezer-3",
+      "name": "Fridge 1",
+      "icon": "❄️",
+      "note": "-20",
+      "children": [
+        {
+          "id": "r-rack-1-vjgl-0",
+          "name": "Rack 1",
+          "children": [
+            {
+              "id": "b-chip-box",
+              "name": "ChIP Box",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: Umut -20 → Rack 1",
+              "archived": false,
+              "kind": "Primer",
+              "isBox": true,
+              "owner": "umut"
+            },
+            {
+              "id": "b-chip-box-2",
+              "name": "ChIP Box -2-",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: Umut -20 → Rack 1",
+              "archived": false,
+              "kind": "Primer",
+              "isBox": true,
+              "owner": "umut"
+            },
+            {
+              "id": "b-umut-20-2",
+              "name": "Umut -20 -2-",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: Umut -20 → Rack 1",
+              "archived": false,
+              "kind": "Primer",
+              "isBox": true,
+              "owner": "umut"
+            },
+            {
+              "id": "b-umut-20-box-1",
+              "name": "Umut -20 Box -1-",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "note": "from the sheet: Umut -20 → Rack 1",
+              "archived": false,
+              "kind": "Primer",
+              "isBox": true,
+              "owner": "umut"
+            }
+          ]
+        },
+        {
+          "id": "r-rack-2-vjgl-1",
+          "name": "Rack 2",
+          "children": []
+        },
+        {
+          "id": "r-rack-3",
+          "name": "Rack 3",
+          "children": []
+        },
+        {
+          "id": "r-rack-4",
+          "name": "Rack 4",
+          "children": []
         }
       ]
     }

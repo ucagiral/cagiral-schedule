@@ -2415,7 +2415,9 @@ check("a plan aimed at one area stays in it, and says the whole way down", () =>
     // An area can have plenty of room and still have none of it be umut's -- e.g. a rack
     // that is entirely someone else's boxes -- and "nothing here is mine" is as fair an
     // answer as "full", not a bug to chase.
-    if (!E.boxesFor(real, area.id, "umut").length) continue;
+    // Same for a fridge that holds only primer boxes: a cell is never placed across
+    // kinds, so "no box for a cell here" is the right answer there too.
+    if (!E.boxesFor(real, area.id, "umut").some((e) => String(E.kindOf(e.box)).toLowerCase() === "cell")) continue;
     const plan = E.suggestPlacement(real, { name: "LnCap Canada", count: 5, unitId: area.id });
     if (!plan.ok) return `nothing can be placed into ${area.name}: ${plan.reason}`;
     for (const seg of plan.segments) {
@@ -3208,6 +3210,24 @@ function loosePrimer(id, name, extra) {
     location: { path: ["u-1"], boxId: "b-p", position: null },
     customFacets: { Sequence: "GTCTCGGCCACCTCG" } }, extra || {});
 }
+
+check("adding into a primer box lists it under the box, with no slot", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");
+  const plan = E.suggestPlacementInList(state, { boxId: "b-p", count: 2, kind: "Primer", owner: "umut" });
+  if (!plan.ok) return "refused: " + plan.reason;
+  const out = E.applyPlacement(state, plan, { name: "Region 2_F", kind: "Primer",
+    customFacets: { Sequence: "ACGT" } }, { ids: ["n1", "n2"], now: "2026-09-26T10:00:00Z" });
+  const made = out.state.vials.filter((v) => v.name === "Region 2_F");
+  if (made.length !== 2 || !made.every(E.isLoose)) return "expected two loose vials, got " + JSON.stringify(made.map((v) => v.location));
+  if (made.some((v) => v.location.boxId !== "b-p")) return "they did not land in the primer box";
+  const errs = E.errorsOnly(E.validate(out.state));
+  if (errs.length) return "validate refused it: " + errs[0].message;
+  if (E.looseVials(out.state, "b-p").length !== 3) return "the box does not list all three";
+  if (E.suggestPlacementInList(state, { boxId: "b-c", kind: "Cell", owner: "umut" }).ok) return "a cell box took a slotless vial";
+  if (E.suggestPlacementInList(state, { boxId: "b-p", kind: "Cell", owner: "umut" }).ok) return "a cell went into a primer box";
+  if (E.suggestPlacementInList(state, { boxId: "b-p", kind: "Primer", owner: "baris" }).ok) return "someone else's box took it";
+  return null;
+});
 
 check("a loose vial validates, holds no slot, and is listed under its box", () => {
   const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");

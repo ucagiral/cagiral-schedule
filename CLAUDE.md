@@ -248,7 +248,10 @@ worker handles by sweeping only its own prefix.
   be **loose**: `location.boxId` set, `location.position` null (`isLoose()`). It holds no
   slot, validates, is searchable (sequence included), and shows under its box as "no
   slot recorded" until someone taps "Give it a slot". A Cell row with no slot still goes
-  to Review — the row rule needs a slot. Import merges into an existing inventory by
+  to Review — the row rule needs a slot. **A non-Cell box is a list, not a grid** — at
+  Umut's word, after 81 empty squares hid 22 primers below the fold: the Boxes tab draws
+  no grid for one and counts items, a primer is never offered a slot, and adding one by
+  hand chooses the box and nothing more (`suggestPlacementInList`, every vial loose). Import merges into an existing inventory by
   default; "replace everything" is an explicit switch, because the old default would
   have deleted 396 vials to add 157 primers.
 - **Two stored vials in one slot is an error, not a warning.** `validate()` returns it as one and

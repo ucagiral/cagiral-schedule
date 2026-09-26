@@ -3697,6 +3697,76 @@ try {
   }
 }
 
+// ============================================================================
+// A primer box is a list: no grid at all
+// ============================================================================
+//
+// Umut opened a primer box, saw 81 empty squares filling the screen and concluded the
+// primers were missing -- they were listed, below the fold. Primers never had places in
+// their box, so at his word a primer box draws no grid at all, only the list.
+{
+  const server24 = await serve(8821);
+  const browser24 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Fridge 1", icon: "🧊", note: "", children: [
+        { id: "b-p", name: "Primer box", icon: "📦", note: "", isBox: true, owner: "umut",
+          rows: 9, cols: 9, scheme: "grid", kind: "Primer" }
+      ] }
+    ], unplaced: [] };
+    const primer = (id, name, seq) => ({ id, name, kind: "Primer", passageKind: "unknown", frozenOn: null,
+      frozenRaw: "", notes: "", flags: [], customFacets: { Sequence: seq },
+      location: { boxId: "b-p", position: null, path: [{ id: "u-1", name: "Fridge 1" }, { id: "b-p", name: "Primer box" }] },
+      status: "stored" });
+    const own = { lines: [], withdrawals: [], rules: {}, settings: {},
+      vials: [primer("v-1", "AR45 qPCR F", "ACGTACGTAC"), primer("v-2", "AR45 qPCR R", "TGCATGCATG")] };
+
+    const context = await browser24.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      if (url.includes("cellstocks/data/umut.json")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(own) });
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await ownFileRoute(page, (name) => name === "umut.json" ? own : null);
+    await page.route("https://fake-worker.example/**", (route) =>
+      route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) }));
+
+    await page.goto("http://localhost:8821/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready",
+      { timeout: 10000 }).catch(() => {});
+    await page.click('nav button[data-screen="boxes"]');
+    await page.waitForFunction(() => /AR45 qPCR F/.test(document.getElementById("bxLines").textContent));
+    const view = await page.evaluate(() => ({
+      slots: document.querySelectorAll("#bxGrid .slot").length,
+      occ: document.getElementById("bxOcc").textContent,
+      listTop: document.getElementById("bxLines").getBoundingClientRect().top,
+      viewport: window.innerHeight
+    }));
+    check("a primer box draws no grid", view.slots === 0, JSON.stringify(view));
+    check("the primer list starts on the first screen", view.listTop < view.viewport, JSON.stringify(view));
+    check("a primer box counts items, not slots", /^2 items in this box$/.test(view.occ), view.occ);
+    await page.click("#bxLines .item.tap");
+    await page.waitForSelector("#dlgFoot button");
+    const foot = await page.$$eval("#dlgFoot button", (bs) => bs.map((b) => b.textContent.trim()));
+    check("a primer is never offered a slot", foot.indexOf("Give it a slot") === -1, JSON.stringify(foot));
+  } catch (err) {
+    check("a primer box is a list with no grid", false, String(err));
+  } finally {
+    await browser24.close();
+    server24.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

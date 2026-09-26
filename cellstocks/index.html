@@ -2217,16 +2217,34 @@
     // the pin rather than silently ignoring it.
     if (freeze.position && freeze.count !== 1) freeze.position = null;
 
-    // A non-Cell kind (Primer, and anything else typed in) has no origin/koox facets to
-    // group rows by, so there is nothing for an automatic proposal to base a suggestion
-    // on -- placement there is manual-only, by decision. Force the slot-click path
-    // rather than ever calling E.suggestPlacement for one.
-    if (freeze.kind !== "Cell" && !(freeze.boxId && freeze.position)) {
-      freeze.plan = null;
-      card.appendChild(el("p", "note", "Pick a box and click an empty slot -- " + freeze.kind + " has no automatic placement."));
-      var pickBtn = el("button", null, "Choose a box");
-      pickBtn.onclick = pickBox;
-      card.appendChild(pickBtn);
+    // A non-Cell kind (Primer, and anything else typed in) has no automatic placement
+    // and no slots: its box is a list, so choosing the box is the whole placement.
+    if (freeze.kind !== "Cell") {
+      freeze.position = null;
+      if (!freeze.boxId) {
+        freeze.plan = null;
+        card.appendChild(el("p", "note", "Choose the box it goes in -- a " + freeze.kind + " box is a list, with no slots."));
+        var pickBtn = el("button", null, "Choose a box");
+        pickBtn.onclick = pickBox;
+        card.appendChild(pickBtn);
+        return;
+      }
+      freeze.plan = E.suggestPlacementInList(state, { boxId: freeze.boxId, count: freeze.count,
+        kind: freeze.kind, owner: effectiveIdentity() });
+      if (!freeze.plan.ok){
+        var badL = el("p", "note", freeze.plan.reason);
+        badL.style.color = "var(--bad)";
+        card.appendChild(badL);
+      } else {
+        var headL = el("div", null, "Goes in " + freeze.plan.summary);
+        headL.style.fontWeight = "650";
+        headL.style.fontSize = "14px";
+        card.appendChild(headL);
+        card.appendChild(el("p", "note", freeze.plan.reason));
+      }
+      var otherBox = el("button", null, "Choose a different box");
+      otherBox.onclick = pickBox;
+      card.appendChild(otherBox);
       return;
     }
 
@@ -2305,8 +2323,11 @@
       b.style.width = "100%";
       b.style.textAlign = "left";
       b.style.marginBottom = "6px";
-      b.textContent = unit.name + " → " + rack.name + " → " + box.name + "  (" + occ.free + " free)";
-      b.disabled = occ.free < freeze.count;
+      var listBox = isListBox(box);
+      var nItems = occ.used + E.looseVials(state, box.id).length;
+      b.textContent = unit.name + " → " + rack.name + " → " + box.name + "  (" +
+        (listBox ? nItems + " item" + (nItems === 1 ? "" : "s") : occ.free + " free") + ")";
+      b.disabled = !listBox && occ.free < freeze.count;
       // A previously locked slot belonged to the box being replaced -- carrying it
       // over could silently target the wrong cell in the new one.
       b.onclick = function(){ freeze.boxId = box.id; freeze.position = null; $("dlg").close(); renderFreezePlan(); renderFreezeGuard(); };
@@ -2704,6 +2725,9 @@
 
   // One vial, read-only details plus what can be done with it. Used from a filled slot
   // and from the "no slot recorded" list under a box, so both show the same thing.
+  // A non-Cell box (primers) is shown as a list with no grid: nothing in it has a slot.
+  function isListBox(box){ return !!box && String(E.kindOf(box)).toLowerCase() !== "cell"; }
+
   function vialDialog(v, title){
     $("dlgTitle").textContent = title || v.name;
     var body = clear($("dlgBody"));
@@ -2722,7 +2746,8 @@
       (E.isLoose(v) ? " — no slot recorded" : "")));
     if (v.importedFrom) body.appendChild(el("p", "note", "From " + v.importedFrom));
 
-    if (E.isLoose(v)){
+    // Only a cell needs a slot: primer boxes are a list, at Umut's word, with no grid.
+    if (E.isLoose(v) && isCellKind(v)){
       var slotBtn = el("button", null, "Give it a slot");
       slotBtn.disabled = !canWrite();
       slotBtn.onclick = function(){ assignSlotDialog(v); };
@@ -2911,8 +2936,9 @@
       var nLoose = E.looseVials(state, entry.box.id).length;
       var o = document.createElement("option");
       o.value = entry.box.id;
-      o.textContent = entry.box.name + " — " + occ.used + "/" + occ.capacity +
-        (nLoose ? " + " + nLoose + " without a slot" : "");
+      o.textContent = entry.box.name + " — " + (isListBox(entry.box)
+        ? (occ.used + nLoose) + " item" + (occ.used + nLoose === 1 ? "" : "s")
+        : occ.used + "/" + occ.capacity + (nLoose ? " + " + nLoose + " without a slot" : ""));
       groups[label].appendChild(o);
     });
     if (!boxView.boxId || !here.some(function(e){ return e.box.id === boxView.boxId; })) {
@@ -2929,14 +2955,21 @@
 
     var g = clear($("bxGrid"));
     if (!boxView.boxId){ g.appendChild(el("div", "empty", "This area has no boxes yet.")); return; }
-    g.appendChild(boxGrid(boxView.boxId, { highlight: boxView.highlight, static: !!readOnly }));
 
     var occ = E.occupancy(state, boxView.boxId);
     var loose = E.looseVials(state, boxView.boxId).slice().sort(function(a, b){
       return String(a.name).localeCompare(String(b.name), undefined, { numeric: true, sensitivity: "base" });
     });
-    $("bxOcc").textContent = occ.used + " of " + occ.capacity + " slots full · " + occ.free + " free" +
-      (loose.length ? " · " + loose.length + " more in the box without a slot" : "");
+    // A primer box is a list, not a grid. Umut opened one, saw 81 empty squares filling
+    // the screen and concluded the primers were missing -- they were listed below the
+    // fold. Primers were never given places in the box, so there is no grid to draw.
+    var listBox = isListBox((E.findBox(state, boxView.boxId) || {}).box);
+    if (!listBox) g.appendChild(boxGrid(boxView.boxId, { highlight: boxView.highlight, static: !!readOnly }));
+    $("bxBar").parentNode.hidden = listBox;
+    $("bxOcc").textContent = listBox
+      ? (occ.used + loose.length) + " item" + (occ.used + loose.length === 1 ? "" : "s") + " in this box"
+      : occ.used + " of " + occ.capacity + " slots full · " + occ.free + " free" +
+        (loose.length ? " · " + loose.length + " more in the box without a slot" : "");
     $("bxBar").style.width = (occ.capacity ? (occ.used / occ.capacity * 100) : 0) + "%";
 
     // What is actually in this box, so the colours mean something.
@@ -2952,7 +2985,7 @@
       t.style.fontWeight = "600";
       grow.appendChild(t);
       var seq = v.customFacets && (v.customFacets.Sequence || v.customFacets.sequence);
-      var bits = [where];
+      var bits = where ? [where] : [];
       if (seq) bits.push(seq);
       else if (v.notes) bits.push(v.notes);
       var sub = el("div", "sub" + (seq ? " mono" : ""), bits.join(" · "));
@@ -2968,10 +3001,8 @@
       if (!slotted.length && !loose.length){ lines.appendChild(el("div", "empty", "Empty.")); return; }
       slotted.forEach(function(s){ lines.appendChild(itemRow(s.vial, s.position)); });
       if (loose.length){
-        if (slotted.length) lines.appendChild(el("h3", null, "No slot recorded (" + loose.length + ")"));
-        else lines.lastChild.textContent = "In this box — no slot recorded (" + loose.length + ")";
-        lines.appendChild(el("p", "note", "These are in this box, but the sheet never said where. Tap one to give it its slot."));
-        loose.forEach(function(v){ lines.appendChild(itemRow(v, "slot not recorded")); });
+        if (!slotted.length) lines.lastChild.textContent = "In this box (" + loose.length + ")";
+        loose.forEach(function(v){ lines.appendChild(itemRow(v, "")); });
       }
       return;
     }

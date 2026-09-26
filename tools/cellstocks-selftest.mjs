@@ -3184,6 +3184,128 @@ check("mergeImportedVials keeps the existing account's own settings, not the she
   return null;
 });
 
+// -------------------------------------------------------------- loose vials
+//
+// A vial known to be in a box whose slot nobody recorded. Umut's primer sheet names each
+// primer's box and no position; his answer was to list them under the box rather than
+// invent slots.
+
+function primerLab() {
+  const primerBox = Object.assign(box("b-p", "ChIP Box", 2, 2), { isBox: true, owner: "umut", kind: "Primer" });
+  const cellBox = Object.assign(box("b-c", "Box C", 2, 2), { isBox: true, owner: "umut" });
+  return E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [primerBox, cellBox] }] });
+}
+
+function loosePrimer(id, name, extra) {
+  return Object.assign({ id, name, kind: "Primer", status: "stored",
+    location: { path: ["u-1"], boxId: "b-p", position: null },
+    customFacets: { Sequence: "GTCTCGGCCACCTCG" } }, extra || {});
+}
+
+check("a loose vial validates, holds no slot, and is listed under its box", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");
+  const errs = E.errorsOnly(E.validate(state));
+  if (errs.length) return "a loose vial must not be an error: " + errs[0].message;
+  if (E.occupancy(state, "b-p").used !== 0) return "a loose vial must not occupy a slot";
+  if (E.looseVials(state, "b-p").length !== 1) return "looseVials did not list it under its box";
+  if (!E.isLoose(state.vials[0])) return "isLoose said no";
+  return null;
+});
+
+check("a loose vial is searchable, including by its sequence", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");
+  if (!E.search(state, { query: "region" }).length) return "not found by name";
+  const bySeq = E.search(state, { query: "GTCTCGGCCACCTCG" });
+  if (bySeq.length !== 1) return "not found by its sequence: " + json(bySeq.map((r) => r.vial.id));
+  return null;
+});
+
+check("importSheet brings a slotless non-Cell row in loose, not into Review", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Box Name"), cell("Primer Name")], [cell("ChIP Box"), cell("Region 1_F")]];
+  const out = E.importSheet({ name: "Sheet1", rows, merges: [] }, { columns: { box: 0, name: 1 }, headerRow: 1, kind: "Primer" });
+  const v = out.state.vials[0];
+  if (v.importAmbiguous) return "a known box with no slot is not a question for Review";
+  if (!E.isLoose(v)) return "expected a loose location, got " + json(v.location);
+  if (out.report.loose !== 1) return "report.loose should count it, got " + json(out.report.loose);
+  if (E.reviewQueue(out.state).ambiguousImport.length) return "it still reached Review";
+  return null;
+});
+
+check("importSheet still sends a slotless Cell row to Review", () => {
+  const cell = (t) => ({ value: t, text: t, formula: null, isDate: false, iso: null, type: "string" });
+  const rows = [[cell("Position"), cell("Cell Name")], [cell(""), cell("HEK293T p12")]];
+  const out = E.importSheet({ name: "Sheet1", rows, merges: [] }, { columns: { position: 0, name: 1 }, headerRow: 1 });
+  if (!out.state.vials[0].importAmbiguous) return "a cell without a slot must still be asked about -- one cell per row depends on it";
+  return null;
+});
+
+check("placeLooseImports moves waiting primer rows into their box, and only those", () => {
+  const waiting = (id, name, boxName, kind, position) => ({ id, name, kind, status: "stored", location: null,
+    importAmbiguous: true, importRaw: { row: 2, name, position: position || "", box: boxName } });
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [
+    waiting("p1", "Region 1_F", "ChIP Box", "Primer"),
+    waiting("p2", "Nowhere", "No Such Box", "Primer"),
+    waiting("c1", "HEK293T", "Box C", undefined),
+    waiting("p3", "Bad slot", "ChIP Box", "Primer", "Z99")
+  ] }), primerLab(), "umut");
+  const r = E.placeLooseImports(state);
+  if (json(r.placed) !== json(["p1"])) return "expected only p1 placed, got " + json(r.placed);
+  if (r.skipped.length !== 1 || r.skipped[0].vialId !== "p2") return "the unknown box must be reported, got " + json(r.skipped);
+  const byId = E.indexById(r.state.vials);
+  if (!E.isLoose(byId.p1) || byId.p1.location.boxId !== "b-p") return "p1 is not loose in the ChIP Box";
+  if (byId.p1.importAmbiguous || byId.p1.importRaw) return "p1 still carries its Review markers";
+  if (!byId.c1.importAmbiguous) return "a Cell row must be left for Review";
+  if (!byId.p3.importAmbiguous) return "a row whose position failed to read must be left for Review";
+  return null;
+});
+
+check("assignSlot gives a loose vial its slot, and refuses a full slot or the wrong kind of box", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [
+    loosePrimer("p1", "Region 1_F"),
+    Object.assign(loosePrimer("p2", "Region 1_R"), { location: { path: ["u-1"], boxId: "b-p", position: "A1" } })
+  ] }), primerLab(), "umut");
+  const ok = E.assignSlot(state, "p1", "b-p", "A2");
+  if (!ok.ok) return "expected A2 to work: " + ok.reason;
+  if (E.indexById(ok.state.vials).p1.location.position !== "A2") return "slot not recorded";
+  if (E.isLoose(E.indexById(ok.state.vials).p1)) return "still loose after getting a slot";
+  if (E.assignSlot(state, "p1", "b-p", "A1").ok) return "a full slot must be refused";
+  if (E.assignSlot(state, "p1", "b-c", "A1").ok) return "a primer must not go into a Cell box";
+  return null;
+});
+
+check("resolving a primer's Review row does not give it a Cell line", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [{ id: "p1", name: "x", kind: "Primer", status: "stored",
+    location: null, importAmbiguous: true, importRaw: { row: 2, name: "", position: "", box: "ChIP Box" } }] }), primerLab(), "umut");
+  const r = E.resolveImportRow(state, "p1", { name: "Region 1_F", boxId: "b-p", position: "A1" });
+  if (!r.ok) return r.reason;
+  if (r.vial.lineId) return "a primer gained a lineId: " + r.vial.lineId;
+  if ((r.state.lines || []).length !== (state.lines || []).length) return "a primer created a Cell line";
+  return null;
+});
+
+check("Find's area filter matches on the box's route, not a unitId vials no longer carry", () => {
+  const lab = E.mergeStorageDefaults({ children: [
+    { id: "u-1", name: "Freezer 1", children: [Object.assign(box("b-1", "Box 1", 2, 2), { isBox: true, owner: "umut" })] },
+    { id: "u-2", name: "Tank", children: [Object.assign(box("b-2", "Box 2", 2, 2), { isBox: true, owner: "umut" })] }
+  ] });
+  const v1 = { id: "v1", name: "HEK293T", status: "stored", location: { path: [{ id: "u-1", name: "Freezer 1" }], boxId: "b-1", position: "A1" } };
+  const v2 = { id: "v2", name: "Du145", status: "stored", location: { path: [{ id: "u-2", name: "Tank" }], boxId: "b-2", position: "A1" } };
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [v1, v2] }), lab, "umut");
+  const ids = E.search(state, { unitId: "u-1" }).map((r) => r.vial.id);
+  if (json(ids) !== json(["v1"])) return "expected only v1 under Freezer 1, got " + json(ids);
+  return null;
+});
+
+check("date and passage filters never hide a primer, which has neither", () => {
+  const state = E.hydrateStorage(E.mergeDefaults({ vials: [loosePrimer("p1", "Region 1_F")] }), primerLab(), "umut");
+  const hits = E.search(state, { query: "region", frozenFrom: "2025-01-01", frozenTo: "2025-12-31",
+                                 includeUndated: false, passageKind: "absolute", passageMin: 1, passageMax: 10 });
+  if (hits.length !== 1) return "a primer vanished behind a cell-only slider";
+  if (E.searchExtents(state).frozen.unconfirmed !== 0) return "a primer was counted as an unconfirmed date";
+  return null;
+});
+
 // ---------------------------------------------------------------------- report
 const total = passed + failures.length;
 

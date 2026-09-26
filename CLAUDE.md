@@ -240,6 +240,17 @@ worker handles by sweeping only its own prefix.
   minted ids, every box must be given a destination (or explicitly Discarded) first, and then the
   departing account is deleted along with both its files. Do not reintroduce the old "From <user>"
   unit, and do not leave the account standing.
+- **A box holds one kind of thing, and a primer can be in a box without a slot.** A box
+  may carry `kind` (absent means Cell, never written as "Cell"); Cell-only rules —
+  one-cell-per-row, origin grouping, automatic placement — never touch a non-Cell box,
+  and nothing is placed across kinds. Umut's primer sheet names each primer's box and no
+  position; his answer was *list them under the box, do not invent slots*. So a vial may
+  be **loose**: `location.boxId` set, `location.position` null (`isLoose()`). It holds no
+  slot, validates, is searchable (sequence included), and shows under its box as "no
+  slot recorded" until someone taps "Give it a slot". A Cell row with no slot still goes
+  to Review — the row rule needs a slot. Import merges into an existing inventory by
+  default; "replace everything" is an explicit switch, because the old default would
+  have deleted 396 vials to add 157 primers.
 - **Two stored vials in one slot is an error, not a warning.** `validate()` returns it as one and
   the save is refused. Do not downgrade it, and do not add a code path that places a vial without
   going through `validate` first.

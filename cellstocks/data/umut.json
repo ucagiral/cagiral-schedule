@@ -11806,6 +11806,27 @@
       "status": "stored",
       "addedAt": "2026-09-29T12:50:21.886Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mumocr8r-0",
+      "name": "LUCX gC2",
+      "lineId": "l-lucx-gc2",
+      "passage": "23",
+      "passageNumber": 23,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-29",
+      "frozenOn": "2026-09-29",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H4"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-29T12:50:42.027Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -12800,7 +12821,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-09-29T12:50:23.096Z"
+    "savedAt": "2026-09-29T12:50:43.404Z"
   },
   "removedVialIds": [
     "v-205",

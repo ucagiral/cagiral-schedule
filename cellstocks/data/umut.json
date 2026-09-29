@@ -11764,6 +11764,27 @@
       "status": "stored",
       "addedAt": "2026-09-29T12:49:59.714Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mumoc2pl-0",
+      "name": "LUCX gP3",
+      "lineId": "l-lucx-gp3",
+      "passage": "23",
+      "passageNumber": 23,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-29",
+      "frozenOn": "2026-09-29",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-duzenle",
+        "position": "H9"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-29T12:50:10.233Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -12758,7 +12779,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-09-29T12:50:01.245Z"
+    "savedAt": "2026-09-29T12:50:11.385Z"
   },
   "removedVialIds": [
     "v-205",

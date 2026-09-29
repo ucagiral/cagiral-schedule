@@ -11848,6 +11848,27 @@
       "status": "stored",
       "addedAt": "2026-09-29T12:50:54.365Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mumod75l-0",
+      "name": "LUCX gC4",
+      "lineId": "l-lucx-gc4",
+      "passage": "23",
+      "passageNumber": 23,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-09-29",
+      "frozenOn": "2026-09-29",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H6"
+      },
+      "status": "stored",
+      "addedAt": "2026-09-29T12:51:02.649Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -12842,7 +12863,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-09-29T12:50:55.513Z"
+    "savedAt": "2026-09-29T12:51:03.850Z"
   },
   "removedVialIds": [
     "v-205",

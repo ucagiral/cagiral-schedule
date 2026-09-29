@@ -7595,21 +7595,7 @@
       "flags": [
         "to-do"
       ],
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-duzenle",
-        "position": "H7"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 233"
     },
     {
@@ -12837,6 +12823,29 @@
       "by": "Umut",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mumon35e",
+      "vialId": "v-233",
+      "name": "LUCX",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-duzenle",
+        "position": "H7"
+      },
+      "date": "2026-09-29",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -12863,7 +12872,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-09-29T12:51:03.850Z"
+    "savedAt": "2026-09-29T12:58:45.116Z"
   },
   "removedVialIds": [
     "v-205",

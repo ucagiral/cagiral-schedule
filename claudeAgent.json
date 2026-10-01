@@ -2689,7 +2689,7 @@
       "title": "pLJC2 colonies — pick and inoculate",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Added, not on Umut’s list: the transformation plates come due today and colonies have to go into culture tonight for a Thursday miniprep.",
       "group": "pLJC2 — SART3/SMARCA2"
     },
@@ -2701,7 +2701,7 @@
       "title": "Bacterial culture — overnight",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "12–16 h at 37 °C shaking. Continues past this grid’s 23:00 window.",
       "group": "pLJC2 — SART3/SMARCA2"
     },
@@ -2797,7 +2797,7 @@
       "title": "Competent cells — starter culture inoculation",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Single colony into LB for tomorrow’s competent prep. Ten minutes, but it has to happen tonight — without it Thursday has nothing to subculture from.",
       "group": "Cloning"
     },
@@ -2910,7 +2910,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-01T04:32:26.382Z",
+    "lastModified": "2026-10-01T04:32:28.645Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2627,7 +2627,7 @@
       "title": "Virus — medium change",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "~5.5 h post-transfection; protocols quote ~6 h.",
       "start": "15:20",
       "end": "15:50",
@@ -2910,7 +2910,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-01T04:32:20.493Z",
+    "lastModified": "2026-10-01T04:32:23.818Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -2665,7 +2665,7 @@
       "title": "ChIP day 2 — washes and elution",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Low-salt / high-salt / LiCl / TE washes, 5 min each with rotation, then elution (65 °C, ~30–60 min, vortexing every 15 min).",
       "group": "LNCX/LUCX"
     },
@@ -2677,7 +2677,7 @@
       "title": "ChIP — reverse cross-linking at 65 °C, overnight",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "At least 5 h, overnight is standard (8–18 h). Unattended; continues past this grid’s 23:00 window.",
       "group": "LNCX/LUCX"
     },
@@ -2910,7 +2910,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-01T04:32:23.818Z",
+    "lastModified": "2026-10-01T04:32:26.382Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

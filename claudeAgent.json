@@ -236,7 +236,7 @@
       "title": "CuAdapt cells — passage",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -248,7 +248,7 @@
       "title": "CuAdapt cells — copper treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Tue/Fri copper feeding. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -1074,7 +1074,7 @@
       "title": "Weekly meeting",
       "category": "meeting",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
       "group": "Weekly meeting"
     },
@@ -2593,7 +2593,7 @@
       "title": "YY1 plasmids to sequencing",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Umut: \"sekansa da göndereceğim.\" Data back next business day.",
       "group": "Cloning"
     },
@@ -2713,7 +2713,7 @@
       "title": "Miniprep — pLJC2-SART3 / pLJC2-SMARCA2",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Added, not on Umut’s list. Spin-column miniprep, 30–45 min.",
       "group": "pLJC2 — SART3/SMARCA2"
     },
@@ -2723,7 +2723,7 @@
       "title": "Colony PCR + gel check",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Added, not on Umut’s list. The digest incubation elapses first, then a 1% gel — the gel is poured during the ChIP incubation above, not on the critical path. Moved to Friday 24→25 Sep: Thursday late morning now carries the virus harvest.",
       "start": "14:30",
       "end": "15:35",
@@ -2737,7 +2737,7 @@
       "title": "pLJC2-SART3 / pLJC2-SMARCA2 to sequencing",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Added, not on Umut’s list. Only the clones the diagnostic digest passes. Moved to Friday 24→25 Sep: Thursday noon is taken by the CaCl₂ harvest.",
       "group": "pLJC2 — SART3/SMARCA2"
     },
@@ -2749,7 +2749,7 @@
       "title": "ChIP-qPCR — plate set-up",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Set up before the booked slot, not the day before — the ChIP DNA only comes off the reverse cross-link this morning. The plate keeps in the fridge until 16:00.",
       "group": "LNCX/LUCX"
     },
@@ -2761,7 +2761,7 @@
       "title": "ChIP-qPCR — run (booked 16:00–18:00)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Booked instrument slot, Umut 21 Sep. Active rather than passive even though the run itself is ~5 min of hands-on: the two hours are reserved and nothing else goes on top of them. Replicate 1 of the AR-CasPEx funnel — occupancy screen, no biotinylation.",
       "group": "LNCX/LUCX"
     },
@@ -2773,7 +2773,7 @@
       "title": "Virus harvest — first collection (~50 h)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Added, not on Umut’s list. 48–72 h post-transfection is the usual window. Moved off the afternoon 21 Sep when the 16:00–18:00 qPCR booking came in — it sits inside the ChIP and competent-growth incubations instead.",
       "group": "Virus prep"
     },
@@ -2809,7 +2809,7 @@
       "title": "Competent cells — starter culture, 37 °C overnight",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Saturated overnight culture. Continues past this grid’s 23:00 window.",
       "group": "Cloning"
     },
@@ -2821,7 +2821,7 @@
       "title": "Competent cells — 1:100 subculture",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "1 mL of the saturated overnight into 100 mL LB, 37 °C shaking.",
       "group": "Cloning"
     },
@@ -2833,7 +2833,7 @@
       "title": "Competent cells — growth to OD₆₀₀ ≈ 0.4",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "2–3 h at 37 °C. Unattended apart from reading the OD, so the miniprep and the diagnostic digest sit inside it. Do not let it overshoot — past mid-log the efficiency drops.",
       "group": "Cloning"
     },
@@ -2845,7 +2845,7 @@
       "title": "Competent cells — chill, harvest, first CaCl₂ wash",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Ice 10 min to stop growth, spin cold, resuspend in ice-cold CaCl₂. Everything stays on ice and cold from here.",
       "group": "Cloning"
     },
@@ -2857,7 +2857,7 @@
       "title": "Competent cells — on ice",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "20–30 min on ice between washes. The ChIP-qPCR plate set-up goes here.",
       "group": "Cloning"
     },
@@ -2869,7 +2869,7 @@
       "title": "Competent cells — final CaCl₂/glycerol resuspension, aliquot and snap-freeze",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Resuspend in CaCl₂ with glycerol, aliquot, snap-freeze, straight to −80 °C. Transform one aliquot with a known plasmid to measure the efficiency before trusting the batch.",
       "group": "Cloning"
     }
@@ -2910,7 +2910,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-01T04:32:28.645Z",
+    "lastModified": "2026-10-01T04:32:33.371Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

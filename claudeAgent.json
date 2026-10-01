@@ -266,7 +266,7 @@
     },
     {
       "id": "e-cuadapt-copper-2026-09-29",
-      "date": "2026-09-29",
+      "date": "2026-10-01",
       "start": "09:00",
       "end": "09:30",
       "title": "CuAdapt cells — copper treatment",
@@ -2910,7 +2910,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-01T04:32:44.942Z",
+    "lastModified": "2026-10-01T04:32:47.325Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

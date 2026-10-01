@@ -260,7 +260,7 @@
       "title": "CuAdapt cells — passage",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -2785,7 +2785,7 @@
       "title": "Virus harvest — second collection (~72 h)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Added, not on Umut’s list. Harvesting twice is standard; drop it if the first collection is enough. After the weekly meeting.",
       "group": "Virus prep"
     },
@@ -2910,7 +2910,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-01T04:32:33.371Z",
+    "lastModified": "2026-10-01T04:32:35.819Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

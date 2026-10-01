@@ -11741,8 +11741,14 @@
       "frozenOn": "2026-09-29",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-duzenle",
         "position": "H8"
@@ -11762,8 +11768,14 @@
       "frozenOn": "2026-09-29",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-duzenle",
         "position": "H9"
@@ -11783,8 +11795,14 @@
       "frozenOn": "2026-09-29",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-ongoing",
         "position": "H4"
@@ -11804,8 +11822,14 @@
       "frozenOn": "2026-09-29",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H4"
@@ -11825,8 +11849,14 @@
       "frozenOn": "2026-09-29",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H5"
@@ -11846,8 +11876,14 @@
       "frozenOn": "2026-09-29",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "b-umut-cells-4",
         "position": "H6"

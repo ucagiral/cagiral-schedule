@@ -9557,9 +9557,9 @@
       "id": "v-318",
       "name": "LNCX",
       "lineId": "l-lncx",
-      "passage": "p12",
+      "passage": "p+12",
       "passageNumber": 12,
-      "passageKind": "absolute",
+      "passageKind": "relative",
       "frozenRaw": "30-03-26",
       "frozenOn": "2026-03-30",
       "location": {
@@ -12908,7 +12908,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-09-29T12:58:45.116Z"
+    "savedAt": "2026-10-01T11:00:41.178Z"
   },
   "removedVialIds": [
     "v-205",

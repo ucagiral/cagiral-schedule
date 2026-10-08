@@ -212,6 +212,9 @@ Method is the same shape — digest, AP-treat the backbone, gel-isolate, ligate,
 Cells coming out of storage are recovering; an experiment on top of that is wasted. This rule is
 already why several calendar events sit where they do.
 
+- **Umut can override the "nothing else on a thaw day" half himself.** On 9 Oct 2026 he listed a
+  thaw alongside a ChIP day 2, a fixation, a freeze and a drug treatment — his list stands. The
+  day-after medium change still goes on the calendar (10 Oct).
 - **Virus medium change:** add **6.5 mL** per vessel.
 - **CuAdapt line:** recurring passage on **Mondays and Thursdays**. Copper treatment and passage are
   separate events, with a ~10 min gap between them.
@@ -248,7 +251,7 @@ Dependency chain, each step feeding the next:
 ## Colour groups
 
 Related work shares one colour across the week through the event's `group` field, so a whole
-experiment thread reads as a single strand on the grid. Eleven are pinned in `_groups`; a twelfth
+experiment thread reads as a single strand on the grid. Twelve are pinned in `_groups`; a thirteenth
 group exists but isn't:
 
 | Group | Colour | Covers |
@@ -265,6 +268,7 @@ group exists but isn't:
 | Weekly meeting | olive `#65a30d` | the standing Friday 09:30 meeting. Was "lime" `#84cc16` — renamed with the 30 Aug 2026 palette widening, see below. |
 | Colony formation | orange `#ea580c` | fixation across consecutive days, then drying |
 | pLJC2 — SART3/SMARCA2 | sky `#0369a1` | the SART3 and SMARCA2 clone into pLJC2 — digest, AP, gel isolation, ligation, transformation, colony picking, miniprep, sequencing. Added 21 Sep 2026 from `PALETTE`, a colour nothing else was using. |
+| ChIP | blue `#2563eb` | ChIP work that is not part of AR-CasPEx — the 8–9 Oct 2026 run (day 2, reverse cross-link) and the HEK pCDH-YY1 (2) fixation. Added 8 Oct 2026 from `PALETTE`, a colour nothing else was using. The 22–24 Sep CasPEx ChIP stays under LNCX/LUCX. |
 
 **Nek2→YY1** (fuchsia-ish, currently `#a21caf` under the new palette) tags the cancelled
 Nek2(K37R)→YY1 swap — see [`protocols/cloning.md`](protocols/cloning.md). It has never actually had a
@@ -279,7 +283,7 @@ the category palette overlaps the group palette — `personal` green is CuAdapt'
 red is the Western red, which is exactly how the Wednesday Zoom and the Friday meeting ended up
 looking like experiments. Grouping them fixes it at the root.
 
-The eleven pinned colours above are distinct from one another and can be changed from the app's
+The twelve pinned colours above are distinct from one another and can be changed from the app's
 colour dropdown. Passive events keep their pale treatment, tinted with the group's colour.
 
 **A new recurring commitment gets its own group and its own unused colour**, rather than being left

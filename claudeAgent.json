@@ -1112,10 +1112,11 @@
       "title": "Zoom meeting",
       "category": "personal",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Wednesday Zoom meeting, personal commitment, every week without exception (2026-08-09: Umut clarified this is personal, not a work meeting, and happens even during vacation). Wednesday schedule should finish at most 19:20 per schedule.md.",
       "group": "Zoom — Wednesday",
-      "autoDone": true
+      "autoDone": true,
+      "autoDoneAt": "2026-10-08T05:02:15.155Z"
     },
     {
       "id": "e-meeting-weekly-2026-10-09",
@@ -2910,7 +2911,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-01T04:32:53.267Z",
+    "lastModified": "2026-10-08T05:02:16.059Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

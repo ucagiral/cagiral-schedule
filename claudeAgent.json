@@ -2873,6 +2873,17 @@
       "status": "done",
       "notes": "Resuspend in CaCl₂ with glycerol, aliquot, snap-freeze, straight to −80 °C. Transform one aliquot with a known plasmid to measure the efficiency before trusting the batch.",
       "group": "Cloning"
+    },
+    {
+      "id": "emuz2ly6mqhjhj",
+      "date": "2026-10-08",
+      "title": "Chip day 1",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "09:00",
+      "end": "09:30"
     }
   ],
   "_groups": {
@@ -2911,7 +2922,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-08T05:02:36.077Z",
+    "lastModified": "2026-10-08T05:03:00.566Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

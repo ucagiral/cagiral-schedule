@@ -2884,6 +2884,17 @@
       "notes": "",
       "start": "09:00",
       "end": "09:30"
+    },
+    {
+      "id": "emuz2m8epgm4pf",
+      "date": "2026-10-08",
+      "title": "DuDoce H460 seed",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "09:00",
+      "end": "09:30"
     }
   ],
   "_groups": {
@@ -2922,7 +2933,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-08T05:03:00.566Z",
+    "lastModified": "2026-10-08T05:03:13.818Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

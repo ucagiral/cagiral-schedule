@@ -2893,8 +2893,8 @@
       "type": "active",
       "status": "pending",
       "notes": "",
-      "start": "09:00",
-      "end": "09:30"
+      "start": "10:00",
+      "end": "10:30"
     }
   ],
   "_groups": {
@@ -2933,7 +2933,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-08T05:03:13.818Z",
+    "lastModified": "2026-10-08T05:03:26.435Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

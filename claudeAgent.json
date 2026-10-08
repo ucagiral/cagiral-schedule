@@ -344,8 +344,8 @@
       "title": "CuAdapt cells — copper treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
-      "notes": "Recurring Tue/Fri copper feeding. Placeholder time — adjust as needed.",
+      "status": "cancelled",
+      "notes": "Recurring Tue/Fri copper feeding. Placeholder time — adjust as needed. Cancelled 8 Oct 2026 — Friday 9 Oct was rewritten from Umut's list, which has the CuAdapt freeze instead of the copper feeding.",
       "group": "CuAdapt"
     },
     {
@@ -1126,8 +1126,8 @@
       "title": "Weekly meeting",
       "category": "meeting",
       "type": "active",
-      "status": "pending",
-      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
+      "status": "cancelled",
+      "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule. Cancelled 8 Oct 2026 — Umut: \"Toplantı yok.\"",
       "group": "Weekly meeting"
     },
     {
@@ -2895,6 +2895,87 @@
       "notes": "",
       "start": "10:00",
       "end": "10:30"
+    },
+    {
+      "id": "e-chip-day2-2026-10-09",
+      "date": "2026-10-09",
+      "start": "09:00",
+      "end": "12:00",
+      "title": "ChIP day 2 — washes and elution",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Follows the 8 Oct ChIP day 1 (overnight IP at 4 °C). Low-salt / high-salt / LiCl / TE washes, 5 min each with rotation, then elution. 3 h, same as the 23 Sep day 2. See workflows.md → ChIP-qPCR.",
+      "group": "ChIP"
+    },
+    {
+      "id": "e-chip-revxlink-2026-10-09",
+      "date": "2026-10-09",
+      "start": "12:00",
+      "end": "23:00",
+      "title": "ChIP — reverse cross-linking at 65 °C, overnight",
+      "category": "experiment",
+      "type": "passive",
+      "status": "pending",
+      "notes": "Unattended; continues past this grid's 23:00 window. Published range 8–18 h (≥4–5 h minimum) — from 12:00, take it off by ~06:00 Saturday, or stop at a timer. Everything else today sits inside this stretch.",
+      "group": "ChIP"
+    },
+    {
+      "id": "e-busra-drug-2026-10-09",
+      "date": "2026-10-09",
+      "start": "12:10",
+      "end": "12:40",
+      "title": "Büşra’s cells — drug treatment",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Dosing only: dilutions with a matched vehicle (DMSO) control, then medium swap or direct add. ~30 min hands-on. Drug, dose and exposure time not given — Büşra's experiment."
+    },
+    {
+      "id": "e-chip-fix-hek-yy1-2-2026-10-09",
+      "date": "2026-10-09",
+      "start": "12:50",
+      "end": "13:50",
+      "title": "HEK pCDH-YY1 (2) — ChIP fixation",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "1% formaldehyde 10 min RT, quench 125 mM glycine 5 min, harvest, wash twice in cold PBS, snap-freeze the pellet at −80 °C. ~1 h hands-on. Pellet keeps at −80 °C, so ChIP day 1 can be any later day.",
+      "group": "ChIP"
+    },
+    {
+      "id": "e-cuadapt-freeze-2026-10-09",
+      "date": "2026-10-09",
+      "start": "14:00",
+      "end": "14:30",
+      "title": "CuAdapt cells — FREEZE",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Trypsinise, count, spin, resuspend in freezing medium (10% DMSO), aliquot, into the Mr. Frosty at −80 °C. ~30 min hands-on; ≥4 h / overnight at −80 °C before moving vials. See protocols/cryopreservation.md.",
+      "group": "CuAdapt"
+    },
+    {
+      "id": "e-thaw-cells-2026-10-09",
+      "date": "2026-10-09",
+      "start": "14:40",
+      "end": "15:10",
+      "title": "Thaw cells",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Which line was not said. Thaw fast at 37 °C (<1–2 min), dilute the DMSO out slowly into warm medium, spin, plate at high density. ~30 min hands-on. Thaw-cell rule: medium change tomorrow (10 Oct). Umut listed other work today himself, so the rule's \"nothing else on a thaw day\" is his call."
+    },
+    {
+      "id": "e-thaw-medium-change-2026-10-10",
+      "date": "2026-10-10",
+      "start": "10:00",
+      "end": "10:30",
+      "title": "Medium change (newly thawed cells)",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "Mandatory day-after medium change for the 9 Oct thaw (thaw-cell rule): check attachment, replace medium to clear the residual DMSO. Placeholder time."
     }
   ],
   "_groups": {
@@ -2930,10 +3011,13 @@
     },
     "pLJC2 — SART3/SMARCA2": {
       "color": "#0369a1"
+    },
+    "ChIP": {
+      "color": "#2563eb"
     }
   },
   "_meta": {
-    "lastModified": "2026-10-08T05:03:26.435Z",
-    "modifiedBy": "Umut iPhone 16 Plus"
+    "lastModified": "2026-10-08T12:00:00.000Z",
+    "modifiedBy": "Claude"
   }
 }

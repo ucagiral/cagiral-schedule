@@ -37,6 +37,7 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | ChIP day 1 — lysis, sonication, antibody | ~3.5–4 h | all | overnight IP after | Lysis 10 min on ice, sonication in 15 s pulses / 1 min rests (~5 min total sonication, far longer in wall-clock with the rests and the ice), clearing spin, input aside, antibody + beads on. Then **overnight rotation at 4 °C**. Scale is what stretches this — two lines plus a second lab's samples is the top of the range. |
 | ChIP day 2 — washes + elution | ~2.5–3 h | all | reverse-crosslink after | Four to five washes, 5 min each with rotation (low salt, high salt, LiCl, TE), then elution — 15 min RT, or 65 °C for 30–60 min with vortexing every 15 min. Ends with the 65 °C reverse-crosslink, ≥5 h and overnight is standard (8–18 h, not past ~15–18 h). |
 | ChIP day 3 — RNase/Proteinase K + clean-up | ~3–3.5 h | ~40 min | ~2.5 h of incubation | RNase A 2 h at 37 °C, Proteinase K 1 h at 55 °C, then a standard spin-column PCR clean-up. Mostly unattended — this is where other bench work goes. |
+| Drug treatment of cultured cells (dosing) | ~20–30 min | all | exposure after (hours–days, per experiment) | Make the dilution series in vehicle first (DMSO kept constant, ≤0.1–0.5% final), include a vehicle-only control, then swap the medium for drug-containing medium or add a concentrated working stock directly. The exposure itself is unattended and set by the experiment (24–72 h is common). Looked up 8 Oct 2026. |
 | FACS sorting (mCherry) | ~2–4 h | all | — | Instrument time plus prep; needs booking, and cells need recovery afterwards. |
 | Nuclear / cytoplasmic fractionation | ~2–3 h | ~2.5 h | — | Kit protocols quote under 2 h; a full stepwise fractionation runs to ~3 h with ~2.5 h hands-on. Ice incubations of 15–20 min and low-speed spins throughout. |
 | Colony formation — fixation | **15 min** | all | — | **Umut's value.** Published fixations sit in the same range: ice-cold methanol 10 min, or methanol/acetic acid. Glutaraldehyde 6% is the other common choice. |
@@ -102,6 +103,13 @@ These came from Umut directly and override any published range — see
 - [Proteintech — ChIP protocol](https://www.ptglab.com/support/immunoprecipitation-protocol/chip-protocol/)
 - [Sigma-Aldrich — ChIP: washing and elution](https://www.sigmaaldrich.com/US/en/technical-documents/technical-article/protein-biology/protein-and-nucleic-acid-interactions/chip-immunoprecipitation-washing-and-elution)
 - [Thermo Fisher — step-by-step guide to successful ChIP assays](https://www.thermofisher.com/us/en/home/life-science/antibodies/antibodies-learning-center/antibodies-resource-library/antibody-application-notes/step-by-step-guide-successful-chip-assays.html)
+- [Cold Spring Harbor Protocols — Wash Buffer II for ChIP (high-salt)](https://cshprotocols.cshlp.org/content/2025/1/pdb.rec108548.full)
+- [ENCODE — crosslinking cells v4.0](https://www.encodeproject.org/documents/801dd1e1-5e10-4792-b848-b094380d1444/@@download/attachment/Crosslinking%20Cells%20v4.0.pdf)
+- [QIAGEN FAQ — freezing the cell pellet after formaldehyde fixation](https://www.qiagen.com/us/resources/faq/2754)
+- [protocols.io — cryopreservation of mammalian cells in a Mr. Frosty](https://www.protocols.io/view/cryopreservation-of-mammalian-cells-in-a-mr-frosty-hk8vb4zw7.html)
+- [Thermo Fisher — guidelines for thawing cells](https://www.thermofisher.com/tw/zt/home/references/gibco-cell-culture-basics/cell-culture-protocols/thawing-cells.html)
+- [Lonza — thawing without centrifugation, medium change after 24 h](https://knowledge.lonza.com/faq?id=580)
+- [Protocol Online — keeping DMSO constant across a dilution series](https://protocol-online.org/biology-forums-2/posts/23718.html)
 - [Thermo Fisher — NE-PER nuclear and cytoplasmic extraction reagents](https://www.thermofisher.com/order/catalog/product/78833)
 - [Abcam — nuclear extraction and fractionation protocol](https://www.abcam.com/en-us/technical-resources/protocols/nuclear-extraction-and-fractionation)
 - [STAR Protocols — nucleo-cytoplasmic fractionation of mammalian cells](https://www.cell.com/star-protocols/fulltext/S2666-1667(25)00671-9)

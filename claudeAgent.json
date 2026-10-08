@@ -272,7 +272,7 @@
       "title": "CuAdapt cells — copper treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Tue/Fri copper feeding. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -296,7 +296,7 @@
       "title": "CuAdapt cells — copper treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Tue/Fri copper feeding. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -308,7 +308,7 @@
       "title": "CuAdapt cells — passage",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -320,7 +320,7 @@
       "title": "CuAdapt cells — copper treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Tue/Fri copper feeding. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -1100,7 +1100,7 @@
       "title": "Weekly meeting",
       "category": "meeting",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
       "group": "Weekly meeting"
     },
@@ -2911,7 +2911,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-08T05:02:16.059Z",
+    "lastModified": "2026-10-08T05:02:23.908Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

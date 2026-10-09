@@ -326,6 +326,14 @@ worker handles by sweeping only its own prefix.
 - **Who did it is the logged-in name.** A device name is only asked for by the old
   GitHub-token login, so under the username login `getDevice()` falls back to the user's
   name rather than writing "unknown device" into every Log entry and commit.
+- **Search needs every word, and a word may be an abbreviation.** The old rule accepted a
+  vial matching 0.6 of the words ("two of three"), which showed vials that lacked something
+  Umut had typed; he asked for it gone. Abbreviation is what stays: `hek` reads as HEK293T
+  (SYNONYMS), a word of four letters or more matches as a prefix (`caspe`), and a word of two
+  or more letters matches a token that is that word **plus a digit** (`huh` → `Huh7`,
+  `du` → `Du145`) — the digit is what keeps `du` off `dudtxr`. `huh flag` once found nothing
+  because `huh` was too short for the prefix rule and the coverage rule then threw away the
+  half that did match.
 - **Absolute and relative passages are separate scales.** `p+2` must never be comparable with `p2`,
   and the 68 vials marked `p?` must never vanish from a search without the UI saying so.
 - **A box's colours are assigned per box, from five validated tints.** A hash of the origin

@@ -461,13 +461,24 @@ check("a flag is searchable", () => {
   return hits.length === 1 && hits[0].vial.id === "v-5" ? null : `got ${json(hits.map((h) => h.vial.id))}`;
 });
 
-check("a partial match says which word it missed", () => {
+check("every word of a query has to match -- two of three is not a result", () => {
   const s = fixture();
-  const hits = E.search(s, { query: "hek p12 crispr" });
-  if (!hits.length) return "a 2-of-3 match was rejected";
-  if (json(hits[0].missed) !== json(["crispr"])) return `missed was ${json(hits[0].missed)}`;
-  const full = E.search(s, { query: "hek p12" });
-  if (full[0].missed.length) return "a full match reported a missed word";
+  if (E.search(s, { query: "hek p12 crispr" }).length) return "a vial matching 2 of 3 words was returned";
+  if (!E.search(s, { query: "hek p12" }).length) return "a vial matching every word was not";
+  return null;
+});
+
+check("a cell line's word finds it without its number (huh -> Huh7)", () => {
+  // Umut searched "huh flag" for Huh7 3xFLAG and got nothing: "huh" was too short for
+  // prefix matching, so one of its two words never hit.
+  const vial = (id, name) => ({ id, name, status: "stored", flags: [], location: { boxId: null, position: null } });
+  const s = E.mergeDefaults({ vials: [vial("a", "Huh7 FLAG"), vial("b", "Huh7"), vial("c", "Human line")] });
+  const ids = (q) => E.search(s, { query: q }).map((h) => h.vial.id).sort().join(",");
+  if (ids("huh flag") !== "a") return `"huh flag" gave ${json(ids("huh flag"))}, expected only the FLAG vial`;
+  if (ids("huh") !== "a,b") return `"huh" gave ${json(ids("huh"))}`;
+  // The number is what makes it a cell-line stem: "hu" must reach neither "Huh7" (a
+  // letter follows) nor a plain word.
+  if (ids("hu")) return `"hu" matched ${json(ids("hu"))} -- a word followed by letters is not a cell line`;
   return null;
 });
 
@@ -2388,6 +2399,14 @@ check("the real inventory holds nothing that is double-booked or shapeless", () 
 // narrower: nothing is EVER mixed merely because no rule covers it -- since LCC and LNC
 // both resolve to LnCap, that gap is closed for good, and a name with a real gap should
 // surface in Review, not sit silently doubled up in a row.
+check("the real freezer: 'huh flag' finds Huh7 3xFLAG", () => {
+  if (!real) return null;
+  const has = real.vials.some((v) => v.status !== "withdrawn" && /huh7 3xflag/i.test(v.name));
+  if (!has) return null;                       // nothing frozen under that name right now
+  const names = E.search(real, { query: "huh flag" }).map((h) => h.vial.name);
+  return names.some((n) => /huh7 3xflag/i.test(n)) ? null : `got ${json(names)}`;
+});
+
 check("no row is left mixed only because an origin rule is missing", () => {
   if (!real) return null;
   const forWantOfARule = E.mixedRows(real).filter((m) => m.origins.indexOf(E.NO_ORIGIN) !== -1);

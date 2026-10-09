@@ -1986,11 +1986,6 @@
     if (!isCellKind(v) && v.customFacets && Object.keys(v.customFacets).length) card.appendChild(attributeList(v));
     var meta = vialMeta(v);
     if (meta) card.appendChild(el("div", "meta", meta));
-    if (r.missed && r.missed.length){
-      card.appendChild(el("div", "miss",
-        "matched " + r.matched.length + " of " + (r.matched.length + r.missed.length) +
-        " words — no " + r.missed.join(", ")));
-    }
 
     var row = el("div", "row tight");
     if (v.status !== "withdrawn" && !owner){

@@ -453,8 +453,9 @@ to a separate URL. See `cellstocks-worker/README.md` for the backend.
 ### Finding a vial
 
 Type what you remember — `hela p12`, `dudtxr caspex g5.1`, `myco` — and each result gives the whole
-path down to the slot: **−80 °C Freezer → Rack 1 → ONGOING → C4**. A partial match says so
-(*"matched 2 of 3 words"*) so it never reads as a full one.
+path down to the slot: **−80 °C Freezer → Rack 1 → ONGOING → C4**. **Every word has to match** —
+there is no "two of three" — but a word may be an abbreviation: `hek` finds HEK293T, `huh` finds
+Huh7, `caspe` finds CASPEX.
 
 Two sliders sit under the search box: **Frozen** and **Passage**. They filter before anything is
 scored, so dragging a handle only ever removes rows. The passage slider has an absolute/relative

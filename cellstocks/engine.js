@@ -934,7 +934,6 @@
   var IMPLAUSIBLE_PASSAGE = 200;
 
   var STRONG_TOKEN = 6;
-  var COVERAGE = 0.6;
   var FIELD_WEIGHTS = { name: 3, origin: 2, koox: 2, resistance: 2, caspex: 2, guide: 3,
                         passage: 2, flags: 2, notes: 1, location: 1, attributes: 1 };
 
@@ -1006,10 +1005,23 @@
     if (bag[st] !== undefined) return { weight: bag[st], length: st.length };
     // Prefix tolerance, but only for tokens long enough to mean something. "du"
     // must not match "dudtxr"; "caspe" may match "caspex".
+    var keys = Object.keys(bag);
     if (qt.length >= 4) {
-      var keys = Object.keys(bag);
       for (var i = 0; i < keys.length; i++) {
         if (keys[i].indexOf(qt) === 0) return { weight: bag[keys[i]], length: qt.length };
+      }
+    }
+    // A cell line's name is a short word and a number -- Huh7, Du145, H460 -- and the
+    // word is what people type. "huh flag" found nothing at all: "huh" is too short for
+    // the prefix rule above, so it missed "huh7" and the whole query failed. A word of
+    // two or more letters therefore matches a token that is
+    // that word followed by a DIGIT. The digit is what keeps "du" off "dudtxr" while
+    // letting it reach "du145".
+    if (qt.length >= 2 && /^[a-z]+$/.test(qt)) {
+      for (var j = 0; j < keys.length; j++) {
+        if (keys[j].indexOf(qt) === 0 && /[0-9]/.test(keys[j].charAt(qt.length))) {
+          return { weight: bag[keys[j]], length: qt.length };
+        }
       }
     }
     return null;
@@ -1025,13 +1037,13 @@
       matched.push(qt);
       score += hit.weight * hit.length;
     });
-    var coverage = matched.length / queryTokens.length;
-    // Coverage is always required, no matter how strongly any single word matched:
-    // a synonym-expanded token (e.g. "hek" -> "hek293t") used to be enough on its own
-    // to accept a vial that shared no other word with the query ("hek caspex" hitting
-    // every HEK293T-origin vial regardless of "caspex"). See tools/cellstocks-selftest.mjs.
-    return { score: score, matched: matched, missed: missed, coverage: coverage,
-             accept: matched.length > 0 && coverage >= COVERAGE };
+    // EVERY word has to hit. A word may be an abbreviation or a variant of what is
+    // stored ("hek" for HEK293T, "huh" for Huh7), but there is no "two of three" any
+    // more: that rule showed vials which lacked a word the person had typed, and a
+    // synonym-expanded token used to carry one on its own ("hek caspex" hitting every
+    // HEK293T vial). Umut asked for it removed. See tools/cellstocks-selftest.mjs.
+    return { score: score, matched: matched, missed: missed,
+             accept: matched.length > 0 && missed.length === 0 };
   }
 
   // The bounds the sliders need. Passage is reported per kind, because the two kinds
@@ -3274,7 +3286,7 @@
     // lines
     lineKey: lineKey, lineIdFor: lineIdFor, vialsOfLine: vialsOfLine, stockCounts: stockCounts,
     // search
-    STRONG_TOKEN: STRONG_TOKEN, COVERAGE: COVERAGE, FIELD_WEIGHTS: FIELD_WEIGHTS,
+    STRONG_TOKEN: STRONG_TOKEN, FIELD_WEIGHTS: FIELD_WEIGHTS,
     IMPLAUSIBLE_PASSAGE: IMPLAUSIBLE_PASSAGE,
     normaliseText: normaliseText, tokenise: tokenise, matchScore: matchScore,
     searchExtents: searchExtents, search: search, searchGroups: searchGroups,

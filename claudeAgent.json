@@ -332,7 +332,7 @@
       "title": "CuAdapt cells — passage",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -2880,7 +2880,7 @@
       "title": "Chip day 1",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "09:00",
       "end": "09:30"
@@ -2891,7 +2891,7 @@
       "title": "DuDoce H460 seed",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "10:00",
       "end": "10:30"
@@ -2904,7 +2904,7 @@
       "title": "ChIP day 2 — washes and elution",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Follows the 8 Oct ChIP day 1 (overnight IP at 4 °C). Low-salt / high-salt / LiCl / TE washes, 5 min each with rotation, then elution. 3 h, same as the 23 Sep day 2. See workflows.md → ChIP-qPCR.",
       "group": "ChIP"
     },
@@ -2916,7 +2916,7 @@
       "title": "ChIP — reverse cross-linking at 65 °C, overnight",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Unattended; continues past this grid's 23:00 window. Published range 8–18 h (≥4–5 h minimum) — from 12:00, take it off by ~06:00 Saturday, or stop at a timer. Everything else today sits inside this stretch.",
       "group": "ChIP"
     },
@@ -2928,7 +2928,7 @@
       "title": "Büşra’s cells — drug treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Dosing only: dilutions with a matched vehicle (DMSO) control, then medium swap or direct add. ~30 min hands-on. Drug, dose and exposure time not given — Büşra's experiment."
     },
     {
@@ -3017,7 +3017,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-08T12:00:00.000Z",
-    "modifiedBy": "Claude"
+    "lastModified": "2026-10-11T12:34:20.905Z",
+    "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

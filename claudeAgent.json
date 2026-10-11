@@ -2976,6 +2976,17 @@
       "type": "active",
       "status": "done",
       "notes": "Mandatory day-after medium change for the 9 Oct thaw (thaw-cell rule): check attachment, replace medium to clear the residual DMSO. Placeholder time."
+    },
+    {
+      "id": "emv3t27o6287ae",
+      "date": "2026-10-12",
+      "title": "Virüs harvest",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "09:00",
+      "end": "09:30"
     }
   ],
   "_groups": {
@@ -3017,7 +3028,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-11T12:34:26.669Z",
+    "lastModified": "2026-10-11T12:34:34.078Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

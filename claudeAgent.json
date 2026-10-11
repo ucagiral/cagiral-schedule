@@ -2939,7 +2939,7 @@
       "title": "HEK pCDH-YY1 (2) — ChIP fixation",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "1% formaldehyde 10 min RT, quench 125 mM glycine 5 min, harvest, wash twice in cold PBS, snap-freeze the pellet at −80 °C. ~1 h hands-on. Pellet keeps at −80 °C, so ChIP day 1 can be any later day.",
       "group": "ChIP"
     },
@@ -2951,7 +2951,7 @@
       "title": "CuAdapt cells — FREEZE",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Trypsinise, count, spin, resuspend in freezing medium (10% DMSO), aliquot, into the Mr. Frosty at −80 °C. ~30 min hands-on; ≥4 h / overnight at −80 °C before moving vials. See protocols/cryopreservation.md.",
       "group": "CuAdapt"
     },
@@ -2963,7 +2963,7 @@
       "title": "Thaw cells",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Which line was not said. Thaw fast at 37 °C (<1–2 min), dilute the DMSO out slowly into warm medium, spin, plate at high density. ~30 min hands-on. Thaw-cell rule: medium change tomorrow (10 Oct). Umut listed other work today himself, so the rule's \"nothing else on a thaw day\" is his call."
     },
     {
@@ -2974,7 +2974,7 @@
       "title": "Medium change (newly thawed cells)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Mandatory day-after medium change for the 9 Oct thaw (thaw-cell rule): check attachment, replace medium to clear the residual DMSO. Placeholder time."
     }
   ],
@@ -3017,7 +3017,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-11T12:34:20.905Z",
+    "lastModified": "2026-10-11T12:34:26.669Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -173,6 +173,13 @@ try {
   check("undo restores the box and the line",
     (await page.locator(".box").count()) === 2 && (await page.locator("#lines line.vis").count()) === 1);
 
+  // The copy button hands the plain-text outline to the clipboard.
+  await page.evaluate(() => { window.__copied = null; navigator.clipboard.writeText = async (t) => { window.__copied = t; }; });
+  await page.click("#copy");
+  const copied = await page.evaluate(() => window.__copied);
+  check("the copy button puts the board's text, with its lines, on the clipboard",
+    typeof copied === "string" && copied.includes("->") && copied.length > 0, String(copied));
+
   // A failed save keeps the work on this device and the next load does not replace it.
   failNextCommit = true;
   await page.click("#add");

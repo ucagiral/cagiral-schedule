@@ -71,7 +71,7 @@
    "w": 220,
    "h": 120,
    "title": "Cell Origin",
-   "text": ""
+   "text": "H"
   }
  ],
  "links": [
@@ -106,5 +106,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:30:44.538Z"
+ "updatedAt": "2026-10-12T20:30:46.951Z"
 }

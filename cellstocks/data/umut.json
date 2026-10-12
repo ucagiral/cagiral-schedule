@@ -12316,15 +12316,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-10-09",
       "frozenOn": "2026-10-09",
-      "location": {
-        "path": [
-          "u-ln2",
-          "t-1"
-        ],
-        "boxId": "umut-cell-box-5",
-        "position": "B7"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-10-12T07:52:02.146Z",
       "addedBy": "Umut"
     }
@@ -13410,6 +13402,23 @@
       "by": "Umut",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mv4yet2f",
+      "vialId": "v-mv4yequa-5",
+      "name": "Huh7",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "B7"
+      },
+      "date": "2026-10-12",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -13436,7 +13445,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-12T07:52:03.249Z"
+    "savedAt": "2026-10-12T07:52:07.575Z"
   },
   "removedVialIds": [
     "v-205",

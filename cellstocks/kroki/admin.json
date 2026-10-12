@@ -116,7 +116,7 @@
    "w": 220,
    "h": 120,
    "title": "Cell Property",
-   "text": ""
+   "text": "gNT"
   }
  ],
  "links": [
@@ -151,5 +151,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:32:18.002Z"
+ "updatedAt": "2026-10-12T20:32:25.260Z"
 }

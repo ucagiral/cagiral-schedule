@@ -12036,8 +12036,8 @@
     },
     {
       "id": "v-mv4yctrb-3",
-      "name": "LNCX gNT",
-      "lineId": "l-lncx-gnt",
+      "name": "LNCX gP3",
+      "lineId": "l-lncx-gp3",
       "passage": "p+27",
       "passageNumber": 27,
       "passageKind": "relative",
@@ -14660,7 +14660,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-12T20:57:55.486Z"
+    "savedAt": "2026-10-12T20:58:03.563Z"
   },
   "removedVialIds": [
     "v-205",

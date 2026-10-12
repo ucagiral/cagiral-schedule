@@ -156,12 +156,12 @@
   },
   {
    "id": "bmv5pm0higoxqi",
-   "x": 88,
-   "y": 68,
+   "x": 1169,
+   "y": 633,
    "w": 220,
    "h": 120,
    "title": "passage no",
-   "text": ""
+   "text": "13"
   }
  ],
  "links": [
@@ -196,5 +196,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:33:34.820Z"
+ "updatedAt": "2026-10-12T20:33:37.642Z"
 }

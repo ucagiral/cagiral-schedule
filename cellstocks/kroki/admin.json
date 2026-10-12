@@ -93,12 +93,12 @@
   },
   {
    "id": "bmv5pj3stmrv2w",
-   "x": 946,
+   "x": 944,
    "y": 376,
    "w": 220,
    "h": 120,
    "title": "Passage No",
-   "text": ""
+   "text": "13"
   }
  ],
  "links": [
@@ -133,5 +133,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:31:21.516Z"
+ "updatedAt": "2026-10-12T20:31:24.477Z"
 }

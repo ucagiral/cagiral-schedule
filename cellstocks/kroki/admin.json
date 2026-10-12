@@ -245,7 +245,13 @@
    "from": "bmv5pldxxs52mk",
    "to": "bmv5phzt11bd46",
    "label": "cell prop link 2.4"
+  },
+  {
+   "id": "lmv5pnj90a1fcw",
+   "from": "bmv5pj3stmrv2w",
+   "to": "bmv5phzt11bd46",
+   "label": ""
   }
  ],
- "updatedAt": "2026-10-12T20:34:39.766Z"
+ "updatedAt": "2026-10-12T20:34:42.338Z"
 }

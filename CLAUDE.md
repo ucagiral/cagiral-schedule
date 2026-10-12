@@ -470,6 +470,16 @@ worker handles by sweeping only its own prefix.
   chat "did you mean this — should I add this feature here?". Unsaved work is stashed in
   `localStorage` (`cst_kroki_draft:<name>`) and wins over the repository's copy on load, like the
   inventory. `sw.js` must keep ignoring `/kroki` and `kroki.html`.
+- **Notes is a second web page beside Kroki, and nothing else reads it.** `cellstocks/notes.html`
+  (footer link "Notlar") keeps a list of free-text notes per account in `cellstocks/notes/<name>.json`,
+  written only by its owner — every role including PI, because a note is not inventory. Umut's
+  wording: users take notes; **PI and admin can add notes** for a user. Read as: staff write into a
+  *separate* file, `cellstocks/notes/<name>.from.json`, which the owner sees read-only. Two files
+  so the owner's autosave and a staff addition never overwrite each other. Staff cannot read a
+  person's own list (`GET /notes?for=` returns the staff file only). Rules are `note*` in
+  `cellstocks/engine.js`; path rules are the first block of `canWrite`. Not moved on user rename
+  (same as Kroki). `sw.js` must keep ignoring `/notes`, `/notes/people` and `notes.html`. If Umut
+  meant something else by "ekleme", change the staff file, not the owner's.
 - Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get

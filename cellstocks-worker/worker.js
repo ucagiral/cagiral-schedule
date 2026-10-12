@@ -314,6 +314,19 @@ const ICON_PREFIX = "cellstocks/icons/";
 // Each member's sketch board (the Kroki page): one JSON file per account, nothing else.
 const KROKI_PREFIX = "cellstocks/kroki/";
 
+// Personal notes: <name>.json is the owner's own list, <name>.from.json is the list that
+// admin or a PI wrote *for* that person. Two files so the owner's autosave and a staff
+// member's addition never write the same file and overwrite each other.
+const NOTES_PREFIX = "cellstocks/notes/";
+
+function notesPathFor(name) {
+  return `${NOTES_PREFIX}${name.toLowerCase()}.json`;
+}
+
+function staffNotesPathFor(name) {
+  return `${NOTES_PREFIX}${name.toLowerCase()}.from.json`;
+}
+
 function krokiPathFor(name) {
   return `${KROKI_PREFIX}${name.toLowerCase()}.json`;
 }
@@ -335,6 +348,15 @@ function xlsxPathFor(name) {
 // below, where what a member may write depends on what else they are committing at the
 // same time, not on the path alone.
 function canWrite(user, path, batchPaths) {
+  // Notes come first because a PI, refused everything below, may still write them. Your own
+  // list is yours whatever your role; the staff-written list is writable by admin and PI
+  // only (the owner reads it, they do not edit it). Nothing else under the prefix exists.
+  if (path.startsWith(NOTES_PREFIX)) {
+    if (path === notesPathFor(user.name)) return true;
+    if (/^cellstocks\/notes\/[a-z0-9_-]+\.from\.json$/.test(path)) return user.role === "admin" || user.role === "pi";
+    return false;
+  }
+
   // A PI reads the whole lab and writes none of it -- no inventory of their own, and no
   // structural edits either.
   if (user.role === "pi") return false;
@@ -654,6 +676,58 @@ async function routeGetKroki(request, env) {
   }
 }
 
+// Reads one committed JSON file through the GitHub API (never raw.githubusercontent, which
+// lags after a commit); null when it has never been saved.
+async function readRepoJson(env, path) {
+  const branch = env.GITHUB_BRANCH || "main";
+  try {
+    const file = await githubApi(env, "GET", `/contents/${path}?ref=${encodeURIComponent(branch)}`);
+    return JSON.parse(base64ToUtf8(file.content));
+  } catch (err) {
+    if (err.status === 404) return null;
+    throw err;
+  }
+}
+
+function notesErrorResponse(err) {
+  return json({ error: err.message }, requestErrorStatus(err) === 500 ? 502 : requestErrorStatus(err));
+}
+
+// The caller's own notes plus whatever staff wrote for them. `?for=<name>` is staff reading
+// back the list they write for somebody -- the person's own list is never returned to anyone
+// else.
+async function routeGetNotes(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  const target = new URL(request.url).searchParams.get("for");
+  try {
+    if (target !== null) {
+      if (session.user.role !== "admin" && session.user.role !== "pi") return json({ error: "staff only" }, 403);
+      if (!/^[a-zA-Z0-9_-]+$/.test(target)) return json({ error: "bad name" }, 400);
+      return json({ staff: await readRepoJson(env, staffNotesPathFor(target)) });
+    }
+    const [mine, staff] = await Promise.all([
+      readRepoJson(env, notesPathFor(session.user.name)),
+      readRepoJson(env, staffNotesPathFor(session.user.name))
+    ]);
+    return json({ mine, staff });
+  } catch (err) {
+    return notesErrorResponse(err);
+  }
+}
+
+// Who staff can write a note for: every visible account but their own.
+async function routeNotesPeople(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role !== "admin" && session.user.role !== "pi") return json({ error: "staff only" }, 403);
+  const users = await listUsers(env.CST_KV);
+  return json({
+    people: users.filter((u) => !u.hidden && u.name.toLowerCase() !== session.user.name.toLowerCase())
+      .map((u) => ({ name: u.name, role: u.role }))
+  });
+}
+
 async function routeCommit(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -911,6 +985,8 @@ async function handleRequest(request, env) {
       response = await routeRenameUser(request, env, decodeURIComponent(path.split("/")[3]));
     } else if (path === "/commit" && request.method === "POST") response = await routeCommit(request, env);
     else if (path === "/kroki" && request.method === "GET") response = await routeGetKroki(request, env);
+    else if (path === "/notes" && request.method === "GET") response = await routeGetNotes(request, env);
+    else if (path === "/notes/people" && request.method === "GET") response = await routeNotesPeople(request, env);
     else if (path === "/types" && request.method === "GET") response = await routeGetTypes(request, env);
     else if (path === "/types" && request.method === "POST") response = await routeAddType(request, env);
     else if (path === "/admin/types/merge" && request.method === "POST") response = await routeMergeTypes(request, env);
@@ -1037,6 +1113,9 @@ export {
   ICON_PREFIX,
   KROKI_PREFIX,
   krokiPathFor,
+  NOTES_PREFIX,
+  notesPathFor,
+  staffNotesPathFor,
   boxesOwnedBy,
   base64ToUtf8,
   TYPES_CONFIG_KEY,

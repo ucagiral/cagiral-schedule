@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notlar — CAApp</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="icon-192.png">
+<script>
+// Same rule as index.html: the old Pages address never renders this page.
+(function(){
+  if (!/\.github\.io$/i.test(location.hostname || "")) return;
+  location.replace("https://cellstocks-worker.caalabworkersdev.workers.dev/notes.html");
+})();
+</script>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
+    --accent:#0891b2; --accent-soft:#cffafe; --bad:#b91c1c; --ok:#15803d;
+  }
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]){
+      --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+      --accent:#9aa1ac; --accent-soft:#2c3038;
+    }
+  }
+  html[data-theme="dark"]{
+    --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+    --accent:#9aa1ac; --accent-soft:#2c3038;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--text); font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  header{ display:flex; align-items:center; gap:8px; padding:8px 16px; background:var(--panel); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1{ font-size:16px; margin:0 8px 0 0; }
+  a{ color:var(--accent); text-decoration:none; }
+  button, input, textarea, select{ font:inherit; color:var(--text); }
+  button{ background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  button:hover:not(:disabled){ border-color:var(--accent); }
+  button.primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  main{ max-width:760px; margin:0 auto; padding:16px; }
+  section{ margin-bottom:28px; }
+  section h2{ font-size:15px; margin:0 0 8px; }
+  .bar{ display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .bar .status{ margin-left:auto; font-size:13px; color:var(--muted); }
+  .status.bad{ color:var(--bad); } .status.ok{ color:var(--ok); }
+  .bar input[type=search], .bar select{ padding:6px 8px; border:1px solid var(--border); border-radius:8px; background:var(--panel); min-width:0; flex:1; max-width:260px; }
+  .note{ background:var(--panel); border:1px solid var(--border); border-radius:10px; margin-bottom:10px; }
+  .note .top{ display:flex; align-items:center; gap:6px; padding:6px 8px; border-bottom:1px solid var(--border); background:var(--accent-soft); border-radius:10px 10px 0 0; }
+  .note .top input{ flex:1; min-width:0; border:0; background:transparent; font-weight:650; padding:2px 4px; }
+  .note .top button{ border:0; background:transparent; color:var(--muted); font-size:16px; padding:0 6px; }
+  .note textarea{ display:block; width:100%; min-height:90px; resize:vertical; border:0; background:transparent; padding:8px 10px; }
+  .note input:focus, .note textarea:focus{ outline:2px solid var(--accent); outline-offset:-1px; }
+  .note .meta{ padding:0 10px 6px; font-size:12px; color:var(--muted); }
+  .note .ro-title{ flex:1; font-weight:650; }
+  .note .ro-text{ padding:8px 10px; white-space:pre-wrap; }
+  .empty{ color:var(--muted); }
+  #gate{ margin:48px auto; max-width:420px; padding:0 16px; text-align:center; }
+</style>
+</head>
+<body>
+<div id="gate" hidden></div>
+<header id="head">
+  <h1>Notlar</h1>
+  <a href="./">← Uygulamaya dön</a>
+</header>
+<main id="main">
+  <section id="fromStaffSec" hidden>
+    <h2>Yönetimden sana notlar</h2>
+    <div id="fromStaff"></div>
+  </section>
+  <section>
+    <h2>Notlarım</h2>
+    <div id="mine"></div>
+  </section>
+  <section id="forOthersSec" hidden>
+    <h2>Başkası için not ekle</h2>
+    <div class="bar"><select id="person"></select></div>
+    <div id="forOthers"></div>
+  </section>
+</main>
+
+<script src="engine.js"></script>
+<script>
+(function(){
+  "use strict";
+  var E = window.CellStocksEngine;
+  var $ = function(id){ return document.getElementById(id); };
+
+  // Storage keys are the app's own (cst_*): this page signs in through the same login.
+  var LS = { theme:"cst_theme", url:"cst_worker_url", token:"cst_worker_token", user:"cst_worker_user" };
+  function ls(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  try { var th = ls(LS.theme); if (th) document.documentElement.setAttribute("data-theme", th); } catch(e){}
+
+  var user = null; try { user = JSON.parse(ls(LS.user) || "null"); } catch(e){}
+  var token = ls(LS.token);
+  var base = (ls(LS.url) || location.origin).replace(/\/+$/, "");
+  var isStaff = !!user && (user.role === "admin" || user.role === "pi");
+
+  function newId(){ return "n" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function lower(s){ return String(s).toLowerCase(); }
+
+  function gate(msg){
+    $("head").hidden = true; $("main").hidden = true;
+    var g = $("gate"); g.hidden = false; g.innerHTML = "";
+    var p = document.createElement("p"); p.textContent = msg; g.appendChild(p);
+    var a = document.createElement("a"); a.href = "./"; a.textContent = "Uygulamaya git"; g.appendChild(a);
+  }
+
+  async function api(path, opts){
+    var r = await fetch(base + path, Object.assign({}, opts || {}, {
+      headers: Object.assign({ "Content-Type":"application/json", Authorization:"Bearer " + token }, (opts && opts.headers) || {})
+    }));
+    var body = {}; try { body = await r.json(); } catch(e){}
+    if (!r.ok){ var err = new Error(body.error || ("Sunucu " + r.status)); err.status = r.status; throw err; }
+    return body;
+  }
+
+  var pads = [];
+
+  // One editable list bound to one repository file. A change that has not reached the
+  // repository is kept on this device (draftKey) and wins over the server's copy on the next
+  // load, so a failed save is never lost to a reload.
+  function Pad(root, o){
+    var self = this;
+    var list = E.blankNotes();
+    var dirty = false, saving = false, timer = null, query = "";
+    var status = document.createElement("span"); status.className = "status";
+    var bar = document.createElement("div"); bar.className = "bar";
+    var add = document.createElement("button"); add.className = "primary"; add.textContent = "+ Not";
+    var search = document.createElement("input"); search.type = "search"; search.placeholder = "Ara";
+    var items = document.createElement("div");
+    bar.appendChild(add); bar.appendChild(search); bar.appendChild(status);
+    root.innerHTML = ""; root.appendChild(bar); root.appendChild(items);
+
+    function setStatus(t, cls){ status.textContent = t; status.className = "status " + (cls || ""); }
+    function stash(){ try { localStorage.setItem(o.draftKey, JSON.stringify(list)); } catch(e){} }
+    function unstash(){ try { localStorage.removeItem(o.draftKey); } catch(e){} }
+
+    function markDirty(){
+      dirty = true; stash(); setStatus("Kaydedilmedi…");
+      clearTimeout(timer); timer = setTimeout(save, 1500);
+    }
+
+    async function save(){
+      clearTimeout(timer);
+      if (saving || !dirty) return;
+      saving = true; setStatus("Kaydediliyor…");
+      var snapshot = list;
+      snapshot.updatedAt = new Date().toISOString();
+      try {
+        await api("/commit", { method:"POST", body: JSON.stringify({
+          message: "Notes: " + o.label,
+          files: [{ path: o.path, content: JSON.stringify(snapshot, null, 1) + "\n" }]
+        })});
+        // Edits made while the request was in flight are not covered by it.
+        if (list === snapshot){ dirty = false; unstash(); setStatus("Kaydedildi", "ok"); }
+        else { saving = false; return save(); }
+      } catch(e){
+        setStatus("Kaydedilemedi: " + e.message + " — tekrar denenecek", "bad");
+        timer = setTimeout(save, 15000);
+      }
+      saving = false;
+    }
+
+    function fmt(iso){
+      if (!iso) return "";
+      var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleString("tr-TR", { dateStyle:"medium", timeStyle:"short" });
+    }
+
+    function draw(){
+      items.innerHTML = "";
+      var shown = list.notes.filter(function(n){ return E.noteMatches(n, query); });
+      if (!shown.length){
+        var e = document.createElement("div"); e.className = "empty";
+        e.textContent = list.notes.length ? "Eşleşen not yok." : "Henüz not yok.";
+        items.appendChild(e);
+      }
+      shown.forEach(function(n){
+        var card = document.createElement("div"); card.className = "note";
+        var top = document.createElement("div"); top.className = "top";
+        var title = document.createElement("input"); title.placeholder = "Başlık"; title.value = n.title;
+        var del = document.createElement("button"); del.textContent = "×"; del.title = "Sil";
+        top.appendChild(title); top.appendChild(del);
+        var text = document.createElement("textarea"); text.placeholder = "Not…"; text.value = n.text;
+        var meta = document.createElement("div"); meta.className = "meta";
+        function drawMeta(m){
+          meta.textContent = (m.by ? m.by + " · " : "") + fmt(m.updatedAt || m.createdAt);
+        }
+        drawMeta(n);
+        function edit(){
+          list = E.noteEdit(list, n.id, { title: title.value, text: text.value }, new Date().toISOString());
+          drawMeta(list.notes.filter(function(x){ return x.id === n.id; })[0]);
+          markDirty();
+        }
+        title.addEventListener("input", edit); text.addEventListener("input", edit);
+        del.onclick = function(){
+          if (!confirm("Bu not silinsin mi?")) return;
+          list = E.noteRemove(list, n.id); markDirty(); draw();
+        };
+        card.appendChild(top); card.appendChild(text); card.appendChild(meta);
+        items.appendChild(card);
+      });
+    }
+
+    add.onclick = function(){
+      search.value = ""; query = "";
+      list = E.noteAdd(list, newId(), new Date().toISOString(), user.name);
+      markDirty(); draw();
+      var first = items.querySelector("input"); if (first) first.focus();
+    };
+    search.oninput = function(){ query = search.value; draw(); };
+
+    // `serverList` is the repository's copy; an unsaved local draft wins over it.
+    this.load = function(serverList){
+      var draft = null;
+      try { draft = JSON.parse(localStorage.getItem(o.draftKey) || "null"); } catch(e){}
+      if (draft){ list = E.normaliseNotes(draft); dirty = true; setStatus("Kaydedilmedi…"); timer = setTimeout(save, 1000); }
+      else { list = E.normaliseNotes(serverList); setStatus(""); }
+      draw();
+    };
+    this.flush = function(){ if (dirty) save(); };
+    this.isDirty = function(){ return dirty; };
+    this.list = function(){ return list; };
+    this.save = save;
+    pads.push(this);
+  }
+
+  // Read-only view of the list staff wrote for the signed-in person.
+  function drawReadOnly(root, listRaw){
+    var l = E.normaliseNotes(listRaw);
+    root.innerHTML = "";
+    l.notes.forEach(function(n){
+      var card = document.createElement("div"); card.className = "note";
+      var top = document.createElement("div"); top.className = "top";
+      var t = document.createElement("span"); t.className = "ro-title"; t.textContent = n.title || "(başlıksız)";
+      top.appendChild(t);
+      var text = document.createElement("div"); text.className = "ro-text"; text.textContent = n.text;
+      var meta = document.createElement("div"); meta.className = "meta";
+      meta.textContent = (n.by ? n.by + " · " : "") + (n.updatedAt ? new Date(n.updatedAt).toLocaleString("tr-TR", { dateStyle:"medium", timeStyle:"short" }) : "");
+      card.appendChild(top); card.appendChild(text); card.appendChild(meta);
+      root.appendChild(card);
+    });
+  }
+
+  window.addEventListener("beforeunload", function(ev){
+    if (pads.some(function(p){ return p.isDirty(); })){ ev.preventDefault(); ev.returnValue = ""; }
+  });
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState === "hidden") pads.forEach(function(p){ p.flush(); });
+  });
+
+  // The person staff are writing for: their list is read fresh each time it is chosen.
+  var othersPad = null;
+  async function chooseOther(name){
+    var res = await api("/notes?for=" + encodeURIComponent(name));
+    othersPad = new Pad($("forOthers"), {
+      path: "cellstocks/notes/" + lower(name) + ".from.json",
+      draftKey: "cst_notes_draft:" + lower(user.name) + ":for:" + lower(name),
+      label: user.name + " → " + name
+    });
+    othersPad.load(res.staff);
+  }
+
+  async function start(){
+    if (!token || !user){ gate("Önce uygulamada giriş yapman gerekiyor."); return; }
+    var res;
+    try { res = await api("/notes"); }
+    catch(e){
+      if (e.status === 401){ gate("Oturum süresi dolmuş. Uygulamada tekrar giriş yap."); return; }
+      // Offline with an unsaved draft is still editable; otherwise there is nothing to show.
+      res = { mine: null, staff: null };
+      var has = false; try { has = !!localStorage.getItem("cst_notes_draft:" + lower(user.name)); } catch(x){}
+      if (!has){ gate("Yüklenemedi: " + e.message); return; }
+    }
+    var mine = new Pad($("mine"), {
+      path: "cellstocks/notes/" + lower(user.name) + ".json",
+      draftKey: "cst_notes_draft:" + lower(user.name),
+      label: user.name
+    });
+    mine.load(res.mine);
+    if (res.staff && E.normaliseNotes(res.staff).notes.length){
+      $("fromStaffSec").hidden = false; drawReadOnly($("fromStaff"), res.staff);
+    }
+    if (isStaff){
+      var people = [];
+      try { people = (await api("/notes/people")).people; } catch(e){}
+      if (people.length){
+        $("forOthersSec").hidden = false;
+        var sel = $("person");
+        people.forEach(function(p){
+          var o = document.createElement("option"); o.value = p.name; o.textContent = p.name; sel.appendChild(o);
+        });
+        sel.onchange = function(){ if (othersPad) othersPad.flush(); chooseOther(sel.value); };
+        chooseOther(sel.value);
+      }
+    }
+  }
+  start();
+
+  // Test hook: the browser suite reads the lists without going through the network.
+  window.__notes = { get pads(){ return pads; } };
+})();
+</script>
+</body>
+</html>

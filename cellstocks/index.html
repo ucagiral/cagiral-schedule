@@ -6550,6 +6550,10 @@
     a.href = "kroki.html"; a.textContent = "Kroki";
     $("appFooter").appendChild(document.createTextNode(" · "));
     $("appFooter").appendChild(a);
+    var n = document.createElement("a");
+    n.href = "notes.html"; n.textContent = "Notlar";
+    $("appFooter").appendChild(document.createTextNode(" · "));
+    $("appFooter").appendChild(n);
   })();
 
   // Pressing it is never destructive: load() merges anything this device has not managed

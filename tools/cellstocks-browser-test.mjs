@@ -2835,9 +2835,7 @@ try {
     await page.waitForFunction(() => /Box Mine/.test(document.getElementById("fzPlanCard").textContent));
 
     await page.evaluate(() => {
-      const btn = [...document.querySelectorAll("#fzPlanCard button")]
-        .find((b) => b.textContent.trim() === "Put it somewhere else");
-      btn.click();
+      document.getElementById("fzElsewhere").click();
     });
     await page.waitForSelector("#dlgBody button");
     const dialogText = await page.evaluate(() => document.getElementById("dlgBody").textContent);

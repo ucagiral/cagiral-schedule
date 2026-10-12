@@ -803,6 +803,23 @@ check("applying a plan is byte-identical twice and touches nothing existing", ()
   return null;
 });
 
+check("applyBatch keeps repeated variants as separate entries, in one row, all or nothing", () => {
+  const s = fixture();
+  const rows = ["WT", "WT", "g2", "g2", "flag", "flag", "yy1", "yy1"].map((v, i) => ({ variant: v, passage: "p1" + i, count: 1 }));
+  const ctx = { idPrefix: "v-b", now: "2026-10-12T09:00:00Z", by: "test" };
+  const out = E.applyBatch(s, { origin: "HEK", notes: "n" }, rows, ctx);
+  if (!out.ok) return "batch refused: " + out.reason;
+  if (out.vials.length !== 8) return "expected 8 vials, got " + out.vials.length;
+  if (out.parts.length !== 8) return "rows were merged";
+  if (new Set(out.vials.map(v => v.id)).size !== 8) return "ids collide";
+  if (json(out.vials.map(v => v.name)) !== json(["WT", "WT", "g2", "g2", "flag", "flag", "yy1", "yy1"].map(v => "HEK " + v))) return "names or order wrong";
+  if (E.errorsOnly(E.validate(out.state)).length) return "result does not validate";
+  if (s.vials.length + 8 !== out.state.vials.length) return "vial count off";
+  const bad = E.applyBatch(s, { origin: "HEK" }, [{ variant: "x", count: 9999 }], ctx);
+  if (bad.ok || bad.state) return "an impossible batch returned state";
+  return null;
+});
+
 check("a freeze-down of five creates five records, one per slot, in one row", () => {
   const s = fixture();
   const plan = E.suggestPlacement(s, { name: "HEK ATP7B KO g3", count: 5 });

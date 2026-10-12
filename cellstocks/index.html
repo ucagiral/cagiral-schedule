@@ -304,6 +304,12 @@
     font-size:9px; display:flex; align-items:center; justify-content:center;
     color:var(--muted); cursor:pointer; overflow:hidden; min-width:26px;
   }
+  /* A taken slot spells out the cell and what was done to it, so it grows taller than
+     it is wide; an empty one stays square. Text wraps anywhere rather than being cut. */
+  .slot.taken{aspect-ratio:auto; min-height:46px; flex-direction:column; padding:2px; line-height:1.1;
+    text-align:center; overflow-wrap:anywhere}
+  .slot .so{font-size:8.5px; font-weight:700}
+  .slot .sf{font-size:7.5px; font-weight:600; opacity:.85}
   .slot.taken{border-color:rgba(0,0,0,.10); color:#10151c; font-weight:650}
   .slot.target{outline:2.5px solid var(--accent); outline-offset:-1px; background:var(--accent-soft)}
   .slot.hit{outline:2.5px solid var(--bad); outline-offset:-1px}
@@ -396,10 +402,12 @@
         <label for="fzName" id="fzNameLabel">What are you freezing?</label>
         <input id="fzName" placeholder="DuDtxR CASPEX g5.1" autocomplete="off" autocapitalize="off" spellcheck="false">
       </div>
+      <div class="field" id="fzMultiField" style="margin-top:9px"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="fzMulti" style="width:auto"> Several variants of this cell</label></div>
+      <div id="fzMultiRows" hidden></div>
       <div class="chips" id="fzFacets" style="margin-top:9px"></div>
       <div id="fzCustomFacets"></div>
       <p class="note" id="fzLine"></p>
-      <div class="two">
+      <div class="two" id="fzCountRow">
         <div class="field">
           <label for="fzCount">How many vials?</label>
           <div class="stepper">
@@ -1474,6 +1482,14 @@
       return map[o] || NO_ORIGIN_TINT;
     };
   }
+  // The second line of a taken slot: KO/OX, CASPEX and guide, whichever the vial has.
+  function slotFacetLine(vial){
+    var f = E.facetsFor(vial, state.rules), bits = [];
+    [f.koox, f.caspex, f.guide].forEach(function(x){
+      if (x && x !== "-" && x !== "?" && bits.indexOf(x) === -1) bits.push(x);
+    });
+    return bits.join(" ");
+  }
   function shortOrigin(o){
     if (o === E.NO_ORIGIN) return "?";
     var t = String(o).replace(/[^A-Za-z0-9]/g, "").slice(0, 3);
@@ -2117,7 +2133,58 @@
   // Freeze
   // =====================================================================
 
-  var freeze = { name:"", count:1, unitId:null, boxId:null, position:null, plan:null, kind:"Cell", customFacets:{} };
+  var freeze = { name:"", count:1, unitId:null, boxId:null, position:null, plan:null, kind:"Cell", customFacets:{},
+                 multi:false, rows:[{ variant:"", passage:"", count:1 }] };
+
+  // "Several variants": origin typed once, then one line per variant with its own
+  // passage and vial count. Identical lines are kept as separate entries.
+  function multiOn(){ return freeze.multi && freeze.kind === "Cell"; }
+  function renderFreezeMulti(){
+    var on = multiOn();
+    $("fzMultiField").hidden = freeze.kind !== "Cell";
+    $("fzMulti").checked = freeze.multi;
+    $("fzNameLabel").textContent = on ? "Which cell?" : "What are you freezing?";
+    $("fzCountRow").hidden = on;
+    $("fzFacets").hidden = on;
+    var box = clear($("fzMultiRows"));
+    box.hidden = !on;
+    if (!on) return;
+    freeze.rows.forEach(function(r, i){
+      var line = el("div", "two");
+      line.style.alignItems = "end";
+      var f1 = el("div", "field"); f1.appendChild(el("label", null, "Line " + (i + 1)));
+      var v = document.createElement("input"); v.placeholder = "gNT"; v.value = r.variant; v.autocomplete = "off";
+      v.autocapitalize = "off"; v.spellcheck = false;
+      v.oninput = function(){ r.variant = v.value; renderFreezePlan(); renderFreezeGuard(); };
+      f1.appendChild(v);
+      var f2 = el("div", "field");
+      var p = document.createElement("input"); p.placeholder = "p13"; p.value = r.passage; p.autocomplete = "off";
+      p.oninput = function(){ r.passage = p.value; };
+      var c = document.createElement("input"); c.type = "number"; c.min = "1"; c.max = "81"; c.value = String(r.count);
+      c.title = "Vials"; c.style.width = "64px"; c.inputMode = "numeric";
+      c.oninput = function(){ var n = Math.round(Number(c.value)); r.count = isFinite(n) && n >= 1 ? Math.min(n, 81) : 1; renderFreezePlan(); renderFreezeGuard(); };
+      var x = el("button", null, "×"); x.type = "button"; x.title = "Remove this line"; x.disabled = freeze.rows.length < 2;
+      x.onclick = function(){ freeze.rows.splice(i, 1); renderFreezeMulti(); renderFreezePlan(); renderFreezeGuard(); };
+      var dup = el("button", null, "Again"); dup.type = "button"; dup.title = "Add the same line once more";
+      dup.onclick = function(){ freeze.rows.splice(i + 1, 0, { variant:r.variant, passage:r.passage, count:r.count }); renderFreezeMulti(); renderFreezePlan(); renderFreezeGuard(); };
+      var ctl = el("div", "row tight"); ctl.appendChild(p); ctl.appendChild(c); ctl.appendChild(dup); ctl.appendChild(x);
+      f2.appendChild(ctl);
+      line.appendChild(f1); line.appendChild(f2);
+      box.appendChild(line);
+    });
+    var add = el("button", null, "+ Add a line"); add.type = "button";
+    add.onclick = function(){
+      var last = freeze.rows[freeze.rows.length - 1];
+      freeze.rows.push({ variant:"", passage:last ? last.passage : "", count:1 });
+      renderFreezeMulti(); renderFreezePlan(); renderFreezeGuard();
+    };
+    box.appendChild(add);
+  }
+
+  function freezeBatchBase(){
+    return { origin: freeze.name.trim(), notes: $("fzNotes").value.trim(), frozenOn: $("fzDate").value,
+             unitId: freeze.unitId || state.settings.defaultUnitId, boxId: freeze.boxId || null };
+  }
 
   // The type selector -- Cell plus whatever the lab-wide list holds (Plasmid, RNA,
   // cDNA, Protein, Bacterial Glycerol out of the box, plus anything anyone has typed
@@ -2221,6 +2288,23 @@
     if (!name){
       card.appendChild(el("p", "note", "Type what you're adding and this will say which box to put it in."));
       freeze.plan = null;
+      return;
+    }
+    if (multiOn()){
+      freeze.position = null;
+      var res = E.applyBatch(state, freezeBatchBase(), freeze.rows, { idPrefix:"preview" });
+      if (!res.ok){
+        freeze.plan = { ok:false, reason:res.reason };
+        var badM = el("p", "note", res.reason); badM.style.color = "var(--bad)"; card.appendChild(badM);
+        return;
+      }
+      var total = res.vials.length;
+      freeze.plan = { ok:true, batch:true, summary: total + " vial" + (total === 1 ? "" : "s") + " in " + res.parts.length + " line" + (res.parts.length === 1 ? "" : "s") };
+      var headM = el("div", null, "Put these " + total + " in order"); headM.style.fontWeight = "650"; headM.style.fontSize = "14px";
+      card.appendChild(headM);
+      res.parts.forEach(function(pt){
+        card.appendChild(el("div", "occ", pt.count + " × " + pt.name + " — " + pt.summary));
+      });
       return;
     }
     // A locked exact slot only ever means one vial -- there is no meaning to "lock
@@ -2350,6 +2434,20 @@
     for (var i = 0; i < freeze.count; i++) ids.push("v-" + stamp + "-" + i);
     var dateInput = $("fzDate").value;
     var customFacets = freeze.collectCustomFacets ? freeze.collectCustomFacets() : {};
+    if (multiOn()){
+      var bo = E.applyBatch(state, freezeBatchBase(), freeze.rows, { idPrefix:"v-" + stamp, now:new Date().toISOString(), by:getDevice() });
+      if (!bo.ok){ showBanner(esc(bo.reason)); return; }
+      var errs = E.errorsOnly(E.validate(bo.state));
+      if (errs.length){ showBanner("Not doing that: " + esc(errs[0].message)); return; }
+      state = bo.state;
+      markDirty("Add " + bo.vials.length + " × " + name + " variants");
+      showBanner("Put " + bo.vials.length + " vials of <b>" + esc(name) + "</b> in (" + bo.parts.length + " lines).");
+      freeze.boxId = null; freeze.position = null;
+      freeze.rows = [{ variant:"", passage:"", count:1 }];
+      renderFreezeMulti();
+      renderAll();
+      return;
+    }
     var out = E.applyPlacement(state, freeze.plan, {
       name: name,
       passage: freeze.kind === "Cell" ? $("fzPassage").value.trim() : "",
@@ -2405,7 +2503,9 @@
           var cellOrigin = isCellKind(slot.vial) ? originOf(slot.vial) : slot.vial.name;
           cell.style.background = tintOf(slot.vial);
           cell.title = slot.position + " · " + slot.vial.name + (isCellKind(slot.vial) ? " (" + cellOrigin + ")" : "");
-          cell.textContent = shortOrigin(cellOrigin);
+          cell.appendChild(el("span", "so", cellOrigin === E.NO_ORIGIN ? "?" : cellOrigin));
+          var fx = isCellKind(slot.vial) ? slotFacetLine(slot.vial) : "";
+          if (fx) cell.appendChild(el("span", "sf", fx));
         } else {
           cell.title = slot.position + " · empty";
           cell.textContent = "";
@@ -6414,6 +6514,7 @@
       if (screen === "find"){ renderFilters(); renderResults(); }   // renderFilters re-follows the extents
       else if (screen === "freeze"){
         renderFreezeType(); renderFreezeUnits(); renderFreezeFacets(); renderFreezeCustomFacets();
+        if ($("fzMultiRows").hidden === multiOn()) renderFreezeMulti(); else $("fzMultiField").hidden = freeze.kind !== "Cell";
         renderFreezePlan(); renderFreezeGuard();
       }
       else if (screen === "boxes") renderBoxes();
@@ -6490,6 +6591,7 @@
     }
     freeze.kind = sel.value;
     freeze.customFacets = {};
+    renderFreezeMulti();
     renderFreezeFacets();
     renderFreezeCustomFacets();
     renderFreezePlan();
@@ -6518,6 +6620,10 @@
   setCount(freeze.count);
   $("fzUnit").onchange = function(){
     freeze.unitId = $("fzUnit").value; freeze.boxId = null; freeze.position = null; renderFreezePlan(); renderFreezeGuard();
+  };
+  $("fzMulti").onchange = function(){
+    freeze.multi = $("fzMulti").checked; freeze.boxId = null; freeze.position = null;
+    renderFreezeMulti(); renderFreezePlan(); renderFreezeGuard();
   };
   $("fzGo").onclick = doFreeze;
   $("fzGo2").onclick = doFreeze;

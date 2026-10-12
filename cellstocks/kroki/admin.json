@@ -81,6 +81,15 @@
    "h": 120,
    "title": "Vial No",
    "text": "3"
+  },
+  {
+   "id": "bmv5piub9gbzvz",
+   "x": 716,
+   "y": 374,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -115,5 +124,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:31:02.516Z"
+ "updatedAt": "2026-10-12T20:31:04.956Z"
 }

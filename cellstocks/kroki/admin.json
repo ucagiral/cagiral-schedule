@@ -262,8 +262,20 @@
    "id": "lmv5pnxpwl74u1",
    "from": "bmv5pm0higoxqi",
    "to": "bmv5phzt11bd46",
-   "label": ""
+   "label": "passage no link 2.3"
+  },
+  {
+   "id": "lmv5po158gg35h",
+   "from": "bmv5pm6fiknnff",
+   "to": "bmv5phzt11bd46",
+   "label": "passage no link 2.4"
+  },
+  {
+   "id": "lmv5po5l92y5et",
+   "from": "bmv5pjcudo8gwk",
+   "to": "bmv5phzt11bd46",
+   "label": "notes link 2"
   }
  ],
- "updatedAt": "2026-10-12T20:35:01.108Z"
+ "updatedAt": "2026-10-12T20:35:16.512Z"
 }

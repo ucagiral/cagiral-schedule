@@ -12319,6 +12319,132 @@
       "status": "withdrawn",
       "addedAt": "2026-10-12T07:52:02.146Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv4yfgcs-0",
+      "name": "HEK",
+      "lineId": "l-hek",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-09",
+      "frozenOn": "2026-10-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "C2"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T07:52:35.212Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv4yfgcs-1",
+      "name": "HEK",
+      "lineId": "l-hek",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-09",
+      "frozenOn": "2026-10-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "C3"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T07:52:35.212Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv4yfgcs-2",
+      "name": "HEK",
+      "lineId": "l-hek",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-09",
+      "frozenOn": "2026-10-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "C4"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T07:52:35.212Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv4yfgcs-3",
+      "name": "HEK",
+      "lineId": "l-hek",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-09",
+      "frozenOn": "2026-10-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "C5"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T07:52:35.212Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv4yfgcs-4",
+      "name": "HEK",
+      "lineId": "l-hek",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-09",
+      "frozenOn": "2026-10-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "C6"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T07:52:35.212Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv4yfgcs-5",
+      "name": "HEK",
+      "lineId": "l-hek",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-09",
+      "frozenOn": "2026-10-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "C7"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T07:52:35.212Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -13445,7 +13571,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-12T07:52:07.575Z"
+    "savedAt": "2026-10-12T07:52:36.265Z"
   },
   "removedVialIds": [
     "v-205",

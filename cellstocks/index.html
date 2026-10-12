@@ -408,19 +408,21 @@
             <button type="button" id="fzPlus" aria-label="One more vial">+</button>
           </div>
         </div>
-        <div class="field"><label for="fzUnit">Where</label><select id="fzUnit"></select></div>
-      </div>
-    </div>
-    <div class="card" id="fzPlanCard"></div>
-    <div class="card">
-      <div class="two">
         <div class="field" id="fzPassageField"><label for="fzPassage">Passage</label><input id="fzPassage" placeholder="p12 or p+3" autocomplete="off"></div>
-        <div class="field"><label for="fzDate" id="fzDateLabel">Date frozen</label><input id="fzDate" type="date"></div>
       </div>
-      <div class="field"><label for="fzNotes">Notes</label><input id="fzNotes" placeholder="myco -" autocomplete="off"></div>
+      <div class="two">
+        <div class="field"><label for="fzDate" id="fzDateLabel">Date frozen</label><input id="fzDate" type="date"></div>
+        <div class="field"><label for="fzNotes">Notes</label><input id="fzNotes" placeholder="myco -" autocomplete="off"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="fzUnit">Where</label><select id="fzUnit"></select></div>
+        <div class="field"><label>&nbsp;</label><button type="button" id="fzElsewhere">Put it somewhere else</button></div>
+      </div>
       <div class="row"><button class="primary" id="fzGo">Put them in</button></div>
       <p class="note" id="fzWhyNot"></p>
     </div>
+    <div class="card" id="fzPlanCard"></div>
+    <div class="row" style="margin-top:10px"><button class="primary" id="fzGo2">Put them in</button></div>
   </section>
 
   <section class="screen" id="s-boxes">
@@ -2214,6 +2216,7 @@
 
   function renderFreezePlan(){
     var card = clear($("fzPlanCard"));
+    $("fzElsewhere").textContent = freeze.boxId ? "Choose a different box" : "Put it somewhere else";
     var name = freeze.name.trim();
     if (!name){
       card.appendChild(el("p", "note", "Type what you're adding and this will say which box to put it in."));
@@ -2232,9 +2235,6 @@
       if (!freeze.boxId) {
         freeze.plan = null;
         card.appendChild(el("p", "note", "Choose the box it goes in -- a " + freeze.kind + " box is a list, with no slots."));
-        var pickBtn = el("button", null, "Choose a box");
-        pickBtn.onclick = pickBox;
-        card.appendChild(pickBtn);
         return;
       }
       freeze.plan = E.suggestPlacementInList(state, { boxId: freeze.boxId, count: freeze.count,
@@ -2250,9 +2250,6 @@
         card.appendChild(headL);
         card.appendChild(el("p", "note", freeze.plan.reason));
       }
-      var otherBox = el("button", null, "Choose a different box");
-      otherBox.onclick = pickBox;
-      card.appendChild(otherBox);
       return;
     }
 
@@ -2297,9 +2294,6 @@
     });
 
     var row = el("div", "row tight");
-    var override = el("button", null, freeze.boxId ? "Choose a different box" : "Put it somewhere else");
-    override.onclick = pickBox;
-    row.appendChild(override);
     if (freeze.position){
       var clearPin2 = el("button", null, "Let it pick a slot in this box");
       clearPin2.onclick = function(){ freeze.position = null; renderFreezePlan(); renderFreezeGuard(); };
@@ -6432,15 +6426,15 @@
 
   function renderFreezeGuard(){
     var why = $("fzWhyNot");
-    var btn = $("fzGo");
+    var btn = $("fzGo"), btn2 = $("fzGo2");
     if (!canWrite()){
-      btn.disabled = true;
+      btn.disabled = btn2.disabled = true;
       why.textContent = "Read-only on this device — nothing can be written until a GitHub token is " +
         "added under Settings → Connect.";
       return;
     }
     var ok = !!(freeze.name.trim() && freeze.plan && freeze.plan.ok);
-    btn.disabled = !ok;
+    btn.disabled = btn2.disabled = !ok;
     why.textContent = !freeze.name.trim() ? "Give it a name first."
       : (freeze.plan && !freeze.plan.ok) ? freeze.plan.reason : "";
   }
@@ -6526,6 +6520,8 @@
     freeze.unitId = $("fzUnit").value; freeze.boxId = null; freeze.position = null; renderFreezePlan(); renderFreezeGuard();
   };
   $("fzGo").onclick = doFreeze;
+  $("fzGo2").onclick = doFreeze;
+  $("fzElsewhere").onclick = pickBox;
   $("fzDate").value = new Date().toISOString().slice(0, 10);
 
   $("bxOwner").onchange = function(){

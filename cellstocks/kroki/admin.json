@@ -5,12 +5,21 @@
    "id": "bmv5pb7jn1yhi5",
    "x": 262,
    "y": 182,
-   "w": 710,
-   "h": 223,
+   "w": 867,
+   "h": 260,
    "title": "Cell Freeze",
+   "text": ""
+  },
+  {
+   "id": "bmv5pbljhfusqq",
+   "x": 88,
+   "y": 68,
+   "w": 220,
+   "h": 120,
+   "title": "",
    "text": ""
   }
  ],
  "links": [],
- "updatedAt": "2026-10-12T20:25:23.991Z"
+ "updatedAt": "2026-10-12T20:25:26.580Z"
 }

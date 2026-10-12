@@ -171,6 +171,15 @@
    "h": 120,
    "title": "passage no",
    "text": "14"
+  },
+  {
+   "id": "bmv5pobfyqipm6",
+   "x": 144,
+   "y": 124,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -277,5 +286,5 @@
    "label": "notes link 2"
   }
  ],
- "updatedAt": "2026-10-12T20:35:16.512Z"
+ "updatedAt": "2026-10-12T20:35:19.455Z"
 }

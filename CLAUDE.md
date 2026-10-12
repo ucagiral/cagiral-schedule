@@ -458,6 +458,18 @@ worker handles by sweeping only its own prefix.
   that matters is the GitHub Pages redirect: left in, a new lab's users get bounced onto
   our Worker and log in against our freezer. It runs the four suites inside the built tree
   before writing an archive.
+- **Kroki is a sketch board that rides along in this app, and nothing in the app reads it.**
+  `cellstocks/kroki.html` is a separate web-only page (no mobile layout yet, Umut's call): boxes
+  he drags, lines between related ones, text in each. It is saved per account as
+  `cellstocks/kroki/<name>.json` through the same `/commit`, and read back through the Worker's
+  `GET /kroki` (GitHub API, not raw.githubusercontent, for the same stale-CDN reason as the tree).
+  `canWrite` lets only the owner write it — not admin, not a PI. Its rules are `krokiXxx` in
+  `cellstocks/engine.js`, checked in `tools/cellstocks-selftest.mjs` and
+  `tools/cellstocks-kroki-browser-test.mjs`. **No model call runs inside the app, by decision.**
+  When Umut asks, Claude reads the board file (`E.krokiOutline` gives the text form) and asks him in
+  chat "did you mean this — should I add this feature here?". Unsaved work is stashed in
+  `localStorage` (`cst_kroki_draft:<name>`) and wins over the repository's copy on load, like the
+  inventory. `sw.js` must keep ignoring `/kroki` and `kroki.html`.
 - Only Umut's own `UMUT -80` sheet is in the app. The other nine people's sheets in that shared
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get

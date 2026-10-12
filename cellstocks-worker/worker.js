@@ -311,6 +311,12 @@ const LAB_STORAGE_PATH = "cellstocks/lab-storage.json";
 const LAB_RULES_PATH = "cellstocks/lab-rules.json";
 const RECIPIENTS_PATH = "cellstocks/exports/recipients.json";
 const ICON_PREFIX = "cellstocks/icons/";
+// Each member's sketch board (the Kroki page): one JSON file per account, nothing else.
+const KROKI_PREFIX = "cellstocks/kroki/";
+
+function krokiPathFor(name) {
+  return `${KROKI_PREFIX}${name.toLowerCase()}.json`;
+}
 
 function dataPathFor(name) {
   return `${DATA_PREFIX}${name.toLowerCase()}.json`;
@@ -363,6 +369,10 @@ function canWrite(user, path, batchPaths) {
 
   // Folder icons for that structure. Admin-only, since only the Structure screen
   // uploads one, and images only: no SVG, which is markup, in a public repository.
+  // A sketch board is private working space: its owner writes it, nobody else -- not even
+  // admin, who has no use for it. (A PI is already refused at the top.)
+  if (path.startsWith(KROKI_PREFIX)) return path === krokiPathFor(user.name);
+
   if (path.startsWith(ICON_PREFIX)) {
     return user.role === "admin" && /^[a-zA-Z0-9._-]+\.(png|jpe?g|webp)$/.test(path.slice(ICON_PREFIX.length));
   }
@@ -626,6 +636,24 @@ async function routeRenameUser(request, env, name) {
   return json({ user: publicUser(existing) });
 }
 
+// The caller's own sketch board, read straight from the repository through the GitHub API
+// rather than raw.githubusercontent, which serves the previous version for a while after a
+// commit -- the same staleness that brought deleted freezers back. `board` is null until
+// the first save; the page treats that as an empty board.
+async function routeGetKroki(request, env) {
+  const session = await requireSession(request, env);
+  if (!session) return json({ error: "not logged in" }, 401);
+  if (session.user.role === "pi") return json({ error: "this account has no sketch board" }, 403);
+  const branch = env.GITHUB_BRANCH || "main";
+  try {
+    const file = await githubApi(env, "GET", `/contents/${krokiPathFor(session.user.name)}?ref=${encodeURIComponent(branch)}`);
+    return json({ board: JSON.parse(base64ToUtf8(file.content)) });
+  } catch (err) {
+    if (err.status === 404) return json({ board: null });
+    return json({ error: err.message }, requestErrorStatus(err) === 500 ? 502 : requestErrorStatus(err));
+  }
+}
+
 async function routeCommit(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -882,6 +910,7 @@ async function handleRequest(request, env) {
     } else if (/^\/admin\/users\/[^/]+\/rename$/.test(path) && request.method === "POST") {
       response = await routeRenameUser(request, env, decodeURIComponent(path.split("/")[3]));
     } else if (path === "/commit" && request.method === "POST") response = await routeCommit(request, env);
+    else if (path === "/kroki" && request.method === "GET") response = await routeGetKroki(request, env);
     else if (path === "/types" && request.method === "GET") response = await routeGetTypes(request, env);
     else if (path === "/types" && request.method === "POST") response = await routeAddType(request, env);
     else if (path === "/admin/types/merge" && request.method === "POST") response = await routeMergeTypes(request, env);
@@ -1006,6 +1035,8 @@ export {
   LAB_STORAGE_PATH,
   RECIPIENTS_PATH,
   ICON_PREFIX,
+  KROKI_PREFIX,
+  krokiPathFor,
   boxesOwnedBy,
   base64ToUtf8,
   TYPES_CONFIG_KEY,

@@ -6544,6 +6544,13 @@
   });
 
   $("appFooter").textContent = "© " + new Date().getFullYear() + " CAApp · Umut Cagiral · Built with Claude";
+  // The sketch board is a separate page (web only), reached from here.
+  (function(){
+    var a = document.createElement("a");
+    a.href = "kroki.html"; a.textContent = "Kroki";
+    $("appFooter").appendChild(document.createTextNode(" · "));
+    $("appFooter").appendChild(a);
+  })();
 
   // Pressing it is never destructive: load() merges anything this device has not managed
   // to commit rather than replacing it, so the worst case is that nothing has changed.

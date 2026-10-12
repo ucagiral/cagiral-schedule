@@ -9,7 +9,7 @@
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
 import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX,
-         dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
+         KROKI_PREFIX, krokiPathFor, dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -1235,6 +1235,53 @@ await check("a refusal that is NOT a moved branch is not retried", async () => {
   if (!threw) return "a 403 was reported as a successful save";
   if (patches !== 1) return `a 403 was retried ${patches} times`;
   return null;
+});
+
+// ==================================================================== Kroki (sketch board)
+
+await check("a member may write their own sketch board, and nobody else's", () => {
+  const umut = { name: "Umut", role: "member" };
+  if (krokiPathFor("Umut") !== KROKI_PREFIX + "umut.json") return "unexpected path " + krokiPathFor("Umut");
+  if (!canWrite(umut, krokiPathFor("Umut"))) return "a member could not write their own board";
+  if (canWrite(umut, krokiPathFor("Labmate"))) return "a member wrote another member's board";
+  if (canWrite({ name: "admin", role: "admin" }, krokiPathFor("Umut"))) return "admin wrote a member's board";
+  if (canWrite({ name: "Boss", role: "pi" }, krokiPathFor("Boss"))) return "a PI wrote a board";
+  if (canWrite(umut, KROKI_PREFIX + "umut.xlsx") || canWrite(umut, KROKI_PREFIX + "sub/umut.json")) return "a member wrote a non-board path under the prefix";
+  return null;
+});
+
+await check("GET /kroki returns the caller's own saved board, read fresh from the repository", async () => {
+  const { env: base, umutToken } = await twoMembers();
+  const board = { version: 1, boxes: [{ id: "b1", x: 1, y: 2, w: 200, h: 100, title: "A", text: "" }], links: [] };
+  const gh = makeGithubFetch({ contents: { "cellstocks/kroki/umut.json": { text: JSON.stringify(board) } } });
+  const env = Object.assign({}, base, { fetch: gh });
+  const res = await handleRequest(req("GET", "/kroki", undefined, umutToken), env);
+  const body = await res.json();
+  if (res.status !== 200) return `expected 200, got ${res.status}: ${json(body)}`;
+  if (json(body.board) !== json(board)) return "board did not round-trip: " + json(body);
+  return null;
+});
+
+await check("GET /kroki before the first save is an empty answer, not an error", async () => {
+  const { env, umutToken } = await twoMembers();
+  const res = await handleRequest(req("GET", "/kroki", undefined, umutToken), env);
+  const body = await res.json();
+  if (res.status !== 200 || body.board !== null) return `expected 200 with board null, got ${res.status} ${json(body)}`;
+  return null;
+});
+
+await check("GET /kroki needs a login", async () => {
+  const { env } = await twoMembers();
+  const res = await handleRequest(req("GET", "/kroki"), env);
+  return res.status === 401 ? null : `expected 401, got ${res.status}`;
+});
+
+await check("a member's board commits through /commit; a write to another board is refused", async () => {
+  const { env, umutToken } = await twoMembers();
+  const ok = await handleRequest(req("POST", "/commit", { message: "kroki", files: [{ path: krokiPathFor("Umut"), content: "{}" }] }, umutToken), env);
+  if (ok.status !== 200) return `own board: expected 200, got ${ok.status}`;
+  const no = await handleRequest(req("POST", "/commit", { message: "kroki", files: [{ path: krokiPathFor("Labmate"), content: "{}" }] }, umutToken), env);
+  return no.status === 403 ? null : `other's board: expected 403, got ${no.status}`;
 });
 
 // ==================================================================== summary

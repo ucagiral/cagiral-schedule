@@ -66,6 +66,10 @@ self.addEventListener("fetch", (event) => {
   // outside this app's own directory is none of this worker's business.
   if (!url.pathname.startsWith(new URL(self.registration.scope).pathname)) return;
   if (/cellstocks\.json|cell-stocks\.xlsx/.test(url.pathname)) return;
+  // The sketch board page and its API are none of the shell's business: caching the page
+  // navigation here would overwrite the cached index.html with it, and caching GET /kroki
+  // would serve yesterday's board from the static-asset path below.
+  if (/\/kroki(\.html)?$/.test(url.pathname)) return;
 
   if (req.mode === "navigate") {
     event.respondWith(

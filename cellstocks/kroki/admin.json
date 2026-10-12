@@ -151,8 +151,8 @@
    "y": 40,
    "w": 220,
    "h": 120,
-   "title": "Passage ",
-   "text": ""
+   "title": "Passage no",
+   "text": "1"
   }
  ],
  "links": [
@@ -187,5 +187,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:33:22.386Z"
+ "updatedAt": "2026-10-12T20:33:24.862Z"
 }

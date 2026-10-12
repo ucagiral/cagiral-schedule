@@ -11847,8 +11847,14 @@
       "frozenOn": "2026-10-01",
       "location": {
         "path": [
-          "u-ln2",
-          "rack-2"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "rack-2",
+            "name": "Rack 2"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A1"
@@ -11868,8 +11874,14 @@
       "frozenOn": "2026-10-01",
       "location": {
         "path": [
-          "u-ln2",
-          "rack-2"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "rack-2",
+            "name": "Rack 2"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A2"
@@ -11889,8 +11901,14 @@
       "frozenOn": "2026-10-01",
       "location": {
         "path": [
-          "u-ln2",
-          "rack-2"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "rack-2",
+            "name": "Rack 2"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A3"
@@ -11910,8 +11928,14 @@
       "frozenOn": "2026-10-01",
       "location": {
         "path": [
-          "u-ln2",
-          "rack-2"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "rack-2",
+            "name": "Rack 2"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A4"
@@ -11931,8 +11955,14 @@
       "frozenOn": "2026-10-01",
       "location": {
         "path": [
-          "u-ln2",
-          "rack-2"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "rack-2",
+            "name": "Rack 2"
+          }
         ],
         "boxId": "b-unnamed-box",
         "position": "A5"

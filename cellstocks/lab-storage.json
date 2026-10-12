@@ -229,6 +229,16 @@
               "archived": false,
               "isBox": true,
               "owner": "umut"
+            },
+            {
+              "id": "umut-cell-box-5",
+              "name": "Umut Cell Box -5-",
+              "isBox": true,
+              "owner": "umut",
+              "rows": 9,
+              "cols": 9,
+              "scheme": "grid",
+              "archived": false
             }
           ],
           "icon": "📁"

@@ -2987,6 +2987,17 @@
       "notes": "",
       "start": "09:00",
       "end": "09:30"
+    },
+    {
+      "id": "emv5oq1lxpc2kt",
+      "date": "2026-10-12",
+      "title": "ChIP-qPCR",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "12:00",
+      "end": "14:00"
     }
   ],
   "_groups": {
@@ -3028,7 +3039,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-12T20:08:02.645Z",
+    "lastModified": "2026-10-12T20:08:40.247Z",
     "modifiedBy": "Windows PC"
   }
 }

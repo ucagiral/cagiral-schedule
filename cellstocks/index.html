@@ -304,6 +304,12 @@
     font-size:9px; display:flex; align-items:center; justify-content:center;
     color:var(--muted); cursor:pointer; overflow:hidden; min-width:26px;
   }
+  /* A taken slot spells out the cell and what was done to it, so it grows taller than
+     it is wide; an empty one stays square. Text wraps anywhere rather than being cut. */
+  .slot.taken{aspect-ratio:auto; min-height:46px; flex-direction:column; padding:2px; line-height:1.1;
+    text-align:center; overflow-wrap:anywhere}
+  .slot .so{font-size:8.5px; font-weight:700}
+  .slot .sf{font-size:7.5px; font-weight:600; opacity:.85}
   .slot.taken{border-color:rgba(0,0,0,.10); color:#10151c; font-weight:650}
   .slot.target{outline:2.5px solid var(--accent); outline-offset:-1px; background:var(--accent-soft)}
   .slot.hit{outline:2.5px solid var(--bad); outline-offset:-1px}
@@ -1476,6 +1482,14 @@
       return map[o] || NO_ORIGIN_TINT;
     };
   }
+  // The second line of a taken slot: KO/OX, CASPEX and guide, whichever the vial has.
+  function slotFacetLine(vial){
+    var f = E.facetsFor(vial, state.rules), bits = [];
+    [f.koox, f.caspex, f.guide].forEach(function(x){
+      if (x && x !== "-" && x !== "?" && bits.indexOf(x) === -1) bits.push(x);
+    });
+    return bits.join(" ");
+  }
   function shortOrigin(o){
     if (o === E.NO_ORIGIN) return "?";
     var t = String(o).replace(/[^A-Za-z0-9]/g, "").slice(0, 3);
@@ -2489,7 +2503,9 @@
           var cellOrigin = isCellKind(slot.vial) ? originOf(slot.vial) : slot.vial.name;
           cell.style.background = tintOf(slot.vial);
           cell.title = slot.position + " · " + slot.vial.name + (isCellKind(slot.vial) ? " (" + cellOrigin + ")" : "");
-          cell.textContent = shortOrigin(cellOrigin);
+          cell.appendChild(el("span", "so", cellOrigin === E.NO_ORIGIN ? "?" : cellOrigin));
+          var fx = isCellKind(slot.vial) ? slotFacetLine(slot.vial) : "";
+          if (fx) cell.appendChild(el("span", "sf", fx));
         } else {
           cell.title = slot.position + " · empty";
           cell.textContent = "";

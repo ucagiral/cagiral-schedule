@@ -54,6 +54,15 @@
    "h": 78,
    "title": "Notes",
    "text": ""
+  },
+  {
+   "id": "bmv5phzt11bd46",
+   "x": 258,
+   "y": 334,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -80,7 +89,13 @@
    "from": "bmv5pfbctdsfg8",
    "to": "bmv5pb7jn1yhi5",
    "label": "cell prop link"
+  },
+  {
+   "id": "lmv5phvzpmn1so",
+   "from": "bmv5pgcb1g1h40",
+   "to": "bmv5pb7jn1yhi5",
+   "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:30:12.757Z"
+ "updatedAt": "2026-10-12T20:30:25.867Z"
 }

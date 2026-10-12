@@ -63,6 +63,15 @@
    "h": 160,
    "title": "Example 3 cell freeze",
    "text": ""
+  },
+  {
+   "id": "bmv5pia86cm6jx",
+   "x": 256,
+   "y": 236,
+   "w": 220,
+   "h": 120,
+   "title": "Cel",
+   "text": ""
   }
  ],
  "links": [
@@ -97,5 +106,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:30:36.794Z"
+ "updatedAt": "2026-10-12T20:30:39.569Z"
 }

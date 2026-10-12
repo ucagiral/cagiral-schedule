@@ -59,8 +59,8 @@
    "id": "bmv5phzt11bd46",
    "x": 260,
    "y": 334,
-   "w": 920,
-   "h": 534,
+   "w": 1364,
+   "h": 548,
    "title": "Example 3 cell freeze",
    "text": ""
   },
@@ -99,6 +99,15 @@
    "h": 120,
    "title": "Passage No",
    "text": "13"
+  },
+  {
+   "id": "bmv5pjcudo8gwk",
+   "x": 144,
+   "y": 124,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -133,5 +142,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:31:24.477Z"
+ "updatedAt": "2026-10-12T20:31:27.183Z"
 }

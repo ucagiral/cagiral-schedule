@@ -3412,6 +3412,80 @@ check("a primer's workbook row leaves the cell facets and needs_review blank", (
   return null;
 });
 
+// ------------------------------------------------------------ kroki (sketch board)
+
+check("kroki: boxes and links add, and a repeat or self link changes nothing", () => {
+  let b = E.krokiAddBox(E.blankKroki(), "a", 0, 0);
+  b = E.krokiAddBox(b, "b", 400, 0);
+  b = E.krokiLink(b, "l1", "a", "b");
+  b = E.krokiLink(b, "l2", "b", "a");
+  b = E.krokiLink(b, "l3", "a", "a");
+  if (b.boxes.length !== 2 || b.links.length !== 1) return "expected 2 boxes and 1 link, got " + json(b);
+  return null;
+});
+
+check("kroki: duplicate box ids and links to a missing box are refused", () => {
+  const b = E.krokiAddBox(E.blankKroki(), "a", 0, 0);
+  let threw = 0;
+  try { E.krokiAddBox(b, "a", 5, 5); } catch (e) { threw++; }
+  try { E.krokiLink(b, "l", "a", "ghost"); } catch (e) { threw++; }
+  return threw === 2 ? null : "expected both to throw, " + threw + " did";
+});
+
+check("kroki: removing a box takes its lines and no one else's", () => {
+  let b = ["a", "b", "c"].reduce((acc, id, i) => E.krokiAddBox(acc, id, i * 300, 0), E.blankKroki());
+  b = E.krokiLink(E.krokiLink(b, "ab", "a", "b"), "bc", "b", "c");
+  b = E.krokiRemoveBox(b, "a");
+  if (b.boxes.length !== 2) return "box count " + b.boxes.length;
+  if (b.links.length !== 1 || b.links[0].id !== "bc") return "links left: " + json(b.links);
+  return null;
+});
+
+check("kroki: editing text, label and size; size never goes below the minimum", () => {
+  let b = E.krokiAddBox(E.blankKroki(), "a", 0, 0);
+  b = E.krokiAddBox(b, "b", 300, 0);
+  b = E.krokiLink(b, "l", "a", "b");
+  b = E.krokiEditBox(b, "a", { title: "T", text: "body", x: 10, w: 5, h: 5 });
+  b = E.krokiLabelLink(b, "l", "needs");
+  const a = b.boxes[0];
+  if (a.title !== "T" || a.text !== "body" || a.x !== 10) return "edit lost: " + json(a);
+  if (a.w < 120 || a.h < 60) return "box shrank below the minimum: " + json(a);
+  if (b.links[0].label !== "needs") return "label lost";
+  return null;
+});
+
+check("kroki: normalise repairs a damaged file without dropping a box", () => {
+  const b = E.normaliseKroki({ boxes: [{ id: "a", x: "oops", title: 7 }, { id: "a" }, { nope: 1 }, { id: "b", x: 1, y: 2 }],
+    links: [{ id: "l", from: "a", to: "b" }, { id: "m", from: "b", to: "a" }, { id: "n", from: "a", to: "zz" }, { id: "s", from: "a", to: "a" }] });
+  if (b.boxes.length !== 2) return "boxes: " + json(b.boxes);
+  if (b.boxes[0].x !== 0 || b.boxes[0].title !== "") return "bad fields not defaulted: " + json(b.boxes[0]);
+  if (b.links.length !== 1) return "links: " + json(b.links);
+  if (json(E.normaliseKroki(null)) !== json(E.blankKroki())) return "null did not give a blank board";
+  return null;
+});
+
+check("kroki: a line leaves each box at its edge, facing the other", () => {
+  let b = E.krokiAddBox(E.blankKroki(), "a", 0, 0);
+  b = E.krokiAddBox(b, "b", 400, 0);
+  b = E.krokiLink(b, "l", "a", "b");
+  const seg = E.krokiLinkSegment(b, b.links[0]);
+  if (seg.a.x !== 220 || seg.a.y !== 60) return "start " + json(seg.a);
+  if (seg.b.x !== 400 || seg.b.y !== 60) return "end " + json(seg.b);
+  return null;
+});
+
+check("kroki: the outline lists each box with what it is linked to", () => {
+  let b = E.krokiAddBox(E.blankKroki(), "a", 0, 0);
+  b = E.krokiAddBox(b, "b", 300, 0);
+  b = E.krokiEditBox(b, "a", { title: "Login", text: "needs a token" });
+  b = E.krokiEditBox(b, "b", { title: "Backend" });
+  b = E.krokiLabelLink(E.krokiLink(b, "l", "a", "b"), "l", "uses");
+  const out = E.krokiOutline(b);
+  if (!out.includes("Login\nneeds a token\n-> Backend (uses)")) return out;
+  if (!out.includes("Backend\n-> Login (uses)")) return out;
+  return null;
+});
+
 // ---------------------------------------------------------------------- report
 const total = passed + failures.length;
 

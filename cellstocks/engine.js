@@ -3258,6 +3258,151 @@
     return { ok: true, state: next, vial: v };
   }
 
+  // ================================================================ Kroki (sketch board)
+  //
+  // A free-form board: boxes the user places and drags, and lines between related boxes,
+  // like a mind map. It holds no inventory and no rule about vials; the only reader of the
+  // text in the boxes is Claude, in chat -- nothing in the app interprets it.
+  //
+  // Pure like everything else here: ids and timestamps are always arguments.
+  var KROKI_VERSION = 1;
+  var KROKI_MIN = { w: 120, h: 60 };
+  var KROKI_DEFAULT = { w: 220, h: 120 };
+
+  function blankKroki(){ return { version: KROKI_VERSION, boxes: [], links: [], updatedAt: null }; }
+
+  function krokiNum(v, fallback){ return typeof v === "number" && isFinite(v) ? v : fallback; }
+
+  // A link has no direction in the user's picture ("related to"), so A-B and B-A are one line.
+  function krokiPairKey(a, b){ return a < b ? a + "\u0000" + b : b + "\u0000" + a; }
+
+  // Tolerant read: a hand-edited or older file is repaired into something drawable, never
+  // thrown away. Links to a box that does not exist, duplicates and self-links are dropped,
+  // since none of them can be drawn; boxes are never dropped.
+  function normaliseKroki(raw){
+    var out = blankKroki();
+    if (!raw || typeof raw !== "object") return out;
+    var seen = {};
+    (Array.isArray(raw.boxes) ? raw.boxes : []).forEach(function(b){
+      if (!b || typeof b.id !== "string" || !b.id || seen[b.id]) return;
+      seen[b.id] = true;
+      out.boxes.push({
+        id: b.id,
+        x: krokiNum(b.x, 0), y: krokiNum(b.y, 0),
+        w: Math.max(KROKI_MIN.w, krokiNum(b.w, KROKI_DEFAULT.w)),
+        h: Math.max(KROKI_MIN.h, krokiNum(b.h, KROKI_DEFAULT.h)),
+        title: typeof b.title === "string" ? b.title : "",
+        text: typeof b.text === "string" ? b.text : ""
+      });
+    });
+    var pairs = {};
+    (Array.isArray(raw.links) ? raw.links : []).forEach(function(l){
+      if (!l || typeof l.id !== "string" || !l.id) return;
+      if (!seen[l.from] || !seen[l.to] || l.from === l.to) return;
+      var key = krokiPairKey(l.from, l.to);
+      if (pairs[key]) return;
+      pairs[key] = true;
+      out.links.push({ id: l.id, from: l.from, to: l.to, label: typeof l.label === "string" ? l.label : "" });
+    });
+    out.updatedAt = typeof raw.updatedAt === "string" ? raw.updatedAt : null;
+    return out;
+  }
+
+  function krokiAddBox(board, id, x, y){
+    var b = normaliseKroki(board);
+    if (b.boxes.some(function(n){ return n.id === id; })) throw new Error("box id already used: " + id);
+    b.boxes.push({ id: id, x: x, y: y, w: KROKI_DEFAULT.w, h: KROKI_DEFAULT.h, title: "", text: "" });
+    return b;
+  }
+
+  function krokiEditBox(board, id, patch){
+    var b = normaliseKroki(board), box = null;
+    b.boxes.forEach(function(n){ if (n.id === id) box = n; });
+    if (!box) throw new Error("no such box: " + id);
+    ["x", "y", "w", "h"].forEach(function(k){
+      if (patch[k] === undefined) return;
+      var v = krokiNum(patch[k], box[k]);
+      box[k] = (k === "w" || k === "h") ? Math.max(KROKI_MIN[k], v) : v;
+    });
+    if (typeof patch.title === "string") box.title = patch.title;
+    if (typeof patch.text === "string") box.text = patch.text;
+    return b;
+  }
+
+  // Removing a box takes its lines with it: a line with one end missing cannot be drawn.
+  function krokiRemoveBox(board, id){
+    var b = normaliseKroki(board);
+    b.boxes = b.boxes.filter(function(n){ return n.id !== id; });
+    b.links = b.links.filter(function(l){ return l.from !== id && l.to !== id; });
+    return b;
+  }
+
+  // A self-link or a repeat leaves the board unchanged -- connecting twice is not an
+  // error worth interrupting a drag for.
+  function krokiLink(board, id, from, to){
+    var b = normaliseKroki(board);
+    var ids = {};
+    b.boxes.forEach(function(n){ ids[n.id] = true; });
+    if (!ids[from] || !ids[to]) throw new Error("cannot link a box that does not exist");
+    if (from === to) return b;
+    var key = krokiPairKey(from, to);
+    if (b.links.some(function(l){ return krokiPairKey(l.from, l.to) === key; })) return b;
+    b.links.push({ id: id, from: from, to: to, label: "" });
+    return b;
+  }
+
+  function krokiUnlink(board, id){
+    var b = normaliseKroki(board);
+    b.links = b.links.filter(function(l){ return l.id !== id; });
+    return b;
+  }
+
+  function krokiLabelLink(board, id, label){
+    var b = normaliseKroki(board);
+    b.links.forEach(function(l){ if (l.id === id) l.label = String(label); });
+    return b;
+  }
+
+  // Where a line between two boxes starts and ends: the point on each box's edge facing
+  // the other, so lines run centre-to-centre but never draw over the text.
+  function krokiEdgePoint(box, toward){
+    var cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+    var dx = toward.x - cx, dy = toward.y - cy;
+    if (!dx && !dy) return { x: cx, y: cy };
+    var sx = dx ? (box.w / 2) / Math.abs(dx) : Infinity;
+    var sy = dy ? (box.h / 2) / Math.abs(dy) : Infinity;
+    var s = Math.min(sx, sy);
+    return { x: cx + dx * s, y: cy + dy * s };
+  }
+
+  function krokiLinkSegment(board, link){
+    var from = null, to = null;
+    board.boxes.forEach(function(n){ if (n.id === link.from) from = n; if (n.id === link.to) to = n; });
+    if (!from || !to) return null;
+    var fc = { x: from.x + from.w / 2, y: from.y + from.h / 2 };
+    var tc = { x: to.x + to.w / 2, y: to.y + to.h / 2 };
+    return { a: krokiEdgePoint(from, tc), b: krokiEdgePoint(to, fc) };
+  }
+
+  // The board as plain text, one box per paragraph with the boxes it is linked to listed
+  // under it. This is what Claude reads when asked "what did I write on the sketch".
+  function krokiOutline(board){
+    var b = normaliseKroki(board), byId = {};
+    b.boxes.forEach(function(n){ byId[n.id] = n; });
+    var name = function(n){ return n.title || n.text.split("\n")[0] || "(untitled)"; };
+    return b.boxes.map(function(n){
+      var lines = [name(n)];
+      if (n.title && n.text) lines.push(n.text);
+      var rel = [];
+      b.links.forEach(function(l){
+        var other = l.from === n.id ? byId[l.to] : l.to === n.id ? byId[l.from] : null;
+        if (other) rel.push(name(other) + (l.label ? " (" + l.label + ")" : ""));
+      });
+      if (rel.length) lines.push("-> " + rel.join(", "));
+      return lines.join("\n");
+    }).join("\n\n");
+  }
+
   root.CellStocksEngine = {
     // geometry
     rowLabel: rowLabel, rowIndexFromLabel: rowIndexFromLabel, capacity: capacity,
@@ -3315,6 +3460,10 @@
     confirmDate: confirmDate, markDateUnknown: markDateUnknown, markPassageUnknown: markPassageUnknown,
     resolveImportRow: resolveImportRow, placeLooseImports: placeLooseImports, assignSlot: assignSlot,
     isLoose: isLoose, looseVials: looseVials,
-    reviewKey: reviewKey, ignoreReviewItem: ignoreReviewItem, unignoreReviewItem: unignoreReviewItem
+    reviewKey: reviewKey, ignoreReviewItem: ignoreReviewItem, unignoreReviewItem: unignoreReviewItem,
+    // kroki (sketch board)
+    blankKroki: blankKroki, normaliseKroki: normaliseKroki, krokiAddBox: krokiAddBox, krokiEditBox: krokiEditBox,
+    krokiRemoveBox: krokiRemoveBox, krokiLink: krokiLink, krokiUnlink: krokiUnlink, krokiLabelLink: krokiLabelLink,
+    krokiLinkSegment: krokiLinkSegment, krokiOutline: krokiOutline
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

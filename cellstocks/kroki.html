@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kroki — CAApp</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="icon-192.png">
+<script>
+// Same rule as index.html: the old Pages address never renders this page.
+(function(){
+  if (!/\.github\.io$/i.test(location.hostname || "")) return;
+  location.replace("https://cellstocks-worker.caalabworkersdev.workers.dev/kroki.html");
+})();
+</script>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
+    --accent:#0891b2; --accent-soft:#cffafe; --bad:#b91c1c; --ok:#15803d; --grid:#e3e6ea;
+  }
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]){
+      --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+      --accent:#9aa1ac; --accent-soft:#2c3038; --grid:#22252b;
+    }
+  }
+  html[data-theme="dark"]{
+    --bg:#14161a; --panel:#1c1f26; --border:#2c3038; --text:#e6e8eb; --muted:#9aa1ac;
+    --accent:#9aa1ac; --accent-soft:#2c3038; --grid:#22252b;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{ background:var(--bg); color:var(--text); font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; display:flex; flex-direction:column; }
+  header{ display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1{ font-size:16px; margin:0 8px 0 0; }
+  header a{ color:var(--accent); text-decoration:none; }
+  button, input{ font:inherit; color:var(--text); }
+  button{ background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  button:hover:not(:disabled){ border-color:var(--accent); }
+  button:disabled{ opacity:.45; cursor:default; }
+  button.primary{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  #status{ margin-left:auto; font-size:13px; color:var(--muted); }
+  #status.bad{ color:var(--bad); } #status.ok{ color:var(--ok); }
+  #linkbar{ display:none; gap:6px; align-items:center; padding:6px 12px; background:var(--accent-soft); border-bottom:1px solid var(--border); }
+  #linkbar.on{ display:flex; }
+  #linkbar input{ padding:5px 8px; border:1px solid var(--border); border-radius:6px; background:var(--panel); flex:1; max-width:320px; }
+  #viewport{ flex:1; overflow:auto; position:relative; background:var(--bg); }
+  #board{ position:relative; width:4000px; height:3000px;
+    background-image:radial-gradient(var(--grid) 1px, transparent 1px); background-size:24px 24px; }
+  #lines{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
+  #lines line.hit{ stroke:transparent; stroke-width:16; pointer-events:stroke; cursor:pointer; }
+  #lines line.vis{ stroke:var(--muted); stroke-width:2; pointer-events:none; }
+  #lines g.sel line.vis{ stroke:var(--accent); stroke-width:3; }
+  #lines text{ fill:var(--text); font-size:12px; text-anchor:middle; paint-order:stroke; stroke:var(--bg); stroke-width:4px; pointer-events:none; }
+  #lines line.temp{ stroke:var(--accent); stroke-width:2; stroke-dasharray:5 4; }
+  .box{ position:absolute; background:var(--panel); border:1px solid var(--border); border-radius:10px; display:flex; flex-direction:column; box-shadow:0 1px 4px rgba(0,0,0,.12); }
+  .box.linktarget{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .box .bar{ display:flex; align-items:center; gap:4px; padding:4px 6px; cursor:grab; border-bottom:1px solid var(--border); border-radius:10px 10px 0 0; background:var(--accent-soft); touch-action:none; }
+  .box .bar:active{ cursor:grabbing; }
+  .box .bar input{ flex:1; min-width:0; border:0; background:transparent; font-weight:650; padding:2px 4px; }
+  .box .bar input:focus, .box textarea:focus{ outline:2px solid var(--accent); outline-offset:-1px; }
+  .box .bar button{ padding:0 7px; border:0; background:transparent; color:var(--muted); font-size:16px; line-height:22px; }
+  .box textarea{ flex:1; resize:none; border:0; background:transparent; color:var(--text); font:inherit; padding:6px 8px; min-height:0; }
+  .box .port{ position:absolute; right:-9px; top:50%; margin-top:-9px; width:18px; height:18px; border-radius:50%; background:var(--accent); border:2px solid var(--panel); cursor:crosshair; touch-action:none; }
+  .box .grip{ position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize; touch-action:none;
+    background:linear-gradient(135deg, transparent 50%, var(--muted) 50%, var(--muted) 58%, transparent 58%, transparent 74%, var(--muted) 74%, var(--muted) 82%, transparent 82%); border-radius:0 0 10px 0; }
+  #empty{ position:absolute; left:50%; top:40%; transform:translateX(-50%); color:var(--muted); text-align:center; pointer-events:none; }
+  #gate{ margin:48px auto; max-width:420px; padding:0 16px; text-align:center; }
+</style>
+</head>
+<body>
+<div id="gate" hidden></div>
+<header id="head">
+  <h1>Kroki</h1>
+  <button id="add" class="primary">+ Kutu</button>
+  <button id="undo" disabled>Geri al</button>
+  <a href="./">← Uygulamaya dön</a>
+  <span id="status"></span>
+</header>
+<div id="linkbar"><span>Seçili çizgi:</span><input id="linkLabel" placeholder="Etiket (örn. ihtiyaç duyar)"><button id="linkDel">Çizgiyi sil</button></div>
+<div id="viewport"><div id="board"><svg id="lines"></svg><div id="empty">Boş. “+ Kutu” veya tahtaya çift tıkla.<br>Kutunun sağındaki noktayı başka bir kutuya sürükleyerek bağla.</div></div></div>
+
+<script src="engine.js"></script>
+<script>
+(function(){
+  "use strict";
+  var E = window.CellStocksEngine;
+  var $ = function(id){ return document.getElementById(id); };
+
+  // Storage keys are the app's own (cst_*): this page is part of the same app and signs in
+  // through the same login, it just draws a different screen.
+  var LS = { theme:"cst_theme", url:"cst_worker_url", token:"cst_worker_token", user:"cst_worker_user" };
+  function ls(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  try { var th = ls(LS.theme); if (th) document.documentElement.setAttribute("data-theme", th); } catch(e){}
+
+  var user = null; try { user = JSON.parse(ls(LS.user) || "null"); } catch(e){}
+  var token = ls(LS.token);
+  var base = (ls(LS.url) || location.origin).replace(/\/+$/, "");
+
+  var board = E.blankKroki();
+  var undoStack = [];
+  var dirty = false, saving = false, saveTimer = null, loaded = false;
+  var selectedLink = null;
+  var draftKey = user ? "cst_kroki_draft:" + String(user.name).toLowerCase() : null;
+  var boardPath = user ? "cellstocks/kroki/" + String(user.name).toLowerCase() + ".json" : null;
+
+  function newId(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function setStatus(text, cls){ $("status").textContent = text; $("status").className = cls || ""; }
+
+  function gate(msg){
+    $("head").hidden = true; $("linkbar").hidden = true; $("viewport").hidden = true;
+    var g = $("gate"); g.hidden = false;
+    g.innerHTML = "";
+    var p = document.createElement("p"); p.textContent = msg; g.appendChild(p);
+    var a = document.createElement("a"); a.href = "./"; a.textContent = "Uygulamaya git"; g.appendChild(a);
+  }
+
+  async function api(path, opts){
+    var r = await fetch(base + path, Object.assign({}, opts || {}, {
+      headers: Object.assign({ "Content-Type":"application/json", Authorization:"Bearer " + token }, (opts && opts.headers) || {})
+    }));
+    var body = {}; try { body = await r.json(); } catch(e){}
+    if (!r.ok){ var err = new Error(body.error || ("Sunucu " + r.status)); err.status = r.status; throw err; }
+    return body;
+  }
+
+  // ---- saving ---------------------------------------------------------------------
+  // A change that has not reached the repository is kept on this device until it has: a
+  // failed save must not be lost to the next load replacing the board with the server's.
+  function stash(){ try { localStorage.setItem(draftKey, JSON.stringify(board)); } catch(e){} }
+  function unstash(){ try { localStorage.removeItem(draftKey); } catch(e){} }
+
+  function markDirty(){
+    dirty = true; stash(); setStatus("Kaydedilmedi…");
+    clearTimeout(saveTimer); saveTimer = setTimeout(save, 2500);
+  }
+
+  async function save(){
+    clearTimeout(saveTimer);
+    if (saving || !dirty) return;
+    saving = true; setStatus("Kaydediliyor…");
+    var snapshot = board;
+    snapshot.updatedAt = new Date().toISOString();
+    try {
+      await api("/commit", { method:"POST", body: JSON.stringify({
+        message: "Kroki: " + user.name,
+        files: [{ path: boardPath, content: JSON.stringify(snapshot, null, 1) + "\n" }]
+      })});
+      // Edits made while the request was in flight are not covered by it.
+      if (board === snapshot){ dirty = false; unstash(); setStatus("Kaydedildi", "ok"); }
+      else { saving = false; return save(); }
+    } catch(e){
+      setStatus("Kaydedilemedi: " + e.message + " — tekrar denenecek", "bad");
+      saveTimer = setTimeout(save, 15000);
+    }
+    saving = false;
+  }
+
+  // ---- board edits ----------------------------------------------------------------
+  // Every change goes through here: pure engine call, undo snapshot, redraw only if asked.
+  function apply(next, opts){
+    opts = opts || {};
+    if (opts.undo !== false){ undoStack.push(board); if (undoStack.length > 60) undoStack.shift(); $("undo").disabled = false; }
+    board = next;
+    markDirty();
+    if (opts.redraw !== false) render();
+  }
+
+  function undo(){
+    if (!undoStack.length) return;
+    board = undoStack.pop(); $("undo").disabled = !undoStack.length;
+    if (selectedLink && !board.links.some(function(l){ return l.id === selectedLink; })) selectedLink = null;
+    markDirty(); render();
+  }
+
+  // ---- drawing --------------------------------------------------------------------
+  var boxEls = {};
+  var SVGNS = "http://www.w3.org/2000/svg";
+
+  function render(){
+    var boardEl = $("board");
+    var live = {};
+    board.boxes.forEach(function(b){
+      live[b.id] = true;
+      var el = boxEls[b.id] || buildBox(b);
+      el.style.left = b.x + "px"; el.style.top = b.y + "px";
+      el.style.width = b.w + "px"; el.style.height = b.h + "px";
+      var t = el.querySelector("input"), x = el.querySelector("textarea");
+      if (document.activeElement !== t && t.value !== b.title) t.value = b.title;
+      if (document.activeElement !== x && x.value !== b.text) x.value = b.text;
+      if (!el.parentNode) boardEl.appendChild(el);
+    });
+    Object.keys(boxEls).forEach(function(id){
+      if (!live[id]){ boxEls[id].remove(); delete boxEls[id]; }
+    });
+    $("empty").style.display = board.boxes.length ? "none" : "";
+    drawLines();
+    var l = board.links.filter(function(n){ return n.id === selectedLink; })[0];
+    $("linkbar").classList.toggle("on", !!l);
+    if (l && document.activeElement !== $("linkLabel")) $("linkLabel").value = l.label;
+  }
+
+  function drawLines(){
+    var svg = $("lines");
+    svg.innerHTML = "";
+    board.links.forEach(function(l){
+      var seg = E.krokiLinkSegment(board, l);
+      if (!seg) return;
+      var g = document.createElementNS(SVGNS, "g");
+      if (l.id === selectedLink) g.setAttribute("class", "sel");
+      var vis = document.createElementNS(SVGNS, "line");
+      vis.setAttribute("class", "vis");
+      var hit = document.createElementNS(SVGNS, "line");
+      hit.setAttribute("class", "hit");
+      [vis, hit].forEach(function(n){
+        n.setAttribute("x1", seg.a.x); n.setAttribute("y1", seg.a.y);
+        n.setAttribute("x2", seg.b.x); n.setAttribute("y2", seg.b.y);
+        g.appendChild(n);
+      });
+      hit.addEventListener("pointerdown", function(ev){ ev.stopPropagation(); selectedLink = l.id; render(); });
+      if (l.label){
+        var tx = document.createElementNS(SVGNS, "text");
+        tx.setAttribute("x", (seg.a.x + seg.b.x) / 2); tx.setAttribute("y", (seg.a.y + seg.b.y) / 2 - 4);
+        tx.textContent = l.label; g.appendChild(tx);
+      }
+      svg.appendChild(g);
+    });
+  }
+
+  // A drag in progress: pointer events on the element that started it, captured so the
+  // gesture keeps working when the pointer leaves it.
+  function drag(ev, onMove, onEnd){
+    var target = ev.currentTarget;
+    target.setPointerCapture(ev.pointerId);
+    var sx = ev.clientX, sy = ev.clientY;
+    function move(e){ onMove(e.clientX - sx, e.clientY - sy, e); }
+    function up(e){
+      target.removeEventListener("pointermove", move);
+      target.removeEventListener("pointerup", up);
+      target.removeEventListener("pointercancel", up);
+      if (onEnd) onEnd(e.clientX - sx, e.clientY - sy, e);
+    }
+    target.addEventListener("pointermove", move);
+    target.addEventListener("pointerup", up);
+    target.addEventListener("pointercancel", up);
+  }
+
+  function boardPoint(e){
+    var r = $("board").getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  function buildBox(b){
+    var el = document.createElement("div");
+    el.className = "box"; el.dataset.id = b.id;
+    var bar = document.createElement("div"); bar.className = "bar";
+    var title = document.createElement("input"); title.placeholder = "Başlık";
+    var del = document.createElement("button"); del.textContent = "×"; del.title = "Kutuyu sil";
+    bar.appendChild(title); bar.appendChild(del);
+    var text = document.createElement("textarea"); text.placeholder = "Ne yazmak istersen…";
+    var port = document.createElement("div"); port.className = "port"; port.title = "Başka bir kutuya sürükle";
+    var grip = document.createElement("div"); grip.className = "grip";
+    el.appendChild(bar); el.appendChild(text); el.appendChild(port); el.appendChild(grip);
+    boxEls[b.id] = el;
+
+    // Typing: one undo step per burst, not per keystroke.
+    var typing = null;
+    function typed(field){
+      return function(){
+        var cur = board.boxes.filter(function(n){ return n.id === b.id; })[0];
+        if (!cur) return;
+        var patch = {}; patch[field] = (field === "title" ? title : text).value;
+        var fresh = typing !== b.id + field;
+        typing = b.id + field; clearTimeout(typed.t); typed.t = setTimeout(function(){ typing = null; }, 1500);
+        apply(E.krokiEditBox(board, b.id, patch), { undo: fresh, redraw: false });
+        drawLines();
+      };
+    }
+    title.addEventListener("input", typed("title"));
+    text.addEventListener("input", typed("text"));
+
+    del.addEventListener("click", function(){ if (selectedLink) selectedLink = null; apply(E.krokiRemoveBox(board, b.id)); });
+
+    bar.addEventListener("pointerdown", function(ev){
+      if (ev.target === title || ev.target === del) return;
+      var cur = board.boxes.filter(function(n){ return n.id === b.id; })[0];
+      var ox = cur.x, oy = cur.y, moved = false;
+      var before = board;
+      drag(ev, function(dx, dy){
+        moved = true;
+        board = E.krokiEditBox(board, b.id, { x: Math.max(0, ox + dx), y: Math.max(0, oy + dy) });
+        render();
+      }, function(){
+        if (!moved) return;
+        undoStack.push(before); $("undo").disabled = false;
+        markDirty();
+      });
+    });
+
+    grip.addEventListener("pointerdown", function(ev){
+      ev.stopPropagation();
+      var cur = board.boxes.filter(function(n){ return n.id === b.id; })[0];
+      var ow = cur.w, oh = cur.h, moved = false, before = board;
+      drag(ev, function(dx, dy){
+        moved = true;
+        board = E.krokiEditBox(board, b.id, { w: ow + dx, h: oh + dy });
+        render();
+      }, function(){
+        if (!moved) return;
+        undoStack.push(before); $("undo").disabled = false;
+        markDirty();
+      });
+    });
+
+    port.addEventListener("pointerdown", function(ev){
+      ev.stopPropagation();
+      var cur = board.boxes.filter(function(n){ return n.id === b.id; })[0];
+      var temp = document.createElementNS(SVGNS, "line");
+      temp.setAttribute("class", "temp");
+      $("lines").appendChild(temp);
+      var hover = null;
+      function setHover(id){
+        if (hover === id) return;
+        if (hover && boxEls[hover]) boxEls[hover].classList.remove("linktarget");
+        hover = id;
+        if (hover && boxEls[hover]) boxEls[hover].classList.add("linktarget");
+      }
+      function overBox(e){
+        var el = document.elementFromPoint(e.clientX, e.clientY);
+        var box = el && el.closest ? el.closest(".box") : null;
+        return box && box.dataset.id !== b.id ? box.dataset.id : null;
+      }
+      drag(ev, function(dx, dy, e){
+        var p = boardPoint(e);
+        temp.setAttribute("x1", cur.x + cur.w); temp.setAttribute("y1", cur.y + cur.h / 2);
+        temp.setAttribute("x2", p.x); temp.setAttribute("y2", p.y);
+        setHover(overBox(e));
+      }, function(dx, dy, e){
+        var target = overBox(e);
+        temp.remove(); setHover(null);
+        if (!target) return;
+        var next = E.krokiLink(board, newId("l"), b.id, target);
+        if (next.links.length !== board.links.length){
+          var l = next.links[next.links.length - 1];
+          selectedLink = l.id;
+          apply(next);
+          $("linkLabel").focus();
+        }
+      });
+    });
+    return el;
+  }
+
+  // ---- toolbar and board gestures -------------------------------------------------
+  function addBoxAt(x, y){
+    var id = newId("b");
+    apply(E.krokiAddBox(board, id, Math.max(0, Math.round(x)), Math.max(0, Math.round(y))));
+    var t = boxEls[id] && boxEls[id].querySelector("input");
+    if (t) t.focus();
+  }
+
+  $("add").addEventListener("click", function(){
+    var v = $("viewport");
+    // Staggered so repeated clicks do not stack boxes exactly on top of each other.
+    var n = board.boxes.length % 8;
+    addBoxAt(v.scrollLeft + 60 + n * 28, v.scrollTop + 40 + n * 28);
+  });
+  $("undo").addEventListener("click", undo);
+
+  $("board").addEventListener("dblclick", function(ev){
+    if (ev.target !== $("board") && ev.target !== $("lines") && ev.target !== $("empty")) return;
+    var p = boardPoint(ev);
+    addBoxAt(p.x - 110, p.y - 30);
+  });
+  $("board").addEventListener("pointerdown", function(ev){
+    if (ev.target === $("board") && selectedLink){ selectedLink = null; render(); }
+  });
+
+  $("linkLabel").addEventListener("input", function(){
+    if (!selectedLink) return;
+    apply(E.krokiLabelLink(board, selectedLink, $("linkLabel").value), { redraw: false, undo: false });
+    drawLines();
+  });
+  $("linkDel").addEventListener("click", function(){
+    if (!selectedLink) return;
+    var id = selectedLink; selectedLink = null;
+    apply(E.krokiUnlink(board, id));
+  });
+
+  document.addEventListener("keydown", function(ev){
+    var typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "z" && !typing){ ev.preventDefault(); undo(); }
+    else if ((ev.key === "Delete" || ev.key === "Backspace") && selectedLink && !typing){
+      ev.preventDefault(); $("linkDel").click();
+    }
+  });
+
+  // Leaving with unsaved work: try to flush it; the draft is kept either way.
+  window.addEventListener("beforeunload", function(ev){
+    if (dirty){ ev.preventDefault(); ev.returnValue = ""; }
+  });
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState === "hidden" && dirty) save();
+  });
+
+  // ---- start ----------------------------------------------------------------------
+  async function start(){
+    if (!token || !user){ gate("Önce uygulamada giriş yapman gerekiyor."); return; }
+    if (user.role === "pi"){ gate("Bu hesabın kroki tahtası yok."); return; }
+    setStatus("Yükleniyor…");
+    var draft = null;
+    try { draft = JSON.parse(localStorage.getItem(draftKey) || "null"); } catch(e){}
+    try {
+      var res = await api("/kroki");
+      board = E.normaliseKroki(res.board);
+    } catch(e){
+      if (e.status === 401){ gate("Oturum süresi dolmuş. Uygulamada tekrar giriş yap."); return; }
+      if (!draft){ setStatus("Yüklenemedi: " + e.message, "bad"); return; }
+    }
+    // Work this device never managed to save wins over the repository's older copy.
+    if (draft){ board = E.normaliseKroki(draft); dirty = true; setStatus("Kaydedilmedi…"); saveTimer = setTimeout(save, 1000); }
+    else setStatus("");
+    loaded = true;
+    render();
+    if (!draft) setStatus("Hazır", "ok");
+  }
+  start();
+
+  // Test hook: the browser suite reads the board without going through the network.
+  window.__kroki = { get board(){ return board; }, get dirty(){ return dirty; }, save: save, get loaded(){ return loaded; } };
+})();
+</script>
+</body>
+</html>

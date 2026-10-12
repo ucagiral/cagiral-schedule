@@ -5,8 +5,8 @@
    "id": "bmv5pb7jn1yhi5",
    "x": 262,
    "y": 182,
-   "w": 778,
-   "h": 249,
+   "w": 981,
+   "h": 280,
    "title": "ornek example Cell Freeze",
    "text": ""
   },
@@ -45,6 +45,15 @@
    "h": 76,
    "title": "",
    "text": ""
+  },
+  {
+   "id": "bmv5pgcb1g1h40",
+   "x": 200,
+   "y": 180,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -61,5 +70,5 @@
    "label": "passage no"
   }
  ],
- "updatedAt": "2026-10-12T20:29:04.626Z"
+ "updatedAt": "2026-10-12T20:29:07.473Z"
 }

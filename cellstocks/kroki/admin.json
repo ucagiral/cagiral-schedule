@@ -5,8 +5,8 @@
    "id": "bmv5pb7jn1yhi5",
    "x": 263,
    "y": 182,
-   "w": 981,
-   "h": 280,
+   "w": 910,
+   "h": 137,
    "title": "Example 1 cell freeze",
    "text": ""
   },
@@ -70,5 +70,5 @@
    "label": "passage no"
   }
  ],
- "updatedAt": "2026-10-12T20:29:48.561Z"
+ "updatedAt": "2026-10-12T20:29:50.970Z"
 }

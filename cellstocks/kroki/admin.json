@@ -29,15 +29,6 @@
    "text": "13"
   },
   {
-   "id": "bmv5pcbt953a7m",
-   "x": 795,
-   "y": 221,
-   "w": 156,
-   "h": 82,
-   "title": "Notes",
-   "text": "Not"
-  },
-  {
    "id": "bmv5pfbctdsfg8",
    "x": 420,
    "y": 223,
@@ -59,13 +50,7 @@
    "from": "bmv5pbz4to205h",
    "to": "bmv5pb7jn1yhi5",
    "label": "passage no"
-  },
-  {
-   "id": "lmv5pdx7gnuz78",
-   "from": "bmv5pcbt953a7m",
-   "to": "bmv5pb7jn1yhi5",
-   "label": "ornek not"
   }
  ],
- "updatedAt": "2026-10-12T20:28:30.041Z"
+ "updatedAt": "2026-10-12T20:28:45.939Z"
 }

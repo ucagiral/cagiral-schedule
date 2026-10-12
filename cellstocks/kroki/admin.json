@@ -59,8 +59,8 @@
    "id": "bmv5phzt11bd46",
    "x": 260,
    "y": 334,
-   "w": 937,
-   "h": 640,
+   "w": 932,
+   "h": 644,
    "title": "Example 3 cell freeze",
    "text": ""
   },
@@ -72,6 +72,15 @@
    "h": 120,
    "title": "Cell Origin",
    "text": "HEK"
+  },
+  {
+   "id": "bmv5pimvo2hg3h",
+   "x": 215,
+   "y": 239,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -106,5 +115,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:30:52.139Z"
+ "updatedAt": "2026-10-12T20:30:54.629Z"
 }

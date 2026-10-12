@@ -153,6 +153,15 @@
    "h": 120,
    "title": "Passage no",
    "text": "14"
+  },
+  {
+   "id": "bmv5pm0higoxqi",
+   "x": 88,
+   "y": 68,
+   "w": 220,
+   "h": 120,
+   "title": "pa",
+   "text": ""
   }
  ],
  "links": [
@@ -187,5 +196,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:33:29.794Z"
+ "updatedAt": "2026-10-12T20:33:32.476Z"
 }

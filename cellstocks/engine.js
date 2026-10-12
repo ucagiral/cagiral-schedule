@@ -1601,6 +1601,40 @@
              summary: summarise(segments), rows: usedRows, reason: bits.join(" ") };
   }
 
+  // One freeze-down of several variants of one origin ("HEK": gNT p13, 3xFLAG p14, WT, WT...).
+  // Each row is placed in turn against the state the previous rows produced, so the
+  // one-cell-per-row rule keeps variants of one origin together and consecutive. Rows are
+  // never merged or de-duplicated: two identical rows are two entries. All or nothing --
+  // if any row cannot be placed, nothing is returned but the reason and which row.
+  // ids and timestamps come from ctx, as in applyPlacement.
+  function applyBatch(state, base, rows, ctx) {
+    var b = base || {};
+    var c = ctx || {};
+    var origin = String(b.origin || "").trim();
+    if (!origin) return { ok: false, reason: "Give the cell a name first." };
+    if (!rows || !rows.length) return { ok: false, reason: "Add at least one line." };
+    var cur = state, vials = [], parts = [], n = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i] || {};
+      var count = Math.round(Number(r.count));
+      if (!isFinite(count) || count < 1) count = 1;
+      var variant = String(r.variant || "").trim();
+      var name = variant ? origin + " " + variant : origin;
+      var plan = suggestPlacement(cur, { name: name, count: count, unitId: b.unitId || null,
+        boxId: b.boxId || null, kind: "Cell" });
+      if (!plan.ok) return { ok: false, row: i, reason: "Line " + (i + 1) + " (" + name + "): " + plan.reason };
+      var ids = [];
+      for (var k = 0; k < count; k++) ids.push((c.idPrefix || "v-") + "-" + (n + k));
+      var out = applyPlacement(cur, plan, { name: name, passage: String(r.passage || "").trim(),
+        frozenOn: b.frozenOn || "", notes: b.notes || "", kind: "Cell" }, { ids: ids, now: c.now, by: c.by });
+      n += count;
+      cur = out.state;
+      vials = vials.concat(out.vials);
+      parts.push({ name: name, count: count, summary: plan.summary, reason: plan.reason, segments: plan.segments });
+    }
+    return { ok: true, state: cur, vials: vials, parts: parts };
+  }
+
   // ids and timestamps are arguments, never generated here -- that is what lets the
   // selftest assert the same input gives byte-identical output.
   function applyPlacement(state, plan, template, ctx) {
@@ -3439,7 +3473,7 @@
     NO_ORIGIN: NO_ORIGIN, originOfVial: originOfVial, boxesFor: boxesFor, rowsOf: rowsOf, rowTakes: rowTakes,
     mixedRows: mixedRows, suggestPlacement: suggestPlacement, suggestPlacementAt: suggestPlacementAt,
     suggestPlacementInList: suggestPlacementInList,
-    applyPlacement: applyPlacement,
+    applyPlacement: applyPlacement, applyBatch: applyBatch,
     GROUPING_STRATEGIES: GROUPING_STRATEGIES, IMPLEMENTED_GROUPING_STRATEGIES: IMPLEMENTED_GROUPING_STRATEGIES,
     groupingStrategyFor: groupingStrategyFor,
     // withdrawal

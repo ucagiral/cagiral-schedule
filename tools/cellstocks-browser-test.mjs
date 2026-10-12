@@ -3860,6 +3860,77 @@ try {
   }
 }
 
+// ============================================================================
+// Several variants of one cell in one go: repeated lines stay separate entries
+// ============================================================================
+{
+  const server26 = await serve(8826);
+  const browser26 = await chromium.launch();
+  try {
+    const labStorage = { labName: "CAA Lab Stocks", labIcon: "", children: [
+      { id: "u-1", name: "Freezer 1", icon: "🧊", note: "", children: [
+        { id: "b-1", name: "Box 1", icon: "📦", note: "", isBox: true, owner: "umut", rows: 3, cols: 3, scheme: "grid" }
+      ] }
+    ], unplaced: [] };
+    const empty = { lines: [], withdrawals: [], rules: {}, settings: {}, vials: [],
+      _meta: { savedBy: "the phone", savedAt: "2020-01-01T00:00:00.000Z" } };
+    let saved = null;
+    const context = await browser26.newContext();
+    await context.addInitScript(([cfg]) => {
+      localStorage.setItem("cst_cfg", cfg);
+      localStorage.setItem("cst_worker_url", "https://fake-worker.example");
+      localStorage.setItem("cst_worker_token", "fake-session-token");
+      localStorage.setItem("cst_worker_user", JSON.stringify({ name: "umut", role: "member", hidden: false }));
+      localStorage.setItem("cst_device", "the phone");
+    }, [JSON.stringify({ owner: "test-owner", repo: "test-repo", branch: "main" })]);
+    const page = await context.newPage();
+    await page.route("https://raw.githubusercontent.com/**", (route) => {
+      const url = route.request().url();
+      if (url.includes("cellstocks/lab-storage.json"))
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(labStorage) });
+      if (url.includes("cellstocks/data/umut.json"))
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(saved || empty) });
+      return route.fulfill({ status: 404, body: "" });
+    });
+    await page.route("https://api.github.com/repos/test-owner/test-repo/contents/cellstocks/data", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ name: "umut.json", type: "file" }]) }));
+    await ownFileRoute(page, (name) => name === "umut.json" ? (saved || empty) : null);
+    await page.route("https://fake-worker.example/**", (route) => {
+      const req = route.request();
+      if (new URL(req.url()).pathname === "/commit" && req.method() === "POST") {
+        const f = JSON.parse(req.postData()).files.find((x) => x.path === "cellstocks/data/umut.json");
+        if (f) saved = JSON.parse(f.content);
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ commit: "sha" }) });
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "not found" }) });
+    });
+    await page.goto("http://localhost:8826/cellstocks/");
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready", { timeout: 10000 }).catch(() => {});
+    await page.click('nav button[data-screen="freeze"]');
+    await page.check("#fzMulti");
+    await page.fill("#fzName", "HEK");
+    // one starting line; "Again" repeats it, so WT WT g2 g2 are four separate lines
+    await page.fill("#fzMultiRows .two:nth-child(1) input", "WT");
+    await page.click("#fzMultiRows .two:nth-child(1) button[title='Add the same line once more']");
+    await page.click("#fzMultiRows > button");
+    await page.fill("#fzMultiRows .two:nth-child(3) input", "g2");
+    await page.click("#fzMultiRows .two:nth-child(3) button[title='Add the same line once more']");
+    await page.waitForFunction(() => /Put these 4 in order/.test(document.getElementById("fzPlanCard").textContent));
+    await page.click("#fzGo");
+    for (let i = 0; i < 60 && !saved; i++) await page.waitForTimeout(50);
+    const names = saved ? saved.vials.map((v) => v.name) : [];
+    const positions = saved ? saved.vials.map((v) => v.location.position) : [];
+    check("several variants save as separate entries, repeats kept",
+      JSON.stringify(names) === JSON.stringify(["HEK WT", "HEK WT", "HEK g2", "HEK g2"]) &&
+      new Set(positions).size === 4, JSON.stringify({ names, positions }));
+  } catch (err) {
+    check("several variants save as separate entries, repeats kept", false, String(err));
+  } finally {
+    await browser26.close();
+    server26.close();
+  }
+}
+
 if (fails.length) {
   console.error(`${fails.length} of ${pass + fails.length} cell stocks browser checks failed:\n`);
   fails.forEach((f) => console.error(`  ✗ ${f}\n`));

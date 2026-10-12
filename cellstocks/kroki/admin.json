@@ -108,6 +108,15 @@
    "h": 120,
    "title": "Notes",
    "text": "RNA isolation icin kullanildilar"
+  },
+  {
+   "id": "bmv5pjw5a95se0",
+   "x": 487,
+   "y": 497,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -142,5 +151,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:31:47.345Z"
+ "updatedAt": "2026-10-12T20:31:54.437Z"
 }

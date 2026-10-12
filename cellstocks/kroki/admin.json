@@ -203,7 +203,13 @@
    "from": "bmv5pgcb1g1h40",
    "to": "bmv5pb7jn1yhi5",
    "label": "note link"
+  },
+  {
+   "id": "lmv5pmew5o054x",
+   "from": "bmv5pia86cm6jx",
+   "to": "bmv5phzt11bd46",
+   "label": "origin link 2"
   }
  ],
- "updatedAt": "2026-10-12T20:33:45.893Z"
+ "updatedAt": "2026-10-12T20:33:56.488Z"
 }

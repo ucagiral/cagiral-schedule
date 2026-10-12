@@ -16,12 +16,12 @@
    "y": 220,
    "w": 146,
    "h": 72,
-   "title": "Cell Name",
+   "title": "Cell Or",
    "text": "HEK"
   },
   {
    "id": "bmv5pbz4to205h",
-   "x": 582,
+   "x": 587,
    "y": 221,
    "w": 185,
    "h": 75,
@@ -58,5 +58,5 @@
    "label": "ornek not"
   }
  ],
- "updatedAt": "2026-10-12T20:28:11.088Z"
+ "updatedAt": "2026-10-12T20:28:13.978Z"
 }

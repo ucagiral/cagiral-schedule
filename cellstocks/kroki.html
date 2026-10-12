@@ -74,6 +74,7 @@
   <h1>Kroki</h1>
   <button id="add" class="primary">+ Kutu</button>
   <button id="undo" disabled>Geri al</button>
+  <button id="copy">Metin olarak kopyala</button>
   <a href="./">← Uygulamaya dön</a>
   <span id="status"></span>
 </header>
@@ -172,6 +173,21 @@
     if (selectedLink && !board.links.some(function(l){ return l.id === selectedLink; })) selectedLink = null;
     markDirty(); render();
   }
+
+  // Plain-text form of the board (E.krokiOutline) for pasting into a chat.
+  async function copyText(){
+    var text = E.krokiOutline(board);
+    if (!text){ setStatus("Kopyalanacak bir şey yok", "bad"); return; }
+    try { await navigator.clipboard.writeText(text); }
+    catch(e){
+      var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta);
+      ta.select(); var ok = false; try { ok = document.execCommand("copy"); } catch(e2){}
+      ta.remove();
+      if (!ok){ setStatus("Kopyalanamadı", "bad"); return; }
+    }
+    setStatus("Kopyalandı", "ok");
+  }
+  $("copy").addEventListener("click", copyText);
 
   // ---- drawing --------------------------------------------------------------------
   var boxEls = {};

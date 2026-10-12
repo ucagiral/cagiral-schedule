@@ -69,7 +69,7 @@ self.addEventListener("fetch", (event) => {
   // The sketch board page and its API are none of the shell's business: caching the page
   // navigation here would overwrite the cached index.html with it, and caching GET /kroki
   // would serve yesterday's board from the static-asset path below.
-  if (/\/kroki(\.html)?$/.test(url.pathname)) return;
+  if (/\/(kroki|notes)(\.html)?$/.test(url.pathname) || /\/notes\/people$/.test(url.pathname)) return;
 
   if (req.mode === "navigate") {
     event.respondWith(

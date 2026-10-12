@@ -3258,6 +3258,71 @@
     return { ok: true, state: next, vial: v };
   }
 
+  // ================================================================ Notes (personal notes page)
+  //
+  // A list of free-text notes, one file per account (and a second, staff-written file per
+  // account). Pure: ids and timestamps are arguments, like everywhere else in this file.
+  // Nothing else in the app reads a note.
+
+  var NOTES_VERSION = 1;
+
+  function blankNotes(){ return { version: NOTES_VERSION, notes: [], updatedAt: null }; }
+
+  function normaliseNotes(raw){
+    var out = blankNotes();
+    if (!raw || typeof raw !== "object" || !Array.isArray(raw.notes)) return out;
+    var seen = {};
+    raw.notes.forEach(function(n){
+      if (!n || typeof n.id !== "string" || !n.id || seen[n.id]) return;
+      seen[n.id] = true;
+      out.notes.push({
+        id: n.id,
+        title: typeof n.title === "string" ? n.title : "",
+        text: typeof n.text === "string" ? n.text : "",
+        createdAt: typeof n.createdAt === "string" ? n.createdAt : null,
+        updatedAt: typeof n.updatedAt === "string" ? n.updatedAt : null,
+        by: typeof n.by === "string" ? n.by : ""
+      });
+    });
+    out.updatedAt = typeof raw.updatedAt === "string" ? raw.updatedAt : null;
+    return out;
+  }
+
+  function noteAdd(list, id, now, by){
+    var l = normaliseNotes(list);
+    if (l.notes.some(function(n){ return n.id === id; })) throw new Error("note id already in use: " + id);
+    l.notes.unshift({ id: id, title: "", text: "", createdAt: now, updatedAt: now, by: by || "" });
+    return l;
+  }
+
+  // Only title and text can change; `by` is whoever wrote the note and stays that way.
+  function noteEdit(list, id, patch, now){
+    var l = normaliseNotes(list), found = false;
+    l.notes.forEach(function(n){
+      if (n.id !== id) return;
+      found = true;
+      ["title", "text"].forEach(function(k){
+        if (patch && typeof patch[k] === "string") n[k] = patch[k];
+      });
+      n.updatedAt = now;
+    });
+    if (!found) throw new Error("no such note: " + id);
+    return l;
+  }
+
+  function noteRemove(list, id){
+    var l = normaliseNotes(list);
+    l.notes = l.notes.filter(function(n){ return n.id !== id; });
+    return l;
+  }
+
+  // Every word of the query, anywhere in the title or the text.
+  function noteMatches(note, query){
+    var words = String(query || "").toLowerCase().split(/\s+/).filter(Boolean);
+    var hay = (note.title + "\n" + note.text).toLowerCase();
+    return words.every(function(w){ return hay.indexOf(w) !== -1; });
+  }
+
   // ================================================================ Kroki (sketch board)
   //
   // A free-form board: boxes the user places and drags, and lines between related boxes,
@@ -3464,6 +3529,9 @@
     // kroki (sketch board)
     blankKroki: blankKroki, normaliseKroki: normaliseKroki, krokiAddBox: krokiAddBox, krokiEditBox: krokiEditBox,
     krokiRemoveBox: krokiRemoveBox, krokiLink: krokiLink, krokiUnlink: krokiUnlink, krokiLabelLink: krokiLabelLink,
-    krokiLinkSegment: krokiLinkSegment, krokiOutline: krokiOutline
+    krokiLinkSegment: krokiLinkSegment, krokiOutline: krokiOutline,
+    // notes (personal notes page)
+    blankNotes: blankNotes, normaliseNotes: normaliseNotes, noteAdd: noteAdd, noteEdit: noteEdit,
+    noteRemove: noteRemove, noteMatches: noteMatches
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

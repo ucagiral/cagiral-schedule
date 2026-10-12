@@ -9,7 +9,7 @@
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
 import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX,
-         KROKI_PREFIX, krokiPathFor, dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
+         KROKI_PREFIX, krokiPathFor, NOTES_PREFIX, notesPathFor, staffNotesPathFor, dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -1282,6 +1282,61 @@ await check("a member's board commits through /commit; a write to another board 
   if (ok.status !== 200) return `own board: expected 200, got ${ok.status}`;
   const no = await handleRequest(req("POST", "/commit", { message: "kroki", files: [{ path: krokiPathFor("Labmate"), content: "{}" }] }, umutToken), env);
   return no.status === 403 ? null : `other's board: expected 403, got ${no.status}`;
+});
+
+// ==================================================================== Notes (personal notes page)
+
+await check("notes: own list for everyone, staff list for admin and PI only, nothing else", () => {
+  const umut = { name: "Umut", role: "member" }, boss = { name: "Boss", role: "pi" }, admin = { name: "admin", role: "admin" };
+  if (notesPathFor("Umut") !== NOTES_PREFIX + "umut.json" || staffNotesPathFor("Umut") !== NOTES_PREFIX + "umut.from.json") return "unexpected paths";
+  for (const u of [umut, boss, admin]) if (!canWrite(u, notesPathFor(u.name))) return `${u.role} could not write their own notes`;
+  if (canWrite(umut, notesPathFor("Labmate")) || canWrite(admin, notesPathFor("Umut")) || canWrite(boss, notesPathFor("Umut"))) return "someone wrote another person's own list";
+  if (canWrite(umut, staffNotesPathFor("Umut"))) return "a member wrote the staff list about themselves";
+  if (!canWrite(admin, staffNotesPathFor("Umut")) || !canWrite(boss, staffNotesPathFor("Umut"))) return "staff could not write a person's staff list";
+  if (canWrite(admin, NOTES_PREFIX + "sub/x.from.json") || canWrite(admin, NOTES_PREFIX + "umut.xlsx") || canWrite(admin, NOTES_PREFIX + "UMUT.from.json")) return "a stray path under the prefix was writable";
+  if (canWrite(boss, "cellstocks/data/umut.json")) return "PI gained inventory access";
+  return null;
+});
+
+await check("GET /notes returns the caller's own list and the staff list for them, never anyone else's", async () => {
+  const { env: base, umutToken } = await twoMembers();
+  const gh = makeGithubFetch({ contents: {
+    "cellstocks/notes/umut.json": { text: JSON.stringify({ notes: [{ id: "a" }] }) },
+    "cellstocks/notes/umut.from.json": { text: JSON.stringify({ notes: [{ id: "s" }] }) },
+    "cellstocks/notes/labmate.json": { text: JSON.stringify({ notes: [{ id: "private" }] }) }
+  } });
+  const env = Object.assign({}, base, { fetch: gh });
+  const res = await handleRequest(req("GET", "/notes", undefined, umutToken), env);
+  const body = await res.json();
+  if (res.status !== 200 || body.mine.notes[0].id !== "a" || body.staff.notes[0].id !== "s") return json(body);
+  const peek = await handleRequest(req("GET", "/notes?for=labmate", undefined, umutToken), env);
+  if (peek.status !== 403) return `a member reading ?for= got ${peek.status}`;
+  return null;
+});
+
+await check("GET /notes before any save is empty; staff can read ?for= and list people; members cannot", async () => {
+  const { env, adminToken, umutToken } = await twoMembers();
+  const empty = await (await handleRequest(req("GET", "/notes", undefined, umutToken), env)).json();
+  if (empty.mine !== null || empty.staff !== null) return json(empty);
+  const f = await handleRequest(req("GET", "/notes?for=umut", undefined, adminToken), env);
+  if (f.status !== 200 || (await f.json()).staff !== null) return "admin ?for= failed";
+  const ppl = await handleRequest(req("GET", "/notes/people", undefined, adminToken), env);
+  const names = (await ppl.json()).people.map((p) => p.name);
+  if (!names.includes("Umut") || names.includes("admin")) return "people: " + names.join(",");
+  const no = await handleRequest(req("GET", "/notes/people", undefined, umutToken), env);
+  if (no.status !== 403) return `member /notes/people got ${no.status}`;
+  if ((await handleRequest(req("GET", "/notes"), env)).status !== 401) return "no login did not give 401";
+  return null;
+});
+
+await check("notes commit through /commit: own list ok, staff list by admin ok, member writing it refused", async () => {
+  const { env, adminToken, umutToken } = await twoMembers();
+  const own = await handleRequest(req("POST", "/commit", { message: "n", files: [{ path: notesPathFor("Umut"), content: "{}" }] }, umutToken), env);
+  if (own.status !== 200) return `own: ${own.status}`;
+  const staff = await handleRequest(req("POST", "/commit", { message: "n", files: [{ path: staffNotesPathFor("Umut"), content: "{}" }] }, adminToken), env);
+  if (staff.status !== 200) return `staff: ${staff.status}`;
+  const no = await handleRequest(req("POST", "/commit", { message: "n", files: [{ path: staffNotesPathFor("Umut"), content: "{}" }] }, umutToken), env);
+  return no.status === 403 ? null : `member staff-list write: ${no.status}`;
 });
 
 // ==================================================================== summary

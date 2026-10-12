@@ -3464,6 +3464,30 @@ check("kroki: normalise repairs a damaged file without dropping a box", () => {
   return null;
 });
 
+check("notes: add, edit and remove leave `by` and the other notes alone", () => {
+  let l = E.noteAdd(E.blankNotes(), "a", "2026-10-12T10:00:00Z", "umut");
+  l = E.noteAdd(l, "b", "2026-10-12T11:00:00Z", "boss");
+  l = E.noteEdit(l, "a", { title: "T", text: "hello", by: "someone-else" }, "2026-10-12T12:00:00Z");
+  const a = l.notes.filter((n) => n.id === "a")[0], b = l.notes.filter((n) => n.id === "b")[0];
+  if (a.title !== "T" || a.text !== "hello" || a.by !== "umut") return "edit wrong: " + json(a);
+  if (a.updatedAt !== "2026-10-12T12:00:00Z" || b.updatedAt !== "2026-10-12T11:00:00Z") return "timestamps: " + json(l);
+  if (l.notes[0].id !== "b") return "newest note is not first";
+  l = E.noteRemove(l, "a");
+  if (l.notes.length !== 1 || l.notes[0].id !== "b") return "remove wrong: " + json(l);
+  let threw = 0;
+  try { E.noteAdd(l, "b", "x", "u"); } catch (e) { threw++; }
+  try { E.noteEdit(l, "zz", {}, "x"); } catch (e) { threw++; }
+  return threw === 2 ? null : "duplicate id or missing note did not throw";
+});
+
+check("notes: normalise repairs a damaged file and search needs every word", () => {
+  const l = E.normaliseNotes({ notes: [{ id: "a", title: 7, text: "Western blot" }, { id: "a" }, { nope: 1 }, { id: "b", text: "qPCR" }] });
+  if (l.notes.length !== 2 || l.notes[0].title !== "") return "not repaired: " + json(l);
+  if (json(E.normaliseNotes(null)) !== json(E.blankNotes())) return "null did not give a blank list";
+  if (!E.noteMatches(l.notes[0], "blot western") || E.noteMatches(l.notes[0], "western qpcr")) return "search wrong";
+  return null;
+});
+
 check("kroki: a line leaves each box at its edge, facing the other", () => {
   let b = E.krokiAddBox(E.blankKroki(), "a", 0, 0);
   b = E.krokiAddBox(b, "b", 400, 0);

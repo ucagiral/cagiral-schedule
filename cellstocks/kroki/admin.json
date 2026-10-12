@@ -174,12 +174,12 @@
   },
   {
    "id": "bmv5pobfyqipm6",
-   "x": 2115,
-   "y": 315,
-   "w": 220,
-   "h": 120,
+   "x": 2060,
+   "y": 114,
+   "w": 371,
+   "h": 542,
    "title": "claude icin aciklama",
-   "text": ""
+   "text": "burada 2 farkli senaryo canlandirdim. birinde tek bir vial tek hucre dondurdugum bir senaryo ("
   }
  ],
  "links": [
@@ -298,5 +298,5 @@
    "label": "aciklama link 2"
   }
  ],
- "updatedAt": "2026-10-12T20:35:40.708Z"
+ "updatedAt": "2026-10-12T20:36:11.698Z"
 }

@@ -12949,6 +12949,195 @@
       "status": "stored",
       "addedAt": "2026-10-12T14:42:28.205Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-0",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G1"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-1",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G2"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-2",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G3"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-3",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G4"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-4",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G5"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-5",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G6"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-6",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G7"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-7",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G8"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d4q3i-8",
+      "name": "LNCX",
+      "lineId": "l-lncx",
+      "passage": "p+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "G9"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:44:08.862Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -14075,7 +14264,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-12T14:42:29.270Z"
+    "savedAt": "2026-10-12T14:44:10.143Z"
   },
   "removedVialIds": [
     "v-205",

@@ -59,8 +59,8 @@
    "id": "bmv5phzt11bd46",
    "x": 260,
    "y": 334,
-   "w": 844,
-   "h": 539,
+   "w": 920,
+   "h": 534,
    "title": "Example 3 cell freeze",
    "text": ""
   },
@@ -90,6 +90,15 @@
    "h": 120,
    "title": "Vial Replicate",
    "text": "2"
+  },
+  {
+   "id": "bmv5pj3stmrv2w",
+   "x": 116,
+   "y": 96,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -124,5 +133,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:31:13.402Z"
+ "updatedAt": "2026-10-12T20:31:16.012Z"
 }

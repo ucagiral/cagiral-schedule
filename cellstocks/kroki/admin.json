@@ -36,6 +36,15 @@
    "h": 82,
    "title": "Notes",
    "text": "Not"
+  },
+  {
+   "id": "bmv5pfbctdsfg8",
+   "x": 172,
+   "y": 152,
+   "w": 220,
+   "h": 120,
+   "title": "",
+   "text": ""
   }
  ],
  "links": [
@@ -58,5 +67,5 @@
    "label": "ornek not"
   }
  ],
- "updatedAt": "2026-10-12T20:28:16.532Z"
+ "updatedAt": "2026-10-12T20:28:19.198Z"
 }

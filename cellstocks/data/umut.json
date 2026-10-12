@@ -12760,6 +12760,195 @@
       "status": "stored",
       "addedAt": "2026-10-12T07:54:25.332Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-0",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F1"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-1",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F2"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-2",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F3"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-3",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F4"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-4",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F5"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-5",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F6"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-6",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F7"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-7",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F8"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv5d2kfh-8",
+      "name": "LnCap Canada",
+      "lineId": "l-lncap-canada",
+      "passage": "p+18",
+      "passageNumber": 18,
+      "passageKind": "relative",
+      "frozenRaw": "2026-10-12",
+      "frozenOn": "2026-10-12",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F9"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T14:42:28.205Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -13886,7 +14075,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-12T07:54:27.257Z"
+    "savedAt": "2026-10-12T14:42:29.270Z"
   },
   "removedVialIds": [
     "v-205",

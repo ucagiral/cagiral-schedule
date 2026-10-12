@@ -12180,6 +12180,27 @@
       "status": "stored",
       "addedAt": "2026-10-12T07:51:14.712Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv4ye7g5-0",
+      "name": "HEK",
+      "lineId": "l-hek",
+      "passage": "7",
+      "passageNumber": 7,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-09",
+      "frozenOn": "2026-10-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "C1"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T07:51:37.013Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -13289,7 +13310,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-12T07:51:16.659Z"
+    "savedAt": "2026-10-12T07:51:38.686Z"
   },
   "removedVialIds": [
     "v-205",

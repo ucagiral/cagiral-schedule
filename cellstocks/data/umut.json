@@ -12159,6 +12159,27 @@
       "status": "stored",
       "addedAt": "2026-10-12T07:50:32.615Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mv4ydq8o-0",
+      "name": "Huh7",
+      "lineId": "l-huh7",
+      "passage": "24",
+      "passageNumber": 24,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-09",
+      "frozenOn": "2026-10-09",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "B1"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-12T07:51:14.712Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -13268,7 +13289,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-12T07:50:34.661Z"
+    "savedAt": "2026-10-12T07:51:16.659Z"
   },
   "removedVialIds": [
     "v-205",

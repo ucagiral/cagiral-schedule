@@ -255,7 +255,7 @@ try {
 
   await page.fill("#gateBody input[type=password]", "lab-password");
   await page.click("#workerLoginBtn");
-  await page.waitForFunction(() => !!localStorage.getItem("cst_worker_token"));
+  await page.waitForFunction(() => !!localStorage.getItem("cst_worker_token") && !document.body.classList.contains("gated"));
 
   const afterLogin = await page.evaluate(() => ({
     token: localStorage.getItem("cst_worker_token"),
@@ -354,7 +354,7 @@ try {
     return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true }) });
   });
   await page.evaluate(() => { window.location.reload(); });
-  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "fake-session-token");
+  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "fake-session-token" && !document.body.classList.contains("gated"));
   await page.waitForSelector("nav button[data-screen=settings]");
   await page.click("nav button[data-screen=settings]");
 
@@ -407,7 +407,7 @@ try {
   await li[1].fill("labmate");
   await li[2].fill("anything");
   await page.click("#workerLoginBtn");
-  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "labmate-token");
+  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "labmate-token" && !document.body.classList.contains("gated"));
 
   await page.click("nav button[data-screen=find]");
   await page.waitForSelector("#q");
@@ -435,7 +435,7 @@ try {
   await li[1].fill("newbie");
   await li[2].fill("anything");
   await page.click("#workerLoginBtn");
-  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "newbie-token");
+  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "newbie-token" && !document.body.classList.contains("gated"));
 
   await page.click("nav button[data-screen=find]");
   await page.waitForSelector("#q");
@@ -481,7 +481,7 @@ try {
   await li[1].fill("admin");
   await li[2].fill("anything");
   await page.click("#workerLoginBtn");
-  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+  await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token" && !document.body.classList.contains("gated"));
 
   const navState = await page.evaluate(() => ({
     freezeHidden: document.getElementById("navFreeze").hidden,
@@ -628,7 +628,7 @@ try {
     await li[1].fill("admin");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token" && !document.body.classList.contains("gated"));
 
     await page.click("nav button[data-screen=find]");
     await page.waitForSelector("#results");
@@ -747,7 +747,7 @@ try {
     await li[1].fill("admin");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token" && !document.body.classList.contains("gated"));
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=handoff]");
@@ -860,7 +860,7 @@ try {
     await li[1].fill("Umut");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "fake-session-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "fake-session-token" && !document.body.classList.contains("gated"));
 
     await page.click("nav button[data-screen=boxes]");
     await page.selectOption("#bxUnit", "u-deep");
@@ -1011,7 +1011,7 @@ try {
     await li[1].fill("admin");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token" && !document.body.classList.contains("gated"));
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=structure]");
@@ -1403,7 +1403,7 @@ try {
     await li[1].fill("Chief");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "pi-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "pi-token" && !document.body.classList.contains("gated"));
 
     const nav = await page.evaluate(() => ({
       freezeHidden: document.getElementById("navFreeze").hidden,
@@ -1509,7 +1509,7 @@ try {
     await li[1].fill("admin");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token" && !document.body.classList.contains("gated"));
 
     // Rename, answering both the prompt and the confirm the button raises.
     await page.click("nav button[data-screen=admin]");
@@ -1774,7 +1774,7 @@ try {
     await li[1].fill("admin");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token" && !document.body.classList.contains("gated"));
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=history]");
@@ -3155,7 +3155,7 @@ try {
       await li[1].fill("admin");
       await li[2].fill("anything");
       await page.click("#workerLoginBtn");
-      await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+      await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token" && !document.body.classList.contains("gated"));
     };
     await loginAsAdmin();
 
@@ -3543,7 +3543,7 @@ try {
     await li[1].fill("admin");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "admin-token" && !document.body.classList.contains("gated"));
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=structure]");
@@ -3605,7 +3605,7 @@ try {
     await li[1].fill("labmate");
     await li[2].fill("anything");
     await page.click("#workerLoginBtn");
-    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "labmate-token");
+    await page.waitForFunction(() => localStorage.getItem("cst_worker_token") === "labmate-token" && !document.body.classList.contains("gated"));
 
     // Automatic placement must never reach for the common box on its own: with no box
     // of labmate's own, the plan must fail outright, the same "no boxes" refusal an
@@ -3825,7 +3825,7 @@ try {
       await li[1].fill(who);
       await li[2].fill("anything");
       await page.click("#workerLoginBtn");
-      await page.waitForFunction((t) => localStorage.getItem("cst_worker_token") === t, who + "-token");
+      await page.waitForFunction((t) => localStorage.getItem("cst_worker_token") === t && !document.body.classList.contains("gated"), who + "-token");
     };
     const boxesText = async () => {
       await page.click('nav button[data-screen="boxes"]');
@@ -3835,6 +3835,16 @@ try {
 
     await page.goto("http://localhost:8822/cellstocks/");
     await loginAs("umut");
+    // Straight after a login nothing has been tapped, and the first screen must already
+    // be showing: `screen` was never declared, so it was window.screen and every screen
+    // got hidden -- a header over an empty page until a tab was tapped.
+    await page.waitForFunction(() => document.getElementById("status").textContent === "Ready", null, { timeout: 10000 });
+    const firstScreen = await page.evaluate(() => ({
+      find: getComputedStyle(document.getElementById("s-find")).display,
+      search: document.getElementById("q").getBoundingClientRect().height
+    }));
+    check("the Find screen is showing right after login, before any tab is tapped",
+      firstScreen.find === "block" && firstScreen.search > 0, JSON.stringify(firstScreen));
     const asUmut = await boxesText();
     check("umut sees umut's own vial", /UmutOnlyLine/.test(asUmut), asUmut);
     await page.click('nav button[data-screen="settings"]');

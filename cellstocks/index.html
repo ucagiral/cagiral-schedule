@@ -6383,6 +6383,11 @@
     };
   }
 
+  // Declared, because it was not: `screen` fell through to window.screen, the browser's
+  // Screen object, so the first go(screen) after opening the app (or logging in) asked for
+  // the screen called "[object Screen]", hid every real one, and showed a header over an
+  // empty page until somebody tapped a tab.
+  var screen = "find";
   function go(name){
     screen = name;
     Array.prototype.forEach.call(document.querySelectorAll(".screen"), function(s){

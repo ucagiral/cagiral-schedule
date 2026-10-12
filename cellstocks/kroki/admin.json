@@ -169,8 +169,8 @@
    "y": 96,
    "w": 220,
    "h": 120,
-   "title": "pass",
-   "text": ""
+   "title": "passage no",
+   "text": "14"
   }
  ],
  "links": [
@@ -205,5 +205,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:33:40.361Z"
+ "updatedAt": "2026-10-12T20:33:43.339Z"
 }

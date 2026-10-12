@@ -215,7 +215,13 @@
    "from": "bmv5pimvo2hg3h",
    "to": "bmv5phzt11bd46",
    "label": "vial no link 2"
+  },
+  {
+   "id": "lmv5pmqo5ek44z",
+   "from": "bmv5piub9gbzvz",
+   "to": "bmv5phzt11bd46",
+   "label": "vial replicate link 2"
   }
  ],
- "updatedAt": "2026-10-12T20:34:01.740Z"
+ "updatedAt": "2026-10-12T20:34:13.613Z"
 }

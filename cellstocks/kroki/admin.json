@@ -59,8 +59,8 @@
    "id": "bmv5phzt11bd46",
    "x": 260,
    "y": 334,
-   "w": 916,
-   "h": 160,
+   "w": 937,
+   "h": 640,
    "title": "Example 3 cell freeze",
    "text": ""
   },
@@ -106,5 +106,5 @@
    "label": "note link"
   }
  ],
- "updatedAt": "2026-10-12T20:30:49.357Z"
+ "updatedAt": "2026-10-12T20:30:52.139Z"
 }

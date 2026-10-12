@@ -38,6 +38,13 @@
    "text": "Not"
   }
  ],
- "links": [],
- "updatedAt": "2026-10-12T20:26:44.152Z"
+ "links": [
+  {
+   "id": "lmv5pddolvmkq9",
+   "from": "bmv5pbljhfusqq",
+   "to": "bmv5pb7jn1yhi5",
+   "label": ""
+  }
+ ],
+ "updatedAt": "2026-10-12T20:26:50.572Z"
 }

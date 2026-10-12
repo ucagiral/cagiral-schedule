@@ -2998,6 +2998,17 @@
       "notes": "",
       "start": "12:00",
       "end": "14:00"
+    },
+    {
+      "id": "emv5p1mth2i998",
+      "date": "2026-10-13",
+      "title": "LNC478 Ongoing G7 thaw",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "10:05",
+      "end": "10:20"
     }
   ],
   "_groups": {
@@ -3039,7 +3050,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-12T20:08:48.818Z",
+    "lastModified": "2026-10-12T20:17:40.956Z",
     "modifiedBy": "Windows PC"
   }
 }

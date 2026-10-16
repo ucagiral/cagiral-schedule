@@ -2406,21 +2406,7 @@
       "passageKind": "unknown",
       "frozenRaw": "31-07-25",
       "frozenOn": "2025-07-31",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-caa-cells",
-        "position": "D4"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 32",
       "passageConfirmedUnknown": true
     },
@@ -14808,6 +14794,29 @@
       "by": "Umut",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mvaxd7rq",
+      "vialId": "v-32",
+      "name": "LnCap ER",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-caa-cells",
+        "position": "D4"
+      },
+      "date": "2026-10-16",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -14834,7 +14843,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-16T09:55:07.365Z"
+    "savedAt": "2026-10-16T12:09:29.454Z"
   },
   "removedVialIds": [
     "v-205",

@@ -13548,6 +13548,120 @@
       "status": "stored",
       "addedAt": "2026-10-16T07:23:32.116Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvaskevu-0",
+      "name": "LUCX gNT",
+      "lineId": "l-lucx-gnt",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-10-16",
+      "frozenOn": "2026-10-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H7"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-16T09:55:05.947Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvaskevu-1",
+      "name": "LUCX gNT",
+      "lineId": "l-lucx-gnt",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-10-16",
+      "frozenOn": "2026-10-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "H8"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-16T09:55:05.947Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvaskevu-2",
+      "name": "LUCX gP2",
+      "lineId": "l-lucx-gp2",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-10-16",
+      "frozenOn": "2026-10-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "rack-2"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "B1"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-16T09:55:05.947Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvaskevu-3",
+      "name": "LUCX gP2",
+      "lineId": "l-lucx-gp2",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-10-16",
+      "frozenOn": "2026-10-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "rack-2"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "B2"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-16T09:55:05.947Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvaskevu-4",
+      "name": "LUCX gP4",
+      "lineId": "l-lucx-gp4",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-10-16",
+      "frozenOn": "2026-10-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "rack-2"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "B3"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-16T09:55:05.947Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvaskevu-5",
+      "name": "LUCX gP4",
+      "lineId": "l-lucx-gp4",
+      "passageKind": "unknown",
+      "frozenRaw": "2026-10-16",
+      "frozenOn": "2026-10-16",
+      "location": {
+        "path": [
+          "u-ln2",
+          "rack-2"
+        ],
+        "boxId": "b-unnamed-box",
+        "position": "B4"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-16T09:55:05.947Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -14720,7 +14834,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-16T09:17:03.598Z"
+    "savedAt": "2026-10-16T09:55:07.365Z"
   },
   "removedVialIds": [
     "v-205",

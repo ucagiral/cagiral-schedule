@@ -13539,7 +13539,7 @@
       "id": "v-mvaskevu-0",
       "name": "LUCX gNT",
       "lineId": "l-lucx-gnt",
-      "passageKind": "unknown",
+      "passageKind": "absolute",
       "frozenRaw": "2026-10-16",
       "frozenOn": "2026-10-16",
       "location": {
@@ -13552,7 +13552,9 @@
       },
       "status": "stored",
       "addedAt": "2026-10-16T09:55:05.947Z",
-      "addedBy": "Umut"
+      "addedBy": "Umut",
+      "passage": "26",
+      "passageNumber": 26
     },
     {
       "id": "v-mvaskevu-1",
@@ -14843,7 +14845,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-18T20:53:07.555Z"
+    "savedAt": "2026-10-18T20:53:57.796Z"
   },
   "removedVialIds": [
     "v-205",

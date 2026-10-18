@@ -58,7 +58,7 @@ const server = createServer((req, res) => {
     if (target) return staff ? send(res, 200, { staff: read(`cellstocks/notes/${target.toLowerCase()}.from.json`) }) : send(res, 403, { error: "staff only" });
     return send(res, 200, { mine: read(`cellstocks/notes/${name.toLowerCase()}.json`), staff: read(`cellstocks/notes/${name.toLowerCase()}.from.json`) });
   }
-  if (path === "/notes/people") return staff ? send(res, 200, { people: [{ name: "Umut", role: "member" }] }) : send(res, 403, { error: "staff only" });
+  if (path === "/notes/people") return send(res, 200, { people: [{ name: "Umut", role: "member" }, { name: "Boss", role: "pi" }] });
   if (path === "/commit" && req.method === "POST") {
     let raw = "";
     req.on("data", (c) => { raw += c; });

@@ -693,9 +693,39 @@ function notesErrorResponse(err) {
   return json({ error: err.message }, requestErrorStatus(err) === 500 ? 502 : requestErrorStatus(err));
 }
 
-// The caller's own notes plus whatever staff wrote for them. `?for=<name>` is staff reading
-// back the list they write for somebody -- the person's own list is never returned to anyone
-// else.
+// Names tagged with "@name" in a note's title or text, lowercase, no repeats. A tag is how
+// the author hands one note to one person: they can read it, nobody else can.
+function extractMentions(note) {
+  const hay = `${(note && note.title) || ""}
+${(note && note.text) || ""}`;
+  const out = [];
+  for (const m of hay.matchAll(/(^|[^a-zA-Z0-9_-])@([a-zA-Z0-9_-]+)/g)) {
+    const n = m[2].toLowerCase();
+    if (!out.includes(n)) out.push(n);
+  }
+  return out;
+}
+
+// Notes other people wrote that tag `me`: the one way a person's own list is ever read by
+// someone else, and only the tagged notes, never the whole list.
+async function notesMentioning(env, me) {
+  const users = await listUsers(env.CST_KV);
+  const found = [];
+  await Promise.all(users.filter((u) => u.name.toLowerCase() !== me.toLowerCase()).map(async (u) => {
+    let list;
+    try { list = await readRepoJson(env, notesPathFor(u.name)); } catch (err) { return; }
+    if (!list || !Array.isArray(list.notes)) return;
+    for (const n of list.notes) {
+      if (n && extractMentions(n).includes(me.toLowerCase())) found.push({ from: u.name, note: n });
+    }
+  }));
+  found.sort((a, b) => String(b.note.updatedAt || "").localeCompare(String(a.note.updatedAt || "")));
+  return found;
+}
+
+// The caller's own notes, whatever staff wrote for them, and the notes that tag them.
+// `?for=<name>` is staff reading back the list they write for somebody -- the person's own
+// list is never returned to anyone else.
 async function routeGetNotes(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -706,21 +736,21 @@ async function routeGetNotes(request, env) {
       if (!/^[a-zA-Z0-9_-]+$/.test(target)) return json({ error: "bad name" }, 400);
       return json({ staff: await readRepoJson(env, staffNotesPathFor(target)) });
     }
-    const [mine, staff] = await Promise.all([
+    const [mine, staff, mentions] = await Promise.all([
       readRepoJson(env, notesPathFor(session.user.name)),
-      readRepoJson(env, staffNotesPathFor(session.user.name))
+      readRepoJson(env, staffNotesPathFor(session.user.name)),
+      notesMentioning(env, session.user.name)
     ]);
-    return json({ mine, staff });
+    return json({ mine, staff, mentions });
   } catch (err) {
     return notesErrorResponse(err);
   }
 }
 
-// Who staff can write a note for: every visible account but their own.
+// Who can be tagged: every visible account but your own. Everyone may tag everyone.
 async function routeNotesPeople(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
-  if (session.user.role !== "admin" && session.user.role !== "pi") return json({ error: "staff only" }, 403);
   const users = await listUsers(env.CST_KV);
   return json({
     people: users.filter((u) => !u.hidden && u.name.toLowerCase() !== session.user.name.toLowerCase())
@@ -1116,6 +1146,7 @@ export {
   NOTES_PREFIX,
   notesPathFor,
   staffNotesPathFor,
+  extractMentions,
   boxesOwnedBy,
   base64ToUtf8,
   TYPES_CONFIG_KEY,

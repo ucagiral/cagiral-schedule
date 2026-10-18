@@ -9,7 +9,7 @@
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
 import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX,
-         KROKI_PREFIX, krokiPathFor, NOTES_PREFIX, notesPathFor, staffNotesPathFor, dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
+         KROKI_PREFIX, krokiPathFor, NOTES_PREFIX, notesPathFor, staffNotesPathFor, extractMentions, dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -1314,7 +1314,7 @@ await check("GET /notes returns the caller's own list and the staff list for the
   return null;
 });
 
-await check("GET /notes before any save is empty; staff can read ?for= and list people; members cannot", async () => {
+await check("GET /notes before any save is empty; staff can read ?for=; everyone can list people", async () => {
   const { env, adminToken, umutToken } = await twoMembers();
   const empty = await (await handleRequest(req("GET", "/notes", undefined, umutToken), env)).json();
   if (empty.mine !== null || empty.staff !== null) return json(empty);
@@ -1323,9 +1323,32 @@ await check("GET /notes before any save is empty; staff can read ?for= and list 
   const ppl = await handleRequest(req("GET", "/notes/people", undefined, adminToken), env);
   const names = (await ppl.json()).people.map((p) => p.name);
   if (!names.includes("Umut") || names.includes("admin")) return "people: " + names.join(",");
-  const no = await handleRequest(req("GET", "/notes/people", undefined, umutToken), env);
-  if (no.status !== 403) return `member /notes/people got ${no.status}`;
+  const mem = await handleRequest(req("GET", "/notes/people", undefined, umutToken), env);
+  if (mem.status !== 200) return `member /notes/people got ${mem.status}`;
+  const memNames = (await mem.json()).people.map((p) => p.name);
+  if (memNames.includes("Umut") || memNames.includes("admin")) return "member people: " + memNames.join(",");
   if ((await handleRequest(req("GET", "/notes"), env)).status !== 401) return "no login did not give 401";
+  return null;
+});
+
+await check("extractMentions: @name in title or text, case-folded, not inside an e-mail address", () => {
+  const got = extractMentions({ title: "Re: @Boss", text: "ask @umut and @UMUT, mail a@b.com, x@y" });
+  return JSON.stringify(got) === JSON.stringify(["boss", "umut"]) ? null : JSON.stringify(got);
+});
+
+await check("GET /notes: a note tagging you reaches you alone, and only that note", async () => {
+  const { env: base, umutToken, adminToken } = await twoMembers();
+  const gh = makeGithubFetch({ contents: {
+    "cellstocks/notes/admin.json": { text: JSON.stringify({ notes: [
+      { id: "t", title: "hi", text: "@Umut look", updatedAt: "2026-10-18T10:00:00Z" },
+      { id: "p", title: "private", text: "nobody tagged" }] }) },
+    "cellstocks/notes/umut.json": { text: JSON.stringify({ notes: [{ id: "mine", text: "@admin ok" }] }) }
+  } });
+  const env = Object.assign({}, base, { fetch: gh });
+  const u = await (await handleRequest(req("GET", "/notes", undefined, umutToken), env)).json();
+  if (u.mentions.length !== 1 || u.mentions[0].note.id !== "t" || u.mentions[0].from !== "admin") return json(u.mentions);
+  const a = await (await handleRequest(req("GET", "/notes", undefined, adminToken), env)).json();
+  if (a.mentions.length !== 1 || a.mentions[0].note.id !== "mine" || a.mentions[0].from !== "Umut") return json(a.mentions);
   return null;
 });
 

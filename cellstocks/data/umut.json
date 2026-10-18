@@ -13602,7 +13602,7 @@
       "id": "v-mvaskevu-3",
       "name": "LUCX gP2",
       "lineId": "l-lucx-gp2",
-      "passageKind": "unknown",
+      "passageKind": "absolute",
       "frozenRaw": "2026-10-16",
       "frozenOn": "2026-10-16",
       "location": {
@@ -13615,7 +13615,9 @@
       },
       "status": "stored",
       "addedAt": "2026-10-16T09:55:05.947Z",
-      "addedBy": "Umut"
+      "addedBy": "Umut",
+      "passage": "26",
+      "passageNumber": 26
     },
     {
       "id": "v-mvaskevu-4",
@@ -14849,7 +14851,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-18T20:54:19.185Z"
+    "savedAt": "2026-10-18T20:54:25.966Z"
   },
   "removedVialIds": [
     "v-205",

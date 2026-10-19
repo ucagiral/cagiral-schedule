@@ -355,6 +355,49 @@
   .refresh[disabled] { opacity:.25; cursor:default; }
   .refresh.spin { animation:spin .8s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ---- Motion and materials (apple-design pass; presentation only) ----
+     Feedback lands on press, not release, and every transition is on a property the
+     compositor can animate, so a tap can be interrupted halfway and reverse from where
+     it is. The easing is a spring approximated with linear(): critically damped for
+     controls, a little overshoot only for the pill switch and the dialog. */
+  :root{
+    --spring:linear(0,.18 6%,.52 14%,.78 24%,.92 36%,.98 50%,1);
+    --spring-bounce:linear(0,.3 8%,.74 18%,1.04 32%,1.05 42%,.99 62%,1);
+  }
+  button,.slot,.item.tap,.chip{-webkit-tap-highlight-color:transparent}
+  button{transition:transform .22s var(--spring), background-color .15s ease, border-color .15s ease, opacity .15s ease}
+  button:active:not(:disabled){transform:scale(.97); transition-duration:.06s}
+  nav button:active:not(:disabled){transform:scale(.92)}
+  .slot{transition:transform .22s var(--spring), outline-color .15s ease, background-color .15s ease}
+  .slot:active{transform:scale(.88); transition-duration:.06s}
+  .item.tap{transition:background-color .15s ease}
+  .res,.card{transition:border-color .2s ease}
+  .toggle input[type=checkbox]::before{transition:transform .35s var(--spring-bounce)}
+  .toggle input[type=checkbox]:active::before{width:23px}
+  dialog[open]{animation:dlg-in .38s var(--spring-bounce)}
+  dialog[open]::backdrop{animation:fade-in .25s ease}
+  @keyframes dlg-in{from{opacity:0; transform:translateY(14px) scale(.96)}to{opacity:1; transform:none}}
+  @keyframes fade-in{from{opacity:0}to{opacity:1}}
+  /* Heavier material for structure, lighter for the controls on it. */
+  dialog::backdrop{-webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px)}
+  /* Large type tightens, small type stays near zero. */
+  h2{letter-spacing:-.015em}
+  .dlg-head h3{letter-spacing:-.01em}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
+    .refresh.spin{animation:none}
+    button:active:not(:disabled),.slot:active{transform:none}
+  }
+  @media (prefers-reduced-transparency: reduce){
+    header,nav{background:var(--panel) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important}
+    dialog::backdrop{-webkit-backdrop-filter:none; backdrop-filter:none}
+  }
+  @media (prefers-contrast: more){
+    :root{--border:#8a919b}
+    .chip,.card,.res{border-color:var(--muted)}
+  }
 </style>
 </head>
 <body>

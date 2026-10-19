@@ -167,6 +167,9 @@
   .row > button{flex:1; min-width:110px}
   .field{margin-top:10px}
   .field label{display:block; font-size:11.5px; color:var(--muted); margin-bottom:4px; font-weight:600}
+  .mline{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+  .mline > input{min-width:0}
+  .mline > button{flex:0 0 auto; min-width:0}
   .two{display:grid; grid-template-columns:1fr 1fr; gap:8px}
 
   /* One vial is the common case, so the field starts at 1 and the two buttons do the
@@ -2179,26 +2182,22 @@
     box.hidden = !on;
     if (!on) return;
     freeze.rows.forEach(function(r, i){
-      var line = el("div", "two");
-      line.style.alignItems = "end";
-      var f1 = el("div", "field"); f1.appendChild(el("label", null, "Line " + (i + 1)));
-      var v = document.createElement("input"); v.placeholder = "gNT"; v.value = r.variant; v.autocomplete = "off";
-      v.autocapitalize = "off"; v.spellcheck = false;
+      // One flex row per line that wraps: whatever does not fit beside the rest
+      // drops to the next line instead of squeezing or overflowing on a phone.
+      var line = el("div", "mline");
+      var v = document.createElement("input"); v.placeholder = "Line " + (i + 1) + " — e.g. gNT"; v.value = r.variant; v.autocomplete = "off";
+      v.autocapitalize = "off"; v.spellcheck = false; v.style.flex = "2 1 150px";
       v.oninput = function(){ r.variant = v.value; renderFreezePlan(); renderFreezeGuard(); };
-      f1.appendChild(v);
-      var f2 = el("div", "field");
-      var p = document.createElement("input"); p.placeholder = "p13"; p.value = r.passage; p.autocomplete = "off";
+      var p = document.createElement("input"); p.placeholder = "p13"; p.value = r.passage; p.autocomplete = "off"; p.style.flex = "1 1 80px";
       p.oninput = function(){ r.passage = p.value; };
       var c = document.createElement("input"); c.type = "number"; c.min = "1"; c.max = "81"; c.value = String(r.count);
-      c.title = "Vials"; c.style.width = "64px"; c.inputMode = "numeric";
+      c.title = "Vials"; c.style.flex = "0 0 64px"; c.inputMode = "numeric";
       c.oninput = function(){ var n = Math.round(Number(c.value)); r.count = isFinite(n) && n >= 1 ? Math.min(n, 81) : 1; renderFreezePlan(); renderFreezeGuard(); };
-      var x = el("button", null, "×"); x.type = "button"; x.title = "Remove this line"; x.disabled = freeze.rows.length < 2;
-      x.onclick = function(){ freeze.rows.splice(i, 1); renderFreezeMulti(); renderFreezePlan(); renderFreezeGuard(); };
       var dup = el("button", null, "Again"); dup.type = "button"; dup.title = "Add the same line once more";
       dup.onclick = function(){ freeze.rows.splice(i + 1, 0, { variant:r.variant, passage:r.passage, count:r.count }); renderFreezeMulti(); renderFreezePlan(); renderFreezeGuard(); };
-      var ctl = el("div", "row tight"); ctl.appendChild(p); ctl.appendChild(c); ctl.appendChild(dup); ctl.appendChild(x);
-      f2.appendChild(ctl);
-      line.appendChild(f1); line.appendChild(f2);
+      var x = el("button", null, "×"); x.type = "button"; x.title = "Remove this line"; x.disabled = freeze.rows.length < 2;
+      x.onclick = function(){ freeze.rows.splice(i, 1); renderFreezeMulti(); renderFreezePlan(); renderFreezeGuard(); };
+      [v, p, c, dup, x].forEach(function(n){ line.appendChild(n); });
       box.appendChild(line);
     });
     var add = el("button", null, "+ Add a line"); add.type = "button";

@@ -3910,11 +3910,11 @@ try {
     await page.check("#fzMulti");
     await page.fill("#fzName", "HEK");
     // one starting line; "Again" repeats it, so WT WT g2 g2 are four separate lines
-    await page.fill("#fzMultiRows .two:nth-child(1) input", "WT");
-    await page.click("#fzMultiRows .two:nth-child(1) button[title='Add the same line once more']");
+    await page.fill("#fzMultiRows .mline:nth-child(1) input", "WT");
+    await page.click("#fzMultiRows .mline:nth-child(1) button[title='Add the same line once more']");
     await page.click("#fzMultiRows > button");
-    await page.fill("#fzMultiRows .two:nth-child(3) input", "g2");
-    await page.click("#fzMultiRows .two:nth-child(3) button[title='Add the same line once more']");
+    await page.fill("#fzMultiRows .mline:nth-child(3) input", "g2");
+    await page.click("#fzMultiRows .mline:nth-child(3) button[title='Add the same line once more']");
     await page.waitForFunction(() => /Put these 4 in order/.test(document.getElementById("fzPlanCard").textContent));
     await page.click("#fzGo");
     for (let i = 0; i < 60 && !saved; i++) await page.waitForTimeout(50);

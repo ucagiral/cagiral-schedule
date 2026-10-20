@@ -3010,6 +3010,17 @@
       "notes": "",
       "start": "10:05",
       "end": "10:20"
+    },
+    {
+      "id": "emvgf8sqm33boj",
+      "date": "2026-10-22",
+      "title": "Flow",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "14:30",
+      "end": "16:00"
     }
   ],
   "_groups": {
@@ -3051,7 +3062,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-20T08:28:24.576Z",
+    "lastModified": "2026-10-20T08:28:46.985Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

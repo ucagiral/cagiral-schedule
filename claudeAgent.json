@@ -3021,6 +3021,17 @@
       "notes": "",
       "start": "14:30",
       "end": "16:00"
+    },
+    {
+      "id": "emvgfapevgxyjn",
+      "date": "2026-10-22",
+      "title": "qPCR 2",
+      "category": "experiment",
+      "type": "active",
+      "status": "pending",
+      "notes": "",
+      "start": "10:00",
+      "end": "12:00"
     }
   ],
   "_groups": {
@@ -3062,7 +3073,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-20T08:29:47.569Z",
+    "lastModified": "2026-10-20T08:30:15.983Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

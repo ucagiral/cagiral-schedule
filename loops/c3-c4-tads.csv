@@ -1,0 +1,5 @@
+locus,locus_coords,cell_type,kind,chrom,start,end,between_query_and_partner
+C3,"chrX:67,746,500-67,748,100",LNCaP clone FGC,boundary,chrX,67570000,67580000,True
+C3,"chrX:67,746,500-67,748,100",LNCaP clone FGC,boundary,chrX,67660000,67670000,True
+C4,"chrX:67,787,800-67,793,300",LNCaP clone FGC,boundary,chrX,67570000,67580000,True
+C4,"chrX:67,787,800-67,793,300",LNCaP clone FGC,boundary,chrX,67660000,67670000,True

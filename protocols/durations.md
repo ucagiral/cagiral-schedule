@@ -51,6 +51,12 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | Ligation (T4 DNA ligase, sticky ends, published default) | 10 min | all | — | NEB's standard quick protocol: 10 min RT for cohesive ends. **Superseded for the Nek2→YY1 swap by Umut's 2 h value below.** |
 | Competent cell prep (CaCl₂/glycerol) — growth | ~2.5–3 h | ~15 min | rest | 1:100 from a saturated overnight into LB, 37 °C shaking to OD₆₀₀ ≈ 0.4 (2–3 h). Needs a starter culture inoculated the evening before. Overshooting mid-log costs efficiency. |
 | Competent cell prep (CaCl₂/glycerol) — harvest, washes, aliquot | ~2 h | ~1.5 h | 20–30 min on ice between washes | Chill on ice ~10 min, cold spin, ice-cold CaCl₂ resuspension, 20–30 min on ice, second resuspension in CaCl₂ + glycerol, aliquot and snap-freeze to −80 °C. Some protocols hold the cells 12–16 h at 4 °C for the best efficiency — that is an overnight, not an afternoon. |
+| Plasmid midiprep (spin column) | ~40 min – 2.5 h | all | 12–16 h culture before it | QIAGEN Plasmid Plus Midi is ~20 min on the column plus a 15 min harvest spin; the classic Plasmid Midi is listed at ~150 min. Which kit is in hand decides it — book the top of the range until it is known. Culture volume differs too: 20–50 mL for Plasmid Plus, 25–100 mL for the classic kit. |
+| shRNA oligo annealing | ~2–2.5 h | ~10 min | rest | 95 °C for 4 min, 70 °C for 10 min, then a slow cool to room temperature over roughly 2 h. Almost entirely unattended, so it belongs inside another incubation rather than on its own. |
+| BCA protein assay (Pierce) | ~1 h | ~30 min | 30 min at 37 °C | Standard protocol is 30 min at 37 °C, read at 562 nm; room temperature is 2 h, 60 °C is 30 min. Use a water bath, not a forced-air incubator. Colour keeps developing, so time the read consistently. |
+| Whole-cell protein isolation (RIPA) | ~45–60 min | all | — | 30 min on ice in RIPA, then a clearing spin of 5–15 min at 4 °C. Shorter lyses (10–15 min) appear for some lines. |
+| SRB assay — TCA fixation | ~1 h 15 min | ~30 min | 1 h at 4 °C | Cold TCA layered onto the medium to 10% final, at least 1 h at 4 °C, then water washes and tap dry. Plates can be held at −20 °C instead of carrying straight on. |
+| SRB assay — stain, wash, read | ~1.5 h | all | — | 0.4% SRB for 10–30 min at RT, 1% acetic acid washes, 10 mM Tris solubilisation with 5–60 min of shaking, read at 540 nm (565/570 also used). Scheduled only when asked — the fixation and the read have been separate events here since August. |
 | Bacterial transformation (heat shock + SOC recovery + plating) | ~75–90 min | ~15–20 min (heat shock, plating) | ~60 min SOC recovery | 30 s heat shock @ 42 °C, then 60 min SOC @ 37 °C shaking. |
 | Colony PCR screening (+ quick gel check) | ~90 min | ~25 min setup/load | ~65 min (PCR run + gel run) | Fast master mixes screen ≤2 kb inserts in ~60 min; extension ≥1 min/kb for standard mixes. |
 | Diagnostic restriction digest + gel check | ~60–65 min | ~15 min | ~45–50 min | Same digest + 1% gel sources as above. |
@@ -72,6 +78,7 @@ These came from Umut directly and override any published range — see
 | Nek2→YY1: BamHI-EcoRI digestion (insert and backbone) | 4 h — **this enzyme pair failed 31 Aug 2026, replaced** |
 | Nek2→YY1: replacement-enzyme digestion (1 Sep redo) | ~1 h @ 37°C, standard (not Time-Saver) — Umut's call, specific to this pair |
 | Nek2→YY1: ligation | overnight (changed 30 Aug 2026, was 2 h RT) — 16°C or 4°C, ~12-16 h |
+| tet-pLKO: AgeI + EcoRI digest of 5 µg | 1 h @ 37 °C — Umut asked for the shortest time that is enough. NEB's 5–15 min Time-Saver figure is per **1 µg**; at 5 µg the lever is more enzyme units, not a shorter incubation, and the JoVE Tet-pLKO protocol runs 1 h at 37 °C for 1 µg. |
 
 ## Sources
 
@@ -127,6 +134,17 @@ These came from Umut directly and override any published range — see
 - [QIAGEN — QIAquick Spin Handbook (PCR/gel cleanup)](https://www.qiagen.com/en-US/resources/download/Protocols/hb-0901-003-1114358-pcard-qq-pcr-gel-cleanup-kit-0718-ww)
 - [NEB — DNA ligation with T4 DNA Ligase (M0202)](https://www.neb.com/en/protocols/dna-ligation-with-t4-dna-ligase-m0202?pdf=true)
 - [NEB — high efficiency transformation protocol](https://www.neb.com/en/protocols/high-efficiency-transformation-protocol-c2987)
+- [NEB — restriction endonucleases technical guide (digest times, scaling enzyme units)](https://www.neb-online.de/wp-content/uploads/2017/08/New-England-Biolabs_RestEndoGuide_D1708.pdf)
+- [Novartis / Wiederschain — pLKO-Tet-On cloning manual (Addgene)](https://media.addgene.org/data/41/67/165920fc-af64-11e0-90fe-003048dd6500.pdf)
+- [Addgene — Tet-pLKO-puro (#21915)](https://www.addgene.org/21915/)
+- [JoVE — conditional knockdown using Tet-pLKO (1 h AgeI/EcoRI digest)](https://www.jove.com/t/56333/conditional-knockdown-gene-expression-cancer-cell-lines-to-study)
+- [Broad Institute GPP — cloning oligos for sgRNA or shRNA constructs](https://portals.broadinstitute.org/gpp/public/dir/download?dirpath=protocols%2Fproduction&filename=cloning_of_oligos_for_sgRNA_shRNA_sept2015.pdf)
+- [protocols.io — cloning shRNA oligos into pLKO.1 (annealing)](https://www.protocols.io/view/Cloning-shRNA-Oligos-into-pLKO-1-i8es6v)
+- [Thermo Fisher — Pierce BCA Protein Assay Kit user guide](https://documents.thermofisher.com/TFS-Assets/LSG/manuals/MAN0011430_Pierce_BCA_Protein_Asy_UG.pdf)
+- [Bethyl — cell lysate preparation, RIPA method](https://www.biomol.com/dateien/Bethyl--Cell-Lysate-Preparation.pdf)
+- [Sigma-Aldrich — in vitro toxicology assay kit, sulforhodamine B based (TOX6)](https://www.sigmaaldrich.com/deepweb/assets/sigmaaldrich/product/documents/131/762/tox6bul.pdf)
+- [Abcam — sulforhodamine B cell cytotoxicity assay protocol (ab235935)](https://www.abcam.com/ps/products/235/ab235935/documents/Sulforhodamine-B-Cell-Cytotoxicity-Colorimetric-assay-protocol-book-v2-ab235935%20(website).pdf)
+- [QIAGEN — Plasmid Plus Midi kit handbook](https://www.qiagen.com/en-us/resources/download/kithandbookandprotocol/qiagen-plasmid-plus-midi-kit-en)
 - [Barrick Lab — preparing chemically competent cells using the CaCl₂/glycerol method](https://barricklab.org/twiki/bin/view/Lab/ProtocolsChemCompCellsCaCl2Glycerol)
 - [NeoSynBio — chemically competent E. coli by the calcium chloride method](https://www.neosynbio.com/cacl2-chemically-competent-cells)
 - [Kerr Lab — preparing calcium chloride competent cells](http://kerrlab.org/Public/PreparingCalciumChlorideCompetentCells)

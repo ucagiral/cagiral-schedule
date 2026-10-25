@@ -129,3 +129,38 @@ with two inserts going into one backbone in parallel.
 The digest itself was already done when the week was planned, so no duration for this enzyme pair
 has been stated. **Ask before scheduling the next one** rather than inheriting the Nek2→YY1 values,
 which are specific to those enzymes.
+
+
+---
+
+## shYY1 into tet-pLKO
+
+Started the week of 26 Oct 2026. Not a restriction-cloning of a PCR product — an **annealed oligo
+pair** going into an AgeI/EcoRI-cut inducible backbone.
+
+1. Digest 5 µg tet-pLKO with AgeI + EcoRI, 1 h at 37 °C.
+2. Anneal the shYY1 oligo pair alongside: 95 °C 4 min, 70 °C 10 min, slow cool to RT over ~2 h.
+   It is unattended, so it runs inside the digest.
+3. Gel-purify the backbone. The cut **releases a ~1.8 kb stuffer** that has to be separated off;
+   this is not optional and is easy to leave out of a plan.
+4. Ligate overnight at 16 °C, with a backbone-only negative control.
+5. Transform, pick colonies into a midiprep-scale culture, midiprep.
+
+### Fixed parameters
+
+| Parameter | Value | Note |
+|---|---|---|
+| Digest | 5 µg, 1 h @ 37 °C | Umut's amount, and the shortest time that is actually supported at 5 µg. |
+| Annealing | 95 °C 4 min → 70 °C 10 min → slow cool ~2 h | Published pLKO protocol. |
+| Ligation | overnight, 16 °C | Standing value since 30 Aug 2026. |
+| Midiprep | straight off the colony culture, no sequencing wait | Umut asked for it in the same week. A mis-ligated clone is caught afterwards instead of before. |
+
+### Open question: the AP treatment
+
+Umut listed an **AP treatment** step. The Novartis/Wiederschain Tet-pLKO manual says in so many
+words **not to dephosphorylate** this vector after the AgeI/EcoRI cut — the annealed oligos are
+supplied unphosphorylated, so removing the vector's own 5′ phosphates leaves the ligation with no
+phosphate at all and no colonies. The step is on the calendar because he asked for it; it is
+flagged here and in the event's own note rather than dropped. If the oligos **are** ordered
+phosphorylated, the AP step is correct and this note is the thing that is wrong — worth settling
+once, because it decides whether the whole cloning works.

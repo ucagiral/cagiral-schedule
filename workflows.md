@@ -222,6 +222,39 @@ already why several calendar events sit where they do.
 
 ---
 
+## SRB viability assay
+
+The shape of the week, from 10–14 Aug 2026 and repeated 26–30 Oct 2026:
+
+| Day | Step |
+|---|---|
+| Mon | Seed the assay plates — 2.5 h for four lines |
+| Tue | Copper and cisplatin treatment |
+| Fri | TCA fixation (add TCA, 1 h at 4 °C), then wash and tap dry |
+
+- **Treatment runs 72 h** — Umut's value, stated 25 Oct 2026.
+- **Fixation and reading are separate events.** The August run stopped at the TCA wash; SRB
+  staining, the acetic-acid washes, the Tris solubilisation and the 540 nm read go on the calendar
+  when he says so, not by assumption. Plates hold at −20 °C in between.
+
+---
+
+## Lentivirus generation
+
+The standing four-day shape, used for pLentiGuide (Aug), YY1 (Sep) and 3xFLAG + SART3 (Oct):
+
+| Day | Step |
+|---|---|
+| Mon | Seed HEK293T |
+| Tue | Transfection first thing, medium change ~6 h later |
+| Thu | First harvest, ~48–55 h |
+| Fri | Second harvest, ~72 h |
+
+Transfection goes **first thing in the morning** every time, for one reason: the medium change is
+6 h behind it and a late transfection puts that change at midnight.
+
+---
+
 ## Colony formation
 
 - **Fixation is 15 minutes**, and it repeats across consecutive days as plates come due — not one
@@ -267,6 +300,8 @@ group exists but isn't:
 | Zoom — Wednesday | purple `#9333ea` | the standing Wednesday 21:10 Zoom |
 | Weekly meeting | olive `#65a30d` | the standing Friday 09:30 meeting. Was "lime" `#84cc16` — renamed with the 30 Aug 2026 palette widening, see below. |
 | Colony formation | orange `#ea580c` | fixation across consecutive days, then drying |
+| HEK-YY1 Western | rose `#e11d48` | the HEK-YY1 protein isolation, BCA and single-target Western of 28–29 Oct 2026. Separate from `Western — biotin`, which is the streptavidin/biotin blot and its strip-and-reprobe. Added 25 Oct 2026 from `PALETTE`. |
+| tet-pLKO shYY1 | brown `#b45309` | the shYY1 knockdown clone — digest, annealing, AP, gel, ligation, transformation, midiprep. Added 25 Oct 2026 from `PALETTE`. |
 | pLJC2 — SART3/SMARCA2 | sky `#0369a1` | the SART3 and SMARCA2 clone into pLJC2 — digest, AP, gel isolation, ligation, transformation, colony picking, miniprep, sequencing. Added 21 Sep 2026 from `PALETTE`, a colour nothing else was using. |
 | ChIP | blue `#2563eb` | ChIP work that is not part of AR-CasPEx — the 8–9 Oct 2026 run (day 2, reverse cross-link) and the HEK pCDH-YY1 (2) fixation. Added 8 Oct 2026 from `PALETTE`, a colour nothing else was using. The 22–24 Sep CasPEx ChIP stays under LNCX/LUCX. |
 

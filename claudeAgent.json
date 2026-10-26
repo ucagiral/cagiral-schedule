@@ -3018,7 +3018,7 @@
       "title": "Flow",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "start": "14:30",
       "end": "16:00"
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-26T03:34:00.011Z",
+    "lastModified": "2026-10-26T03:34:06.026Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

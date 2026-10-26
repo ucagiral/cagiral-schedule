@@ -364,6 +364,17 @@
       "kind": "Primer",
       "isBox": true,
       "owner": "umut"
+    },
+    {
+      "id": "big-plasmid-box",
+      "name": "Big Plasmid Box",
+      "icon": "📦",
+      "isBox": true,
+      "owner": "umut",
+      "rows": 9,
+      "cols": 9,
+      "scheme": "grid",
+      "archived": false
     }
   ]
 }

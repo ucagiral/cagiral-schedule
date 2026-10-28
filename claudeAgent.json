@@ -3126,7 +3126,7 @@
       "title": "tet-pLKO — digest set-up (AgeI + EcoRI, 5 µg)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "5 µg, Umut’s amount. One hour at 37 °C is the shortest time actually supported: NEB’s Time-Saver 5–15 min figure is for 1 µg, and at 5 µg the way to stay short is more enzyme units, not less time. The AgeI/EcoRI cut releases a ~1.8 kb stuffer that has to be gel-purified away.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:51:44.177Z",
+    "lastModified": "2026-10-28T04:51:46.364Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

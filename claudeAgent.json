@@ -3222,7 +3222,7 @@
       "title": "tet-pLKO — load gel",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Cut backbone onto the gel cast this afternoon.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:47:54.117Z",
+    "lastModified": "2026-10-28T11:47:56.922Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

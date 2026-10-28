@@ -3210,7 +3210,7 @@
       "title": "Virus — medium change",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "~6 h post-transfection.",
       "group": "Virus prep"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:48:04.017Z",
+    "lastModified": "2026-10-28T11:48:10.921Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -3258,7 +3258,7 @@
       "title": "tet-pLKO + shYY1 — ligation set-up",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "With a backbone-only negative control.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:48:01.777Z",
+    "lastModified": "2026-10-28T11:48:04.017Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

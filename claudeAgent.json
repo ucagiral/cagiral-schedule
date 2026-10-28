@@ -3438,7 +3438,7 @@
       "title": "Western — block",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "1 h.",
       "group": "HEK-YY1 Western"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:52:47.132Z",
+    "lastModified": "2026-10-28T04:52:52.294Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -3366,7 +3366,7 @@
       "title": "Western — boil protein samples (set-up)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "30 min total, 15 active + 15 passive — Umut’s value.",
       "group": "HEK-YY1 Western"
     },
@@ -3378,7 +3378,7 @@
       "title": "Western — samples at 95 °C",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "The 15 unattended minutes.",
       "group": "HEK-YY1 Western"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:52:30.333Z",
+    "lastModified": "2026-10-28T04:52:39.023Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

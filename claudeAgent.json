@@ -3270,7 +3270,7 @@
       "title": "tet-pLKO + shYY1 — ligation overnight at 16 °C",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Overnight, per the standing rule since 30 Aug 2026 — it moves the transformation off tonight. Continues past this grid’s 23:00 window.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:48:10.921Z",
+    "lastModified": "2026-10-28T11:48:13.292Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

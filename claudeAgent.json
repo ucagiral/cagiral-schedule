@@ -3246,7 +3246,7 @@
       "title": "tet-pLKO — excise backbone, discard 1.8 kb stuffer, gel extraction",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Added, not on Umut’s list: the Tet-pLKO digest releases a stuffer fragment and the protocol requires the backbone to be gel-purified away from it. Kit recovery ~30%.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:47:59.532Z",
+    "lastModified": "2026-10-28T11:48:01.777Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

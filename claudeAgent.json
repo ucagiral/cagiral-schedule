@@ -3402,7 +3402,7 @@
       "title": "Western — SDS-PAGE run",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "~1.5 h, unattended once loaded.",
       "group": "HEK-YY1 Western"
     },
@@ -3414,7 +3414,7 @@
       "title": "Western — assemble wet transfer",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "group": "HEK-YY1 Western"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:52:41.388Z",
+    "lastModified": "2026-10-28T04:52:43.620Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

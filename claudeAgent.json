@@ -3342,7 +3342,7 @@
       "title": "HEK-YY1 — protein isolation (RIPA)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "30 min on ice in RIPA, then a cold clearing spin.",
       "group": "HEK-YY1 Western"
     },
@@ -3354,7 +3354,7 @@
       "title": "HEK-YY1 — BCA assay",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Pierce standard protocol: 30 min at 37 °C in a water bath, read at 562 nm. The colour keeps developing, so read on a fixed schedule.",
       "group": "HEK-YY1 Western"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:51:49.715Z",
+    "lastModified": "2026-10-28T04:52:30.333Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

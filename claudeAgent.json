@@ -3174,7 +3174,7 @@
       "title": "Agarose gel — cast and solidify",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Cast inside the digest so the gel exists before it is needed, not on the critical path.",
       "group": "tet-pLKO shYY1"
     },
@@ -3186,7 +3186,7 @@
       "title": "tet-pLKO — AP treatment set-up",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Scheduled because Umut asked for it. Flagged: the Wiederschain/Novartis Tet-pLKO protocol says explicitly *not* to dephosphorylate this vector after the AgeI/EcoRI cut, because the annealed oligos are unphosphorylated and the ligation would then have no phosphate to join. Worth confirming before it runs.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:47:49.181Z",
+    "lastModified": "2026-10-28T11:47:52.061Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

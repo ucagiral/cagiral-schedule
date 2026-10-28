@@ -3054,7 +3054,7 @@
       "title": "SRB — cell seeding (HEK & Huh7, 3xFLAG & YY1 OX)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Four lines into the assay plates. The 10 Aug 2026 seeding for this assay took 2.5 h, so that is what is booked.",
       "group": "SRB assay"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:51:11.331Z",
+    "lastModified": "2026-10-28T04:51:13.535Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

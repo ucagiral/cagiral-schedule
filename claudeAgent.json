@@ -3150,7 +3150,7 @@
       "title": "shYY1 oligos — annealing set-up",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "95 °C for 4 min, then 70 °C for 10 min.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:52:54.533Z",
+    "lastModified": "2026-10-28T11:47:44.326Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

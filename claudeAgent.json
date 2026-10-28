@@ -3162,7 +3162,7 @@
       "title": "shYY1 oligos — slow cool to room temperature",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "The published protocol cools over ~2 h from the 70 °C block. Entirely unattended; it overlaps the digest and the AP step by design.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:47:44.326Z",
+    "lastModified": "2026-10-28T11:47:49.181Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

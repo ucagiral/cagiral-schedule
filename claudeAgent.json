@@ -3138,7 +3138,7 @@
       "title": "tet-pLKO — digest, 1 h at 37 °C",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Unattended. The oligo annealing and the gel casting go inside it.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:51:46.364Z",
+    "lastModified": "2026-10-28T04:51:49.715Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

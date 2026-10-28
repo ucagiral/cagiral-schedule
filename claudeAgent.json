@@ -3234,7 +3234,7 @@
       "title": "tet-pLKO — gel run",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "1% gel, ~40 min at 50 V.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:47:56.922Z",
+    "lastModified": "2026-10-28T11:47:59.532Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -3426,7 +3426,7 @@
       "title": "Western — wet transfer (2 h)",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Umut’s value. The colony picking and the virus harvest go inside this stretch.",
       "group": "HEK-YY1 Western"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:52:43.620Z",
+    "lastModified": "2026-10-28T04:52:47.132Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

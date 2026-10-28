@@ -3114,7 +3114,7 @@
       "title": "SRB — copper and cisplatin treatment",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "72 h treatment, Umut’s value — fixation lands on Friday afternoon.",
       "group": "SRB assay"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:51:42.189Z",
+    "lastModified": "2026-10-28T04:51:44.177Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

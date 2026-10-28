@@ -3198,7 +3198,7 @@
       "title": "tet-pLKO — Antarctic Phosphatase, 1 h 37 °C + 20 min 80 °C",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Standard AP protocol. See the set-up note above.",
       "group": "tet-pLKO shYY1"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T11:47:52.061Z",
+    "lastModified": "2026-10-28T11:47:54.117Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

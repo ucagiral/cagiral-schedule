@@ -500,7 +500,7 @@
       "title": "CuAdapt cells — passage",
       "category": "experiment",
       "type": "active",
-      "status": "done",
+      "status": "pending",
       "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -3656,7 +3656,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-28T04:51:25.791Z",
+    "lastModified": "2026-10-28T04:51:32.517Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

@@ -14326,6 +14326,111 @@
       "status": "stored",
       "addedAt": "2026-10-29T19:17:21.761Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvtxg1yg-0",
+      "name": "HepG2 CuAdapt 0",
+      "lineId": "l-hepg2-cuadapt-0",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-26",
+      "frozenOn": "2026-10-26",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "B1"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-29T19:19:17.992Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvtxg1yg-1",
+      "name": "HepG2 CuAdapt CuCl2 100",
+      "lineId": "l-hepg2-cuadapt-cucl2-100",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-26",
+      "frozenOn": "2026-10-26",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "B2"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-29T19:19:17.992Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvtxg1yg-2",
+      "name": "HepG2 CuAdapt CuCl2 200",
+      "lineId": "l-hepg2-cuadapt-cucl2-200",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-26",
+      "frozenOn": "2026-10-26",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "B3"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-29T19:19:17.992Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvtxg1yg-3",
+      "name": "HepG2 CuAdapt CuSO4 100",
+      "lineId": "l-hepg2-cuadapt-cuso4-100",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-26",
+      "frozenOn": "2026-10-26",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "B4"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-29T19:19:17.992Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvtxg1yg-4",
+      "name": "HepG2 CuAdapt CuSO4 200",
+      "lineId": "l-hepg2-cuadapt-cuso4-200",
+      "passage": "28",
+      "passageNumber": 28,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-10-26",
+      "frozenOn": "2026-10-26",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "B5"
+      },
+      "status": "stored",
+      "addedAt": "2026-10-29T19:19:17.992Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -15527,7 +15632,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-29T19:17:23.591Z"
+    "savedAt": "2026-10-29T19:19:19.718Z"
   },
   "removedVialIds": [
     "v-205",

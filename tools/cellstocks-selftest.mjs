@@ -2065,17 +2065,20 @@ check("suggestPlacementAt refuses another member's box, same as the automatic pa
   return null;
 });
 
-check("suggestPlacementAt refuses a box that has no home in the freezer yet", () => {
+check("suggestPlacementAt accepts the owner's own box that has no home in the freezer yet, never someone else's", () => {
   const lab = E.mergeStorageDefaults({ children: [], unplaced: [
     Object.assign(box("b-1", "Box 1", 2, 2), { isBox: true, owner: "umut" })
   ] });
   const state = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "umut");
   const plan = E.suggestPlacementAt(state, { name: "HEK293T", boxId: "b-1", position: "A1" });
-  if (plan.ok) return "a box nobody has placed yet is not in the freezer -- a manual pick must not target it either";
+  if (!plan.ok) return "a member must be able to put a vial in their own not-yet-placed box: " + plan.reason;
+  if (!plan.segments[0].unplaced || !/Not placed yet/.test(plan.segments[0].path)) return "the plan must say the box is not placed: " + plan.segments[0].path;
+  const theirs = E.hydrateStorage(E.mergeDefaults({ vials: [] }), lab, "baris");
+  if (E.suggestPlacementAt(theirs, { name: "HEK293T", boxId: "b-1", position: "A1" }).ok) return "a not-yet-placed box of someone else was accepted";
   return null;
 });
 
-check("suggestPlacementAt still refuses to mix two cells in one row, even for a manual pick", () => {
+check("suggestPlacementAt lets a manual pick mix two cells in one row, with a warning", () => {
   const lab = E.mergeStorageDefaults({ children: [
     { id: "u-1", name: "Freezer 1", children: [
       Object.assign(box("b-1", "Box 1", 1, 3), { isBox: true, owner: "umut" })
@@ -2083,7 +2086,10 @@ check("suggestPlacementAt still refuses to mix two cells in one row, even for a 
   ] });
   const state = E.hydrateStorage(E.mergeDefaults({ vials: [vial("v-1", "HEK293T", "b-1", "A1")] }), lab, "umut");
   const plan = E.suggestPlacementAt(state, { name: "Du145", boxId: "b-1", position: "A2" });
-  if (plan.ok) return "a manual pick into a row already holding a different cell must be refused, same as the plan";
+  if (!plan.ok) return "a manual pick into a row holding a different cell is the person's call: " + plan.reason;
+  if (!/two different cells/.test(plan.warning || "")) return "the mix must be reported: " + JSON.stringify(plan.warning);
+  const auto = E.suggestPlacement(state, { name: "Du145", count: 1 });
+  if (auto.ok && auto.segments[0].positions.some((p) => p === "A2")) return "the automatic proposal must still never mix";
   return null;
 });
 
@@ -3063,7 +3069,7 @@ check("mixedRows and validate() skip a non-Cell box entirely", () => {
   return null;
 });
 
-check("suggestPlacementAt allows mixing distinct names in one row of a non-Cell box, but a Cell box still refuses", () => {
+check("suggestPlacementAt allows mixing distinct names in one row of a non-Cell box, and a Cell box allows it with a warning", () => {
   // Same reasoning as the mixedRows check above: names that would classify as two
   // different cell origins, so an unguarded row-mixing refusal would still fire here.
   var primerBox = Object.assign(box("b-1", "Primers", 1, 3), { isBox: true, owner: "umut", kind: "Primer" });
@@ -3078,7 +3084,8 @@ check("suggestPlacementAt allows mixing distinct names in one row of a non-Cell 
   var lab2 = E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: [cellBox] }] });
   var state2 = E.hydrateStorage(E.mergeDefaults({ vials: [vial("v-1", "HEK293T", "b-2", "A1")] }), lab2, "umut");
   var plan2 = E.suggestPlacementAt(state2, { name: "Du145", boxId: "b-2", position: "A2" });
-  if (plan2.ok) return "a Cell box must still refuse to mix two cells in one row";
+  if (!plan2.ok || !plan2.warning) return "a Cell box must allow a manual mix, with a warning: " + JSON.stringify(plan2);
+  if (plan.warning) return "a Primer box must not warn about mixing";
   return null;
 });
 
@@ -3525,6 +3532,104 @@ check("kroki: the outline lists each box with what it is linked to", () => {
   if (!out.includes("Login\nneeds a token\n-> Backend (uses)")) return out;
   if (!out.includes("Backend\n-> Login (uses)")) return out;
   return null;
+});
+
+// ------------------------------------------- unplaced boxes and hand-arranged freezes
+
+const ownBox = (id, name, rows, cols, owner, extra) => Object.assign(box(id, name, rows, cols), { isBox: true, owner }, extra || {});
+const labWith = (placed, unplaced) => E.mergeStorageDefaults({ children: [{ id: "u-1", name: "Freezer 1", children: placed }], unplaced: unplaced || [] });
+const stateFor = (lab, vials, who) => E.hydrateStorage(E.mergeDefaults({ vials: vials || [] }), lab, who);
+
+check("freezing: when every placed box is full, the owner's not-yet-placed box takes the tubes", () => {
+  const lab = labWith([ownBox("b-1", "Full", 1, 2, "umut")], [ownBox("b-9", "Waiting", 2, 2, "umut")]);
+  const st = stateFor(lab, [vial("v-1", "HEK293T", "b-1", "A1"), vial("v-2", "HEK293T", "b-1", "A2")], "umut");
+  const plan = E.suggestPlacement(st, { name: "Du145", count: 2 });
+  if (!plan.ok) return "no plan: " + plan.reason;
+  if (!plan.usesUnplaced || plan.segments[0].boxId !== "b-9" || !plan.segments[0].unplaced) return JSON.stringify(plan.segments);
+  const done = E.applyPlacement(st, plan, { name: "Du145", passage: "p3" }, { ids: ["x1", "x2"], now: "2026-10-29T10:00:00Z", by: "umut" });
+  if (E.errorsOnly(E.validate(done.state)).length) return json(E.errorsOnly(E.validate(done.state)));
+  return null;
+});
+
+check("freezing: a placed box with room is always preferred to a not-yet-placed one", () => {
+  const lab = labWith([ownBox("b-1", "Roomy", 2, 2, "umut")], [ownBox("b-9", "Waiting", 2, 2, "umut")]);
+  const plan = E.suggestPlacement(stateFor(lab, [], "umut"), { name: "Du145", count: 2 });
+  return plan.ok && !plan.usesUnplaced && plan.segments[0].boxId === "b-1" ? null : JSON.stringify(plan);
+});
+
+check("freezing: someone else's not-yet-placed box is never used, and a named box is never overridden", () => {
+  const lab = labWith([ownBox("b-1", "Full", 1, 1, "umut")], [ownBox("b-9", "Theirs", 2, 2, "baris")]);
+  const st = stateFor(lab, [vial("v-1", "HEK293T", "b-1", "A1")], "umut");
+  if (E.suggestPlacement(st, { name: "Du145", count: 1 }).ok) return "used a lab-mate's unplaced box";
+  const lab2 = labWith([ownBox("b-1", "Full", 1, 1, "umut")], [ownBox("b-9", "Waiting", 2, 2, "umut")]);
+  const st2 = stateFor(lab2, [vial("v-1", "HEK293T", "b-1", "A1")], "umut");
+  if (E.suggestPlacement(st2, { name: "Du145", count: 1, boxId: "b-1" }).ok) return "overrode an explicit full box";
+  return null;
+});
+
+check("boxesFor offers own unplaced boxes only on request, and never without an owner", () => {
+  const lab = labWith([ownBox("b-1", "Placed", 1, 1, "umut")], [ownBox("b-9", "Waiting", 1, 1, "umut"), ownBox("b-8", "Theirs", 1, 1, "baris")]);
+  const st = stateFor(lab, [], "umut");
+  const ids = (o) => E.boxesFor(st, null, "umut", o).map((e) => e.box.id).join(",");
+  if (ids() !== "b-1") return "default must stay placed-only: " + ids();
+  if (ids({ includeUnplaced: true }) !== "b-1,b-9") return "own unplaced missing/others leaked: " + ids({ includeUnplaced: true });
+  if (E.boxesFor(st, null, null, { includeUnplaced: true }).some((e) => !e.chain.length)) return "unplaced offered without an owner";
+  return null;
+});
+
+const heks = () => {
+  const lab = labWith([ownBox("b-1", "Box 1", 3, 4, "umut"), ownBox("b-2", "Box 2", 2, 2, "umut"), ownBox("b-3", "Baris", 2, 2, "baris")]);
+  return stateFor(lab, [vial("v-0", "HEK293T", "b-1", "A1")], "umut");
+};
+const base = { origin: "HEK293T", frozenOn: "2026-10-29" };
+
+check("applyAssignments: freezeItems expands lines in order, identical lines stay separate", () => {
+  const items = E.freezeItems(base, [{ variant: "gNT", passage: "p3", count: 2 }, { variant: "", passage: "p4", count: 1 }, { variant: "gNT", passage: "p3", count: 1 }]);
+  return items.map((i) => i.name + "/" + i.passage).join("|") === "HEK293T gNT/p3|HEK293T gNT/p3|HEK293T/p4|HEK293T gNT/p3" ? null : json(items);
+});
+
+check("applyAssignments: puts each tube exactly where told, across boxes, and mixes cells in a row with a warning", () => {
+  const st = heks();
+  const rows = [{ variant: "CuAdapt", passage: "p5", count: 2 }];
+  const res = E.applyAssignments(st, { origin: "HepG2", frozenOn: "2026-10-29" }, rows,
+    [{ boxId: "b-1", position: "A2" }, { boxId: "b-2", position: "B2" }], { idPrefix: "n", now: "2026-10-29T10:00:00Z", by: "umut" });
+  if (!res.ok) return res.reason;
+  const at = (id) => res.vials.find((v) => v.id === id).location;
+  if (at("n-0").boxId !== "b-1" || at("n-0").position !== "A2" || at("n-1").boxId !== "b-2" || at("n-1").position !== "B2") return json(res.vials.map((v) => v.location));
+  if (res.vials[0].name !== "HepG2 CuAdapt") return res.vials[0].name;
+  if (res.warnings.length !== 1 || res.warnings[0].label !== "A" || res.warnings[0].origins.length !== 2) return "mix not reported: " + json(res.warnings);
+  const errs = E.errorsOnly(E.validate(res.state));
+  if (errs.length) return "a deliberate mix must not be an error: " + json(errs);
+  if (st.vials.length !== 1) return "input state was modified";
+  return null;
+});
+
+check("applyAssignments: refuses another member's box, a taken slot, a duplicate, a wrong count -- and applies nothing", () => {
+  const st = heks();
+  const rows = [{ variant: "x", count: 2 }];
+  const bad = (assign) => E.applyAssignments(st, base, rows, assign, { idPrefix: "n", now: "2026-10-29T10:00:00Z" });
+  const cases = {
+    "someone else's box": [{ boxId: "b-1", position: "B1" }, { boxId: "b-3", position: "A1" }],
+    "a taken slot": [{ boxId: "b-1", position: "B1" }, { boxId: "b-1", position: "A1" }],
+    "the same slot twice": [{ boxId: "b-1", position: "B1" }, { boxId: "b-1", position: "B1" }],
+    "too few places": [{ boxId: "b-1", position: "B1" }],
+    "a slot outside the box": [{ boxId: "b-2", position: "A1" }, { boxId: "b-2", position: "Z9" }],
+    "an unknown box": [{ boxId: "b-1", position: "B1" }, { boxId: "nope", position: "A1" }]
+  };
+  for (const [what, a] of Object.entries(cases)) {
+    const r = bad(a);
+    if (r.ok) return "accepted " + what;
+    if (r.state) return "returned a state for " + what;
+  }
+  return null;
+});
+
+check("applyAssignments: a not-yet-placed box of your own is allowed and recorded as not placed", () => {
+  const lab = labWith([ownBox("b-1", "Box 1", 1, 1, "umut")], [ownBox("b-9", "Waiting", 2, 2, "umut")]);
+  const res = E.applyAssignments(stateFor(lab, [], "umut"), base, [{ variant: "", count: 1 }], [{ boxId: "b-9", position: "B2" }], { idPrefix: "n", now: "2026-10-29T10:00:00Z" });
+  if (!res.ok) return res.reason;
+  if (res.vials[0].location.path.length !== 0) return json(res.vials[0].location);
+  return E.errorsOnly(E.validate(res.state)).length ? "invalid state" : null;
 });
 
 // ---------------------------------------------------------------------- report

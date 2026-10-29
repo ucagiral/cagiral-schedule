@@ -1217,11 +1217,17 @@
     var out = [];
     eachBox(state, function (box, rack, unit, chain) {
       if (box.archived) return;
-      // A box nobody has placed yet is not somewhere to put a vial: it is not in the
-      // freezer. It shows on its owner's Boxes tab so they can fill it, but a placement
-      // proposal that named it would be sending someone to a shelf that does not exist.
-      if (!chain.length) return;
-      if (unitId && unit.id !== unitId) return;
+      // A box nobody has placed yet is not in the freezer, so an automatic proposal does
+      // not reach for one while a placed box has room (see suggestPlacement, which asks
+      // for them only as a second try).
+      if (!chain.length) {
+        // ...unless the caller asked for them. A member fills a box before anyone has said
+        // where it lives (CLAUDE.md §7), so their own unplaced boxes are offered -- but
+        // only when asked, and only theirs: with no owner named, nothing unplaced is ever
+        // a candidate.
+        if (!(opts && opts.includeUnplaced && owner && box.owner &&
+              String(box.owner).toLowerCase() === String(owner).toLowerCase())) return;
+      } else if (unitId && unit.id !== unitId) return;
       if (kind && kindOf(box).toLowerCase() !== String(kind).toLowerCase()) return;
       if (box.common) { if (!includeCommon) return; out.push({ box: box, rack: rack, unit: unit, chain: chain }); return; }
       if (owner && box.owner && box.owner.toLowerCase() !== String(owner).toLowerCase()) return;
@@ -1290,7 +1296,9 @@
       boxPath: (entry.chain || []).map(function (n) { return n.id; }),
       boxName: entry.box.name, positions: positions, runs: runs,
       contiguous: runs.length === 1 && runs[0].contiguous,
-      path: (entry.chain || []).map(function (n) { return n.name; }).concat([entry.box.name]).join(" → ")
+      unplaced: !(entry.chain || []).length,
+      path: (entry.chain && entry.chain.length ? entry.chain.map(function (n) { return n.name; }) : [UNPLACED.name])
+        .concat([entry.box.name]).join(" → ")
     };
   }
 
@@ -1339,9 +1347,8 @@
         String(entry.box.owner).toLowerCase() !== String(owner).toLowerCase()) {
       return { ok: false, reason: "That box is not yours." };
     }
-    if (!entry.chain.length) {
-      return { ok: false, reason: "That box has no home in the freezer yet -- it is not in the freezer." };
-    }
+    // A box nobody has placed yet is fine here: the caller picked it, and it is theirs
+    // (checked above). The vial records "Not placed yet" as its route until the box is.
     // A box holds one kind of thing, cell or otherwise: a Primer can never land in a
     // Cell box and vice versa, even if some UI filter upstream is bypassed.
     var wantKind = (req.kind || DEFAULT_KIND).toLowerCase();
@@ -1355,25 +1362,24 @@
 
     var rules = state.rules || DEFAULT_RULES;
     var origin = originForRequest(state, req, rules);
-    // Even a manual pick may not mix two cells into one row -- the placement rule this
-    // whole file is built around, not a default that only applies to the automatic path.
-    // A common box is one exception (mixing there is the point); a non-Cell box is the
-    // other -- there is no "origin" per vial there, so every row would spuriously read
-    // as mixed.
-    if (!entry.box.common && wantKind === "cell" && groupingStrategyFor(state) === "category-row") {
+    // A manual pick MAY put two cells in one row -- Umut's call (HEK CuAdapt and HepG2
+    // CuAdapt side by side): the person standing at the freezer decides, the automatic
+    // proposal still never mixes. It is reported, not refused; the row then shows under
+    // Review like any row that already mixes two cells.
+    var warning = "";
+    if (!entry.box.common && wantKind === "cell") {
       var row = rowsOf(state, req.boxId, rules).filter(function (r) {
         return r.positions.indexOf(req.position) !== -1;
       })[0];
       if (row && !rowTakes(row, origin)) {
-        return { ok: false, origin: origin,
-          reason: "That row already holds " + row.origins.join(", ") +
-                  " -- a manual pick may not mix two cells in one row either." };
+        warning = "Row " + row.label + " already holds " + row.origins.join(", ") +
+                  ", so it will hold two different cells -- allowed because you chose the slot.";
       }
     }
 
     var segments = [segmentFor(state, entry, [req.position])];
     return { ok: true, strategy: "manual", origin: origin, segments: segments, summary: summarise(segments),
-             reason: "Placed exactly where you picked." };
+             warning: warning, reason: "Placed exactly where you picked." + (warning ? " " + warning : "") };
   }
 
   // A non-Cell box (primers) is a list, not a grid: Umut's primers never had places in
@@ -1406,8 +1412,23 @@
     var req = request || {};
     var strategy = groupingStrategyFor(state);
     if (IMPLEMENTED_GROUPING_STRATEGIES.indexOf(strategy) === -1) strategy = "random";
-    if (strategy === "random") return suggestPlacementRandom(state, req);
-    return suggestPlacementCategoryRow(state, req);
+    function run(r) {
+      return strategy === "random" ? suggestPlacementRandom(state, r) : suggestPlacementCategoryRow(state, r);
+    }
+    var plan = run(req);
+    // Every placed box is full (or there are none): fall back to the owner's boxes that
+    // have not been put in a freezer yet, rather than refusing to record a tube that is
+    // physically about to be frozen. Never when a box was named -- that choice stands.
+    if (!plan.ok && !req.boxId && !req.includeUnplaced) {
+      var again = run(Object.assign({}, req, { includeUnplaced: true }));
+      if (again.ok) {
+        again.usesUnplaced = true;
+        again.reason = (again.reason ? again.reason + " " : "") +
+          "Your placed boxes have no room, so this goes in a box that is not placed in a freezer yet.";
+        return again;
+      }
+    }
+    return plan;
   }
 
   // No grouping constraint: the first free slot(s) found, box by box, row by row. Still
@@ -1419,7 +1440,7 @@
     // A common box only shows up here when req.boxId already names it -- someone picked
     // it on purpose via the box override, and is just letting the app choose a slot
     // inside it. Left to choose the box itself, this must never reach for one.
-    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId, kind: req.kind || DEFAULT_KIND }).filter(function (entry) {
+    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId, kind: req.kind || DEFAULT_KIND, includeUnplaced: !!req.includeUnplaced }).filter(function (entry) {
       return req.boxId ? entry.box.id === req.boxId : true;
     });
     if (!boxes.length) {
@@ -1473,7 +1494,7 @@
 
     // Same rule as suggestPlacementRandom: a common box is only in play here when
     // req.boxId already names it.
-    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId, kind: req.kind || DEFAULT_KIND }).filter(function (entry) {
+    var boxes = boxesFor(state, unitId, req.owner || state._owner, { includeCommon: !!req.boxId, kind: req.kind || DEFAULT_KIND, includeUnplaced: !!req.includeUnplaced }).filter(function (entry) {
       return req.boxId ? entry.box.id === req.boxId : true;
     });
     if (!boxes.length) {
@@ -1633,6 +1654,74 @@
       parts.push({ name: name, count: count, summary: plan.summary, reason: plan.reason, segments: plan.segments });
     }
     return { ok: true, state: cur, vials: vials, parts: parts };
+  }
+
+  // ---- arranging a freeze-down by hand ------------------------------------------------
+  //
+  // The automatic proposal puts a freeze-down where the rules say; this lets the person
+  // standing at the freezer put every tube exactly where they want it instead, in their
+  // own boxes only (placed or not), one slot per tube. It may put two different cells in
+  // one row -- Umut's call -- and says so rather than refusing: the automatic proposal is
+  // the one that never mixes.
+
+  // Every tube a freeze-down will make, in order: line by line, `count` of each. The same
+  // naming applyBatch uses, so a plan and an arrangement agree on what is being frozen.
+  function freezeItems(base, rows) {
+    var origin = String((base && base.origin) || "").trim();
+    var items = [];
+    (rows || []).forEach(function (r, i) {
+      r = r || {};
+      var count = Math.round(Number(r.count));
+      if (!isFinite(count) || count < 1) count = 1;
+      var variant = String(r.variant || "").trim();
+      var name = variant ? origin + " " + variant : origin;
+      for (var k = 0; k < count; k++) items.push({ name: name, passage: String(r.passage || "").trim(), row: i, nth: k });
+    });
+    return items;
+  }
+
+  // assignments: one {boxId, position} per item, in item order. All or nothing: the first
+  // problem comes back as { ok:false, index, reason } and nothing is applied.
+  function applyAssignments(state, base, rows, assignments, ctx) {
+    var b = base || {}, c = ctx || {};
+    if (!String(b.origin || "").trim()) return { ok: false, reason: "Give the cell a name first." };
+    var items = freezeItems(b, rows);
+    if (!items.length) return { ok: false, reason: "Add at least one line." };
+    if (!Array.isArray(assignments) || assignments.length !== items.length) {
+      return { ok: false, reason: "Every tube needs a place: " + items.length + " tube" + (items.length === 1 ? "" : "s") +
+        ", " + (assignments ? assignments.length : 0) + " place" + ((assignments || []).length === 1 ? "" : "s") + "." };
+    }
+    var owner = c.owner || state._owner;
+    var cur = state, vials = [], used = {}, touched = {};
+    for (var i = 0; i < items.length; i++) {
+      var a = assignments[i] || {};
+      var key = a.boxId + "!" + a.position;
+      if (used[key]) return { ok: false, index: i, reason: "Two tubes were put in the same slot (" + a.position + ")." };
+      used[key] = true;
+      var plan = suggestPlacementAt(cur, { name: items[i].name, boxId: a.boxId, position: a.position,
+        kind: "Cell", owner: owner });
+      if (!plan.ok) return { ok: false, index: i, reason: plan.reason };
+      var entry = findBox(cur, a.boxId);
+      if (entry.box.archived) return { ok: false, index: i, reason: entry.box.name + " is archived." };
+      var made = applyPlacement(cur, plan, { name: items[i].name, passage: items[i].passage,
+        frozenOn: b.frozenOn || "", notes: b.notes || "", kind: "Cell" },
+        { ids: [(c.idPrefix || "v-") + "-" + i], now: c.now, by: c.by });
+      cur = made.state;
+      vials = vials.concat(made.vials);
+      touched[a.boxId] = true;
+    }
+    // Rows that now hold two cells, among the rows this freeze-down touched.
+    var rules = cur.rules || DEFAULT_RULES, warnings = [];
+    Object.keys(touched).forEach(function (boxId) {
+      var mine = {};
+      assignments.forEach(function (a) { if (a.boxId === boxId) mine[parsePosition(findBox(cur, boxId).box, a.position).row] = true; });
+      rowsOf(cur, boxId, rules).forEach(function (row) {
+        if (mine[row.index] && row.origins.length > 1 && !findBox(cur, boxId).box.common) {
+          warnings.push({ boxId: boxId, box: findBox(cur, boxId).box.name, label: row.label, origins: row.origins.slice() });
+        }
+      });
+    });
+    return { ok: true, state: cur, vials: vials, items: items, warnings: warnings };
   }
 
   // ids and timestamps are arguments, never generated here -- that is what lets the
@@ -3539,6 +3628,7 @@
     mixedRows: mixedRows, suggestPlacement: suggestPlacement, suggestPlacementAt: suggestPlacementAt,
     suggestPlacementInList: suggestPlacementInList,
     applyPlacement: applyPlacement, applyBatch: applyBatch,
+    freezeItems: freezeItems, applyAssignments: applyAssignments,
     GROUPING_STRATEGIES: GROUPING_STRATEGIES, IMPLEMENTED_GROUPING_STRATEGIES: IMPLEMENTED_GROUPING_STRATEGIES,
     groupingStrategyFor: groupingStrategyFor,
     // withdrawal

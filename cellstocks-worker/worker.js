@@ -758,6 +758,120 @@ async function routeNotesPeople(request, env) {
   });
 }
 
+// ============================================================================ the shared tree
+//
+// Any member may write cellstocks/lab-storage.json (canWrite above), because adding a box or a
+// shelf is an everyday action. What a member may do to it is narrower than "anything", and it
+// is enforced here rather than trusted to the app:
+//   - add a layer (a shelf, a rack, a freezer) anywhere;
+//   - add a box of their own, anywhere or "not placed yet";
+//   - rename, resize, archive, move or delete a box THEY own;
+//   - nothing else: not another member's box, not a rename or move of a layer, not the
+//     lab's name, icon or pictures, not handing a box to somebody else.
+// Admin is not checked at all.
+
+function flattenTree(root) {
+  const nodes = new Map();
+  function walk(list, parentId) {
+    for (const n of list || []) {
+      if (!n || typeof n.id !== "string") continue;
+      const { children, ...own } = n;
+      nodes.set(n.id, { node: own, parentId, isBox: !!n.isBox });
+      if (!n.isBox) walk(children, n.id);
+    }
+  }
+  const r = root || {};
+  walk(r.children, null);
+  walk(r.unplaced, "unplaced");
+  return nodes;
+}
+
+function stableJson(value) {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${stableJson(value[k])}`).join(",")}}`;
+  }
+  return JSON.stringify(value === undefined ? null : value);
+}
+
+// null when `user` may turn `oldRoot` into `newRoot`; otherwise the reason it may not.
+// `removable(boxId)` is asked before one of the user's own boxes disappears.
+function checkTreeChange(user, oldRoot, newRoot, removable) {
+  if (user.role === "admin") return null;
+  const me = user.name.toLowerCase();
+  const before = flattenTree(oldRoot), after = flattenTree(newRoot);
+  const o = oldRoot || {}, n = newRoot || {};
+  // A lab that has never saved a structure has nothing yet to protect: the first write
+  // sets the name and the pictures, and from then on only an admin changes them.
+  for (const k of oldRoot ? new Set([...Object.keys(o), ...Object.keys(n)]) : []) {
+    if (k === "children" || k === "unplaced") continue;
+    if (stableJson(o[k]) !== stableJson(n[k])) return `only an admin may change the lab's ${k}`;
+  }
+  const mine = (node) => !!node.isBox && !node.common && String(node.owner || "").toLowerCase() === me;
+  if (after.size !== (newRoot && countNodes(newRoot))) return "the same id appears twice in the tree";
+  for (const [id, b] of before) {
+    const a = after.get(id);
+    if (!a) {
+      if (!mine(b.node)) return `${b.node.name} is not yours to delete`;
+      if (removable && !removable(id)) return `${b.node.name} still holds vials; take them out first`;
+      continue;
+    }
+    if (b.isBox !== a.isBox) return `${b.node.name} cannot change between a box and a layer`;
+    if (b.isBox) {
+      if (!mine(b.node)) {
+        if (stableJson(b.node) !== stableJson(a.node) || b.parentId !== a.parentId) return `${b.node.name} belongs to ${b.node.owner || "everyone"}, not to you`;
+        continue;
+      }
+      if (String(a.node.owner || "").toLowerCase() !== me || a.node.common) return `only an admin can hand ${b.node.name} to somebody else`;
+      continue;
+    }
+    if (stableJson(b.node) !== stableJson(a.node)) return `only an admin may rename or edit the layer ${b.node.name}`;
+    if (b.parentId !== a.parentId) return `only an admin may move the layer ${b.node.name}`;
+  }
+  for (const [id, a] of after) {
+    if (before.has(id)) continue;
+    if (a.isBox && !mine(a.node)) return `${a.node.name}: a box you add has to be yours`;
+  }
+  return null;
+}
+
+function countNodes(root) {
+  let c = 0;
+  (function walk(list) { for (const n of list || []) { c++; if (!n.isBox) walk(n.children); } })(root.children);
+  (root.unplaced || []).forEach(() => { c++; });
+  return c;
+}
+
+// Stored vials of `name` in a box, from the commit's own copy of their file when it is in
+// the batch (a delete that withdraws them in the same commit), else from the repository.
+async function boxIsEmptyFor(env, name, files, boxId) {
+  const path = dataPathFor(name);
+  const inBatch = files.find((f) => f.path === path);
+  let data;
+  try {
+    data = inBatch ? JSON.parse(inBatch.content) : await readRepoJson(env, path);
+  } catch (err) { return false; }
+  return !((data && data.vials) || []).some((v) => v && v.status !== "withdrawn" && v.location && v.location.boxId === boxId);
+}
+
+async function treeCommitError(env, user, files) {
+  if (user.role === "admin") return null;
+  const f = files.find((x) => x.path === LAB_STORAGE_PATH);
+  if (!f) return null;
+  let next;
+  try { next = JSON.parse(f.content); } catch (err) { return "the structure is not valid JSON"; }
+  const old = await readRepoJson(env, LAB_STORAGE_PATH);
+  const gone = [];
+  const reason = checkTreeChange(user, old, next, (id) => { gone.push(id); return true; });
+  if (reason) return reason;
+  for (const id of gone) {
+    if (!(await boxIsEmptyFor(env, user.name, files, id))) {
+      return `${flattenTree(old).get(id).node.name} still holds vials; take them out first`;
+    }
+  }
+  return null;
+}
+
 async function routeCommit(request, env) {
   const session = await requireSession(request, env);
   if (!session) return json({ error: "not logged in" }, 401);
@@ -776,6 +890,8 @@ async function routeCommit(request, env) {
   const forbidden = body.files.find((f) => !canWrite(session.user, f.path, batchPaths));
   if (forbidden) return json({ error: `${session.user.name} may not write ${forbidden.path}` }, 403);
   try {
+    const treeProblem = await treeCommitError(env, session.user, body.files);
+    if (treeProblem) return json({ error: `${session.user.name} may not make that change to the freezer: ${treeProblem}.` }, 403);
     const sha = await commitFilesAtomic(env, body.files, body.message);
     return json({ commit: sha });
   } catch (err) {
@@ -1147,6 +1263,8 @@ export {
   notesPathFor,
   staffNotesPathFor,
   extractMentions,
+  checkTreeChange,
+  flattenTree,
   boxesOwnedBy,
   base64ToUtf8,
   TYPES_CONFIG_KEY,

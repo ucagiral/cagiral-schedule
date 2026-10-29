@@ -3632,6 +3632,72 @@ check("applyAssignments: a not-yet-placed box of your own is allowed and recorde
   return E.errorsOnly(E.validate(res.state)).length ? "invalid state" : null;
 });
 
+// ------------------------------------------------------------------- how cold
+
+check("tempOf reads what the lab's own freezers say, and says nothing when it cannot", () => {
+  const cases = [
+    [{ name: "Freezer 2", note: "-80 (-80 room left)" }, "m80"], [{ name: "Freezer 1", note: "-80°C · 269 Middle Door" }, "m80"],
+    [{ name: "Fridge 1", note: "-20" }, "m20"], [{ name: "Liquid Nitrogen", note: "-196°C · Left" }, "ln2"],
+    [{ name: "Cold room", note: "+4" }, "p4"], [{ name: "Fridge", note: "4 °C" }, "p4"], [{ name: "Tank", note: "LN2" }, "ln2"],
+    [{ name: "D", note: "− 80 °C" }, "m80"], [{ name: "X", note: "-20 C" }, "m20"],
+    [{ name: "Shelf", note: "back corner" }, null], [{ name: "Z", note: "1480 rpm" }, null], [{ name: "A", note: "-2000" }, null],
+    [{ name: "Anything", note: "-80", temp: "p4" }, "p4"], [{ name: "Anything", note: "-80", temp: "bogus" }, "m80"]
+  ];
+  for (const [n, want] of cases) { const got = E.tempOf(n); if (got !== want) return `${json(n)} -> ${got}, wanted ${want}`; }
+  return null;
+});
+
+check("the four temperatures are +4, -20, -80 and liquid nitrogen, in that order", () =>
+  json(E.TEMPS.map((t) => t.id)) === json(["p4", "m20", "m80", "ln2"]) ? null : json(E.TEMPS));
+
+check("the lab's real freezers file under -80, -20 and liquid nitrogen, and nothing is left over", () => {
+  const lab = E.mergeStorageDefaults(JSON.parse(readFileSync(new URL("../cellstocks/lab-storage.json", import.meta.url), "utf8")));
+  const by = E.unitsByTemp(lab);
+  const names = (k) => by[k].map((n) => n.name).sort().join(",");
+  if (names("m80") !== "Freezer 1,Freezer 2") return "-80: " + names("m80");
+  if (names("m20") !== "Fridge 1") return "-20: " + names("m20");
+  if (names("ln2") !== "Liquid Nitrogen") return "ln2: " + names("ln2");
+  if (by.p4.length || by.other.length) return "unexpected: " + names("p4") + "/" + names("other");
+  return null;
+});
+
+check("addNode files a top-level layer under a temperature, and editNode can change it; a shelf inside never has one", () => {
+  let r = E.addNode(E.blankStorage(), null, { name: "Deep", temp: "m80" });
+  if (!r.ok || r.node.temp !== "m80") return "top-level temp not stored: " + json(r.node);
+  const inner = E.addNode(r.state, r.node.id, { name: "Shelf", temp: "m80" });
+  if (inner.node.temp) return "a shelf got a temperature";
+  const bad = E.addNode(E.blankStorage(), null, { name: "Odd", temp: "m81" });
+  if (bad.node.temp) return "an unknown temperature was stored";
+  const moved = E.editNode(r.state, r.node.id, { temp: "ln2" });
+  if (E.findNode(moved.state, r.node.id).node.temp !== "ln2") return "edit did not change it";
+  const cleared = E.editNode(moved.state, r.node.id, { temp: "" });
+  if ("temp" in E.findNode(cleared.state, r.node.id).node) return "clearing did not remove it";
+  const shelfEdit = E.editNode(inner.state, inner.node.id, { temp: "p4" });
+  if ("temp" in E.findNode(shelfEdit.state, inner.node.id).node) return "editing gave a shelf a temperature";
+  return null;
+});
+
+check("layerStats counts the boxes, slots and full slots under a layer", () => {
+  const lab = labWith([ownBox("b-1", "Box 1", 3, 3, "umut"), ownBox("b-2", "Box 2", 2, 2, "umut")]);
+  const st = E.layerStats(lab, "u-1", { "b-1": 4, "b-2": 1 });
+  return st.boxes === 2 && st.slots === 13 && st.full === 5 ? null : json(st);
+});
+
+check("pictures for the four cards survive a save and a reload, and are dropped when cleared", () => {
+  let r = E.setTempImage(E.blankStorage(), "m80", "mine.png");
+  if (!r.ok) return r.reason;
+  const text = E.serialiseStorage(r.state);
+  if (!/"tempImages"/.test(text) || !/mine\.png/.test(text)) return text;
+  const back = E.mergeStorageDefaults(JSON.parse(text));
+  if (back.tempImages.m80 !== "mine.png") return json(back);
+  const hydrated = E.hydrateStorage(E.mergeDefaults({ vials: [] }), back, "umut");
+  if (hydrated.storage.tempImages.m80 !== "mine.png") return "hydrate lost them";
+  const cleared = E.setTempImage(back, "m80", "");
+  if (/tempImages/.test(E.serialiseStorage(cleared.state))) return "cleared picture still written";
+  if (E.setTempImage(back, "m81", "x.png").ok) return "unknown temperature accepted";
+  return null;
+});
+
 // ---------------------------------------------------------------------- report
 const total = passed + failures.length;
 

@@ -261,6 +261,72 @@
     return ids;
   }
 
+  // ---- how cold: the four cards the Storage screen opens with ---------------------------
+  //
+  // A top-level layer (a freezer, a fridge, a tank) is filed under one of four temperatures.
+  // It is data on the layer (`temp`), chosen when it is added; a layer made before that
+  // existed is read from what was typed in its note or name ("-80", "-196 °C", "liquid
+  // nitrogen"), so nothing needs migrating and nothing is guessed silently -- a layer that
+  // says nothing recognisable lands under "other" rather than being forced into a card.
+  // Nothing else branches on this: it only decides which card a freezer is shown under.
+  var TEMPS = [
+    { id: "p4", label: "+4 °C", short: "+4" },
+    { id: "m20", label: "−20 °C", short: "−20" },
+    { id: "m80", label: "−80 °C", short: "−80" },
+    { id: "ln2", label: "Liquid nitrogen", short: "LN₂" }
+  ];
+
+  function tempIdOk(id) { return TEMPS.some(function (t) { return t.id === id; }); }
+
+  function tempOf(node) {
+    if (!node) return null;
+    if (tempIdOk(node.temp)) return node.temp;
+    var text = String(node.note || "") + " " + String(node.name || "");
+    if (/liquid\s*nitrogen|s[ıi]v[ıi]\s*azot|\bln2\b|\bln\b|nitrogen|[-−–—]\s*196/i.test(text)) return "ln2";
+    if (/[-−–—]\s*(80|70|86)(?!\d)/.test(text)) return "m80";
+    if (/[-−–—]\s*(20|18|15)(?!\d)/.test(text)) return "m20";
+    if (/(^|[^0-9.])\+\s*4(?!\d)|(^|[^0-9.\-−])4\s*°|\b4\s*c\b|refrigerator|buzdolab/i.test(text)) return "p4";
+    return null;
+  }
+
+  // The top-level layers grouped by temperature, plus whatever says nothing recognisable.
+  function unitsByTemp(root) {
+    var out = { p4: [], m20: [], m80: [], ln2: [], other: [] };
+    childrenOfRoot(root).forEach(function (n) {
+      if (isBoxNode(n)) return;
+      out[tempOf(n) || "other"].push(n);
+    });
+    return out;
+  }
+
+  // Everything under a layer, for the figures: how many boxes, how many slots, how many full.
+  function layerStats(root, id, counts) {
+    var f = findNode(root, id);
+    var out = { layers: 0, boxes: 0, slots: 0, full: 0 };
+    if (!f) return out;
+    (function walk(list) {
+      (list || []).forEach(function (n) {
+        if (isBoxNode(n)) {
+          out.boxes++;
+          out.slots += (Number(n.rows) || 0) * (Number(n.cols) || 0);
+          out.full += (counts && counts[n.id]) || 0;
+        } else { out.layers++; walk(n.children); }
+      });
+    })(isBoxNode(f.node) ? [f.node] : f.node.children);
+    return out;
+  }
+
+  // The picture on one of the four cards: a filename under cellstocks/icons/ that an admin
+  // uploaded. Absent means the stock photo shipped in cellstocks/stock/.
+  function setTempImage(root, tempId, file) {
+    if (!tempIdOk(tempId)) return { ok: false, reason: "No such temperature." };
+    var next = clone(root);
+    var map = Object.assign({}, next.tempImages || {});
+    if (file) map[tempId] = String(file); else delete map[tempId];
+    if (Object.keys(map).length) next.tempImages = map; else delete next.tempImages;
+    return { ok: true, state: next };
+  }
+
   // Adds a layer or a box. `parentId` null means the top level; for a box it may also be
   // the string "unplaced", which is where a member's own new box goes -- they may make
   // one, but where it lives is an admin's call.
@@ -291,6 +357,8 @@
       if (d.kind && String(d.kind).toLowerCase() !== "cell") node.kind = String(d.kind);
     } else {
       node.children = [];
+      // Only a top-level layer is filed under a temperature; a shelf inside one is not.
+      if (!parentId && tempIdOk(d.temp)) node.temp = d.temp;
     }
 
     if (parentId === "unplaced") {
@@ -323,6 +391,9 @@
     }
     if (d.note !== undefined) f.node.note = String(d.note);
     if (d.icon !== undefined) f.node.icon = d.icon;
+    if (d.temp !== undefined && !isBoxNode(f.node) && !f.parent && !f.unplaced) {
+      if (tempIdOk(d.temp)) f.node.temp = d.temp; else delete f.node.temp;
+    }
     if (isBoxNode(f.node)) {
       // Common comes first: turning a box common clears whatever owner it had (there is
       // no one left to hand off to), and turning it back off is what makes the owner
@@ -2768,6 +2839,7 @@
     eachBox(copy, function (box) { stripEmpties(box, ["id", "name", "rows", "cols", "owner", "common", "isBox", "kind"]); });
     eachNode(copy, function (node) { if (!isBoxNode(node)) stripEmpties(node, ["id", "name", "children"]); });
     if (!copy.unplaced.length) delete copy.unplaced;
+    if (!copy.tempImages || !Object.keys(copy.tempImages).length) delete copy.tempImages;
     return copy;
   }
 
@@ -2809,6 +2881,7 @@
     if (!Array.isArray(s.unplaced)) s.unplaced = [];
     if (typeof s.labName !== "string" || !s.labName.trim()) s.labName = blankStorage().labName;
     if (typeof s.labIcon !== "string") s.labIcon = blankStorage().labIcon;
+    if (!s.tempImages || typeof s.tempImages !== "object" || Array.isArray(s.tempImages)) delete s.tempImages;
     return s;
   }
 
@@ -2822,6 +2895,7 @@
     var lab = mergeStorageDefaults(storage);
     next.storage = { labName: lab.labName, labIcon: lab.labIcon,
                      children: clone(lab.children), unplaced: clone(lab.unplaced) };
+    if (lab.tempImages) next.storage.tempImages = clone(lab.tempImages);
     if (owner) next._owner = owner;
     // A unit can be deleted (admin, from Structure) while an account's own settings still
     // name it as the default -- mergeDefaults already falls back to the first unit when
@@ -3643,6 +3717,7 @@
     slim: slim, serialise: serialise,
     slimStorage: slimStorage, serialiseStorage: serialiseStorage, blankStorage: blankStorage,
     mergeStorageDefaults: mergeStorageDefaults, hydrateStorage: hydrateStorage, iconKind: iconKind,
+    TEMPS: TEMPS, tempOf: tempOf, unitsByTemp: unitsByTemp, layerStats: layerStats, setTempImage: setTempImage,
     mergeInventories: mergeInventories,
     reviewQueue: reviewQueue, orphanedVials: orphanedVials,
     emptyImportRows: emptyImportRows, dropEmptyImportRows: dropEmptyImportRows,

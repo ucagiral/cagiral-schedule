@@ -1015,6 +1015,7 @@ try {
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=structure]");
+    await page.click('#structMode button[data-mode="list"]');   // the folder tree is the List view now; Map is the default
     await page.waitForFunction(() => !!document.querySelector('#admin-structure .treeBody[data-title="Box D1"]'));
 
     // A row carries two buttons now -- "+" to add a child and "✎" to edit -- so pick the
@@ -2843,8 +2844,9 @@ try {
     check("your own placed box is offered", /Box Mine/.test(dialogText), dialogText);
     check("a lab-mate's box is never offered as somewhere to put YOUR vial",
       !/Box Baris/.test(dialogText) && !/baris/i.test(dialogText), dialogText);
-    check("your own box that has no home yet is not offered either -- it is not in the freezer",
-      !/Box Unplaced Mine/.test(dialogText) && !/Not placed yet/.test(dialogText), dialogText);
+    check("your own box that has no home yet IS offered, and says it is not placed -- a box can be filled before it is put away",
+      /Not placed yet → Box Unplaced Mine/.test(dialogText), dialogText);
+    check("...but never a lab-mate's box that has no home yet", !/Box Unplaced Baris/i.test(dialogText), dialogText);
   } catch (err) {
     check("the box override never offers a box you don't own", false, String(err));
   } finally {
@@ -3545,6 +3547,7 @@ try {
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=structure]");
+    await page.click('#structMode button[data-mode="list"]');   // the folder tree is the List view now; Map is the default
     await page.waitForFunction(() => !!document.querySelector('#admin-structure .treeBody[data-title="Rack 1"]'));
 
     // Same retry shape the existing Structure tests already use: a save's dialog-close

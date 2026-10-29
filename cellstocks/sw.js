@@ -18,7 +18,7 @@
 // that it is offline when it falls back to it.
 //
 // Bump CACHE when index.html / engine.js / xlsx.js / icons change.
-const CACHE = "cellstocks-v4";
+const CACHE = "cellstocks-v5";
 
 const SHELL = [
   ".",

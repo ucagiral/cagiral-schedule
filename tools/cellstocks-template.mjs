@@ -88,6 +88,11 @@ for (const f of ["engine.js", "xlsx.js", "pdf.js", "sw.js",
   copy(join("cellstocks", f));
 }
 
+// The photos on the four Storage cards (CC BY-SA, credited in the file beside them).
+for (const f of ["temp-p4.jpg", "temp-m20.jpg", "temp-m80.jpg", "temp-ln2.jpg", "CREDITS.md"]) {
+  copy(join("cellstocks", "stock", f));
+}
+
 // The lab's classification rules go over whole. They are the five spreadsheet formulas
 // turned into data, and a new lab reads a familiar cell name on its first screen instead
 // of a blank one. Every one of them is editable from Settings -> Rules.

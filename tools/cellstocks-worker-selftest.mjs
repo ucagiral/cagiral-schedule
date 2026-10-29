@@ -9,7 +9,7 @@
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
 import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX,
-         KROKI_PREFIX, krokiPathFor, NOTES_PREFIX, notesPathFor, staffNotesPathFor, extractMentions, dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
+         KROKI_PREFIX, krokiPathFor, NOTES_PREFIX, notesPathFor, staffNotesPathFor, extractMentions, checkTreeChange, dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -1360,6 +1360,158 @@ await check("notes commit through /commit: own list ok, staff list by admin ok, 
   if (staff.status !== 200) return `staff: ${staff.status}`;
   const no = await handleRequest(req("POST", "/commit", { message: "n", files: [{ path: staffNotesPathFor("Umut"), content: "{}" }] }, umutToken), env);
   return no.status === 403 ? null : `member staff-list write: ${no.status}`;
+});
+
+// ==================================================================== the shared tree
+
+const BOX = (id, owner, extra) => Object.assign({ id, name: id.toUpperCase(), isBox: true, owner, rows: 9, cols: 9 }, extra || {});
+const LAYER = (id, children) => ({ id, name: id.toUpperCase(), children: children || [] });
+const TREE = () => ({ labName: "Lab", labIcon: "", children: [
+  LAYER("f1", [LAYER("shelf", [BOX("mine", "umut"), BOX("theirs", "baris")]), LAYER("empty")]),
+  LAYER("f2", [BOX("common", undefined, { common: true })])
+], unplaced: [BOX("loose", "umut")] });
+const member = { name: "Umut", role: "member" };
+const chk = (mutate, user) => { const t = TREE(); mutate(t); return checkTreeChange(user || member, TREE(), t); };
+
+await check("tree rules: a member can add a shelf or freezer anywhere and a box of their own anywhere", () => {
+  const cases = {
+    "a freezer at the top": (t) => t.children.push(LAYER("f3")),
+    "a shelf in a freezer": (t) => t.children[0].children.push(LAYER("s2")),
+    "a shelf inside a shelf": (t) => t.children[0].children[0].children.push(LAYER("s3")),
+    "own box in a shelf": (t) => t.children[0].children[1].children.push(BOX("n1", "umut")),
+    "own box not placed": (t) => t.unplaced.push(BOX("n2", "umut"))
+  };
+  for (const [what, m] of Object.entries(cases)) { const r = chk(m); if (r) return `${what} refused: ${r}`; }
+  return null;
+});
+
+await check("tree rules: a member can rename, resize, archive, move and delete their own box", () => {
+  const cases = {
+    rename: (t) => { t.children[0].children[0].children[0].name = "Renamed"; },
+    resize: (t) => { Object.assign(t.children[0].children[0].children[0], { rows: 8, cols: 12 }); },
+    archive: (t) => { t.children[0].children[0].children[0].archived = true; },
+    "move into another shelf": (t) => { const [b] = t.children[0].children[0].children.splice(0, 1); t.children[0].children[1].children.push(b); },
+    "move out of the freezer": (t) => { const [b] = t.children[0].children[0].children.splice(0, 1); t.unplaced.push(b); },
+    "place an unplaced box": (t) => { const [b] = t.unplaced.splice(0, 1); t.children[0].children[1].children.push(b); },
+    "delete": (t) => { t.children[0].children[0].children.splice(0, 1); }
+  };
+  for (const [what, m] of Object.entries(cases)) { const r = chk(m); if (r) return `${what} refused: ${r}`; }
+  return null;
+});
+
+await check("tree rules: a member cannot touch anyone else's box, a layer, the lab, or give a box away", () => {
+  const cases = {
+    "rename someone's box": (t) => { t.children[0].children[0].children[1].name = "mine now"; },
+    "resize someone's box": (t) => { t.children[0].children[0].children[1].rows = 2; },
+    "move someone's box": (t) => { const [b] = t.children[0].children[0].children.splice(1, 1); t.unplaced.push(b); },
+    "delete someone's box": (t) => { t.children[0].children[0].children.splice(1, 1); },
+    "take over someone's box": (t) => { t.children[0].children[0].children[1].owner = "umut"; },
+    "give own box away": (t) => { t.children[0].children[0].children[0].owner = "baris"; },
+    "make own box common": (t) => { Object.assign(t.children[0].children[0].children[0], { common: true }); delete t.children[0].children[0].children[0].owner; },
+    "edit a common box": (t) => { t.children[1].children[0].name = "x"; },
+    "delete a common box": (t) => { t.children[1].children.splice(0, 1); },
+    "add a box for someone else": (t) => { t.unplaced.push(BOX("n", "baris")); },
+    "add a common box": (t) => { t.unplaced.push(BOX("n", undefined, { common: true })); },
+    "rename a layer": (t) => { t.children[0].name = "Mine"; },
+    "change a layer's note": (t) => { t.children[0].note = "-80"; },
+    "delete a layer": (t) => { t.children[0].children.splice(1, 1); },
+    "move a layer": (t) => { const [l] = t.children[0].children.splice(1, 1); t.children[1].children.push(l); },
+    "turn a layer into a box": (t) => { t.children[0].children[1].isBox = true; },
+    "rename the lab": (t) => { t.labName = "Mine"; },
+    "change a picture": (t) => { t.tempImages = { "-80": "x.png" }; },
+    "same id twice": (t) => { t.unplaced.push(BOX("mine", "umut")); }
+  };
+  for (const [what, m] of Object.entries(cases)) { if (!chk(m)) return `${what} was allowed`; }
+  return null;
+});
+
+await check("tree rules: empty fields the app drops (\"\", null, []) are not an edit of somebody else's box", () => {
+  const old = TREE();
+  old.children[0].children[0].children[1].note = "";           // a lab-mate's box, written with an empty note
+  old.children[0].children[0].children[1].icon = null;
+  old.children[0].icon = "";
+  old.children[1].children[0].children = [];
+  const next = TREE();
+  delete next.children[0].children[0].children[1].note;       // what the app sends back: the empties are gone
+  delete next.children[0].children[0].children[1].icon;
+  delete next.children[0].icon;
+  next.children[0].children[0].children.push(BOX("n", "umut"));
+  const r = checkTreeChange(member, old, next);
+  return r ? "refused: " + r : null;
+});
+
+await check("tree rules against the lab's real freezer, written the way the app writes it", async () => {
+  await import("../cellstocks/engine.js");
+  const E = globalThis.CellStocksEngine;
+  const { readFileSync } = await import("node:fs");
+  const real = JSON.parse(readFileSync(new URL("../cellstocks/lab-storage.json", import.meta.url), "utf8"));
+  const owners = new Set();
+  E.eachBox(E.mergeStorageDefaults(real), (b) => { if (b.owner) owners.add(b.owner); });
+  E.unplacedOf(E.mergeStorageDefaults(real)).forEach((b) => { if (b.owner) owners.add(b.owner); });
+  if (owners.size < 3) return "expected the real lab to have several box owners, got " + [...owners].join();
+  const send = (st) => JSON.parse(E.serialiseStorage(st));      // what the app puts in /commit
+  for (const name of owners) {
+    const me = { name, role: "member" };
+    const base = E.mergeStorageDefaults(real);
+    const noop = checkTreeChange(me, real, send(base));
+    if (noop) return `${name}: saving the real tree unchanged was refused: ${noop}`;
+    const added = E.addNode(base, "unplaced", { name: "Test box", isBox: true, owner: name });
+    const r1 = checkTreeChange(me, real, send(added.state));
+    if (r1) return `${name}: adding an own box was refused: ${r1}`;
+    const layerAdd = E.addNode(base, null, { name: "New freezer", temp: "m80" });
+    const r2 = checkTreeChange(me, real, send(layerAdd.state));
+    if (r2) return `${name}: adding a freezer was refused: ${r2}`;
+    const mine = [];
+    E.eachBox(base, (b) => { if (String(b.owner).toLowerCase() === name.toLowerCase()) mine.push(b); });
+    const theirs = [];
+    E.eachBox(base, (b) => { if (b.owner && String(b.owner).toLowerCase() !== name.toLowerCase()) theirs.push(b); });
+    if (mine.length) {
+      const target = E.layers(base).find((l) => !l.node.isBox && !(l.node.children || []).some((c) => c.id === mine[0].id));
+      const mv = E.moveNode(base, mine[0].id, target.node.id);
+      const r3 = checkTreeChange(me, real, send(mv.state));
+      if (r3) return `${name}: moving an own box was refused: ${r3}`;
+      const rn = E.editNode(base, mine[0].id, { name: "Renamed", rows: 9, cols: 9 });
+      const r4 = checkTreeChange(me, real, send(rn.state));
+      if (r4) return `${name}: renaming an own box was refused: ${r4}`;
+    }
+    const steal = E.editNode(base, theirs[0].id, { name: "Not mine" });
+    if (!checkTreeChange(me, real, send(steal.state))) return `${name}: renaming somebody else's box was allowed`;
+    const mvOther = E.moveNode(base, theirs[0].id, "unplaced");
+    if (!checkTreeChange(me, real, send(mvOther.state))) return `${name}: moving somebody else's box was allowed`;
+    const layerEdit = E.editNode(base, E.layers(base)[0].node.id, { name: "Renamed layer" });
+    if (!checkTreeChange(me, real, send(layerEdit.state))) return `${name}: renaming a layer was allowed`;
+  }
+  return null;
+});
+
+await check("tree rules: admin is unrestricted, and an unchanged tree is always fine", () => {
+  const admin = { name: "admin", role: "admin" };
+  if (chk((t) => { t.children[0].name = "Renamed"; t.labName = "Other"; t.children[0].children[0].children[1].owner = "umut"; }, admin)) return "admin was restricted";
+  if (chk(() => {})) return "an unchanged tree was refused";
+  return null;
+});
+
+await check("/commit applies the tree rules, and a delete needs the box empty in the same commit", async () => {
+  const { env: base, umutToken, adminToken } = await twoMembers();
+  const contents = {
+    "cellstocks/lab-storage.json": { text: JSON.stringify(TREE()) },
+    "cellstocks/data/umut.json": { text: JSON.stringify({ vials: [{ id: "v1", status: "stored", location: { boxId: "mine", position: "A1" } }] }) }
+  };
+  const env = Object.assign({}, base, { fetch: makeGithubFetch({ contents }) });
+  const put = (tree, token, extra) => handleRequest(req("POST", "/commit", { message: "t", files: [{ path: "cellstocks/lab-storage.json", content: JSON.stringify(tree) }].concat(extra || []) }, token), env);
+  const t1 = TREE(); t1.unplaced.push(BOX("n1", "umut"));
+  if ((await put(t1, umutToken)).status !== 200) return "adding an own box was refused";
+  const t2 = TREE(); t2.children[0].name = "Mine";
+  const r2 = await put(t2, umutToken);
+  if (r2.status !== 403 || !/layer/.test((await r2.json()).error)) return "layer rename: " + r2.status;
+  if ((await put(t2, adminToken)).status !== 200) return "admin refused";
+  const t3 = TREE(); t3.children[0].children[0].children.splice(0, 1);
+  const r3 = await put(t3, umutToken);
+  if (r3.status !== 403 || !/still holds vials/.test((await r3.json()).error)) return "deleting a box with a vial: " + r3.status;
+  const emptied = { path: "cellstocks/data/umut.json", content: JSON.stringify({ vials: [{ id: "v1", status: "withdrawn", location: null }] }) };
+  const r4 = await put(t3, umutToken, [emptied]);
+  if (r4.status !== 200) return "deleting after withdrawing in the same commit: " + r4.status + " " + (await r4.text());
+  return null;
 });
 
 // ==================================================================== summary

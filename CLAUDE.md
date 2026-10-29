@@ -173,9 +173,12 @@ worker handles by sweeping only its own prefix.
   chain}` so old call sites kept working.
 - **`unplaced` is the one thing beside the tree.** A member may make a box before anybody has
   said where it lives — his flow is fill it first, then choose the cabinet — so it waits in
-  `storage.unplaced` and shows as *"Not placed yet"* on the Boxes tab, in Structure, and in
-  the daily export. It is real inventory with no location, never hidden and never given a
-  fake one. Only an admin moves it into the tree.
+  `storage.unplaced` and shows as *"Not placed yet"* on the Boxes tab, on the first Storage
+  screen, in Structure, and in the daily export. It is real inventory with no location, never
+  hidden and never given a fake one. **Its owner may now put vials in it** (Add falls back to the
+  owner's own unplaced boxes when every placed box is full, and the box picker offers them;
+  `boxesFor(..., {includeUnplaced:true})`, never anybody else's) and **may move it into the
+  tree themselves** (Storage → Move…, or drag it onto a rack); admin may move any.
 - **There is one freezer, so there is one structure file.** `cellstocks/lab-storage.json` holds the
   whole lab's tree — `labName`, `labIcon`, `children`, `unplaced` — and every box carries an
   `owner`. Storing a copy of it inside each member's file was wrong three rounds running: it made
@@ -191,12 +194,20 @@ worker handles by sweeping only its own prefix.
   overwritten. `refreshPaths()` is the fix, and `commitLabStorage` runs it in the **same
   commit** as the move or rename that caused it: a follow-up commit means a failure in
   between leaves exactly the half-finished state the warning describes.
-- **The Structure screen is a folder tree, all of it on screen at once, open by default.**
-  Root, every layer, every box, ✎ on every row including the root, **+** on every row that is
-  not a box, drag any row onto any layer. A node is open unless it has been collapsed by
-  hand — which is also why a layer added inside a folder is visible the moment it is saved.
-  It is admin-only, and it is the third attempt — do not "simplify" it back into one level at
-  a time or a per-member picker.
+- **The Storage screen is a map; the folder tree is its List view.** Everyone (PI read-only) sees
+  four cards — +4, −20, −80, liquid nitrogen — then each freezer of that temperature as a figure
+  of its own, then one freezer drawn with a metal rack per shelf, then the boxes on a shelf.
+  Admin → Structure is the same map with a **List** switch for the old folder tree (all of it on
+  screen at once, open by default, ✎ on every row, **+** on every row that is not a box, drag any
+  row onto any layer) — which is still the only place that drags a whole shelf somewhere else.
+  How cold is **data on the top-level layer** (`temp`: `p4`, `m20`, `m80`, `ln2`), chosen when a
+  freezer is added; a layer made before that is read from its note or name (`E.tempOf`), and one
+  that says nothing recognisable is filed under "Other" rather than forced into a card. Nothing
+  else branches on it. The cards' pictures are stock photos in `cellstocks/stock/` (Wikimedia
+  Commons, CC BY-SA — credited on the screen and in `stock/CREDITS.md`); an admin can replace any
+  one (`tempImages` in `lab-storage.json`, uploaded under `cellstocks/icons/`) or any freezer's own
+  icon. It was a folder tree for six attempts; do not "simplify" the map back into one level at a
+  time or a per-member picker.
 - **Admin deletes a freezer, rack or box outright — but a vial is never erased.** The count
   fields could only trim from the end, so every row's ✎ has a Delete. Umut asked for it to
   need no Handoff and no emptying by hand, so it does not refuse: any vial still inside is
@@ -213,11 +224,20 @@ worker handles by sweeping only its own prefix.
 - **Nothing turns a layer into a box or back.** `editNode` deliberately cannot flip `isBox`:
   one direction orphans the children, the other orphans the vials. It is a
   delete-and-make-again decision, and the tick is disabled once the node exists.
-- **A member adds a box; only admin adds a freezer.** The quick-add row on the Boxes tab offers
-  a box and nothing else — the "Add a freezer or tank" button was removed at Umut's word, not
-  disabled, because a member adding a unit was adding it to everybody's tree. With no freezer
-  yet, "Add a box" is disabled and says to ask an admin. Do not put a unit-level control back on
-  a member's screen.
+- **Who may change the tree is enforced by the Worker, not by hiding buttons.** Any member may
+  add a **freezer or a shelf** anywhere and a **box of their own** anywhere, and may rename,
+  resize, archive, move or delete **a box that is theirs**; nothing else — not another member's
+  box, not a rename or move of any layer, not the lab's name, icon or card pictures, not handing a
+  box to somebody else, not a common box. `checkTreeChange()` in `worker.js` compares the incoming
+  tree with the committed one on every `/commit` that carries `lab-storage.json` (admin is not
+  checked; a PI cannot write it at all), and a box may only leave the tree once its owner's file
+  holds no stored vial in it — in the same commit or already committed. It compares with empty
+  fields dropped (`""`, `null`, `[]`), because the app writes the tree without them. A member's
+  tree change starts from the freshest copy (`fetchLabStorageFresh`, the Contents API) so it never
+  looks like it deletes somebody's new box. Deleting a box of your own takes its vials out and logs
+  them first, exactly as admin's delete does. The Add-a-freezer button was once removed from
+  members at Umut's word; **he reversed it** (2026-10-29: "raf da ekleyebilsin dolap da
+  ekleyebilsin").
 - **Every folder carries its own icon, and both kinds are real.** An emoji is stored as the
   character; an uploaded image lands in `cellstocks/icons/` (admin only, PNG/JPG/WEBP, no SVG — it
   is markup and this repo is public) and the node stores only the filename. `iconKind()` decides
@@ -265,9 +285,16 @@ worker handles by sweeping only its own prefix.
   the admin typed in their name and note; the positions in a box come from its own `rows`,
   `cols` and `scheme`. There is no machine-readable `type` any more: Umut asked for one free
   note field ("sadece serbest açıklama metni"), so nothing branches on what a layer *is*.
-- **The placement proposal is a proposal.** The override path stays — but even an override may not
-  mix two cells in one row, and a plan never part-fills silently. If it cannot describe a run
-  honestly it lists the slots instead.
+- **The placement proposal is a proposal, and the person at the freezer may overrule it.** The
+  automatic plan never mixes two cells in one row and never part-fills silently; if it cannot
+  describe a run honestly it lists the slots instead. Beside it, Add has **Arrange tube by
+  tube…**: the boxes as they will look, every new tube draggable (tap several to move them
+  together, or tap a tube and then a free slot; touch works) into the owner's own boxes, placed
+  or not — `applyAssignments()`, all or nothing, one slot per tube. **An arrangement may put two
+  different cells in one row** (Umut: HEK CuAdapt beside HepG2 CuAdapt): it is reported in the
+  dialog and the banner and listed under Review as a mixed row, never refused. A single manual
+  slot pick (`suggestPlacementAt`) follows the same rule. When nothing fits at all, Add offers
+  one tap to open a new box for the owner (not placed yet) instead of a dead end.
 - **A row that already mixes two cells is a warning, not an error.** One row does — UMUT CAA CELLS
   A, one Du145 among eight HEK293T. It is listed for review; it does not block a save, and nothing
   is moved to fix it without being asked.

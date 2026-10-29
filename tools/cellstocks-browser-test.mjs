@@ -2843,8 +2843,9 @@ try {
     check("your own placed box is offered", /Box Mine/.test(dialogText), dialogText);
     check("a lab-mate's box is never offered as somewhere to put YOUR vial",
       !/Box Baris/.test(dialogText) && !/baris/i.test(dialogText), dialogText);
-    check("your own box that has no home yet is not offered either -- it is not in the freezer",
-      !/Box Unplaced Mine/.test(dialogText) && !/Not placed yet/.test(dialogText), dialogText);
+    check("your own box that has no home yet IS offered, and says it is not placed -- a box can be filled before it is put away",
+      /Not placed yet → Box Unplaced Mine/.test(dialogText), dialogText);
+    check("...but never a lab-mate's box that has no home yet", !/Box Unplaced Baris/i.test(dialogText), dialogText);
   } catch (err) {
     check("the box override never offers a box you don't own", false, String(err));
   } finally {

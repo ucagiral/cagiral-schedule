@@ -33,6 +33,7 @@ on:
       - tools/cellstocks-admin-browser-test.mjs
       - tools/cellstocks-kroki-browser-test.mjs
       - tools/cellstocks-notes-browser-test.mjs
+      - tools/cellstocks-arrange-browser-test.mjs
       - .github/workflows/cellstocks.yml
   pull_request:
     paths:
@@ -49,6 +50,7 @@ on:
       - tools/cellstocks-admin-browser-test.mjs
       - tools/cellstocks-kroki-browser-test.mjs
       - tools/cellstocks-notes-browser-test.mjs
+      - tools/cellstocks-arrange-browser-test.mjs
       - .github/workflows/cellstocks.yml
   workflow_dispatch:
 
@@ -130,6 +132,9 @@ jobs:
 
       - name: Notes browser checks
         run: node tools/cellstocks-notes-browser-test.mjs
+
+      - name: Arrange browser checks
+        run: node tools/cellstocks-arrange-browser-test.mjs
 
       # The inventory is the app's source of truth and the workbook is generated
       # from it. If the two ever disagree, the sheet somebody downloads is wrong,

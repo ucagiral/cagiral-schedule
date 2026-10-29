@@ -311,6 +311,14 @@
   .slot.target{outline:2.5px solid var(--accent); outline-offset:-1px; background:var(--accent-soft)}
   .slot.hit{outline:2.5px solid var(--bad); outline-offset:-1px}
   .gridwrap{display:grid; gap:3px; align-items:center}
+  /* Arranging a freeze-down: the new tubes are the ones that can be picked up. */
+  .slot.newtube{outline:2px solid var(--accent); outline-offset:-1px; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none}
+  .slot.newtube.sel{outline:3px solid var(--bad); box-shadow:0 0 0 2px var(--panel) inset}
+  .slot.free{cursor:copy}
+  .slot.dropOk{outline:3px dashed var(--accent); outline-offset:-1px}
+  .slot.dropNo{outline:3px dashed var(--bad); outline-offset:-1px; opacity:.6}
+  .dragGhost{position:fixed; z-index:10000; pointer-events:none; min-width:26px; height:26px; padding:0 8px;
+    border-radius:13px; background:var(--accent); color:#fff; font:700 12px/26px system-ui; text-align:center}
   .axis{font-size:9.5px; color:var(--muted); text-align:center}
   .axis.r{text-align:right; padding-right:3px}
 
@@ -2166,7 +2174,7 @@
   // =====================================================================
 
   var freeze = { name:"", count:1, unitId:null, boxId:null, position:null, plan:null, kind:"Cell", customFacets:{},
-                 multi:false, rows:[{ variant:"", passage:"", count:1 }] };
+                 multi:false, rows:[{ variant:"", passage:"", count:1 }], assign:null };
 
   // "Several variants": origin typed once, then one line per variant with its own
   // passage and vial count. Identical lines are kept as separate entries.
@@ -2309,7 +2317,7 @@
     }
   }
 
-  function renderFreezePlan(){
+  function renderFreezePlanAuto(){
     var card = clear($("fzPlanCard"));
     $("fzElsewhere").textContent = freeze.boxId ? "Choose a different box" : "Put it somewhere else";
     var name = freeze.name.trim();
@@ -2418,6 +2426,388 @@
     card.appendChild(row);
   }
 
+  // ---- arranging the tubes by hand ---------------------------------------------------
+  //
+  // The automatic plan above is the default. "Arrange" opens the boxes as they will look
+  // once the tubes are in, and lets the person put every tube exactly where they want it:
+  // drag one, or tap several to select them and drag them together, or tap a tube and then
+  // an empty slot. Their own boxes only (placed or not). Two different cells may share a
+  // row if that is what they choose -- it is reported, not refused (engine.js).
+
+  function arrangeInputs(){
+    var base = freezeBatchBase();
+    var rows = multiOn() ? freeze.rows
+      : [{ variant:"", passage: $("fzPassage").value.trim(), count: freeze.count }];
+    return { base: base, rows: rows };
+  }
+
+  // What an arrangement depends on: how many tubes, and where the automatic plan was told
+  // to look. Anything else (the name, a passage, the date) leaves the places alone.
+  function freezeSig(){
+    var inp = arrangeInputs();
+    return [E.freezeItems({ origin: freeze.name.trim() || "x" }, inp.rows).length, freeze.boxId || "", freeze.unitId || "",
+            multiOn() ? "m" : "s", freeze.kind].join("|");
+  }
+
+  function planAssignments(){
+    var inp = arrangeInputs();
+    if (multiOn()){
+      var res = E.applyBatch(state, inp.base, inp.rows, { idPrefix:"preview" });
+      return res.ok ? res.vials.map(function(v){ return { boxId: v.location.boxId, position: v.location.position }; }) : null;
+    }
+    if (!freeze.plan || !freeze.plan.ok || !freeze.plan.segments) return null;
+    var out = [];
+    freeze.plan.segments.forEach(function(seg){
+      seg.positions.forEach(function(p){ out.push({ boxId: seg.boxId, position: p }); });
+    });
+    return out;
+  }
+
+  function activeManual(){
+    if (freeze.kind !== "Cell" || !freeze.assign) return null;
+    if (freeze.assign.sig !== freezeSig()){ freeze.assign = null; return null; }
+    var inp = arrangeInputs();
+    var res = E.applyAssignments(state, inp.base, inp.rows, freeze.assign.list,
+      { idPrefix:"preview", owner: effectiveIdentity() });
+    if (!res.ok){ freeze.assign = null; return null; }
+    return { list: freeze.assign.list, res: res };
+  }
+
+  function assignmentGroups(list){
+    var order = [], by = {};
+    list.forEach(function(a){
+      if (!by[a.boxId]){
+        var f = E.findBox(state, a.boxId);
+        by[a.boxId] = { boxId: a.boxId, positions: [], box: f ? f.box : null, chain: f ? f.chain : [] };
+        order.push(a.boxId);
+      }
+      by[a.boxId].positions.push(a.position);
+    });
+    return order.map(function(id){ return by[id]; });
+  }
+  function groupPath(g){
+    return (g.chain.length ? g.chain.map(function(n){ return n.name; }) : ["Not placed yet"])
+      .concat([g.box ? g.box.name : g.boxId]).join(" → ");
+  }
+  function describeAssignments(list){
+    return assignmentGroups(list).map(function(g){
+      return (g.box ? g.box.name : g.boxId) + ", " + g.positions.join(" ");
+    }).join(" + ");
+  }
+  function warningText(w){
+    return "Row " + w.label + " of " + w.box + " now holds " + w.origins.join(" and ") +
+      " — allowed because you placed them, and listed under Review.";
+  }
+
+  function renderManualPlan(card, man){
+    var total = man.list.length;
+    freeze.plan = { ok:true, manual:true, batch: multiOn(), summary: describeAssignments(man.list),
+                    reason: "Arranged by you." };
+    var head = el("div", null, "Put these " + total + " where you arranged them");
+    head.style.fontWeight = "650"; head.style.fontSize = "14px";
+    card.appendChild(head);
+    assignmentGroups(man.list).forEach(function(g){
+      card.appendChild(el("div", "occ", groupPath(g) + " — " + g.positions.join(" ")));
+      card.appendChild(boxGrid(g.boxId, { target: g.positions, static: true }));
+    });
+    man.res.warnings.forEach(function(w){
+      var p = el("p", "note", "⚠ " + warningText(w)); p.style.color = "var(--guess)"; card.appendChild(p);
+    });
+    var row = el("div", "row tight");
+    var again = el("button", null, "Arrange again"); again.type = "button";
+    again.onclick = openArrange;
+    var back = el("button", null, "Back to automatic"); back.type = "button";
+    back.onclick = function(){ freeze.assign = null; renderFreezePlan(); renderFreezeGuard(); };
+    row.appendChild(again); row.appendChild(back);
+    card.appendChild(row);
+  }
+
+  function renderFreezePlan(){
+    var card = $("fzPlanCard");
+    var man = activeManual();
+    if (man && freeze.name.trim()){
+      clear(card);
+      $("fzElsewhere").textContent = "Choose a different box";
+      renderManualPlan(card, man);
+      return;
+    }
+    renderFreezePlanAuto();
+    if (freeze.kind !== "Cell" || !freeze.name.trim()) return;
+    var row = el("div", "row tight");
+    if (freeze.plan && freeze.plan.ok){
+      var arr = el("button", null, "Arrange tube by tube…"); arr.type = "button";
+      arr.id = "fzArrange";
+      arr.title = "See the boxes as they will look and drag each tube where you want it";
+      arr.onclick = openArrange;
+      row.appendChild(arr);
+    } else if (freeze.plan && !freeze.plan.ok && canWrite() && hasOwnInventory()){
+      var nb = el("button", "primary", "Open a new box for these (not placed yet)"); nb.type = "button";
+      nb.id = "fzNewBox";
+      nb.title = "Makes an empty box of yours that waits under “Not placed yet” until it is put in a freezer";
+      nb.onclick = openNewBoxForFreeze;
+      row.appendChild(nb);
+    }
+    if (row.childNodes.length) card.appendChild(row);
+  }
+
+  // Nothing fits (every box is full, or there is none): make a box of the owner's own,
+  // not placed yet, and let the plan find it. The tubes are about to be frozen whether or
+  // not the app has somewhere to write them down.
+  async function openNewBoxForFreeze(){
+    var mine = (effectiveIdentity() || "").toLowerCase();
+    try {
+      var fresh = await fetchLabStorage();
+      var n = 1, taken = {};
+      E.eachBox(fresh, function(b){ taken[b.name.toLowerCase()] = true; });
+      while (taken[(mine + " box " + n).toLowerCase()]) n++;
+      var name = effectiveIdentity() + " box " + n;
+      var r = E.addNode(fresh, "unplaced", { name: name, rows: 9, cols: 9, icon: "📦", isBox: true, owner: mine });
+      if (!r.ok) throw new Error(r.reason);
+      await commitLabStorage(r.state, "Add a box");
+      showBanner("Made <b>" + esc(name) + "</b> for these — it waits under “Not placed yet” until it goes in a freezer.");
+      renderAll();
+    } catch(err){ showBanner("Couldn't make a box: " + esc(err.message)); }
+  }
+
+  function openArrange(){
+    var start = (activeManual() || {}).list || planAssignments();
+    if (!start){ showBanner("There is nothing to arrange yet."); return; }
+    var inp = arrangeInputs();
+    var n = start.length;
+    var list = start.map(function(a){ return { boxId: a.boxId, position: a.position }; });
+    var selected = {};                     // tube index -> true
+    var msg = el("p", "note");
+    var tabBox = list[0].boxId;
+    var ws = null, warnings = [];
+
+    var mineBoxes = E.boxesFor(state, null, effectiveIdentity(), { kind: "Cell", includeUnplaced: true })
+      .filter(function(e){ return !e.box.archived; });
+
+    function recompute(){
+      var r = E.applyAssignments(state, inp.base, inp.rows, list, { idPrefix:"arr", owner: effectiveIdentity() });
+      if (!r.ok){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; return false; }
+      ws = r.state; warnings = r.warnings; return true;
+    }
+    function selList(){
+      return Object.keys(selected).map(Number).sort(function(a, b){ return a - b; });
+    }
+
+    // Where the selected tubes would land if the anchor tube went to (boxId, position):
+    // everyone keeps their distance from the anchor, and if that does not fit they fill
+    // the free slots from there in reading order. Returns a new list or { error }.
+    function planMove(anchor, boxId, position){
+      var sel = selList();
+      if (sel.indexOf(anchor) === -1) sel = [anchor];
+      var tb = (E.findBox(state, boxId) || {}).box;
+      if (!tb) return { error: "That box is not in the lab." };
+      var tp = E.parsePosition(tb, position);
+      if (!tp) return { error: "That slot does not exist." };
+      var occ = E.occupancy(state, boxId);
+      var isSel = {}; sel.forEach(function(i){ isSel[i] = true; });
+      function blockedBy(bId, label){
+        var f = E.findBox(state, bId), o2 = E.occupancy(state, bId), q = f && E.parsePosition(f.box, label);
+        if (q && o2.slots[q.index].vial) return true;
+        for (var i = 0; i < list.length; i++) if (!isSel[i] && list[i].boxId === bId && list[i].position === label) return true;
+        return false;
+      }
+      var a0 = list[anchor], ab = E.findBox(state, a0.boxId).box, ap = E.parsePosition(ab, a0.position);
+      var dr = tp.row - ap.row, dc = tp.col - ap.col;
+      var moved = list.map(function(a){ return { boxId: a.boxId, position: a.position }; });
+      var seen = {}, fits = true;
+      sel.forEach(function(i){
+        if (!fits) return;
+        var cb = E.findBox(state, list[i].boxId).box, cp = E.parsePosition(cb, list[i].position);
+        var r = cp.row + dr, c = cp.col + dc;
+        if (r < 0 || c < 0 || r >= Number(tb.rows) || c >= Number(tb.cols)){ fits = false; return; }
+        var label = E.positionLabel(tb, r * Number(tb.cols) + c);
+        if (!label || seen[label] || blockedBy(boxId, label)){ fits = false; return; }
+        seen[label] = true;
+        moved[i] = { boxId: boxId, position: label };
+      });
+      if (fits) return { list: moved };
+      // Reading order from the target slot.
+      var free = [];
+      for (var s = tp.index; s < occ.slots.length; s++){
+        var lab = occ.slots[s].position;
+        if (!blockedBy(boxId, lab)) free.push(lab);
+      }
+      if (free.length < sel.length){
+        return { error: "There is not enough free room from " + position + " on for " + sel.length +
+                        " tube" + (sel.length === 1 ? "" : "s") + "." };
+      }
+      sel.forEach(function(i, k){ moved[i] = { boxId: boxId, position: free[k] }; });
+      return { list: moved };
+    }
+
+    function moveTo(anchor, boxId, position){
+      var r = planMove(anchor, boxId, position);
+      if (r.error){ msg.textContent = r.error; msg.style.color = "var(--bad)"; draw(); return false; }
+      list = r.list; msg.textContent = ""; tabBox = boxId;
+      draw();
+      return true;
+    }
+
+    var body = clear($("dlgBody"));
+    $("dlgTitle").textContent = "Arrange " + n + " tube" + (n === 1 ? "" : "s");
+    var holder = el("div");
+    var drag = null, ghost = null, lastDrop = null;
+
+    function slotUnder(ev){
+      var over = document.elementFromPoint(ev.clientX, ev.clientY);
+      return over && over.closest ? over.closest("[data-pos]") : null;
+    }
+    function onMove(ev){
+      if (!drag) return;
+      if (!drag.moved){
+        if (Math.abs(ev.clientX - drag.x) + Math.abs(ev.clientY - drag.y) < 8) return;
+        drag.moved = true;
+        if (!selected[drag.idx]){ selected = {}; selected[drag.idx] = true; paintSel(); }
+        ghost = el("div", "dragGhost", String(selList().length));
+        document.body.appendChild(ghost);
+      }
+      ev.preventDefault();
+      ghost.style.left = (ev.clientX + 8) + "px"; ghost.style.top = (ev.clientY + 8) + "px";
+      var slot = slotUnder(ev);
+      if (lastDrop && lastDrop !== slot) lastDrop.classList.remove("dropOk", "dropNo");
+      lastDrop = slot;
+      if (slot){
+        var ok = !planMove(drag.idx, slot.dataset.box, slot.dataset.pos).error;
+        slot.classList.add(ok ? "dropOk" : "dropNo");
+        slot.classList.remove(ok ? "dropNo" : "dropOk");
+      }
+    }
+    function onUp(ev){
+      if (!drag) return;
+      var d = drag; drag = null;
+      if (ghost){ ghost.remove(); ghost = null; }
+      if (lastDrop){ lastDrop.classList.remove("dropOk", "dropNo"); lastDrop = null; }
+      if (!d.moved){ if (selected[d.idx]) delete selected[d.idx]; else selected[d.idx] = true; draw(); return; }
+      var slot = slotUnder(ev);
+      if (slot) moveTo(d.idx, slot.dataset.box, slot.dataset.pos); else draw();
+    }
+    function onCancel(){
+      drag = null; if (ghost){ ghost.remove(); ghost = null; }
+      if (lastDrop){ lastDrop.classList.remove("dropOk", "dropNo"); lastDrop = null; }
+    }
+    window.addEventListener("pointermove", onMove, { passive:false });
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onCancel);
+    function cleanup(){
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onCancel);
+      $("dlg").removeEventListener("close", cleanup);
+      if (ghost) ghost.remove();
+    }
+    $("dlg").addEventListener("close", cleanup);
+
+    function paintSel(){
+      Array.prototype.forEach.call(holder.querySelectorAll("[data-tube]"), function(c){
+        c.classList.toggle("sel", !!selected[c.dataset.tube]);
+      });
+    }
+
+    function draw(){
+      if (!recompute()) return;
+      clear(holder);
+      holder.appendChild(el("p", "note",
+        "Drag a tube to a free slot. Tap tubes to select several, then drag one of them to move " +
+        "them together — or tap a tube and then tap a free slot."));
+
+      var tabs = el("div", "row tight");
+      var shown = {};
+      var ids = [];
+      list.forEach(function(a){ if (!shown[a.boxId]){ shown[a.boxId] = true; ids.push(a.boxId); } });
+      mineBoxes.forEach(function(e){ if (!shown[e.box.id]){ shown[e.box.id] = true; ids.push(e.box.id); } });
+      if (ids.indexOf(tabBox) === -1) tabBox = ids[0];
+      ids.forEach(function(id){
+        var f = E.findBox(ws, id); if (!f) return;
+        var occ = E.occupancy(ws, id);
+        var mineHere = list.filter(function(a){ return a.boxId === id; }).length;
+        var b = el("button", id === tabBox ? "primary" : null,
+          f.box.name + (f.chain.length ? "" : " (not placed)") + " · " + occ.free + " free" + (mineHere ? " · " + mineHere + " new" : ""));
+        b.type = "button";
+        b.dataset.tab = id;
+        b.onclick = function(){ tabBox = id; draw(); };
+        tabs.appendChild(b);
+      });
+      holder.appendChild(tabs);
+
+      var f2 = E.findBox(ws, tabBox);
+      var occ2 = E.occupancy(ws, tabBox);
+      holder.appendChild(el("div", "occ", (f2.chain.length ? f2.chain.map(function(x){ return x.name; }).join(" → ") + " → " : "Not placed yet → ") + f2.box.name));
+      var tintOf = boxTints(occ2);
+      var cols = f2.box.cols, rowsN = f2.box.rows;
+      var grid = el("div", "gridwrap");
+      grid.style.gridTemplateColumns = "auto repeat(" + cols + ", minmax(26px, 1fr))";
+      grid.appendChild(el("div"));
+      for (var c = 0; c < cols; c++) grid.appendChild(el("div", "axis", String(c + 1)));
+      for (var r = 0; r < rowsN; r++){
+        grid.appendChild(el("div", "axis r", f2.box.scheme === "linear" ? "" : E.rowLabel(r)));
+        for (var c2 = 0; c2 < cols; c2++){
+          var slot = occ2.slots[r * cols + c2];
+          var cell = el("div", "slot");
+          cell.dataset.box = tabBox; cell.dataset.pos = slot.position;
+          var idx = slot.vial && /^arr-\d+$/.test(slot.vial.id) ? Number(slot.vial.id.slice(4)) : -1;
+          if (slot.vial){
+            var o = isCellKind(slot.vial) ? originOf(slot.vial) : slot.vial.name;
+            cell.className += " taken";
+            cell.style.background = tintOf(slot.vial);
+            cell.textContent = shortOrigin(o);
+            cell.title = slot.position + " · " + slot.vial.name;
+            if (idx >= 0){
+              cell.className += " newtube" + (selected[idx] ? " sel" : "");
+              cell.dataset.tube = String(idx);
+              cell.title += " (new — drag me)";
+              (function(i){
+                cell.onpointerdown = function(ev){
+                  if (ev.button && ev.button !== 0) return;
+                  drag = { idx: i, x: ev.clientX, y: ev.clientY, moved: false };
+                };
+              })(idx);
+            }
+          } else {
+            cell.className += " free";
+            (function(pos){
+              cell.onclick = function(){
+                var s = selList();
+                if (!s.length){ msg.textContent = "Tap a new tube first, or drag one here."; msg.style.color = ""; return; }
+                moveTo(s[0], tabBox, pos);
+              };
+            })(slot.position);
+          }
+          grid.appendChild(cell);
+        }
+      }
+      holder.appendChild(grid);
+
+      warnings.forEach(function(w){
+        var p = el("p", "note", "⚠ " + warningText(w)); p.style.color = "var(--guess)"; holder.appendChild(p);
+      });
+      holder.appendChild(msg);
+    }
+
+    body.appendChild(holder);
+    var foot = clear($("dlgFoot"));
+    var selAll = el("button", null, "Select all tubes"); selAll.type = "button";
+    selAll.onclick = function(){ selected = {}; for (var i = 0; i < n; i++) selected[i] = true; draw(); };
+    var selNone = el("button", null, "Clear selection"); selNone.type = "button";
+    selNone.onclick = function(){ selected = {}; draw(); };
+    var reset = el("button", null, "Back to automatic"); reset.type = "button";
+    reset.onclick = function(){ freeze.assign = null; $("dlg").close(); renderFreezePlan(); renderFreezeGuard(); };
+    var use = el("button", "primary", "Use this arrangement"); use.type = "button";
+    use.id = "arrUse";
+    use.onclick = function(){
+      if (!recompute()) return;
+      freeze.assign = { sig: freezeSig(), list: list };
+      $("dlg").close();
+      renderFreezePlan(); renderFreezeGuard();
+    };
+    [selAll, selNone, reset, use].forEach(function(b){ foot.appendChild(b); });
+    draw();
+    $("dlg").showModal();
+  }
+
   function pickBox(){
     var body = clear($("dlgBody"));
     $("dlgTitle").textContent = "Which box?";
@@ -2426,7 +2816,7 @@
     // list every box in the whole lab, including other members' and anything still
     // sitting in "Not placed yet": an override that is supposed to offer a different
     // box of YOURS was instead offering to freeze a vial straight into Barış's box.
-    var mine = E.boxesFor(state, null, effectiveIdentity(), { kind: freeze.kind });
+    var mine = E.boxesFor(state, null, effectiveIdentity(), { kind: freeze.kind, includeUnplaced: true });
     if (!mine.length){
       body.appendChild(el("p", "note", "You have no boxes with room yet — ask an admin for one."));
     }
@@ -2439,12 +2829,12 @@
       b.style.marginBottom = "6px";
       var listBox = isListBox(box);
       var nItems = occ.used + E.looseVials(state, box.id).length;
-      b.textContent = unit.name + " → " + rack.name + " → " + box.name + "  (" +
+      b.textContent = (entry.chain.length ? unit.name + " → " + rack.name + " → " : "Not placed yet → ") + box.name + "  (" +
         (listBox ? nItems + " item" + (nItems === 1 ? "" : "s") : occ.free + " free") + ")";
       b.disabled = !listBox && occ.free < freeze.count;
       // A previously locked slot belonged to the box being replaced -- carrying it
       // over could silently target the wrong cell in the new one.
-      b.onclick = function(){ freeze.boxId = box.id; freeze.position = null; $("dlg").close(); renderFreezePlan(); renderFreezeGuard(); };
+      b.onclick = function(){ freeze.boxId = box.id; freeze.position = null; freeze.assign = null; $("dlg").close(); renderFreezePlan(); renderFreezeGuard(); };
       body.appendChild(b);
     });
     clear($("dlgFoot"));
@@ -2459,6 +2849,22 @@
 
     var ids = [];
     var stamp = Date.now().toString(36);
+    if (freeze.plan.manual && freeze.assign){
+      var inp = arrangeInputs();
+      var arranged = E.applyAssignments(state, inp.base, inp.rows, freeze.assign.list,
+        { idPrefix:"v-" + stamp, now:new Date().toISOString(), by:getDevice(), owner: effectiveIdentity() });
+      if (!arranged.ok){ showBanner(esc(arranged.reason)); return; }
+      var aerrs = E.errorsOnly(E.validate(arranged.state));
+      if (aerrs.length){ showBanner("Not doing that: " + esc(aerrs[0].message)); return; }
+      state = arranged.state;
+      markDirty("Add " + arranged.vials.length + " × " + name + " (arranged)");
+      showBanner("Put " + arranged.vials.length + " × <b>" + esc(name) + "</b> in " + esc(freeze.plan.summary) + "." +
+        (arranged.warnings.length ? " " + esc(arranged.warnings.map(warningText).join(" ")) : ""));
+      freeze.boxId = null; freeze.position = null; freeze.assign = null;
+      if (multiOn()){ freeze.rows = [{ variant:"", passage:"", count:1 }]; renderFreezeMulti(); }
+      renderAll();
+      return;
+    }
     for (var i = 0; i < freeze.count; i++) ids.push("v-" + stamp + "-" + i);
     var dateInput = $("fzDate").value;
     var customFacets = freeze.collectCustomFacets ? freeze.collectCustomFacets() : {};
@@ -2470,7 +2876,7 @@
       state = bo.state;
       markDirty("Add " + bo.vials.length + " × " + name + " variants");
       showBanner("Put " + bo.vials.length + " vials of <b>" + esc(name) + "</b> in (" + bo.parts.length + " lines).");
-      freeze.boxId = null; freeze.position = null;
+      freeze.boxId = null; freeze.position = null; freeze.assign = null;
       freeze.rows = [{ variant:"", passage:"", count:1 }];
       renderFreezeMulti();
       renderAll();
@@ -2494,6 +2900,7 @@
     showBanner("Put " + out.vials.length + " × <b>" + esc(name) + "</b> in " + esc(freeze.plan.summary) + ".");
     freeze.boxId = null;
     freeze.position = null;
+    freeze.assign = null;
     freeze.customFacets = {};
     $("fzCustomFacets").dataset.kind = ""; // force a fresh, empty table on the next render
     renderAll();

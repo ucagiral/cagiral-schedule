@@ -16,6 +16,7 @@ Freezer 1,Freezer 1 → Rack 1,DUZENLE,umut,9,9,81,81,0,0
 Freezer 1,Freezer 1 → Rack 1,ONGOING,umut,9,9,75,81,6,0
 Freezer 1,Freezer 1 → Rack 1,UMUT CELLS -4-,umut,9,9,66,81,15,0
 Freezer 1,Freezer 1 → Rack 1,Umut Cell Box -5-,umut,9,9,73,81,8,0
+Freezer 1,Freezer 1 → Rack 1,Big Plasmid Box,umut,9,9,11,81,70,0
 Freezer 1,Freezer 1 → Rack 2,Common Box #1,umut,9,9,9,81,72,0
 Fridge 1,Fridge 1 → Rack 1,ChIP Box,umut,9,9,0,81,81,0
 Fridge 1,Fridge 1 → Rack 1,ChIP Box -2-,umut,9,9,0,81,81,0
@@ -23,4 +24,3 @@ Fridge 1,Fridge 1 → Rack 1,Umut -20 -2-,umut,9,9,0,81,81,0
 Fridge 1,Fridge 1 → Rack 1,Umut -20 Box -1-,umut,9,9,0,81,81,0
 Not placed yet,Not placed yet,Unkown FOR NOW,umut,9,9,0,81,81,0
 Not placed yet,Not placed yet,No use,umut,9,9,0,81,81,0
-Not placed yet,Not placed yet,Big Plasmid Box,umut,9,9,0,81,81,0

@@ -1015,6 +1015,7 @@ try {
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=structure]");
+    await page.click('#structMode button[data-mode="list"]');   // the folder tree is the List view now; Map is the default
     await page.waitForFunction(() => !!document.querySelector('#admin-structure .treeBody[data-title="Box D1"]'));
 
     // A row carries two buttons now -- "+" to add a child and "✎" to edit -- so pick the
@@ -3546,6 +3547,7 @@ try {
 
     await page.click("nav button[data-screen=admin]");
     await page.click("#adminTabs button[data-admintab=structure]");
+    await page.click('#structMode button[data-mode="list"]');   // the folder tree is the List view now; Map is the default
     await page.waitForFunction(() => !!document.querySelector('#admin-structure .treeBody[data-title="Rack 1"]'));
 
     // Same retry shape the existing Structure tests already use: a save's dialog-close

@@ -770,13 +770,26 @@ async function routeNotesPeople(request, env) {
 //     lab's name, icon or pictures, not handing a box to somebody else.
 // Admin is not checked at all.
 
+// The app writes the tree without empty fields (slimStorage drops "", null and []), so a file
+// written by hand or by an older build can differ from what the app sends back by nothing
+// but those. They mean the same thing and must compare equal, or every member's commit
+// would look like an edit of somebody else's box.
+function dropEmpties(obj) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj || {})) {
+    if (v === "" || v === null || v === undefined || (Array.isArray(v) && !v.length)) continue;
+    out[k] = v;
+  }
+  return out;
+}
+
 function flattenTree(root) {
   const nodes = new Map();
   function walk(list, parentId) {
     for (const n of list || []) {
       if (!n || typeof n.id !== "string") continue;
       const { children, ...own } = n;
-      nodes.set(n.id, { node: own, parentId, isBox: !!n.isBox });
+      nodes.set(n.id, { node: dropEmpties(own), parentId, isBox: !!n.isBox });
       if (!n.isBox) walk(children, n.id);
     }
   }
@@ -805,7 +818,8 @@ function checkTreeChange(user, oldRoot, newRoot, removable) {
   // sets the name and the pictures, and from then on only an admin changes them.
   for (const k of oldRoot ? new Set([...Object.keys(o), ...Object.keys(n)]) : []) {
     if (k === "children" || k === "unplaced") continue;
-    if (stableJson(o[k]) !== stableJson(n[k])) return `only an admin may change the lab's ${k}`;
+    const same = (v) => (v === "" || v === null || v === undefined ? "" : stableJson(v));
+    if (same(o[k]) !== same(n[k])) return `only an admin may change the lab's ${k}`;
   }
   const mine = (node) => !!node.isBox && !node.common && String(node.owner || "").toLowerCase() === me;
   if (after.size !== (newRoot && countNodes(newRoot))) return "the same id appears twice in the tree";

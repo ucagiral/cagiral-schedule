@@ -1425,6 +1425,65 @@ await check("tree rules: a member cannot touch anyone else's box, a layer, the l
   return null;
 });
 
+await check("tree rules: empty fields the app drops (\"\", null, []) are not an edit of somebody else's box", () => {
+  const old = TREE();
+  old.children[0].children[0].children[1].note = "";           // a lab-mate's box, written with an empty note
+  old.children[0].children[0].children[1].icon = null;
+  old.children[0].icon = "";
+  old.children[1].children[0].children = [];
+  const next = TREE();
+  delete next.children[0].children[0].children[1].note;       // what the app sends back: the empties are gone
+  delete next.children[0].children[0].children[1].icon;
+  delete next.children[0].icon;
+  next.children[0].children[0].children.push(BOX("n", "umut"));
+  const r = checkTreeChange(member, old, next);
+  return r ? "refused: " + r : null;
+});
+
+await check("tree rules against the lab's real freezer, written the way the app writes it", async () => {
+  await import("../cellstocks/engine.js");
+  const E = globalThis.CellStocksEngine;
+  const { readFileSync } = await import("node:fs");
+  const real = JSON.parse(readFileSync(new URL("../cellstocks/lab-storage.json", import.meta.url), "utf8"));
+  const owners = new Set();
+  E.eachBox(E.mergeStorageDefaults(real), (b) => { if (b.owner) owners.add(b.owner); });
+  E.unplacedOf(E.mergeStorageDefaults(real)).forEach((b) => { if (b.owner) owners.add(b.owner); });
+  if (owners.size < 3) return "expected the real lab to have several box owners, got " + [...owners].join();
+  const send = (st) => JSON.parse(E.serialiseStorage(st));      // what the app puts in /commit
+  for (const name of owners) {
+    const me = { name, role: "member" };
+    const base = E.mergeStorageDefaults(real);
+    const noop = checkTreeChange(me, real, send(base));
+    if (noop) return `${name}: saving the real tree unchanged was refused: ${noop}`;
+    const added = E.addNode(base, "unplaced", { name: "Test box", isBox: true, owner: name });
+    const r1 = checkTreeChange(me, real, send(added.state));
+    if (r1) return `${name}: adding an own box was refused: ${r1}`;
+    const layerAdd = E.addNode(base, null, { name: "New freezer", temp: "m80" });
+    const r2 = checkTreeChange(me, real, send(layerAdd.state));
+    if (r2) return `${name}: adding a freezer was refused: ${r2}`;
+    const mine = [];
+    E.eachBox(base, (b) => { if (String(b.owner).toLowerCase() === name.toLowerCase()) mine.push(b); });
+    const theirs = [];
+    E.eachBox(base, (b) => { if (b.owner && String(b.owner).toLowerCase() !== name.toLowerCase()) theirs.push(b); });
+    if (mine.length) {
+      const target = E.layers(base).find((l) => !l.node.isBox && !(l.node.children || []).some((c) => c.id === mine[0].id));
+      const mv = E.moveNode(base, mine[0].id, target.node.id);
+      const r3 = checkTreeChange(me, real, send(mv.state));
+      if (r3) return `${name}: moving an own box was refused: ${r3}`;
+      const rn = E.editNode(base, mine[0].id, { name: "Renamed", rows: 9, cols: 9 });
+      const r4 = checkTreeChange(me, real, send(rn.state));
+      if (r4) return `${name}: renaming an own box was refused: ${r4}`;
+    }
+    const steal = E.editNode(base, theirs[0].id, { name: "Not mine" });
+    if (!checkTreeChange(me, real, send(steal.state))) return `${name}: renaming somebody else's box was allowed`;
+    const mvOther = E.moveNode(base, theirs[0].id, "unplaced");
+    if (!checkTreeChange(me, real, send(mvOther.state))) return `${name}: moving somebody else's box was allowed`;
+    const layerEdit = E.editNode(base, E.layers(base)[0].node.id, { name: "Renamed layer" });
+    if (!checkTreeChange(me, real, send(layerEdit.state))) return `${name}: renaming a layer was allowed`;
+  }
+  return null;
+});
+
 await check("tree rules: admin is unrestricted, and an unchanged tree is always fine", () => {
   const admin = { name: "admin", role: "admin" };
   if (chk((t) => { t.children[0].name = "Renamed"; t.labName = "Other"; t.children[0].children[0].children[1].owner = "umut"; }, admin)) return "admin was restricted";

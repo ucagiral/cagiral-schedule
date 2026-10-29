@@ -322,6 +322,50 @@
   .axis{font-size:9.5px; color:var(--muted); text-align:center}
   .axis.r{text-align:right; padding-right:3px}
 
+  /* ---- the storage map ---- */
+  .mapCrumbs{display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin-bottom:10px}
+  .mapCrumbs .crumb{background:none; border:0; padding:4px 6px; color:var(--accent); font-weight:600; cursor:pointer}
+  .mapGrid{display:grid; gap:12px; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr))}
+  .mapTemps{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  @media (min-width:700px){ .mapTemps{grid-template-columns:repeat(4, minmax(0, 1fr))} }
+  .mapFig{position:relative; background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden}
+  .mapFig.tap{cursor:pointer}
+  .mapFig.tap:focus-visible{outline:2.5px solid var(--accent)}
+  .mapImg{aspect-ratio:4/3; background:var(--slot) center/cover no-repeat}
+  .mapPreview{max-width:320px; border-radius:10px; margin-bottom:8px}
+  .mapCap{padding:9px 11px 11px}
+  .mapTitle{font-weight:650; font-size:14px}
+  .mapCap .sub, .mapBox .sub{font-size:12px; color:var(--muted); margin-top:2px}
+  .mapCorner{position:absolute; top:6px; right:6px; min-width:30px; height:30px; padding:0 8px; border-radius:15px;
+    background:rgba(255,255,255,.9); color:#10151c; border:1px solid rgba(0,0,0,.15)}
+  .mapAdd{display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:150px;
+    border:2px dashed var(--border); background:transparent; color:var(--muted)}
+  .mapPlus{font-size:34px; line-height:1}
+  .mapHead{margin:2px 0 4px; font-size:18px}
+  .mapSub{margin:16px 0 8px; font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
+  .mapLayerHead{display:flex; flex-wrap:wrap; gap:8px; align-items:flex-start; justify-content:space-between; margin-bottom:10px}
+  .mapPictureWrap{max-width:460px; margin:6px auto}
+  .mapPicture{width:100%; height:auto; display:block}
+  .mapPicture .fzBody{fill:#d3dae1; stroke:#8a96a2; stroke-width:3}
+  .mapPicture .fzPanel{fill:#1c2530}
+  .mapPicture .fzTemp{fill:#8fe3ff; font:700 20px system-ui, sans-serif}
+  .mapPicture .fzInside{fill:#eef3f7; stroke:#aab4be; stroke-width:2}
+  .mapPicture .fzEmpty{fill:#7b8794; font:600 16px system-ui, sans-serif}
+  .mapPicture .rackHit{fill:transparent}
+  .mapPicture .rackBar{fill:#9aa5b0; stroke:#6c7783; stroke-width:1.5}
+  .mapPicture .rackRail{fill:#b4bec8}
+  .mapPicture .rackWire{stroke:#6c7783; stroke-width:1.5}
+  .mapPicture .rackBox{stroke:rgba(0,0,0,.3); stroke-width:1}
+  .mapPicture .rackLabel{fill:#33404d; font:650 15px system-ui, sans-serif}
+  .mapPicture .rackMore{fill:#33404d; font:700 11px system-ui, sans-serif}
+  .mapPicture .mapRack{cursor:pointer}
+  .mapPicture .mapRack:hover .rackHit, .mapPicture .mapRack:focus .rackHit, .mapPicture .mapRack.dropTarget .rackHit{fill:rgba(8,145,178,.14)}
+  .mapPicture .mapRack:focus{outline:none}
+  .mapBox{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:10px}
+  .mapBoxTop{display:flex; gap:6px; align-items:center}
+  .mapUnplaced{margin-top:18px}
+  .mapCredit{font-size:11px; margin-top:18px}
+
   .occ{font-size:12px; color:var(--muted); margin-top:8px}
   .bar{height:5px; border-radius:99px; background:var(--border); margin-top:6px; overflow:hidden}
   .bar i{display:block; height:100%; background:var(--accent)}
@@ -496,6 +540,11 @@
     <div class="card" id="bxLines"></div>
   </section>
 
+  <section class="screen" id="s-storage">
+    <h2>Storage</h2>
+    <div class="card" id="storageBody"></div>
+  </section>
+
   <section class="screen" id="s-review">
     <h2>Review</h2>
     <div id="reviewBody"></div>
@@ -543,6 +592,7 @@
   <button data-screen="find"><span class="ic">🔍</span>Find</button>
   <button data-screen="freeze" id="navFreeze"><span class="ic">❄️</span>Add</button>
   <button data-screen="boxes"><span class="ic">🧊</span>Boxes</button>
+  <button data-screen="storage"><span class="ic">🏛️</span>Storage</button>
   <button data-screen="review"><span class="ic">📋</span>Review</button>
   <button data-screen="log"><span class="ic">🗂️</span>Log</button>
   <button data-screen="admin" id="navAdmin" hidden><span class="ic">🛠️</span>Admin</button>
@@ -2818,7 +2868,7 @@
     // box of YOURS was instead offering to freeze a vial straight into Barış's box.
     var mine = E.boxesFor(state, null, effectiveIdentity(), { kind: freeze.kind, includeUnplaced: true });
     if (!mine.length){
-      body.appendChild(el("p", "note", "You have no boxes with room yet — ask an admin for one."));
+      body.appendChild(el("p", "note", "You have no boxes with room yet — add one under Storage or Boxes."));
     }
     mine.forEach(function(entry){
       var box = entry.box, rack = entry.rack, unit = entry.unit;
@@ -3389,9 +3439,9 @@
     if (loose.length){
       c.appendChild(el("p", "note",
         loose.length + " of your boxes " + (loose.length === 1 ? "is" : "are") +
-        " waiting for an admin to say where they go: " +
+        " not in a freezer yet: " +
         loose.map(function(b){ return b.name; }).join(", ") +
-        ". You can fill them now; they just have no place in the freezer yet."));
+        ". You can fill them now, and put them away under Storage (Move…) whenever you like."));
     }
   }
 
@@ -3425,7 +3475,7 @@
       clear($("bxGrid")).appendChild(el("div", "empty",
         (state.storage.children || []).length
           ? (readOnly ? "No boxes here yet." : "No boxes yet — add one above.")
-          : (readOnly ? "No freezer set up yet." : "No freezer set up yet — ask an admin to add one.")));
+          : (readOnly ? "No freezer set up yet." : "No freezer set up yet — add one under Storage.")));
       return;
     }
 
@@ -4341,9 +4391,9 @@
     var s = clear($("storageCard"));
     s.appendChild(el("h3", null, "Storage"));
     s.appendChild(el("p", "note",
-      "The freezers, racks and towers belong to the whole lab — admin lays them out in " +
-      "Admin → Structure. What's below is your own boxes inside them; renaming or " +
-      "resizing one changes it for everybody, because there is only one of it."));
+      "The freezers, racks and towers belong to the whole lab — see them under Storage, where " +
+      "anyone can add a freezer or a shelf and put their own boxes away. What's below is your " +
+      "own boxes; renaming or resizing one changes it for everybody, because there is only one of it."));
 
     var GROUPING_OPTIONS = [
       { id:"category-row", name:"One row per cell", note:"The rule this app has always used: a row holds one cell, never two." },
@@ -4690,8 +4740,8 @@
     });
     body.appendChild(grid);
     body.appendChild(el("p", "note",
-      "The box is yours and you can start filling it straight away. Where it sits in the " +
-      "freezer is set by an admin — until then it waits under “Not placed yet”."));
+      "The box is yours and you can start filling it straight away. Until you put it in a " +
+      "freezer (Storage → Move…) it waits under “Not placed yet”."));
     var foot = clear($("dlgFoot"));
     var msg = el("p", "note"); body.appendChild(msg);
     var ok = el("button", "primary", "Add");
@@ -4710,7 +4760,7 @@
         if (!r.ok){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; ok.disabled = false; return; }
         await commitLabStorage(r.state, "Add a box");
         $("dlg").close();
-        showBanner("Added <b>" + esc(name.value.trim()) + "</b> — an admin will say where it goes.");
+        showBanner("Added <b>" + esc(name.value.trim()) + "</b> — put it in a freezer from Storage whenever you like.");
         renderAll();
       } catch(err){
         msg.textContent = "Couldn't save that: " + err.message;
@@ -5329,7 +5379,7 @@
         $("dlg").close();
         var n = (labStorage.unplaced || []).length;
         showBanner("Imported " + rep.imported + " vials. Their box(es) are waiting under " +
-                   "<b>Not placed yet</b> — an admin says where they go. (" + n + " unplaced in the lab.)" + caveat);
+                   "<b>Not placed yet</b> — put them in a freezer from Storage. (" + n + " unplaced in the lab.)" + caveat);
         renderAll();
       } catch(err){
         showBanner("Couldn't import: " + esc(err.message));
@@ -5502,7 +5552,7 @@
   // The screen's premise is that the whole lab is on screen at once, so a node is open
   // unless it has been closed by hand -- which also means a layer added inside a folder
   // is visible the moment it is saved, rather than hiding under a twisty nobody touched.
-  var structureView = { collapsed: {} };
+  var structureView = { collapsed: {}, mode: "map" };
 
   // One icon per kind, and only two kinds now: a layer and a box.
   // Drag-and-drop is a desktop affordance: on a touch screen a draggable row fights the
@@ -5530,13 +5580,477 @@
   // live, so this reads every member's, not admin's own.
   function labVialCounts(){
     var counts = {};
-    Object.keys(labCache.data || {}).forEach(function(name){
-      (labCache.data[name].vials || []).forEach(function(v){
+    function add(list){
+      (list || []).forEach(function(v){
         if (v.status === "withdrawn" || !v.location || !v.location.boxId) return;
         counts[v.location.boxId] = (counts[v.location.boxId] || 0) + 1;
       });
-    });
+    }
+    Object.keys(labCache.data || {}).forEach(function(name){ add(labCache.data[name].vials); });
+    // labCache holds everybody else's inventory; a member's own is the state in hand.
+    if (hasOwnInventory()) add(state.vials);
     return counts;
+  }
+
+  // ---- the storage map ----------------------------------------------------------------
+  //
+  // What everyone sees (Storage), and what admin edits (Admin → Structure): four cards for
+  // how cold -- +4, -20, -80, liquid nitrogen -- then each freezer of that temperature as a
+  // figure of its own, then a big picture of one freezer with a metal rack for every shelf
+  // in it, then the boxes on a shelf. The folder tree (the List view) is still there for
+  // admin, and is still the only place that can drag a whole shelf somewhere else.
+  //
+  // Who may do what, which the Worker enforces independently (checkTreeChange):
+  //   - anyone but a PI may add a freezer or a shelf anywhere, and a box of their own;
+  //   - a member may rename, resize, move or delete a box that is theirs;
+  //   - admin may do everything, including the pictures and every layer's name.
+
+  var mapNav = { temp: null, trail: [] };      // trail: the layers entered, outermost first
+  var TEMP_STOCK = { p4: "stock/temp-p4.jpg", m20: "stock/temp-m20.jpg", m80: "stock/temp-m80.jpg", ln2: "stock/temp-ln2.jpg" };
+  var TEMP_LABELS = { other: "Other" };
+  E.TEMPS.forEach(function(t){ TEMP_LABELS[t.id] = t.label; });
+
+  function mapMe(){ return (effectiveIdentity() || "").toLowerCase(); }
+  function ownsBoxNode(n){ return E.isBoxNode(n) && !n.common && String(n.owner || "").toLowerCase() === mapMe(); }
+  function canEditNodeHere(n){
+    if (isAdminUser()) return true;
+    if (isPiUser()) return false;
+    return ownsBoxNode(n);
+  }
+  function canAddHere(){ return !isPiUser() && canWrite(); }
+
+  function tempImageSrc(id){
+    var custom = labStorage.tempImages && labStorage.tempImages[id];
+    return custom ? ICON_SRC_PREFIX + custom : (TEMP_STOCK[id] || TEMP_STOCK.m80);
+  }
+  function unitImageSrc(node){
+    if (E.iconKind(node.icon) === "image") return ICON_SRC_PREFIX + node.icon;
+    return tempImageSrc(E.tempOf(node) || "m80");
+  }
+
+  // A tree commit that starts from the freshest copy there is. A member's change is made on
+  // top of the tree as it is now, not as it was when this page loaded -- somebody else may
+  // have added a box since, and the Worker refuses a commit that appears to delete it.
+  async function fetchLabStorageFresh(){
+    try {
+      var r = await fetch(API + "/contents/" + LAB_STORAGE_PATH + "?ref=" + encodeURIComponent(CFG.branch || "main"), { cache:"no-store" });
+      if (r.ok){
+        var j = await r.json();
+        return E.mergeStorageDefaults(JSON.parse(base64ToUtf8(j.content || "")));
+      }
+    } catch(err){ /* fall through to what this session already knows */ }
+    return E.mergeStorageDefaults(labStorage);
+  }
+
+  async function labMutate(mutate, message){
+    var base = isAdminUser() ? labStorage : await fetchLabStorageFresh();
+    var r = mutate(base);
+    if (!r.ok) throw new Error(r.reason);
+    await commitLabStorage(r.state, message);
+    return r;
+  }
+
+  function mapStats(node){
+    return E.layerStats(labStorage, node.id, labVialCounts());
+  }
+  function statsLine(node){
+    var st = mapStats(node), bits = [];
+    if (st.layers) bits.push(st.layers + (st.layers === 1 ? " shelf" : " shelves"));
+    bits.push(st.boxes + (st.boxes === 1 ? " box" : " boxes"));
+    if (st.slots) bits.push(st.full + "/" + st.slots + " full");
+    return bits.join(" · ");
+  }
+
+  function mapFigure(src, title, sub, onOpen, extra){
+    var fig = el("div", "mapFig");
+    var img = el("div", "mapImg");
+    img.style.backgroundImage = "url('" + src + "')";
+    fig.appendChild(img);
+    var cap = el("div", "mapCap");
+    cap.appendChild(el("div", "mapTitle", title));
+    if (sub) cap.appendChild(el("div", "sub", sub));
+    fig.appendChild(cap);
+    if (onOpen){
+      fig.classList.add("tap"); fig.tabIndex = 0; fig.setAttribute("role", "button");
+      fig.onclick = onOpen;
+      fig.onkeydown = function(ev){ if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); onOpen(); } };
+    }
+    (extra || []).forEach(function(b){ fig.appendChild(b); });
+    return fig;
+  }
+  function mapCorner(label, title, onClick, cls){
+    var b = el("button", "mapCorner" + (cls ? " " + cls : ""), label);
+    b.type = "button"; b.title = title;
+    b.onclick = function(ev){ ev.stopPropagation(); onClick(); };
+    return b;
+  }
+
+  function renderStorageMap(c, rerender){
+    clear(c);
+    if (!labCache.members){
+      c.appendChild(el("p", "note", "Loading the lab…"));
+      ensureLabCache().then(rerender);
+      return;
+    }
+    // A trail that no longer exists (somebody deleted it) starts again from the cards.
+    var nodes = [];
+    for (var i = 0; i < mapNav.trail.length; i++){
+      var f = E.findNode(labStorage, mapNav.trail[i]);
+      if (!f || E.isBoxNode(f.node)){ mapNav.trail = []; nodes = []; break; }
+      nodes.push(f.node);
+    }
+    if (nodes.length && !mapNav.temp) mapNav.temp = E.tempOf(nodes[0]) || "other";
+    var byTemp = E.unitsByTemp(labStorage);
+    if (mapNav.temp && !nodes.length && !(mapNav.temp in byTemp)) mapNav.temp = null;
+
+    // breadcrumb
+    var crumbs = el("div", "mapCrumbs");
+    function crumb(label, go){
+      var b = el("button", "crumb", label); b.type = "button"; b.onclick = go; crumbs.appendChild(b);
+    }
+    crumb("Storage", function(){ mapNav.temp = null; mapNav.trail = []; rerender(); });
+    if (mapNav.temp){
+      crumbs.appendChild(el("span", "sub", "›"));
+      crumb(TEMP_LABELS[mapNav.temp] || mapNav.temp, function(){ mapNav.trail = []; rerender(); });
+    }
+    nodes.forEach(function(n, idx){
+      crumbs.appendChild(el("span", "sub", "›"));
+      crumb(n.name, function(){ mapNav.trail = mapNav.trail.slice(0, idx + 1); rerender(); });
+    });
+    c.appendChild(crumbs);
+
+    if (nodes.length) mapLayerView(c, nodes[nodes.length - 1], nodes.length === 1, rerender);
+    else if (mapNav.temp) mapUnits(c, byTemp, rerender);
+    else mapTemps(c, byTemp, rerender);
+
+    c.appendChild(el("p", "note mapCredit",
+      "Card photos, via Wikimedia Commons, CC BY-SA: “Samples in a -80 freezer” (Nick), " +
+      "“Minus 20 fridge storing samples” (Cirosantilli2), “Microbial cultures fridge” (Retama), " +
+      "“Liquid Nitrogen Tank” (Toby Hudson). An admin can replace any of them."));
+  }
+
+  // ---- level 1: the four temperatures ----
+  function mapTemps(c, byTemp, rerender){
+    var grid = el("div", "mapGrid mapTemps");
+    var ids = E.TEMPS.map(function(t){ return t.id; });
+    if (byTemp.other.length) ids.push("other");
+    ids.forEach(function(id){
+      var n = byTemp[id].length;
+      var boxes = byTemp[id].reduce(function(s, u){ return s + mapStats(u).boxes; }, 0);
+      var sub = n ? n + (n === 1 ? " unit" : " units") + " · " + boxes + (boxes === 1 ? " box" : " boxes") : "nothing here yet";
+      var extras = [];
+      if (isAdminUser() && id !== "other"){
+        extras.push(mapCorner("✎", "Change the picture on this card", function(){ changeTempPicture(id, rerender); }));
+      }
+      var fig = mapFigure(id === "other" ? tempImageSrc("m80") : tempImageSrc(id), TEMP_LABELS[id], sub,
+        function(){ mapNav.temp = id; mapNav.trail = []; rerender(); }, extras);
+      fig.dataset.temp = id;
+      fig.classList.add("mapTempCard");
+      grid.appendChild(fig);
+    });
+    c.appendChild(grid);
+    mapUnplaced(c, rerender);
+  }
+
+  async function changeTempPicture(id, rerender){
+    $("dlgTitle").textContent = "Picture for " + TEMP_LABELS[id];
+    var body = clear($("dlgBody")), msg = el("p", "note");
+    var prev = el("div", "mapImg mapPreview");
+    prev.style.backgroundImage = "url('" + tempImageSrc(id) + "')";
+    body.appendChild(prev);
+    body.appendChild(el("p", "note", "Upload a PNG, JPG or WEBP. It is shown on this card for everyone."));
+    body.appendChild(msg);
+    var foot = clear($("dlgFoot"));
+    var up = el("button", "primary", "Upload a picture…");
+    up.onclick = function(){
+      var input = document.createElement("input");
+      input.type = "file"; input.accept = "image/png,image/jpeg,image/webp";
+      input.onchange = async function(){
+        var file = input.files && input.files[0];
+        if (!file) return;
+        up.disabled = true; up.textContent = "Uploading…";
+        try {
+          var name = await uploadIcon(file);
+          var r = E.setTempImage(labStorage, id, name);
+          if (!r.ok) throw new Error(r.reason);
+          await commitLabStorage(r.state, "Picture for " + TEMP_LABELS[id]);
+          $("dlg").close(); rerender();
+        } catch(err){ msg.textContent = "Couldn't save that: " + err.message; msg.style.color = "var(--bad)"; }
+        up.disabled = false; up.textContent = "Upload a picture…";
+      };
+      input.click();
+    };
+    var back = el("button", null, "Back to the stock photo");
+    back.onclick = async function(){
+      back.disabled = true;
+      try {
+        var r = E.setTempImage(labStorage, id, "");
+        await commitLabStorage(r.state, "Stock photo for " + TEMP_LABELS[id]);
+        $("dlg").close(); rerender();
+      } catch(err){ msg.textContent = "Couldn't save that: " + err.message; msg.style.color = "var(--bad)"; }
+      back.disabled = false;
+    };
+    foot.appendChild(back); foot.appendChild(up);
+    $("dlg").showModal();
+  }
+
+  // ---- level 2: every freezer of one temperature, each its own figure ----
+  function mapUnits(c, byTemp, rerender){
+    var temp = mapNav.temp;
+    c.appendChild(el("h3", "mapHead", TEMP_LABELS[temp] || temp));
+    var grid = el("div", "mapGrid mapUnits");
+    byTemp[temp].forEach(function(u){
+      var extras = [];
+      if (isAdminUser()) extras.push(mapCorner("✎", "Edit " + u.name, function(){ editNodeDialog(u); }));
+      var fig = mapFigure(unitImageSrc(u), u.name, statsLine(u) + (u.note ? " · " + u.note : ""),
+        function(){ mapNav.trail = [u.id]; rerender(); }, extras);
+      fig.dataset.id = u.id;
+      grid.appendChild(fig);
+    });
+    if (canAddHere()){
+      var add = el("div", "mapFig mapAdd tap", "");
+      add.tabIndex = 0; add.setAttribute("role", "button");
+      add.appendChild(el("div", "mapPlus", "+"));
+      add.appendChild(el("div", "mapTitle", temp === "ln2" ? "Add a tank" : "Add a freezer"));
+      add.onclick = function(){ addNodeDialog(null, "Storage", { temp: temp === "other" ? "" : temp }); };
+      add.id = "mapAddUnit";
+      grid.appendChild(add);
+    }
+    c.appendChild(grid);
+    if (!byTemp[temp].length) c.appendChild(el("p", "note", "Nothing is stored at this temperature yet."));
+  }
+
+  // ---- level 3: one freezer (or shelf), drawn, with a metal rack for every shelf in it ----
+  function boxHue(owner){
+    var h = 0, s = String(owner || "?");
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
+    return h;
+  }
+
+  function svgEl(name, attrs, text){
+    var n = document.createElementNS("http://www.w3.org/2000/svg", name);
+    Object.keys(attrs || {}).forEach(function(k){ n.setAttribute(k, attrs[k]); });
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+
+  function freezerPicture(node, racks, rerender){
+    var W = 380, H = 470;
+    var svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "mapPicture", role: "img",
+      "aria-label": node.name + ": " + racks.length + " shelf" + (racks.length === 1 ? "" : "ves") });
+    var temp = E.tempOf(node);
+    svg.appendChild(svgEl("rect", { x: 20, y: 8, width: 340, height: 454, rx: 18, class: "fzBody" }));
+    svg.appendChild(svgEl("rect", { x: 40, y: 22, width: 300, height: 34, rx: 8, class: "fzPanel" }));
+    svg.appendChild(svgEl("text", { x: 190, y: 45, "text-anchor": "middle", class: "fzTemp" },
+      (temp && TEMP_LABELS[temp]) || node.name));
+    svg.appendChild(svgEl("rect", { x: 40, y: 68, width: 300, height: 376, rx: 8, class: "fzInside" }));
+    var n = racks.length;
+    if (!n){
+      svg.appendChild(svgEl("text", { x: 190, y: 250, "text-anchor": "middle", class: "fzEmpty" }, "No shelves yet"));
+      return svg;
+    }
+    var top = 76, span = 360, slot = span / n;
+    racks.forEach(function(rack, i){
+      var yBar = top + slot * (i + 1) - 14;
+      var g = svgEl("g", { class: "mapRack", "data-id": rack.id, tabindex: 0, role: "button",
+        "aria-label": "Open " + rack.name });
+      g.appendChild(svgEl("rect", { x: 40, y: top + slot * i, width: 300, height: slot, class: "rackHit" }));
+      // rails
+      g.appendChild(svgEl("rect", { x: 52, y: yBar - slot + 20, width: 5, height: slot - 8, class: "rackRail" }));
+      g.appendChild(svgEl("rect", { x: 323, y: yBar - slot + 20, width: 5, height: slot - 8, class: "rackRail" }));
+      // the shelf itself, with the cross-wires a metal rack has
+      g.appendChild(svgEl("rect", { x: 48, y: yBar, width: 284, height: 8, rx: 2, class: "rackBar" }));
+      for (var k = 0; k < 14; k++) g.appendChild(svgEl("line", { x1: 60 + k * 20, y1: yBar + 8, x2: 60 + k * 20, y2: yBar + 12, class: "rackWire" }));
+      // the boxes sitting on it
+      var bx = (rack.children || []).filter(E.isBoxNode);
+      var show = Math.min(bx.length, 9), bw = Math.min(26, Math.max(14, 250 / Math.max(1, show) - 4));
+      var bh = Math.max(10, Math.min(30, slot - 40));
+      for (var j = 0; j < show; j++){
+        var own = String(bx[j].owner || "");
+        g.appendChild(svgEl("rect", { x: 62 + j * (bw + 4), y: yBar - bh, width: bw, height: bh, rx: 3, class: "rackBox",
+          style: "fill:hsl(" + boxHue(own) + " 55% 62%)" }));
+      }
+      if (bx.length > show) g.appendChild(svgEl("text", { x: 322, y: yBar - 6, "text-anchor": "end", class: "rackMore" }, "+" + (bx.length - show)));
+      var label = rack.name + (bx.length ? " · " + bx.length + (bx.length === 1 ? " box" : " boxes") : "");
+      g.appendChild(svgEl("text", { x: 62, y: Math.max(top + slot * i + 14, yBar - bh - 6), class: "rackLabel" }, label));
+      g.addEventListener("click", function(){ mapNav.trail = mapNav.trail.concat([rack.id]); rerender(); });
+      g.addEventListener("keydown", function(ev){ if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); mapNav.trail = mapNav.trail.concat([rack.id]); rerender(); } });
+      // a box dragged onto a shelf is put on it (desktop; on a phone there is Move…)
+      g.addEventListener("dragover", function(ev){ ev.preventDefault(); g.classList.add("dropTarget"); });
+      g.addEventListener("dragleave", function(){ g.classList.remove("dropTarget"); });
+      g.addEventListener("drop", function(ev){
+        ev.preventDefault(); g.classList.remove("dropTarget");
+        moveBoxTo(String(ev.dataTransfer.getData("text/plain") || ""), rack.id, rerender);
+      });
+      svg.appendChild(g);
+    });
+    return svg;
+  }
+
+  function mapLayerView(c, node, isUnit, rerender){
+    var layers = (node.children || []).filter(function(x){ return !E.isBoxNode(x); });
+    var boxes = (node.children || []).filter(E.isBoxNode);
+
+    var head = el("div", "mapLayerHead");
+    var t = el("div");
+    t.appendChild(el("h3", "mapHead", node.name));
+    t.appendChild(el("div", "sub", statsLine(node) + (node.note ? " · " + node.note : "")));
+    head.appendChild(t);
+    var tools = el("div", "row tight");
+    if (canAddHere()){
+      var addShelf = el("button", null, "+ Add a shelf"); addShelf.type = "button"; addShelf.id = "mapAddShelf";
+      addShelf.onclick = function(){ addNodeDialog(node.id, node.name, { layerOnly: true }); };
+      tools.appendChild(addShelf);
+      var addBox = el("button", "primary", "+ Add a box"); addBox.type = "button"; addBox.id = "mapAddBox";
+      addBox.onclick = function(){ addNodeDialog(node.id, node.name, { boxOnly: true }); };
+      tools.appendChild(addBox);
+    }
+    if (isAdminUser()){
+      var ed = el("button", null, "✎ Edit"); ed.type = "button";
+      ed.onclick = function(){ editNodeDialog(node); };
+      tools.appendChild(ed);
+    }
+    head.appendChild(tools);
+    c.appendChild(head);
+
+    if (layers.length || isUnit){
+      var pic = el("div", "mapPictureWrap");
+      pic.appendChild(freezerPicture(node, layers, rerender));
+      c.appendChild(pic);
+      if (layers.length) c.appendChild(el("p", "note", "Tap a shelf to open it." +
+        (isDesktopPointer() ? " Drag one of your boxes onto a shelf to put it there." : "")));
+    }
+    if (boxes.length || !layers.length){
+      c.appendChild(el("h4", "mapSub", boxes.length ? "Boxes on this " + (isUnit ? "freezer" : "shelf") : ""));
+      var grid = el("div", "mapGrid mapBoxes");
+      boxes.forEach(function(b){ grid.appendChild(boxCard(b, rerender)); });
+      c.appendChild(grid);
+      if (!boxes.length && !layers.length) c.appendChild(el("p", "note", "Nothing here yet."));
+    }
+  }
+
+  function boxCard(b, rerender){
+    var counts = labVialCounts();
+    var cap = (Number(b.rows) || 0) * (Number(b.cols) || 0);
+    var full = counts[b.id] || 0;
+    var card = el("div", "mapBox");
+    card.dataset.id = b.id;
+    var top = el("div", "mapBoxTop");
+    top.appendChild(el("span", "mapBoxIcon", "📦"));
+    top.appendChild(el("span", "mapTitle", b.name));
+    card.appendChild(top);
+    card.appendChild(el("div", "sub", (b.common ? "Common" : (b.owner || "nobody")) + " · " + b.rows + "×" + b.cols +
+      (b.kind ? " · " + b.kind : "")));
+    var bar = el("div", "bar"); var fill = el("i"); fill.style.width = (cap ? Math.min(100, Math.round(full / cap * 100)) : 0) + "%";
+    bar.appendChild(fill); card.appendChild(bar);
+    card.appendChild(el("div", "occ", full + "/" + cap + " full"));
+    var row = el("div", "row tight");
+    var open = el("button", null, "Open"); open.type = "button";
+    open.onclick = function(){ boxView.unitId = null; boxView.boxId = b.id; boxView.highlight = []; go("boxes"); };
+    row.appendChild(open);
+    if (canEditNodeHere(b)){
+      var mv = el("button", null, "Move…"); mv.type = "button"; mv.className = "mapMove";
+      mv.onclick = function(){ moveBoxDialog(b, rerender); };
+      var ed = el("button", null, "✎"); ed.type = "button"; ed.title = "Rename, resize or delete";
+      ed.onclick = function(){ editNodeDialog(b); };
+      row.appendChild(mv); row.appendChild(ed);
+      if (isDesktopPointer()){
+        card.draggable = true;
+        card.ondragstart = function(ev){ ev.dataTransfer.setData("text/plain", b.id); };
+      }
+    }
+    card.appendChild(row);
+    return card;
+  }
+
+  // Boxes nobody has put in a freezer yet: shown on the first screen, with Move… for the
+  // owner (and admin), because that is exactly when a member decides where it goes.
+  function mapUnplaced(c, rerender){
+    var loose = labStorage.unplaced || [];
+    var wrap = el("div", "mapUnplaced");
+    wrap.appendChild(el("h4", "mapSub", "Not placed yet"));
+    if (!loose.length){
+      wrap.appendChild(el("p", "note", "Every box has a place."));
+    } else {
+      wrap.appendChild(el("p", "note", "These boxes are in use but not yet in a freezer. Tap Move… on yours to put it away."));
+      var grid = el("div", "mapGrid mapBoxes");
+      loose.forEach(function(b){ grid.appendChild(boxCard(b, rerender)); });
+      wrap.appendChild(grid);
+    }
+    c.appendChild(wrap);
+  }
+
+  function layerChoices(){
+    return E.layers(labStorage).map(function(l){
+      return { id: l.node.id, label: l.chain.concat([l.node]).map(function(n){ return n.name; }).join(" → ") };
+    });
+  }
+
+  function moveBoxDialog(b, rerender){
+    $("dlgTitle").textContent = "Where does " + b.name + " go?";
+    var body = clear($("dlgBody")), msg = el("p", "note");
+    var sel = document.createElement("select"); sel.id = "moveWhere";
+    layerChoices().forEach(function(o){
+      var op = document.createElement("option"); op.value = o.id; op.textContent = o.label; sel.appendChild(op);
+    });
+    var loose = document.createElement("option"); loose.value = "unplaced"; loose.textContent = "Not placed yet";
+    sel.appendChild(loose);
+    var here = E.findNode(labStorage, b.id);
+    sel.value = here && here.parent ? here.parent.id : "unplaced";
+    var f = el("div", "field"); f.appendChild(el("label", null, "Put it in")); f.appendChild(sel);
+    body.appendChild(f); body.appendChild(msg);
+    var foot = clear($("dlgFoot"));
+    var ok = el("button", "primary", "Move"); ok.id = "moveGo";
+    ok.onclick = async function(){
+      ok.disabled = true;
+      try { await moveBoxTo(b.id, sel.value, rerender); $("dlg").close(); }
+      catch(err){ msg.textContent = err.message; msg.style.color = "var(--bad)"; }
+      ok.disabled = false;
+    };
+    foot.appendChild(ok);
+    $("dlg").showModal();
+  }
+
+  // One move for the map: a box of your own (any box, for admin) goes into a layer or back
+  // to "not placed yet". commitLabStorage rewrites the routes of the vials in it, in the
+  // same commit.
+  async function moveBoxTo(id, targetId, rerender){
+    if (!id) return;
+    var f = E.findNode(labStorage, id);
+    if (!f) return;
+    if (!canEditNodeHere(f.node)){ showBanner("That box is not yours to move."); return; }
+    if (!E.isBoxNode(f.node)){ showBanner("Only a box can be moved from here."); return; }
+    try {
+      var r = await labMutate(function(base){ return E.moveNode(base, id, targetId); }, "Move " + f.node.name);
+      showBanner("Moved <b>" + esc(f.node.name) + "</b>.");
+      rerender();
+      return r;
+    } catch(err){ showBanner("Couldn't move it: " + esc(err.message)); throw err; }
+  }
+
+  // Deleting a box of your own. Its tubes are taken out and logged first -- they leave the
+  // inventory but stay in the Log and in history, exactly as when admin deletes a box --
+  // and only once that has been saved does the box leave the tree (the Worker checks).
+  async function deleteOwnBox(node, msg){
+    var ids = (state.vials || []).filter(function(v){
+      return v.status !== "withdrawn" && v.location && v.location.boxId === node.id;
+    }).map(function(v){ return v.id; });
+    var text = "Delete " + node.name + "?" + (ids.length
+      ? "\n\n" + ids.length + " vial(s) still inside will be taken out and logged, not erased — they stay in the Log and in history."
+      : "\n\nIt is empty.");
+    if (!window.confirm(text)) return;
+    if (ids.length){
+      var w = E.withdraw(state, ids, { date: new Date().toISOString().slice(0, 10), by: getDevice(), purpose: "discarded",
+        notes: node.name + " was deleted", ids: ids.map(function(){ return adminNewId("w"); }) });
+      state = w.state;
+      markDirty("Take out " + ids.length + " vial(s): " + node.name + " was deleted");
+      for (var i = 0; i < 200 && dirty; i++) await new Promise(function(r){ setTimeout(r, 100); });
+      if (dirty){ msg.textContent = "The vials could not be saved as taken out yet, so nothing was deleted. Try again in a moment."; msg.style.color = "var(--bad)"; return; }
+    }
+    await labMutate(function(base){ return E.removeNode(base, node.id, {}); }, "Delete " + node.name);
+    $("dlg").close();
+    showBanner("Deleted <b>" + esc(node.name) + "</b>" + (ids.length ? " — " + ids.length + " vial(s) taken out and logged." : "."));
+    renderAll();
   }
 
   // ---- the tree ---------------------------------------------------------------------
@@ -5552,6 +6066,22 @@
     if (!labCache.members){
       c.appendChild(el("p", "note", "Loading the lab…"));
       ensureLabCache().then(renderAdmin);
+      return;
+    }
+
+    var modeBar = el("div", "seg");
+    modeBar.id = "structMode";
+    [["map", "Map"], ["list", "List"]].forEach(function(m){
+      var b = el("button", structureView.mode === m[0] ? "on" : null, m[1]);
+      b.type = "button"; b.dataset.mode = m[0];
+      b.onclick = function(){ structureView.mode = m[0]; renderAdmin(); };
+      modeBar.appendChild(b);
+    });
+    c.appendChild(modeBar);
+    if (structureView.mode !== "list"){
+      var holder = el("div"); holder.id = "structMap";
+      c.appendChild(holder);
+      renderStorageMap(holder, renderAdmin);
       return;
     }
 
@@ -5718,13 +6248,13 @@
       // commitLabStorage rewrites the affected vials' stored paths in the same commit.
       await commitLabStorage(r.state, "Move " + name);
       showBanner("Moved <b>" + esc(name) + "</b>.");
-      renderAdmin();
+      renderAll();
     } catch(err){ showBanner("Couldn't save that: " + esc(err.message)); }
   }
 
   // ---- the structure's own dialogs ----
 
-  function iconField(body, current, onPick){
+  function iconField(body, current, onPick, opts){
     var f = el("div", "field");
     f.appendChild(el("label", null, "Icon"));
     var picked = { value: current || "" };
@@ -5769,7 +6299,9 @@
     paintPreview();
     f.appendChild(preview);
     f.appendChild(palette);
-    f.appendChild(upload);
+    // Pictures go into a public repository under cellstocks/icons/, which only admin may
+    // write: a member picks an emoji.
+    if (!(opts && opts.noUpload)) f.appendChild(upload);
     body.appendChild(f);
   }
 
@@ -5814,8 +6346,22 @@
       var f = el("div", "field"); f.appendChild(el("label", null, p[0])); f.appendChild(p[1]); body.appendChild(f);
     });
 
+    var tempSel = null, tempField = null;
+    if (initial.top){
+      tempSel = document.createElement("select"); tempSel.id = "nodeTemp";
+      var t0 = document.createElement("option"); t0.value = ""; t0.textContent = "Choose how cold…"; tempSel.appendChild(t0);
+      E.TEMPS.forEach(function(t){
+        var o = document.createElement("option"); o.value = t.id; o.textContent = t.label; tempSel.appendChild(o);
+      });
+      tempSel.value = initial.temp || E.tempOf(initial) || "";
+      tempField = el("div", "field"); tempField.id = "nodeTempField";
+      tempField.appendChild(el("label", null, "How cold"));
+      tempField.appendChild(tempSel);
+      body.appendChild(tempField);
+    }
+
     var icon = { value: initial.icon || "" };
-    iconField(body, icon.value, function(v){ icon.value = v; });
+    iconField(body, icon.value, function(v){ icon.value = v; }, { noUpload: !isAdminUser() });
 
     var isBox = document.createElement("input");
     isBox.type = "checkbox";
@@ -5826,6 +6372,9 @@
     lbl.appendChild(isBox);
     lbl.appendChild(document.createTextNode("This is a box — it holds vials, and nothing goes inside it"));
     body.appendChild(lbl);
+    // Opened from "+ Add a shelf" or "+ Add a box" there is nothing to choose.
+    if (initial.layerOnly){ isBox.checked = false; lbl.hidden = true; }
+    if (initial.boxOnly){ isBox.checked = true; lbl.hidden = true; }
     // What a node IS cannot be changed after the fact: turning a layer into a box would
     // orphan its children, and a box into a layer would orphan its vials. Both are a
     // delete-and-make-again decision, so the tick is fixed once the node exists.
@@ -5852,8 +6401,10 @@
     clbl.appendChild(document.createTextNode(
       "Common box — anyone in the lab may freeze into it; nobody in particular owns it"));
     boxFields.appendChild(clbl);
+    // Only admin makes a common box or hands a box to somebody else; a member's box is theirs.
+    clbl.hidden = !isAdminUser();
     var owner = document.createElement("select");
-    var ownerNames = (labCache.members || []).slice().sort();
+    var ownerNames = isAdminUser() ? (labCache.members || []).slice().sort() : [mapMe()];
     var opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "Choose…";
     owner.appendChild(opt0);
     ownerNames.forEach(function(n){
@@ -5863,6 +6414,7 @@
     });
     var rows = document.createElement("input"); rows.type = "number"; rows.min = 1; rows.value = initial.rows || 9;
     var cols = document.createElement("input"); cols.type = "number"; cols.min = 1; cols.value = initial.cols || 9;
+    if (!isAdminUser()) owner.value = mapMe();
     var of = el("div", "field"); of.id = "nodeOwnerField"; of.appendChild(el("label", null, "Whose is it? (required)")); of.appendChild(owner);
     boxFields.appendChild(of);
     // Kind, same list the Add screen offers -- lets admin mark (or retag) a box as
@@ -5915,9 +6467,9 @@
     boxFields.appendChild(grid);
     body.appendChild(boxFields);
 
-    function syncCommon(){ of.hidden = common.checked; }
+    function syncCommon(){ of.hidden = !isAdminUser() || common.checked; }
     common.onchange = syncCommon;
-    function sync(){ boxFields.hidden = !isBox.checked; syncCommon(); }
+    function sync(){ boxFields.hidden = !isBox.checked; if (tempField) tempField.hidden = isBox.checked; syncCommon(); }
     isBox.onchange = sync;
     sync();
 
@@ -5928,9 +6480,13 @@
       var details = {
         name: name.value, note: note.value, icon: icon.value,
         isBox: isBox.checked, common: common.checked,
-        owner: common.checked ? "" : owner.value, rows: rows.value, cols: cols.value,
+        owner: !isAdminUser() ? mapMe() : (common.checked ? "" : owner.value), rows: rows.value, cols: cols.value,
         kind: kind.value === "__new__" ? initialKind : kind.value
       };
+      if (tempSel) details.temp = tempSel.value;
+      if (tempSel && !isBox.checked && !details.temp && !initial.exists){
+        msg.textContent = "Choose how cold it is — that is the card it is filed under."; msg.style.color = "var(--bad)"; return;
+      }
       if (!details.name.trim()){ msg.textContent = "A name is required."; msg.style.color = "var(--bad)"; return; }
       if (details.isBox && !details.owner && !details.common){
         msg.textContent = "A box has to belong to somebody."; msg.style.color = "var(--bad)"; return;
@@ -5940,17 +6496,17 @@
         var r = await onSave(details);
         if (r && r.ok === false){ msg.textContent = r.reason; msg.style.color = "var(--bad)"; ok.disabled = false; return; }
         $("dlg").close();
-        renderAdmin();
+        renderAll();
       } catch(err){ msg.textContent = "Couldn't save that: " + err.message; msg.style.color = "var(--bad)"; }
       ok.disabled = false;
     };
     foot.appendChild(ok);
-    if (initial.exists){
+    if (initial.exists && (isAdminUser() || (initial.isBox && initial.node && ownsBoxNode(initial.node)))){
       var del = el("button", "danger", "Delete");
       del.style.marginRight = "auto";
       del.onclick = async function(){
         del.disabled = true; ok.disabled = true;
-        try { await deleteStructureNode(initial.id, msg); }
+        try { if (isAdminUser()) await deleteStructureNode(initial.id, msg); else await deleteOwnBox(initial.node, msg); }
         catch(err){ msg.textContent = "Couldn't save that: " + err.message; msg.style.color = "var(--bad)"; }
         del.disabled = false; ok.disabled = false;
       };
@@ -5959,8 +6515,17 @@
     $("dlg").showModal();
   }
 
-  function addNodeDialog(parentId, parentName){
-    nodeFieldsDialog("Add inside " + parentName, { exists: false }, async function(details){
+  function addNodeDialog(parentId, parentName, opts){
+    var o = opts || {};
+    nodeFieldsDialog("Add inside " + parentName, { exists: false, top: !parentId, temp: o.temp || "",
+      layerOnly: !!o.layerOnly, boxOnly: !!o.boxOnly }, async function(details){
+      if (!isAdminUser()){
+        // Somebody else may have added to the tree since this page loaded; start from
+        // the freshest copy (labMutate), and let the Worker be the judge of who may add what.
+        try { await labMutate(function(base){ return E.addNode(base, parentId, details); },
+                "Add " + details.name.trim() + " to " + parentName); return { ok: true }; }
+        catch(err){ return { ok: false, reason: err.message }; }
+      }
       var r = E.addNode(labStorage, parentId, details);
       if (!r.ok) return r;
       await commitLabStorage(r.state, "Add " + details.name.trim() + " to " + parentName);
@@ -5970,11 +6535,23 @@
 
   function editNodeDialog(node){
     var counts = labVialCounts();
+    var where = E.findNode(labStorage, node.id);
     nodeFieldsDialog("Edit " + node.name, {
-      exists: true, id: node.id, name: node.name, note: node.note, icon: node.icon,
+      exists: true, id: node.id, node: node, name: node.name, note: node.note, icon: node.icon,
+      top: !!where && !where.parent && !where.unplaced && !E.isBoxNode(node), temp: node.temp || "",
       isBox: E.isBoxNode(node), owner: node.owner, common: node.common, rows: node.rows, cols: node.cols,
       kind: node.kind || "Cell", vialCount: counts[node.id] || 0
     }, async function(details){
+      if (!isAdminUser()){
+        // A member edits only a box of their own, and may not shrink it under its vials.
+        if (E.isBoxNode(node) && (Number(details.rows) !== Number(node.rows) || Number(details.cols) !== Number(node.cols))){
+          var fit = E.canResizeBox(state, node.id, Number(details.rows), Number(details.cols));
+          if (!fit.ok) return { ok: false, reason: fit.reason };
+        }
+        try { await labMutate(function(base){ return E.editNode(base, node.id, details); }, "Edit " + details.name.trim());
+              return { ok: true }; }
+        catch(err){ return { ok: false, reason: err.message }; }
+      }
       var r = E.editNode(labStorage, node.id, details);
       if (!r.ok) return r;
       // A box that changed hands: its vials are in the old owner's file and stay there.
@@ -6071,7 +6648,7 @@
     $("dlg").close();
     showBanner("Deleted <b>" + esc(found.node.name) + "</b>" +
                (vialTotal ? " — " + vialTotal + " vial(s) taken out and logged." : "."));
-    renderAdmin();
+    renderAll();
   }
 
   function editLabDialog(){
@@ -6928,6 +7505,10 @@
     window.scrollTo(0, 0);
   }
 
+  function renderStorage(){
+    renderStorageMap($("storageBody"), renderStorage);
+  }
+
   function renderNavBadge(){
     var btn = document.querySelector('nav button[data-screen="review"]');
     var old = btn.querySelector(".dot");
@@ -6951,6 +7532,7 @@
         renderFreezePlan(); renderFreezeGuard();
       }
       else if (screen === "boxes") renderBoxes();
+      else if (screen === "storage") renderStorage();
       else if (screen === "review") renderReview();
       else if (screen === "log") renderLog();
       else if (screen === "admin") renderAdmin();

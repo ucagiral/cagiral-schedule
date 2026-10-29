@@ -14212,8 +14212,14 @@
       "frozenOn": "2026-10-28",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "A1"
@@ -14233,8 +14239,14 @@
       "frozenOn": "2026-10-28",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "A2"
@@ -14254,8 +14266,14 @@
       "frozenOn": "2026-10-28",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "A3"
@@ -14275,8 +14293,14 @@
       "frozenOn": "2026-10-28",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "A4"
@@ -14296,8 +14320,14 @@
       "frozenOn": "2026-10-28",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "A5"
@@ -14317,8 +14347,14 @@
       "frozenOn": "2026-10-28",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "A6"
@@ -14338,8 +14374,14 @@
       "frozenOn": "2026-10-26",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "B1"
@@ -14359,8 +14401,14 @@
       "frozenOn": "2026-10-26",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "B2"
@@ -14380,8 +14428,14 @@
       "frozenOn": "2026-10-26",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "B3"
@@ -14401,8 +14455,14 @@
       "frozenOn": "2026-10-26",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "B4"
@@ -14422,8 +14482,14 @@
       "frozenOn": "2026-10-26",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "B5"

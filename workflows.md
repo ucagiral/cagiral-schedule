@@ -216,9 +216,16 @@ already why several calendar events sit where they do.
   thaw alongside a ChIP day 2, a fixation, a freeze and a drug treatment — his list stands. The
   day-after medium change still goes on the calendar (10 Oct).
 - **Virus medium change:** add **6.5 mL** per vessel.
-- **CuAdapt line:** recurring passage on **Mondays and Thursdays**. Copper treatment and passage are
-  separate events, with a ~10 min gap between them.
-- A missed passage is caught up as a one-off event and does not shift the recurring Mon/Thu rhythm.
+- **The CuAdapt recurring passage and copper treatment ended 30 Oct 2026.** Umut's word: they are
+  not to exist any more — ended outright, not paused and not moved to other days. The 36 remaining
+  dated entries (30 Oct – 31 Dec 2026) were marked `cancelled` rather than deleted, so the rhythm
+  stays readable in the history and in the feed. **Do not regenerate them**, and do not read a gap
+  in the Mon/Thu pattern as a recurrence that needs topping up — that regeneration is exactly what
+  this rule exists to prevent.
+- What it used to be, for the record: passage on **Mondays and Thursdays**, with copper treatment as
+  a separate event ~10 min apart, and a missed passage caught up as a one-off without shifting the
+  rhythm. One-off CuAdapt work — an RNA isolation, a qPCR, a freeze — is unaffected and still goes
+  on the calendar when asked.
 
 ---
 
@@ -292,7 +299,7 @@ group exists but isn't:
 | Virus prep | teal `#0d9488` | HEK293T seeding, pLentiGuide transfection, virus medium change, harvest |
 | Western — biotin | red `#dc2626` | every `Western — …` step plus the protein boil |
 | ATF3 qPCR | amber `#a16207` | RNA isolation, cDNA conversion, qPCR prep, qPCR run |
-| CuAdapt | green `#15803d` | copper treatment, passage, freeze, thaw, medium change |
+| CuAdapt | green `#15803d` | copper treatment, passage, freeze, thaw, medium change. The recurring passage/treatment pair ended 30 Oct 2026 (see Cell culture); the group stays for the history and for one-off CuAdapt work. |
 | Cloning | violet `#7c3aed` | bacterial culture, miniprep, plasmids to sequencing |
 | SRB assay | pink `#db2777` | seeding, copper/cisplatin treatment, TCA fixation and wash, pelleting |
 | LNCX/LUCX | indigo `#6d28d9` | the **AR-CasPEx** work — thaw, seed, transduction, hygromycin selection. The group still carries the old name on the calendar; renaming it would retag the five existing events and change the feed, so it is left until asked. |

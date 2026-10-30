@@ -592,16 +592,14 @@ DTSTART;TZID=Europe/Istanbul:20261030T124000
 DTEND;TZID=Europe/Istanbul:20261030T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-02@cagiral-schedule
@@ -611,15 +609,14 @@ DTSTART;TZID=Europe/Istanbul:20261102T090000
 DTEND;TZID=Europe/Istanbul:20261102T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-11-03@cagiral-schedule
@@ -629,16 +626,14 @@ DTSTART;TZID=Europe/Istanbul:20261103T090000
 DTEND;TZID=Europe/Istanbul:20261103T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-05@cagiral-schedule
@@ -648,15 +643,14 @@ DTSTART;TZID=Europe/Istanbul:20261105T090000
 DTEND;TZID=Europe/Istanbul:20261105T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-11-06@cagiral-schedule
@@ -666,16 +660,14 @@ DTSTART;TZID=Europe/Istanbul:20261106T124000
 DTEND;TZID=Europe/Istanbul:20261106T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-09@cagiral-schedule
@@ -685,15 +677,14 @@ DTSTART;TZID=Europe/Istanbul:20261109T090000
 DTEND;TZID=Europe/Istanbul:20261109T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-11-10@cagiral-schedule
@@ -703,16 +694,14 @@ DTSTART;TZID=Europe/Istanbul:20261110T090000
 DTEND;TZID=Europe/Istanbul:20261110T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-12@cagiral-schedule
@@ -722,15 +711,14 @@ DTSTART;TZID=Europe/Istanbul:20261112T090000
 DTEND;TZID=Europe/Istanbul:20261112T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-11-13@cagiral-schedule
@@ -740,16 +728,14 @@ DTSTART;TZID=Europe/Istanbul:20261113T124000
 DTEND;TZID=Europe/Istanbul:20261113T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-16@cagiral-schedule
@@ -759,15 +745,14 @@ DTSTART;TZID=Europe/Istanbul:20261116T090000
 DTEND;TZID=Europe/Istanbul:20261116T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-11-17@cagiral-schedule
@@ -777,16 +762,14 @@ DTSTART;TZID=Europe/Istanbul:20261117T090000
 DTEND;TZID=Europe/Istanbul:20261117T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-19@cagiral-schedule
@@ -796,15 +779,14 @@ DTSTART;TZID=Europe/Istanbul:20261119T090000
 DTEND;TZID=Europe/Istanbul:20261119T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-11-20@cagiral-schedule
@@ -814,16 +796,14 @@ DTSTART;TZID=Europe/Istanbul:20261120T124000
 DTEND;TZID=Europe/Istanbul:20261120T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-23@cagiral-schedule
@@ -833,15 +813,14 @@ DTSTART;TZID=Europe/Istanbul:20261123T090000
 DTEND;TZID=Europe/Istanbul:20261123T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-11-24@cagiral-schedule
@@ -851,16 +830,14 @@ DTSTART;TZID=Europe/Istanbul:20261124T090000
 DTEND;TZID=Europe/Istanbul:20261124T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-26@cagiral-schedule
@@ -870,15 +847,14 @@ DTSTART;TZID=Europe/Istanbul:20261126T090000
 DTEND;TZID=Europe/Istanbul:20261126T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-11-27@cagiral-schedule
@@ -888,16 +864,14 @@ DTSTART;TZID=Europe/Istanbul:20261127T124000
 DTEND;TZID=Europe/Istanbul:20261127T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-11-30@cagiral-schedule
@@ -907,15 +881,14 @@ DTSTART;TZID=Europe/Istanbul:20261130T090000
 DTEND;TZID=Europe/Istanbul:20261130T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-01@cagiral-schedule
@@ -925,16 +898,14 @@ DTSTART;TZID=Europe/Istanbul:20261201T090000
 DTEND;TZID=Europe/Istanbul:20261201T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-03@cagiral-schedule
@@ -944,15 +915,14 @@ DTSTART;TZID=Europe/Istanbul:20261203T090000
 DTEND;TZID=Europe/Istanbul:20261203T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-04@cagiral-schedule
@@ -962,16 +932,14 @@ DTSTART;TZID=Europe/Istanbul:20261204T124000
 DTEND;TZID=Europe/Istanbul:20261204T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-07@cagiral-schedule
@@ -981,15 +949,14 @@ DTSTART;TZID=Europe/Istanbul:20261207T090000
 DTEND;TZID=Europe/Istanbul:20261207T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-08@cagiral-schedule
@@ -999,16 +966,14 @@ DTSTART;TZID=Europe/Istanbul:20261208T090000
 DTEND;TZID=Europe/Istanbul:20261208T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-10@cagiral-schedule
@@ -1018,15 +983,14 @@ DTSTART;TZID=Europe/Istanbul:20261210T090000
 DTEND;TZID=Europe/Istanbul:20261210T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-11@cagiral-schedule
@@ -1036,16 +1000,14 @@ DTSTART;TZID=Europe/Istanbul:20261211T124000
 DTEND;TZID=Europe/Istanbul:20261211T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-14@cagiral-schedule
@@ -1055,15 +1017,14 @@ DTSTART;TZID=Europe/Istanbul:20261214T090000
 DTEND;TZID=Europe/Istanbul:20261214T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-15@cagiral-schedule
@@ -1073,16 +1034,14 @@ DTSTART;TZID=Europe/Istanbul:20261215T090000
 DTEND;TZID=Europe/Istanbul:20261215T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-17@cagiral-schedule
@@ -1092,15 +1051,14 @@ DTSTART;TZID=Europe/Istanbul:20261217T090000
 DTEND;TZID=Europe/Istanbul:20261217T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-18@cagiral-schedule
@@ -1110,16 +1068,14 @@ DTSTART;TZID=Europe/Istanbul:20261218T124000
 DTEND;TZID=Europe/Istanbul:20261218T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-21@cagiral-schedule
@@ -1129,15 +1085,14 @@ DTSTART;TZID=Europe/Istanbul:20261221T090000
 DTEND;TZID=Europe/Istanbul:20261221T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-22@cagiral-schedule
@@ -1147,16 +1102,14 @@ DTSTART;TZID=Europe/Istanbul:20261222T090000
 DTEND;TZID=Europe/Istanbul:20261222T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-24@cagiral-schedule
@@ -1166,15 +1119,14 @@ DTSTART;TZID=Europe/Istanbul:20261224T090000
 DTEND;TZID=Europe/Istanbul:20261224T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-25@cagiral-schedule
@@ -1184,16 +1136,14 @@ DTSTART;TZID=Europe/Istanbul:20261225T124000
 DTEND;TZID=Europe/Istanbul:20261225T131000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-28@cagiral-schedule
@@ -1203,15 +1153,14 @@ DTSTART;TZID=Europe/Istanbul:20261228T090000
 DTEND;TZID=Europe/Istanbul:20261228T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-copper-2026-12-29@cagiral-schedule
@@ -1221,16 +1170,14 @@ DTSTART;TZID=Europe/Istanbul:20261229T090000
 DTEND;TZID=Europe/Istanbul:20261229T093000
 SUMMARY:CuAdapt cells — copper treatment
 DESCRIPTION:Recurring Tue/Fri copper feeding. Placeholder time — adjust a
- s needed.\nActive — needs you there\nGroup: CuAdapt\nCategory: experimen
- t
+ s needed. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage 
+ and copper treatment outright — not postponed\, not replaced. Kept as a 
+ cancelled entry rather than deleted so the rhythm it belonged to stays leg
+ ible in the history.\nActive — needs you there\nGroup: CuAdapt\nCategory
+ : experiment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — copper treatment
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-cuadapt-passage-2026-12-31@cagiral-schedule
@@ -1240,15 +1187,14 @@ DTSTART;TZID=Europe/Istanbul:20261231T090000
 DTEND;TZID=Europe/Istanbul:20261231T093000
 SUMMARY:CuAdapt cells — passage
 DESCRIPTION:Recurring Mon/Thu passage. Placeholder time — adjust as neede
- d.\nActive — needs you there\nGroup: CuAdapt\nCategory: experiment
+ d. Cancelled 30 Oct 2026: Umut ended the recurring CuAdapt passage and cop
+ per treatment outright — not postponed\, not replaced. Kept as a cancell
+ ed entry rather than deleted so the rhythm it belonged to stays legible in
+  the history.\nActive — needs you there\nGroup: CuAdapt\nCategory: exper
+ iment
 CATEGORIES:CuAdapt,experiment
-STATUS:CONFIRMED
-TRANSP:OPAQUE
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:CuAdapt cells — passage
-TRIGGER:-PT15M
-END:VALARM
+STATUS:CANCELLED
+TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:e-srb-seeding-2026-08-10@cagiral-schedule

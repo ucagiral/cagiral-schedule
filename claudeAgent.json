@@ -3533,7 +3533,7 @@
       "title": "Virus harvest — first collection (~51 h)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Inside the transfer incubation. 48–72 h post-transfection is the window.",
       "start": "13:00",
       "end": "14:00",
@@ -3657,7 +3657,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-30T03:37:09.881Z",
+    "lastModified": "2026-10-30T03:37:24.190Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

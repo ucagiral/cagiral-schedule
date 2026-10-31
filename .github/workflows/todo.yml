@@ -1,0 +1,33 @@
+name: Reminders checks
+
+# todo/ (the app and its rules) and todo-worker/ (the push sender). Plain node, no secrets.
+# Deployment is by hand (`wrangler deploy` from todo-worker/): it needs a KV id and secrets
+# that do not belong in a public repository.
+on:
+  push:
+    branches: [main]
+    paths: [todo/**, todo-worker/**, tools/todo-*.mjs, tools/make-todo-icons.mjs, .github/workflows/todo.yml]
+  pull_request:
+    paths: [todo/**, todo-worker/**, tools/todo-*.mjs, tools/make-todo-icons.mjs, .github/workflows/todo.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+      - name: Self-test (rules, VAPID signing, worker)
+        run: node tools/todo-selftest.mjs
+      - name: Install playwright and Chromium
+        run: |
+          npm i --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser checks
+        run: CI=1 node tools/todo-browser-test.mjs

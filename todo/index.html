@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reminders</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Reminders">
+<meta name="theme-color" content="#0b0b0c">
+<style>
+:root{--bg:#f4f4f6;--card:#fff;--ink:#111;--mute:#6b6b73;--line:#e1e1e6;--acc:#2563eb;--danger:#c0262d;--ok:#16794c}
+@media (prefers-color-scheme:dark){:root{--bg:#0b0b0c;--card:#1a1a1d;--ink:#f2f2f4;--mute:#9a9aa3;--line:#2c2c31;--acc:#6ea0ff;--danger:#ff6b72;--ok:#4cd28b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,system-ui,sans-serif;padding:env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 24px)}
+main{max-width:560px;margin:0 auto}
+h1{font-size:26px;margin:20px 0 4px}
+.sub{color:var(--mute);font-size:13px;margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input,button,select{font:inherit;color:inherit}
+input[type=text],input[type=datetime-local],input[type=number],input[type=password]{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+button{border:0;border-radius:10px;padding:11px 14px;background:var(--acc);color:#fff;font-weight:600}
+button.sec{background:transparent;color:var(--acc);border:1px solid var(--line)}
+button:disabled{opacity:.45}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+.task{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.title{font-weight:600;word-break:break-word}
+.meta{font-size:13px;color:var(--mute)}
+.over .meta{color:var(--danger);font-weight:600}
+.msg{font-size:13px;margin-top:8px;min-height:1.2em}
+.err{color:var(--danger)}.okc{color:var(--ok)}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);max-width:420px;width:calc(100% - 32px);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.hold{position:relative;overflow:hidden;width:100%;background:var(--danger);user-select:none;-webkit-user-select:none;touch-action:none;margin-top:14px;padding:16px}
+.hold i{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,255,255,.35);pointer-events:none}
+.hold span{position:relative}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chips button{padding:6px 10px;font-size:13px;font-weight:500}
+details summary{cursor:pointer;color:var(--mute);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Reminders</h1>
+  <p class="sub" id="status">Loading…</p>
+
+  <form class="card" id="add" autocomplete="off">
+    <label for="title">New task</label>
+    <input type="text" id="title" placeholder="What has to be done?" enterkeyhint="done">
+    <label for="due">Date and time (optional)</label>
+    <input type="datetime-local" id="due">
+    <div id="everyBox" hidden>
+      <label for="every">Repeat the reminder every (minutes) until it is done</label>
+      <input type="number" id="every" min="1" max="1440" step="1" value="10" inputmode="numeric">
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="row" style="margin-top:12px"><button type="submit">Add task</button></div>
+    <div class="msg" id="addMsg"></div>
+  </form>
+
+  <div id="list"></div>
+
+  <details class="card" id="settings">
+    <summary>Notifications and sync</summary>
+    <label for="token">Access token (the AUTH_TOKEN you set on the server)</label>
+    <input type="password" id="token" autocomplete="off">
+    <div class="row" style="margin-top:10px">
+      <button type="button" id="save">Save token</button>
+      <button type="button" class="sec" id="enable">Enable notifications</button>
+    </div>
+    <div class="row" style="margin-top:8px"><button type="button" class="sec" id="test">Send a test push</button></div>
+    <label for="sumTimes">Daily summary times (HH:MM, comma separated; empty = off)</label>
+    <input type="text" id="sumTimes" placeholder="08:00, 20:00" autocomplete="off">
+    <div class="row" style="margin-top:8px"><button type="button" class="sec" id="sumSave">Save summary times</button></div>
+    <p class="meta">At these times you get a notification listing all open tasks, even if none is due. Skipped when there are no open tasks.</p>
+    <div class="msg" id="setMsg"></div>
+    <p class="meta">Notifications on iPhone work only after you open this page in Safari, tap Share → Add to Home Screen, and open it from the new icon.</p>
+  </details>
+</main>
+
+<dialog id="dlg">
+  <div class="title" id="dTitle"></div>
+  <p class="meta">This removes the task and stops its reminders. Press and hold the button until it fills.</p>
+  <button class="hold" id="hold" type="button"><i></i><span>Hold to mark as done</span></button>
+  <button class="sec" id="cancel" type="button" style="width:100%;margin-top:10px">Cancel</button>
+</dialog>
+
+<script src="engine.js"></script>
+<script>
+(function () {
+  "use strict";
+  var E = window.TodoEngine;
+  var LS = "todo_state", TK = "todo_token";
+  var $ = function (id) { return document.getElementById(id); };
+  var state = load();
+
+  function load() {
+    try {
+      var s = JSON.parse(localStorage.getItem(LS));
+      if (s && Array.isArray(s.tasks)) return s;
+    } catch (e) {}
+    return { tasks: [], seq: 0, dirty: false };
+  }
+  function getToken() { try { return localStorage.getItem(TK) || ""; } catch (e) { return ""; } }
+
+  function idbPut(tasks) {
+    try {
+      var open = indexedDB.open("todo-db", 1);
+      open.onupgradeneeded = function () { open.result.createObjectStore("kv"); };
+      open.onsuccess = function () {
+        try { open.result.transaction("kv", "readwrite").objectStore("kv").put(tasks, "tasks"); } catch (e) {}
+      };
+    } catch (e) {}
+  }
+
+  function save() {
+    try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {}
+    idbPut(state.tasks);   // the service worker reads this to write the notification text
+  }
+
+  function fmt(ms) {
+    return new Date(ms).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function render() {
+    var now = Date.now(), list = $("list"), tasks = E.sortOpen(state.tasks);
+    list.innerHTML = "";
+    if (!tasks.length) {
+      var p = document.createElement("p"); p.className = "sub"; p.textContent = "No open tasks."; list.appendChild(p);
+    }
+    tasks.forEach(function (t) {
+      var d = document.createElement("div");
+      d.className = "card task" + (E.isOverdue(t, now) ? " over" : "");
+      var left = document.createElement("div");
+      var ti = document.createElement("div"); ti.className = "title"; ti.textContent = t.title;
+      var me = document.createElement("div"); me.className = "meta";
+      me.textContent = t.due === null ? "No time set"
+        : (E.isOverdue(t, now) ? "Due " : "Due ") + fmt(t.due) + " · repeats every " + t.everyMin + " min";
+      left.appendChild(ti); left.appendChild(me);
+      var b = document.createElement("button"); b.className = "sec"; b.textContent = "Done…";
+      b.addEventListener("click", function () { askDone(t); });
+      d.appendChild(left); d.appendChild(b); list.appendChild(d);
+    });
+    badge(tasks.length);
+    $("status").textContent = tasks.length + " open · " + (state.dirty ? "not synced yet" : "synced");
+  }
+
+  // Open-task count on the Home Screen icon (iOS 16.4+, installed web apps, needs notification permission).
+  function badge(n) {
+    try {
+      if (n > 0 && navigator.setAppBadge) navigator.setAppBadge(n);
+      else if (navigator.clearAppBadge) navigator.clearAppBadge();
+    } catch (e) {}
+  }
+
+  // ---- sync: the server needs the schedule to push; the phone stays the source of truth.
+  var syncing = false;
+  function sync(sub) {
+    var token = getToken();
+    if (!token) return Promise.resolve(false);
+    if (syncing) return Promise.resolve(false);
+    syncing = true;
+    var body = { tasks: state.tasks.map(E.serverView) };
+    if (state.summary) body.summary = { times: state.summary, tz: Intl.DateTimeFormat().resolvedOptions().timeZone };
+    if (sub) body.sub = sub;
+    return fetch("/api/state", { method: "PUT", headers: { "content-type": "application/json", authorization: "Bearer " + token }, body: JSON.stringify(body) })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); state.dirty = false; save(); render(); return true; })
+      .catch(function () { state.dirty = true; save(); render(); return false; })
+      .then(function (ok) { syncing = false; return ok; });
+  }
+  function changed() { state.dirty = true; save(); render(); sync(); }
+
+  // ---- add
+  var CHIPS = [5, 10, 15, 30, 60];
+  CHIPS.forEach(function (m) {
+    var b = document.createElement("button"); b.type = "button"; b.className = "sec"; b.textContent = m + " min";
+    b.addEventListener("click", function () { $("every").value = m; });
+    $("chips").appendChild(b);
+  });
+  $("due").addEventListener("input", function () { $("everyBox").hidden = !$("due").value; });
+  $("add").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var dueV = $("due").value, msg = $("addMsg");
+    var r = E.makeTask({
+      id: "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+      title: $("title").value,
+      due: dueV ? new Date(dueV).getTime() : null,
+      everyMin: dueV ? Number($("every").value) : null,
+      seq: ++state.seq, now: Date.now()
+    });
+    if (r.error) { msg.className = "msg err"; msg.textContent = r.error; return; }
+    state.tasks.push(r.task);
+    $("title").value = ""; $("due").value = ""; $("everyBox").hidden = true;
+    msg.textContent = "";
+    changed();
+  });
+
+  // ---- complete: only here, only after a deliberate hold.
+  var pending = null, holdStart = null, raf = 0;
+  var dlg = $("dlg"), hold = $("hold"), fill = hold.querySelector("i");
+  function askDone(t) { pending = t; $("dTitle").textContent = t.title; fill.style.width = "0"; dlg.showModal(); }
+  function stopHold() { holdStart = null; cancelAnimationFrame(raf); fill.style.width = "0"; }
+  function frame() {
+    if (holdStart == null) return;
+    var now = Date.now();
+    fill.style.width = (E.holdProgress(holdStart, now) * 100) + "%";
+    if (E.holdComplete(holdStart, now)) { finish(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+  function finish() {
+    stopHold();
+    if (pending) { state.tasks = state.tasks.filter(function (t) { return t.id !== pending.id; }); pending = null; }
+    dlg.close(); changed();
+  }
+  ["pointerdown"].forEach(function (n) { hold.addEventListener(n, function (e) { e.preventDefault(); holdStart = Date.now(); raf = requestAnimationFrame(frame); }); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach(function (n) { hold.addEventListener(n, stopHold); });
+  hold.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  $("cancel").addEventListener("click", function () { stopHold(); pending = null; dlg.close(); });
+  dlg.addEventListener("close", function () { stopHold(); pending = null; });
+
+  // ---- notifications
+  function setMsg(t, bad) { var m = $("setMsg"); m.className = "msg " + (bad ? "err" : "okc"); m.textContent = t; }
+  function b64uToBytes(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; var b = atob(s), o = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) o[i] = b.charCodeAt(i); return o; }
+
+  $("save").addEventListener("click", function () {
+    try { localStorage.setItem(TK, $("token").value.trim()); } catch (e) {}
+    sync().then(function (ok) { setMsg(ok ? "Token saved and synced." : "Token saved, but the server did not accept it.", !ok); });
+  });
+  $("sumSave").addEventListener("click", function () {
+    var p = E.parseTimes($("sumTimes").value);
+    if (p.error) { setMsg(p.error, true); return; }
+    state.summary = p.times; state.dirty = true; save();
+    sync().then(function (ok) { setMsg(ok ? (p.times.length ? "Summary at " + p.times.join(", ") + "." : "Daily summary is off.") : "Saved on this phone, but the server did not accept it yet.", !ok); });
+  });
+  $("enable").addEventListener("click", function () {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) { setMsg("This browser has no push support. On iPhone, open the Home Screen icon, not Safari.", true); return; }
+    // Permission must be requested from a tap, which this is.
+    Notification.requestPermission().then(function (perm) {
+      if (perm !== "granted") throw new Error("Permission was not granted.");
+      return Promise.all([navigator.serviceWorker.ready, fetch("/api/config").then(function (r) { return r.json(); })]);
+    }).then(function (a) {
+      if (!a[1].publicKey) throw new Error("The server has no VAPID key configured.");
+      return a[0].pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uToBytes(a[1].publicKey) });
+    }).then(function (sub) { return sync(sub.toJSON()); })
+      .then(function (ok) { setMsg(ok ? "Notifications enabled." : "Subscribed, but sync failed. Check the token.", !ok); })
+      .catch(function (e) { setMsg(e.message, true); });
+  });
+  $("test").addEventListener("click", function () {
+    fetch("/api/test", { method: "POST", headers: { authorization: "Bearer " + getToken() } })
+      .then(function (r) { return r.json().then(function (j) { setMsg(r.ok ? "Test push sent." : (j.error || "Push failed (" + j.pushStatus + ")."), !r.ok); }); })
+      .catch(function () { setMsg("Could not reach the server.", true); });
+  });
+
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+  function retry() { if (state.dirty) sync(); }
+  window.addEventListener("online", retry);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { render(); retry(); } });
+  setInterval(render, 30000);   // overdue styling follows the clock
+  try { $("token").value = getToken(); } catch (e) {}
+  if (state.summary) $("sumTimes").value = state.summary.join(", ");
+  save(); render(); retry();
+})();
+</script>
+</body>
+</html>

@@ -7,8 +7,8 @@ behaviour from the first message goes here.
 The repo is Umut's lab schedule: `claudeAgent.json` is the source of truth, `index.html` is the app,
 `schedule.ics` is generated. See `README.md` for the mechanics.
 
-It also hosts **two more, unrelated apps**: `wardrobe/` picks what to wear, and `cellstocks/` keeps
-track of the frozen cell stocks in the −80 °C freezer. Everything below is about the schedule unless
+It also hosts **three more, unrelated apps**: `wardrobe/` picks what to wear, `cellstocks/` keeps
+track of the frozen cell stocks in the −80 °C freezer, and `todo/` is a personal task list with repeating push reminders (§8). Everything below is about the schedule unless
 it says otherwise; §6 covers the wardrobe and §7 the cell stocks. When a request is about clothes,
 weather or outfits none of the scheduling rules apply; when it is about vials, boxes or freezers,
 §7 applies and the scheduling rules still don't.
@@ -511,3 +511,20 @@ worker handles by sweeping only its own prefix.
   workbook are out of scope — this repository is public, and that is their call, not ours.
 - New cryopreservation facts — how long a vial keeps, a medium, a preference, a correction — get
   written down the same as anything else, into the table above.
+
+---
+
+## 8. The Reminders app
+
+`todo/` (app) and `todo-worker/` (push sender) are a separate app: no shared data, rules or storage with
+the others. Read `todo/README.md` first.
+
+- **Every rule lives in `todo/engine.js`**, pure, no clock. Change a rule there and add a check in
+  `tools/todo-selftest.mjs`; run it before claiming anything works.
+- **There is no native lock-screen widget, by Umut's decision.** It needs a native app (Xcode, paid developer
+  programme); he declined both. Do not propose that route again. A web app cannot have a widget at all; the
+  one widget path is the Scriptable script `todo/scriptable/Reminders.js` (read-only, token in the
+  Keychain). Whether Scriptable can show on the lock screen is unverified.
+- **Completing needs a 2.5 s hold, only inside the app.** A tap must never complete a task.
+- **No secrets in the repo** (it is public): `AUTH_TOKEN` and `VAPID_PRIVATE_JWK` are Worker secrets.
+- **Language is English.**

@@ -3499,7 +3499,7 @@
       "title": "Western — ECL + visualization",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Single target, so the day finishes here rather than putting the membrane to 4 °C for a strip. Lands exactly on 18:00 — starting the boil any earlier collides with the CuAdapt passage.",
       "group": "HEK-YY1 Western"
     },
@@ -3657,7 +3657,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-31T18:52:13.609Z",
+    "lastModified": "2026-10-31T18:54:37.368Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

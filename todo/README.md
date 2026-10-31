@@ -12,6 +12,10 @@ screen requirement was dropped (2026-10-31).
 - List order: tasks with a time first (soonest to latest), then the rest in the order added.
 - Complete only inside the app: **Done…** opens a dialog, and the task is removed only after the button is **held for 2.5 s**. A tap does nothing.
 - Once a task's time has come the phone gets a push, then again every interval, until the task is completed. Tasks without a time never notify.
+- **Every notification lists all open tasks** (up to 5 lines, then "+N more"), soonest first; `!` marks one whose time has come. A notification still only *arrives* when a timed task is due or a summary time is reached.
+- **Daily summary:** Settings -> Daily summary times (e.g. `08:00, 20:00`, up to 6, your phone's time zone). At each time a notification lists all open tasks even if none is due; skipped when there are none. A poll missed by the cron is made up for 15 minutes.
+- **Icon badge:** the Home Screen icon shows the open-task count (iOS 16.4+, installed web app, notification permission granted) [WebKit](https://webkit.org/blog/14112/badging-for-home-screen-web-apps/). Count only, no titles. Not verified on iOS 27 beta.
+- **No widget.** A web app cannot offer a Home Screen or Lock Screen widget; widgets are WidgetKit (native). No source found saying otherwise.
 - Completing removes the task from the server on the next sync, which ends its repeats. If the phone is offline when you complete, the sync is retried on reconnect; a push may still arrive in between.
 
 ## Files

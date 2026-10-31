@@ -44,10 +44,31 @@ ok(!E.holdComplete(0, E.HOLD_MS - 1), "a tap does not complete");
 ok(E.holdComplete(0, E.HOLD_MS), "a full hold completes");
 eq(E.holdProgress(null, 99), 0, "no hold, no progress");
 
-// ---- notification text
-eq(E.notificationText([mk("a", 1, 1)]).title, "1 task due", "singular title");
-const many = [1, 2, 3, 4, 5].map((i) => ({ ...mk("i" + i, 1, i), title: "T" + i }));
-eq(E.notificationText(many).body, "T1\nT2\nT3\n+2 more", "overflow line");
+// ---- notification text: all open tasks, due ones marked
+const nt = E.notificationText([{ ...mk("a", 1, 1), title: "A" }, { ...mk("u", null, 2), title: "U" }, { ...mk("f", 9e12, 3), title: "F" }], 100);
+eq([nt.title, nt.body], ["3 open \u00b7 1 due", "! A\n- F\n- U"], "lists every open task, due first and marked");
+const many = [1, 2, 3, 4, 5, 6, 7].map((i) => ({ ...mk("i" + i, null, i), title: "T" + i }));
+eq(E.notificationText(many, 0).body.split("\n").slice(-1)[0], "+2 more", "overflow line");
+eq(E.notificationText([], 0).title, "Reminders", "empty list text");
+
+// ---- daily summary
+eq(E.parseTimes("20:00, 8:05;08:05").times, ["08:05", "20:00"], "times normalised, de-duplicated, sorted");
+eq(E.parseTimes("").times, [], "empty means off");
+ok(E.parseTimes("25:00").error, "hour 25 refused");
+ok(E.parseTimes("8").error, "bare number refused");
+ok(E.parseTimes("1:00,2:00,3:00,4:00,5:00,6:00,7:00").error, "more than 6 slots refused");
+ok(E.cleanSummary({ times: ["08:00"], tz: "Europe/Istanbul" }), "valid summary accepted");
+eq(E.cleanSummary({ times: ["08:00"], tz: "Not/AZone" }), null, "bad zone refused");
+eq(E.cleanSummary({ times: ["99:00"], tz: "UTC" }), null, "bad time refused");
+const sm = { times: ["08:00"], tz: "Europe/Istanbul" };   // UTC+3 all year
+const at = (h, mi, d) => Date.UTC(2026, 9, d || 31, h, mi);
+eq(E.summaryDue(sm, {}, at(4, 59)), [], "not before the slot");
+eq(E.summaryDue(sm, {}, at(5, 0)), ["08:00"], "due at the slot (08:00 local = 05:00 UTC)");
+eq(E.summaryDue(sm, {}, at(5, 14)), ["08:00"], "a missed poll is made up inside the window");
+eq(E.summaryDue(sm, {}, at(5, 15)), [], "but not hours late");
+eq(E.summaryDue(sm, { "08:00": "2026-10-31" }, at(5, 1)), [], "once per day");
+eq(E.summaryDue(sm, { "08:00": "2026-10-30" }, at(5, 1)), ["08:00"], "again the next day");
+eq(E.summaryDue(null, {}, 0), [], "no summary set");
 
 // ---- server merge forgets completed tasks
 const m = E.mergeServerTasks([mk("a", 1, 1)], { a: 7, gone: 9 });
@@ -107,6 +128,18 @@ pushStatus = 500;
 await call("/api/state", "PUT", { sub, tasks: [{ id: "b", title: "B", due: 1, everyMin: 1 }] }, "secret-token");
 eq((await W.tick(env, 5 * MIN, fakeFetch)).reason, "push-failed", "5xx reported");
 eq(JSON.parse(store.get("state")).sent.b, undefined, "failed push is not recorded as sent, so the next minute retries");
+
+// ---- summary through the worker
+pushStatus = 201; pushes = [];
+await call("/api/state", "PUT", { sub, tasks: [{ id: "s", title: "S", due: null, everyMin: null }], summary: { times: ["08:00"], tz: "Europe/Istanbul" } }, "secret-token");
+eq((await call("/api/state", "PUT", { tasks: [], summary: { times: ["99:99"], tz: "UTC" } }, "secret-token")).status, 400, "bad summary refused");
+await call("/api/state", "PUT", { tasks: [{ id: "s", title: "S", due: null, everyMin: null }] }, "secret-token");
+ok(JSON.parse(store.get("state")).summary, "a sync without summary keeps the saved one");
+eq((await W.tick(env, at(4, 59), fakeFetch)).reason, "nothing-due", "summary: silent before the slot");
+eq((await W.tick(env, at(5, 0), fakeFetch)).summary, 1, "summary: pushed at the slot with only an untimed task");
+eq((await W.tick(env, at(5, 1), fakeFetch)).reason, "nothing-due", "summary: not twice the same day");
+await call("/api/state", "PUT", { tasks: [] }, "secret-token");
+eq((await W.tick(env, at(5, 0, 1), fakeFetch)).reason, "nothing-due", "summary: nothing to say with no open tasks");
 
 console.log(pass + " passed, " + fail + " failed");
 process.exit(fail ? 1 : 0);

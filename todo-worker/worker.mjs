@@ -24,7 +24,7 @@ function authorised(request, env) {
 
 async function load(env) {
   const raw = await env.TODO_KV.get(KEY, "json");
-  return raw || { sub: null, tasks: [], sent: {} };
+  return raw || { sub: null, tasks: [], sent: {}, summary: null, summarySent: {} };
 }
 
 function pushConfig(env) {
@@ -47,7 +47,13 @@ export async function handleRequest(request, env, fetchImpl) {
     const prev = await load(env);
     const merged = E.mergeServerTasks(body.tasks, prev.sent);
     const sub = body.sub && typeof body.sub.endpoint === "string" ? body.sub : prev.sub;
-    await env.TODO_KV.put(KEY, JSON.stringify({ sub, tasks: merged.tasks, sent: merged.sent }));
+    let summary = prev.summary || null, summarySent = prev.summarySent || {};
+    if (body.summary !== undefined) {
+      summary = E.cleanSummary(body.summary);
+      if (!summary) return json({ error: "Invalid summary times" }, 400);
+      Object.keys(summarySent).forEach((k) => { if (summary.times.indexOf(k) < 0) delete summarySent[k]; });
+    }
+    await env.TODO_KV.put(KEY, JSON.stringify({ sub, tasks: merged.tasks, sent: merged.sent, summary, summarySent }));
     return json({ ok: true, tasks: merged.tasks.length, subscribed: !!sub });
   }
 
@@ -65,7 +71,9 @@ export async function tick(env, now, fetchImpl) {
   const st = await load(env);
   if (!st.sub) return { sent: 0, reason: "no-subscription" };
   const due = E.dueToSend(st.tasks, st.sent, now);
-  if (!due.length) return { sent: 0, reason: "nothing-due" };
+  // A summary with no open tasks would be an empty notification, so it is skipped.
+  const slots = st.tasks.length ? E.summaryDue(st.summary, st.summarySent || {}, now) : [];
+  if (!due.length && !slots.length) return { sent: 0, reason: "nothing-due" };
   const r = await sendPush(st.sub, pushConfig(env), fetchImpl, Math.floor(now / 1000));
   if (r.gone) {
     // The phone no longer accepts pushes (app removed, permission revoked). Forget it so the
@@ -76,8 +84,13 @@ export async function tick(env, now, fetchImpl) {
   }
   if (r.status < 200 || r.status >= 300) return { sent: 0, reason: "push-failed", status: r.status };
   due.forEach((t) => { st.sent[t.id] = now; });
+  if (slots.length) {
+    st.summarySent = st.summarySent || {};
+    const today = E.localParts(now, st.summary.tz).date;
+    slots.forEach((k) => { st.summarySent[k] = today; });
+  }
   await env.TODO_KV.put(KEY, JSON.stringify(st));
-  return { sent: due.length, status: r.status };
+  return { sent: due.length, summary: slots.length, status: r.status };
 }
 
 export default {

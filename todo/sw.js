@@ -3,7 +3,7 @@
 // here from the tasks the app mirrored into IndexedDB. iOS requires every push to show a
 // notification, so one is always shown, even if the local list looks empty.
 importScripts("engine.js");
-const CACHE = "todo-v1";
+const CACHE = "todo-v2";
 const OWN_PREFIX = "todo-";
 const SHELL = [".", "index.html", "engine.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
@@ -50,10 +50,12 @@ function readTasks() {
 
 self.addEventListener("push", (e) => {
   e.waitUntil(readTasks().then((tasks) => {
-    const now = Date.now();
-    const due = TodoEngine.sortOpen(tasks.filter((t) => TodoEngine.isOverdue(t, now)));
-    const text = due.length ? TodoEngine.notificationText(due)
-      : { title: "Reminders", body: "You have open tasks." };
+    // Every push lists ALL open tasks, whether it was a due task or the daily summary.
+    const text = TodoEngine.notificationText(tasks, Date.now());
+    try {
+      if (tasks.length && navigator.setAppBadge) navigator.setAppBadge(tasks.length);
+      else if (navigator.clearAppBadge) navigator.clearAppBadge();
+    } catch (err) {}
     return self.registration.showNotification(text.title, {
       body: text.body, tag: "todo-due", renotify: true,
       icon: "icon-192.png", badge: "icon-192.png"

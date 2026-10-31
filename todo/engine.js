@@ -62,16 +62,68 @@
   }
   function holdComplete(start, now) { return holdProgress(start, now) >= 1; }
 
-  // Text for a push notification, from the tasks that are due.
-  function notificationText(due) {
-    var n = due.length;
-    if (!n) return { title: "Reminders", body: "Open tasks are waiting." };
-    var shown = due.slice(0, 3).map(function (t) { return t.title; });
-    var more = n - shown.length;
-    return {
-      title: n === 1 ? "1 task due" : n + " tasks due",
-      body: shown.join("\n") + (more > 0 ? "\n+" + more + " more" : "")
-    };
+  // Text for a notification: ALL open tasks, soonest first, so the lock screen shows the
+  // whole list and not only what just came due. "!" marks a task whose time has come.
+  var MAX_LINES = 5;
+  function notificationText(tasks, now) {
+    var open = sortOpen(tasks), n = open.length;
+    if (!n) return { title: "Reminders", body: "No open tasks." };
+    var due = open.filter(function (t) { return isOverdue(t, now); }).length;
+    var lines = open.slice(0, MAX_LINES).map(function (t) { return (isOverdue(t, now) ? "! " : "- ") + t.title; });
+    if (n > MAX_LINES) lines.push("+" + (n - MAX_LINES) + " more");
+    return { title: n + " open" + (due ? " \u00b7 " + due + " due" : ""), body: lines.join("\n") };
+  }
+
+  // ---- daily summary: a notification at fixed local times even when nothing is due.
+  var MAX_SLOTS = 6;
+  var SUMMARY_WINDOW = 15;   // minutes after a slot during which a missed poll is still made up
+
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+  // "08:00, 20:30" -> ["08:00","20:30"]; empty string -> [] (summary off).
+  function parseTimes(str) {
+    var parts = String(str == null ? "" : str).split(/[,;\s]+/).filter(Boolean), out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var m = /^(\d{1,2}):(\d{2})$/.exec(parts[i]);
+      if (!m || Number(m[1]) > 23 || Number(m[2]) > 59) {
+        return { error: "\"" + parts[i] + "\" is not a time. Use HH:MM, for example 08:00, 20:30." };
+      }
+      var t = pad2(Number(m[1])) + ":" + m[2];
+      if (out.indexOf(t) < 0) out.push(t);
+    }
+    if (out.length > MAX_SLOTS) return { error: "At most " + MAX_SLOTS + " summary times." };
+    return { times: out.sort() };
+  }
+
+  function validZone(tz) {
+    try { new Intl.DateTimeFormat("en-CA", { timeZone: tz }); return typeof tz === "string" && tz.length > 0; } catch (e) { return false; }
+  }
+
+  // Server-side check of what the app sends. Returns {times, tz} or null if it is not valid.
+  function cleanSummary(o) {
+    if (!o || !Array.isArray(o.times) || !validZone(o.tz)) return null;
+    var p = parseTimes(o.times.join(","));
+    return p.error ? null : { times: p.times, tz: o.tz };
+  }
+
+  // Local calendar date ("YYYY-MM-DD") and minutes since midnight at `ms` in zone `tz`.
+  function localParts(ms, tz) {
+    var f = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+    var g = {};
+    f.formatToParts(new Date(ms)).forEach(function (p) { g[p.type] = p.value; });
+    return { date: g.year + "-" + g.month + "-" + g.day, min: Number(g.hour) * 60 + Number(g.minute) };
+  }
+
+  // Slots whose moment has come (within SUMMARY_WINDOW) and that were not yet sent today.
+  // `sent` maps slot -> the local date it was last sent for.
+  function summaryDue(summary, sent, now) {
+    if (!summary || !summary.times || !summary.times.length || !validZone(summary.tz)) return [];
+    var lp = localParts(now, summary.tz);
+    return summary.times.filter(function (slot) {
+      var m = /^(\d{2}):(\d{2})$/.exec(slot);
+      var late = lp.min - (Number(m[1]) * 60 + Number(m[2]));
+      return late >= 0 && late < SUMMARY_WINDOW && !(sent && sent[slot] === lp.date);
+    });
   }
 
   // The slice of a task the server needs: enough to decide when to push, nothing else.
@@ -92,6 +144,7 @@
     MIN_EVERY: MIN_EVERY, MAX_EVERY: MAX_EVERY, HOLD_MS: HOLD_MS,
     makeTask: makeTask, sortOpen: sortOpen, dueToSend: dueToSend, isOverdue: isOverdue,
     holdProgress: holdProgress, holdComplete: holdComplete,
-    notificationText: notificationText, serverView: serverView, mergeServerTasks: mergeServerTasks
+    notificationText: notificationText, parseTimes: parseTimes, cleanSummary: cleanSummary,
+    localParts: localParts, summaryDue: summaryDue, SUMMARY_WINDOW: SUMMARY_WINDOW, serverView: serverView, mergeServerTasks: mergeServerTasks
   };
 });

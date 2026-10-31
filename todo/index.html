@@ -73,6 +73,10 @@ details summary{cursor:pointer;color:var(--mute);font-size:14px}
       <button type="button" class="sec" id="enable">Enable notifications</button>
     </div>
     <div class="row" style="margin-top:8px"><button type="button" class="sec" id="test">Send a test push</button></div>
+    <label for="sumTimes">Daily summary times (HH:MM, comma separated; empty = off)</label>
+    <input type="text" id="sumTimes" placeholder="08:00, 20:00" autocomplete="off">
+    <div class="row" style="margin-top:8px"><button type="button" class="sec" id="sumSave">Save summary times</button></div>
+    <p class="meta">At these times you get a notification listing all open tasks, even if none is due. Skipped when there are no open tasks.</p>
     <div class="msg" id="setMsg"></div>
     <p class="meta">Notifications on iPhone work only after you open this page in Safari, tap Share → Add to Home Screen, and open it from the new icon.</p>
   </details>
@@ -141,7 +145,16 @@ details summary{cursor:pointer;color:var(--mute);font-size:14px}
       b.addEventListener("click", function () { askDone(t); });
       d.appendChild(left); d.appendChild(b); list.appendChild(d);
     });
+    badge(tasks.length);
     $("status").textContent = tasks.length + " open · " + (state.dirty ? "not synced yet" : "synced");
+  }
+
+  // Open-task count on the Home Screen icon (iOS 16.4+, installed web apps, needs notification permission).
+  function badge(n) {
+    try {
+      if (n > 0 && navigator.setAppBadge) navigator.setAppBadge(n);
+      else if (navigator.clearAppBadge) navigator.clearAppBadge();
+    } catch (e) {}
   }
 
   // ---- sync: the server needs the schedule to push; the phone stays the source of truth.
@@ -152,6 +165,7 @@ details summary{cursor:pointer;color:var(--mute);font-size:14px}
     if (syncing) return Promise.resolve(false);
     syncing = true;
     var body = { tasks: state.tasks.map(E.serverView) };
+    if (state.summary) body.summary = { times: state.summary, tz: Intl.DateTimeFormat().resolvedOptions().timeZone };
     if (sub) body.sub = sub;
     return fetch("/api/state", { method: "PUT", headers: { "content-type": "application/json", authorization: "Bearer " + token }, body: JSON.stringify(body) })
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); state.dirty = false; save(); render(); return true; })
@@ -216,6 +230,12 @@ details summary{cursor:pointer;color:var(--mute);font-size:14px}
     try { localStorage.setItem(TK, $("token").value.trim()); } catch (e) {}
     sync().then(function (ok) { setMsg(ok ? "Token saved and synced." : "Token saved, but the server did not accept it.", !ok); });
   });
+  $("sumSave").addEventListener("click", function () {
+    var p = E.parseTimes($("sumTimes").value);
+    if (p.error) { setMsg(p.error, true); return; }
+    state.summary = p.times; state.dirty = true; save();
+    sync().then(function (ok) { setMsg(ok ? (p.times.length ? "Summary at " + p.times.join(", ") + "." : "Daily summary is off.") : "Saved on this phone, but the server did not accept it yet.", !ok); });
+  });
   $("enable").addEventListener("click", function () {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) { setMsg("This browser has no push support. On iPhone, open the Home Screen icon, not Safari.", true); return; }
     // Permission must be requested from a tap, which this is.
@@ -241,6 +261,7 @@ details summary{cursor:pointer;color:var(--mute);font-size:14px}
   document.addEventListener("visibilitychange", function () { if (!document.hidden) { render(); retry(); } });
   setInterval(render, 30000);   // overdue styling follows the clock
   try { $("token").value = getToken(); } catch (e) {}
+  if (state.summary) $("sumTimes").value = state.summary.join(", ");
   save(); render(); retry();
 })();
 </script>

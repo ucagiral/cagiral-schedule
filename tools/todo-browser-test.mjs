@@ -51,6 +51,16 @@ ok(titles.length === 2 && !titles.includes("sooner"), "a full hold completes: " 
 await page.reload();
 ok((await page.$$(".task")).length === 2, "state survives a reload");
 
+// Daily summary times are validated before anything is saved.
+await page.click("#settings summary");
+await page.fill("#sumTimes", "25:00");
+await page.click("#sumSave");
+ok((await page.textContent("#setMsg")).includes("not a time"), "bad summary time is explained");
+await page.fill("#sumTimes", "08:00, 20:00");
+await page.click("#sumSave");
+await page.reload();
+ok((await page.inputValue("#sumTimes")) === "08:00, 20:00", "summary times survive a reload");
+
 console.log(pass + " passed, " + fail + " failed");
 await browser.close(); srv.close();
 process.exit(fail ? 1 : 0);

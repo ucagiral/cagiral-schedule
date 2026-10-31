@@ -56,10 +56,10 @@ await page.click("#settings summary");
 await page.fill("#sumTimes", "25:00");
 await page.click("#sumSave");
 ok((await page.textContent("#setMsg")).includes("not a time"), "bad summary time is explained");
-await page.fill("#sumTimes", "08:00, 20:00");
+await page.fill("#sumTimes", "08:15-21:00/5");
 await page.click("#sumSave");
 await page.reload();
-ok((await page.inputValue("#sumTimes")) === "08:00, 20:00", "summary times survive a reload");
+ok((await page.inputValue("#sumTimes")) === "08:15-21:00/5", "summary times survive a reload");
 
 console.log(pass + " passed, " + fail + " failed");
 await browser.close(); srv.close();

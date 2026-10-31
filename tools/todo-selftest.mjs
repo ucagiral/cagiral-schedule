@@ -56,7 +56,12 @@ eq(E.parseTimes("20:00, 8:05;08:05").times, ["08:05", "20:00"], "times normalise
 eq(E.parseTimes("").times, [], "empty means off");
 ok(E.parseTimes("25:00").error, "hour 25 refused");
 ok(E.parseTimes("8").error, "bare number refused");
-ok(E.parseTimes("1:00,2:00,3:00,4:00,5:00,6:00,7:00").error, "more than 6 slots refused");
+const rg = E.parseTimes("08:15-21:00/5").times;
+eq([rg.length, rg[0], rg[rg.length - 1]], [154, "08:15", "21:00"], "range every 5 min, 08:15 to 21:00 inclusive");
+eq(E.parseTimes("08:00-08:10/5, 08:05").times, ["08:00", "08:05", "08:10"], "range and list merge without duplicates");
+ok(E.parseTimes("21:00-08:00/5").error, "reversed range refused");
+ok(E.parseTimes("08:00-09:00/0").error, "step 0 refused");
+ok(E.parseTimes("00:00-23:59/1").error, "more than 200 slots refused");
 ok(E.cleanSummary({ times: ["08:00"], tz: "Europe/Istanbul" }), "valid summary accepted");
 eq(E.cleanSummary({ times: ["08:00"], tz: "Not/AZone" }), null, "bad zone refused");
 eq(E.cleanSummary({ times: ["99:00"], tz: "UTC" }), null, "bad time refused");

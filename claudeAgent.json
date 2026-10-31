@@ -3475,7 +3475,7 @@
       "title": "Western — secondary antibody",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "1 h.",
       "group": "HEK-YY1 Western"
     },
@@ -3487,7 +3487,7 @@
       "title": "Western — washes (after secondary)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "group": "HEK-YY1 Western"
     },
@@ -3657,7 +3657,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-31T18:54:37.368Z",
+    "lastModified": "2026-10-31T18:54:39.375Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

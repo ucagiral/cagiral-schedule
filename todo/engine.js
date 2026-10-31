@@ -75,21 +75,31 @@
   }
 
   // ---- daily summary: a notification at fixed local times even when nothing is due.
-  var MAX_SLOTS = 6;
+  var MAX_SLOTS = 200;
   var SUMMARY_WINDOW = 15;   // minutes after a slot during which a missed poll is still made up
 
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
 
   // "08:00, 20:30" -> ["08:00","20:30"]; empty string -> [] (summary off).
+  // A range "08:15-21:00/5" means every 5 minutes from 08:15 to 21:00 inclusive.
   function parseTimes(str) {
     var parts = String(str == null ? "" : str).split(/[,;\s]+/).filter(Boolean), out = [];
+    function add(min) { var t = pad2(Math.floor(min / 60)) + ":" + pad2(min % 60); if (out.indexOf(t) < 0) out.push(t); }
     for (var i = 0; i < parts.length; i++) {
-      var m = /^(\d{1,2}):(\d{2})$/.exec(parts[i]);
-      if (!m || Number(m[1]) > 23 || Number(m[2]) > 59) {
-        return { error: "\"" + parts[i] + "\" is not a time. Use HH:MM, for example 08:00, 20:30." };
+      var r = /^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})\/(\d{1,3})$/.exec(parts[i]);
+      if (r) {
+        var a = Number(r[1]) * 60 + Number(r[2]), b = Number(r[3]) * 60 + Number(r[4]), step = Number(r[5]);
+        if (Number(r[1]) > 23 || Number(r[2]) > 59 || Number(r[3]) > 23 || Number(r[4]) > 59 || step < 1 || step > 720 || b < a) {
+          return { error: "\"" + parts[i] + "\" is not a valid range. Use START-END/MINUTES, for example 08:15-21:00/5." };
+        }
+        for (var m = a; m <= b; m += step) add(m);
+        continue;
       }
-      var t = pad2(Number(m[1])) + ":" + m[2];
-      if (out.indexOf(t) < 0) out.push(t);
+      var m1 = /^(\d{1,2}):(\d{2})$/.exec(parts[i]);
+      if (!m1 || Number(m1[1]) > 23 || Number(m1[2]) > 59) {
+        return { error: "\"" + parts[i] + "\" is not a time. Use HH:MM (08:00) or a range (08:15-21:00/5)." };
+      }
+      add(Number(m1[1]) * 60 + Number(m1[2]));
     }
     if (out.length > MAX_SLOTS) return { error: "At most " + MAX_SLOTS + " summary times." };
     return { times: out.sort() };

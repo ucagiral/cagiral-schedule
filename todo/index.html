@@ -73,8 +73,8 @@ details summary{cursor:pointer;color:var(--mute);font-size:14px}
       <button type="button" class="sec" id="enable">Enable notifications</button>
     </div>
     <div class="row" style="margin-top:8px"><button type="button" class="sec" id="test">Send a test push</button></div>
-    <label for="sumTimes">Daily summary times (HH:MM, comma separated; empty = off)</label>
-    <input type="text" id="sumTimes" placeholder="08:00, 20:00" autocomplete="off">
+    <label for="sumTimes">Daily summary times (HH:MM list, or a range like 08:15-21:00/5; empty = off)</label>
+    <input type="text" id="sumTimes" placeholder="08:00, 20:00  or  08:15-21:00/5" autocomplete="off">
     <div class="row" style="margin-top:8px"><button type="button" class="sec" id="sumSave">Save summary times</button></div>
     <p class="meta">At these times you get a notification listing all open tasks, even if none is due. Skipped when there are no open tasks.</p>
     <div class="msg" id="setMsg"></div>
@@ -233,8 +233,8 @@ details summary{cursor:pointer;color:var(--mute);font-size:14px}
   $("sumSave").addEventListener("click", function () {
     var p = E.parseTimes($("sumTimes").value);
     if (p.error) { setMsg(p.error, true); return; }
-    state.summary = p.times; state.dirty = true; save();
-    sync().then(function (ok) { setMsg(ok ? (p.times.length ? "Summary at " + p.times.join(", ") + "." : "Daily summary is off.") : "Saved on this phone, but the server did not accept it yet.", !ok); });
+    state.summary = p.times; state.summaryText = $("sumTimes").value.trim(); state.dirty = true; save();
+    sync().then(function (ok) { setMsg(ok ? (p.times.length ? "Summary set: " + p.times.length + " time" + (p.times.length === 1 ? "" : "s") + ", first " + p.times[0] + ", last " + p.times[p.times.length - 1] + "." : "Daily summary is off.") : "Saved on this phone, but the server did not accept it yet.", !ok); });
   });
   $("enable").addEventListener("click", function () {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) { setMsg("This browser has no push support. On iPhone, open the Home Screen icon, not Safari.", true); return; }
@@ -261,7 +261,7 @@ details summary{cursor:pointer;color:var(--mute);font-size:14px}
   document.addEventListener("visibilitychange", function () { if (!document.hidden) { render(); retry(); } });
   setInterval(render, 30000);   // overdue styling follows the clock
   try { $("token").value = getToken(); } catch (e) {}
-  if (state.summary) $("sumTimes").value = state.summary.join(", ");
+  if (state.summary) $("sumTimes").value = state.summaryText || state.summary.join(", ");
   save(); render(); retry();
 })();
 </script>

@@ -3319,7 +3319,7 @@
       "title": "tet-pLKO + shYY1 — transformation",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Heat shock 30 s at 42 °C, 60 min SOC at 37 °C, then plating, with the ligation-negative control alongside.",
       "group": "tet-pLKO shYY1"
     },
@@ -3657,7 +3657,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-31T18:52:03.622Z",
+    "lastModified": "2026-10-31T18:52:11.656Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

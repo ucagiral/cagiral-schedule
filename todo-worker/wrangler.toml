@@ -1,0 +1,28 @@
+# Cloudflare Worker for the Reminders app. See README.md in this directory for the one-time
+# setup. Nothing in this file is secret: AUTH_TOKEN and VAPID_PRIVATE_JWK are set with
+# `wrangler secret put`, which stores them on Cloudflare, not here (this repository is public).
+
+name = "todo-worker"
+main = "worker.mjs"
+compatibility_date = "2024-09-01"
+
+# `wrangler kv namespace create TODO_KV` prints the id to put here.
+kv_namespaces = [
+  { binding = "TODO_KV", id = "REPLACE_WITH_KV_ID" }
+]
+
+[assets]
+directory = "../todo"
+binding = "ASSETS"
+run_worker_first = true
+
+[vars]
+# From `node todo-worker/gen-vapid.mjs`. The public half is public by design.
+VAPID_PUBLIC = "REPLACE_WITH_VAPID_PUBLIC"
+# Push services (Apple's included) want a contact in the token. Use an address you read.
+VAPID_SUBJECT = "mailto:you@example.com"
+
+# Every minute: push if a task is due and its repeat interval has passed. This is the
+# finest cron resolution Cloudflare offers, so "every 1 minute" is the shortest useful interval.
+[triggers]
+crons = ["* * * * *"]

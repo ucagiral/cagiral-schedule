@@ -3079,7 +3079,7 @@
       "title": "CuAdapt — RNA isolation",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Spin-column isolation, 25–40 min published; 1 h is the value this schedule has used for it since August.",
       "group": "CuAdapt"
     },
@@ -3657,7 +3657,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-30T03:37:24.190Z",
+    "lastModified": "2026-10-31T18:52:03.622Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

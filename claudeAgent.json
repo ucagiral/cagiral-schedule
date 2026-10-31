@@ -3331,7 +3331,7 @@
       "title": "Transformation plates — 37 °C overnight",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "Colonies ready to pick tomorrow.",
       "group": "tet-pLKO shYY1"
     },
@@ -3657,7 +3657,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-31T18:52:11.656Z",
+    "lastModified": "2026-10-31T18:52:13.609Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

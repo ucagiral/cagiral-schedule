@@ -129,6 +129,11 @@ await call("/api/state", "PUT", { sub, tasks: [{ id: "b", title: "B", due: 1, ev
 eq((await W.tick(env, 5 * MIN, fakeFetch)).reason, "push-failed", "5xx reported");
 eq(JSON.parse(store.get("state")).sent.b, undefined, "failed push is not recorded as sent, so the next minute retries");
 
+// ---- widget feed
+eq((await call("/api/tasks", "GET")).status, 401, "task list needs the token");
+await call("/api/state", "PUT", { tasks: [{ id: "w", title: "W", due: null, everyMin: null }] }, "secret-token");
+eq((await (await call("/api/tasks", "GET", null, "secret-token")).json()).tasks.map((x) => x.title), ["W"], "token reads the task list");
+
 // ---- summary through the worker
 pushStatus = 201; pushes = [];
 await call("/api/state", "PUT", { sub, tasks: [{ id: "s", title: "S", due: null, everyMin: null }], summary: { times: ["08:00"], tz: "Europe/Istanbul" } }, "secret-token");

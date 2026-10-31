@@ -521,8 +521,10 @@ the others. Read `todo/README.md` first.
 
 - **Every rule lives in `todo/engine.js`**, pure, no clock. Change a rule there and add a check in
   `tools/todo-selftest.mjs`; run it before claiming anything works.
-- **There is no lock-screen widget, by Umut's decision.** It needs a native app (Xcode, paid developer
-  programme); he declined both. Do not reintroduce it or propose it again.
+- **There is no native lock-screen widget, by Umut's decision.** It needs a native app (Xcode, paid developer
+  programme); he declined both. Do not propose that route again. A web app cannot have a widget at all; the
+  one widget path is the Scriptable script `todo/scriptable/Reminders.js` (read-only, token in the
+  Keychain). Whether Scriptable can show on the lock screen is unverified.
 - **Completing needs a 2.5 s hold, only inside the app.** A tap must never complete a task.
 - **No secrets in the repo** (it is public): `AUTH_TOKEN` and `VAPID_PRIVATE_JWK` are Worker secrets.
 - **Language is English.**

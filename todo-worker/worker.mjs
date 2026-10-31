@@ -57,6 +57,12 @@ export async function handleRequest(request, env, fetchImpl) {
     return json({ ok: true, tasks: merged.tasks.length, subscribed: !!sub });
   }
 
+  // Read-only list for the Scriptable widget. Same token as the app; titles only, no push data.
+  if (url.pathname === "/api/tasks" && request.method === "GET") {
+    const st = await load(env);
+    return json({ tasks: st.tasks });
+  }
+
   if (url.pathname === "/api/test" && request.method === "POST") {
     const st = await load(env);
     if (!st.sub) return json({ error: "No push subscription yet. Enable notifications in the app first." }, 409);

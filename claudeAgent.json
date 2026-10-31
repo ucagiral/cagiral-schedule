@@ -3463,7 +3463,7 @@
       "title": "Western — washes (after primary)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "",
       "group": "HEK-YY1 Western"
     },
@@ -3657,7 +3657,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-10-31T18:54:39.375Z",
+    "lastModified": "2026-10-31T18:54:41.343Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

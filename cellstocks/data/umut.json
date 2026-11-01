@@ -14539,6 +14539,48 @@
       "status": "stored",
       "addedAt": "2026-11-01T13:07:36.253Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvxuie84-0",
+      "name": "LnCap ER",
+      "lineId": "l-lncap-er",
+      "passage": "+2",
+      "passageNumber": 2,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-01",
+      "frozenOn": "2026-11-01",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "C1"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-01T13:08:13.060Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvxuie84-1",
+      "name": "LnCap ER",
+      "lineId": "l-lncap-er",
+      "passage": "+2",
+      "passageNumber": 2,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-01",
+      "frozenOn": "2026-11-01",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "C2"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-01T13:08:13.060Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -15740,7 +15782,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-11-01T13:07:38.118Z"
+    "savedAt": "2026-11-01T13:08:14.791Z"
   },
   "removedVialIds": [
     "v-205",

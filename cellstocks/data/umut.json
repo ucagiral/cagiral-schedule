@@ -14497,6 +14497,48 @@
       "status": "stored",
       "addedAt": "2026-10-29T19:19:17.992Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvxuhltp-0",
+      "name": "LNC478 #2",
+      "lineId": "l-lnc478-2",
+      "passage": "27",
+      "passageNumber": 27,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-01",
+      "frozenOn": "2026-11-01",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "D7"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-01T13:07:36.253Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mvxuhltp-1",
+      "name": "LNC478 #2",
+      "lineId": "l-lnc478-2",
+      "passage": "27",
+      "passageNumber": 27,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-01",
+      "frozenOn": "2026-11-01",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "D8"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-01T13:07:36.253Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -15698,7 +15740,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-10-29T19:19:19.718Z"
+    "savedAt": "2026-11-01T13:07:38.118Z"
   },
   "removedVialIds": [
     "v-205",

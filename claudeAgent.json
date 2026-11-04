@@ -3608,7 +3608,7 @@
       "title": "tet-pLKO-shYY1 — midiprep",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Umut asked for the midiprep this week, so it runs straight off the colony culture without waiting for a sequencing result — faster, but a mis-ligated clone is only caught afterwards. Published times span ~40 min (Plasmid Plus: 15 min harvest spin + 20 min column) to ~2.5 h (classic Midi); the top of that range is booked.",
       "group": "tet-pLKO shYY1"
     }
@@ -3658,7 +3658,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-11-04T19:35:04.027Z",
+    "lastModified": "2026-11-04T19:35:06.525Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

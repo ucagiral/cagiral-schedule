@@ -476,7 +476,7 @@
       "title": "CuAdapt cells — passage",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Mon/Thu passage. Placeholder time — adjust as needed.",
       "group": "CuAdapt"
     },
@@ -1204,7 +1204,7 @@
       "title": "Weekly meeting",
       "category": "meeting",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Recurring Friday meeting per schedule.md. No experiments during this time. Materialized as a calendar entry (2026-08-09 rule change) instead of an implicit rule.",
       "group": "Weekly meeting"
     },
@@ -3284,7 +3284,7 @@
       "title": "LNC478 — dox + Shield-1 induction",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Umut’s call: dox Wednesday, fixation Friday. Two days of induction, the standing lead-in.",
       "group": "ChIP"
     },
@@ -3296,7 +3296,7 @@
       "title": "CuAdapt — qPCR plate set-up",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Same day as the run rather than the day before: Tuesday had no room. The dependency is what matters — prep goes before the run.",
       "group": "CuAdapt"
     },
@@ -3308,7 +3308,7 @@
       "title": "CuAdapt — qPCR run",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "~2 h on the instrument, ~5 min hands-on. Not treated as a booked slot — say if it is, and it becomes an active block.",
       "group": "CuAdapt"
     },
@@ -3512,7 +3512,7 @@
       "title": "tet-pLKO — pick colonies, inoculate midiprep culture",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Added, not on Umut’s list: a midiprep needs its own overnight culture, so the colony goes straight into the larger volume rather than into a miniprep tube.",
       "group": "tet-pLKO shYY1"
     },
@@ -3524,7 +3524,7 @@
       "title": "Midiprep culture — 37 °C overnight",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "12–16 h. Continues past this grid’s 23:00 window.",
       "group": "tet-pLKO shYY1"
     },
@@ -3548,7 +3548,7 @@
       "title": "Virus harvest — second collection (~71 h)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Before the weekly meeting — the only gap Friday has, and the 72 h point falls inside it.",
       "group": "Virus prep"
     },
@@ -3560,7 +3560,7 @@
       "title": "SRB — TCA fixation (add TCA)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "72 h after Tuesday’s treatment. Cold TCA layered onto the medium to 10% final.",
       "group": "SRB assay"
     },
@@ -3572,7 +3572,7 @@
       "title": "SRB — TCA fixation, 1 h at 4 °C",
       "category": "experiment",
       "type": "passive",
-      "status": "pending",
+      "status": "done",
       "notes": "At least an hour at 4 °C; the plates can also be held at −20 °C if the day runs out.",
       "group": "SRB assay"
     },
@@ -3584,7 +3584,7 @@
       "title": "SRB — wash (discard, wash, tap dry)",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Follows the 14 Aug 2026 pattern, which stopped here. SRB staining, the acetic-acid washes, Tris solubilisation and the 540 nm read are not scheduled — say when you want them and they go on.",
       "group": "SRB assay"
     },
@@ -3596,7 +3596,7 @@
       "title": "LNC478 — ChIP fixation",
       "category": "experiment",
       "type": "active",
-      "status": "pending",
+      "status": "done",
       "notes": "Umut’s day. Two days after Wednesday’s dox + Shield-1. 1% formaldehyde 10 min RT, 125 mM glycine quench 5 min, harvest, wash, pellet to −80 °C.",
       "group": "ChIP"
     },
@@ -3658,7 +3658,7 @@
     }
   },
   "_meta": {
-    "lastModified": "2026-11-04T19:34:55.441Z",
+    "lastModified": "2026-11-04T19:35:04.027Z",
     "modifiedBy": "Umut iPhone 16 Plus"
   }
 }

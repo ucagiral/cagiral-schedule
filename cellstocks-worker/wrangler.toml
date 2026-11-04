@@ -40,6 +40,10 @@ GITHUB_BRANCH = "main"
 # Kept for the GitHub Pages address, which still works and is still where anyone with
 # the old link lands. The Worker-hosted copy needs no entry here: it is same-origin.
 ALLOWED_ORIGIN = "https://ucagiral.github.io"
+# Accounts that may use the schedule app's voice assistant (POST /ai/daily): comma
+# separated account names, empty means nobody. The key itself is a secret, never here:
+#   npx wrangler secret put ANTHROPIC_API_KEY
+AI_USERS = "umut"
 
 # The daily freezer layout mail's actual trigger.
 #

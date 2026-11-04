@@ -116,6 +116,29 @@ passive incubations appear but don't mark you busy.
 
 Times are Europe/Istanbul, declared as a fixed UTC+3 offset (Turkey has had no DST since 2016).
 
+## Daily voice assistant
+
+The 🎙 button in the header opens **What did you do today?**: speak (the browser's own speech
+recognition, Türkçe or English; typing works too) or type what you finished and what is still to do.
+The assistant proposes which listed events are done and which items to add, each as a tick box.
+**Nothing changes until you tap *Apply selected*.** Applying saves through the normal path, so the
+feed rebuilds and a new item reaches Apple Calendar like any other event.
+
+- A new item with a clock time becomes an active event; its end is the spoken end, else the
+  researched duration (`protocols/durations.md`), else 30 min with a note saying it is a placeholder.
+  An item with no time becomes a reminder (no fixed hour), which the feed alerts on at the start of the day.
+- **Only chosen accounts get it.** The button stays hidden until Connect → *Voice assistant* is signed in
+  with a Cell Stocks account the Worker lists in `AI_USERS` (`cellstocks-worker/wrangler.toml`, currently
+  `umut`; comma separated, empty = nobody). The Worker enforces the same list on `POST /ai/daily`.
+- **Where the AI runs.** Not in the page: the call goes to `cellstocks-worker`, which holds the
+  Anthropic key as the secret `ANTHROPIC_API_KEY` (`npx wrangler secret put ANTHROPIC_API_KEY`; never
+  in the repo, which is public). The model is `AI_MODEL` (default `claude-sonnet-5-5`). The Worker
+  forces one tool call and drops any id it was not sent and any malformed date or time.
+- What is sent: the typed or spoken text, today's date, and the open events of the last 7 and next 30
+  days (id, date, start, title, status). Nothing else from the schedule.
+- Tests: `node tools/cellstocks-worker-selftest.mjs` (the route) and
+  `node tools/schedule-voice-browser-test.mjs` (the page, GitHub and Worker stubbed).
+
 ## Add it as a widget
 
 Neither iOS, macOS nor Windows lets a website register a true home-screen or desktop widget — that

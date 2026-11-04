@@ -528,3 +528,19 @@ the others. Read `todo/README.md` first.
 - **Completing needs a 2.5 s hold, only inside the app.** A tap must never complete a task.
 - **No secrets in the repo** (it is public): `AUTH_TOKEN` and `VAPID_PRIVATE_JWK` are Worker secrets.
 - **Language is English.**
+
+---
+
+## 9. The schedule's voice assistant
+
+Lives in `index.html` (🎙, `dlgVoice`) and `cellstocks-worker/worker.js` (`POST /ai/daily`). See
+README "Daily voice assistant".
+
+- **Proposals only, applied on a tap.** Umut chose "ask for confirmation first". Never make the assistant
+  write to the schedule on its own.
+- **Selected accounts only (Umut: "sadece seçtiğim kullanıcılar", probably only him).** The list is
+  `AI_USERS` in `wrangler.toml`; the Worker enforces it, the hidden button is only convenience.
+- **The Anthropic key is a Worker secret, set by Umut.** Never in the repo, never in the page.
+- The colour palette (warm orange accent, near-black dark, warm off-white light) follows a friend's app
+  Umut liked; both modes are first-class. Tokens are in `:root` / the dark blocks at the top of `index.html`;
+  `--on-accent` is the text colour for anything filled with the accent.

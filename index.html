@@ -11,21 +11,23 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cagiral Schedule">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#faf6f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0c0c" media="(prefers-color-scheme: dark)">
 <style>
   :root{
-    --bg:#f2f2f7; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
-    --grid-line:#e5e7eb; --hour-line:#cfd4db; --halfhour-line:#eef0f3;
+    --bg:#faf6f1; --panel:#ffffff; --border:#e6dfd6; --text:#1c1713; --muted:#6f655b;
+    --grid-line:#ece6de; --hour-line:#d9d0c4; --halfhour-line:#f3eee8;
     --cat-experiment:#3b82f6; --cat-meeting:#ef4444; --cat-writing:#8b5cf6;
     --cat-personal:#22c55e; --cat-other:#6b7280;
-    /* Apple's own system blue/red/green, not an arbitrary pick — this is what
-       "feels like Apple" cashes out to for an accent colour. */
-    --accent:#007aff; --warn-bg:#fff7ed; --warn-border:#fde68a; --warn-text:#7c2d12;
+    /* Warm orange accent on a warm neutral ground, in both modes. Light uses a deeper
+       orange so text and white-on-accent buttons stay readable (>= 4.5:1 on white);
+       dark uses a lighter one with dark text on it. --on-accent is the text colour for
+       anything filled with the accent. */
+    --accent:#c2570c; --on-accent:#ffffff; --warn-bg:#fff7ed; --warn-border:#fde68a; --warn-text:#7c2d12;
     --ok:#34c759; --bad:#ff3b30;
     /* iOS's "filled gray" secondary-button treatment — a tinted fill instead of
        an outlined box, used for Cancel/Close-type actions. */
-    --fill:rgba(120,120,128,.12); --fill-strong:rgba(120,120,128,.20);
+    --fill:rgba(120,100,80,.12); --fill-strong:rgba(120,100,80,.20);
     /* Fixed and neutral on purpose — a reminder's whole point is to be visually distinct
        from every category/group colour, not join their system. */
     --reminder-bg:#78716c; --reminder-border:#57534e;
@@ -33,23 +35,24 @@
   }
   @media (prefers-color-scheme: dark){
     html:not([data-theme="light"]){
-      --bg:#000000; --panel:#1c1c1e; --border:#38383a; --text:#f2f2f7; --muted:#9aa1ac;
-      --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
-      --accent:#0a84ff; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
+      --bg:#0d0c0c; --panel:#161413; --border:#2a2624; --text:#f3eee8; --muted:#a39a90;
+      --grid-line:#25201d; --hour-line:#37312d; --halfhour-line:#1c1816;
+      --accent:#ff9a44; --on-accent:#1a1208; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
       --ok:#30d158; --bad:#ff453a;
-      --fill:rgba(120,120,128,.24); --fill-strong:rgba(120,120,128,.36);
+      --fill:rgba(255,170,100,.10); --fill-strong:rgba(255,170,100,.18);
       --reminder-bg:#8a8580; --reminder-border:#a8a29e;
     }
   }
   html[data-theme="dark"]{
-    --bg:#000000; --panel:#1c1c1e; --border:#38383a; --text:#f2f2f7; --muted:#9aa1ac;
-    --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
-    --accent:#0a84ff; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
+    --bg:#0d0c0c; --panel:#161413; --border:#2a2624; --text:#f3eee8; --muted:#a39a90;
+    --grid-line:#25201d; --hour-line:#37312d; --halfhour-line:#1c1816;
+    --accent:#ff9a44; --on-accent:#1a1208; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
     --ok:#30d158; --bad:#ff453a;
-    --fill:rgba(120,120,128,.24); --fill-strong:rgba(120,120,128,.36);
+    --fill:rgba(255,170,100,.10); --fill-strong:rgba(255,170,100,.18);
     --reminder-bg:#8a8580; --reminder-border:#a8a29e;
   }
   *{box-sizing:border-box}
+  input[type=checkbox]{accent-color:var(--accent)}
   html,body{overscroll-behavior-y:contain}
   body{
     margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
@@ -72,7 +75,7 @@
   }
   button:hover{background:var(--fill-strong)}
   button:active{opacity:.6}
-  button.primary{background:var(--accent); color:#fff; font-weight:600}
+  button.primary{background:var(--accent); color:var(--on-accent); font-weight:600}
   button.primary:hover{background:var(--accent); opacity:.88}
   button.danger{color:var(--bad); background:var(--fill)}
   button:disabled{opacity:.4; cursor:not-allowed}
@@ -301,6 +304,11 @@
   .dlg-actions{display:flex; justify-content:space-between; gap:8px; padding:11px 15px; border-top:1px solid var(--border)}
   .dlg-actions .right{display:flex; gap:8px}
   .hint{font-size:12px; color:var(--muted); line-height:1.5}
+  #voiceResult .vc-group{font-size:11px; font-weight:650; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin:10px 0 4px}
+  #voiceResult label.vc-row{display:flex; gap:8px; align-items:flex-start; padding:8px 10px; margin-bottom:4px;
+    background:var(--panel); border:1px solid var(--border); border-radius:8px; font-size:13px; line-height:1.4}
+  #voiceResult label.vc-row small{display:block; color:var(--muted); font-size:11.5px}
+  #btnVoiceMic.listening{background:var(--accent); color:var(--on-accent)}
   .hint code{background:var(--bg); padding:1px 4px; border-radius:4px; font-size:11.5px}
   .hint ol{padding-left:18px; margin:8px 0}
   .hint li{margin-bottom:5px}
@@ -320,7 +328,7 @@
   #fab{
     position:fixed; right:16px; bottom:calc(16px + var(--safe-b)); z-index:20;
     width:56px; height:56px; border-radius:28px; font-size:28px; line-height:1;
-    background:var(--accent); color:#fff; border:none; box-shadow:0 5px 16px rgba(0,0,0,.3);
+    background:var(--accent); color:var(--on-accent); border:none; box-shadow:0 5px 16px rgba(0,0,0,.3);
     display:none; align-items:center; justify-content:center; padding:0;
   }
 
@@ -349,6 +357,7 @@
   <button id="btnFeed" title="Calendar subscription link">Feed</button>
   <button id="btnPI" title="Turkish summary for your PI">PI</button>
   <button id="btnTheme" title="Toggle dark mode">🌙</button>
+  <button id="btnVoice" title="Tell the assistant what you did today" style="display:none">🎙</button>
   <span id="status">Loading…</span>
 </header>
 
@@ -513,6 +522,20 @@
       <input type="text" id="fDevice" placeholder="iPhone">
     </div>
     <div id="tokenStatus" class="hint"></div>
+    <details id="aiSetup" style="margin-top:14px">
+      <summary class="hint" style="cursor:pointer">Voice assistant — selected accounts only</summary>
+      <div class="hint" style="margin:8px 0">Sign in with your Cell Stocks account. The 🎙 button appears only if the lab has enabled the assistant for that account.</div>
+      <div class="row2">
+        <div class="field"><label>Account</label><input type="text" id="aiName" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+        <div class="field"><label>Password</label><input type="password" id="aiPass" autocomplete="current-password"></div>
+      </div>
+      <div class="field"><label>Server</label><input type="text" id="aiUrl" autocapitalize="none" spellcheck="false"></div>
+      <div id="aiSetupStatus" class="hint"></div>
+      <div style="display:flex; gap:8px; margin-top:8px">
+        <button id="btnAiSignIn" class="primary">Sign in</button>
+        <button id="btnAiSignOut" class="danger" style="display:none">Sign out</button>
+      </div>
+    </details>
   </div>
   <div class="dlg-actions">
     <button class="danger" id="btnForget" style="display:none">Disconnect</button>
@@ -543,6 +566,33 @@
     <div class="right">
       <button id="btnFeedClose">Close</button>
       <button class="primary" id="btnFeedCopy">Copy link</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ---------- daily voice assistant ---------- -->
+<dialog id="dlgVoice" tabindex="-1">
+  <div class="dlg-body">
+    <h2>What did you do today?</h2>
+    <div class="field">
+      <textarea id="voiceText" style="height:110px" placeholder="Speak or type: what you finished, what is still to do and when."></textarea>
+    </div>
+    <div class="row2" style="align-items:center">
+      <button id="btnVoiceMic" style="flex:1">🎙 Speak</button>
+      <select id="voiceLang" aria-label="Speech language" style="flex:1; padding:7px; border-radius:9px; border:1px solid var(--border); background:var(--panel); color:var(--text)">
+        <option value="tr-TR">Türkçe</option>
+        <option value="en-US">English</option>
+      </select>
+    </div>
+    <div id="voiceHint" class="hint" style="margin-top:6px"></div>
+    <div id="voiceResult" style="margin-top:12px"></div>
+  </div>
+  <div class="dlg-actions">
+    <span></span>
+    <div class="right">
+      <button id="btnVoiceClose">Close</button>
+      <button class="primary" id="btnVoiceSend">Analyze</button>
+      <button class="primary" id="btnVoiceApply" style="display:none">Apply selected</button>
     </div>
   </div>
 </dialog>
@@ -2197,6 +2247,208 @@
     $("bannerReadonly").classList.toggle("show", !w);
     $("btnConnect").textContent = w ? "Connected" : "Connect";
   }
+
+
+  // =====================================================================
+  // Daily voice assistant
+  //
+  // The person says what they did and what is still to do; the Cell Stocks Worker's
+  // POST /ai/daily turns that into proposals (events to tick off, items to add); this
+  // shows them and applies only what is ticked. Nothing changes without that tap.
+  // Only accounts listed in the Worker's AI_USERS get the 🎙 button at all, and the
+  // Worker enforces the same list. The Anthropic key lives on the Worker, never here.
+  // =====================================================================
+  var AI_LS = { token:"cs_ai_token", on:"cs_ai_on", url:"cs_ai_url", lang:"cs_ai_lang", name:"cs_ai_name" };
+  var AI_DEFAULT_URL = "https://cellstocks-worker.caalabworkersdev.workers.dev";
+  function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+  function lsDel(k){ try { localStorage.removeItem(k); } catch(e){} }
+  function aiBase(){ return (lsGet(AI_LS.url) || AI_DEFAULT_URL).replace(/\/+$/, ""); }
+  function aiEnabled(){ return lsGet(AI_LS.on) === "1" && !!lsGet(AI_LS.token); }
+  function aiSignedOut(){ lsDel(AI_LS.token); lsDel(AI_LS.on); updateVoiceUI(); }
+  function updateVoiceUI(){
+    var on = aiEnabled();
+    $("btnVoice").style.display = on ? "" : "none";
+    $("btnAiSignOut").style.display = on ? "" : "none";
+    $("btnAiSignIn").textContent = on ? "Sign in again" : "Sign in";
+    if (on) $("aiSetupStatus").innerHTML = "<span style='color:var(--ok)'>Signed in as " + escapeHtml(lsGet(AI_LS.name) || "") + ".</span>";
+  }
+  $("aiUrl").value = lsGet(AI_LS.url) || AI_DEFAULT_URL;
+  $("aiName").value = lsGet(AI_LS.name) || "";
+  $("btnAiSignIn").addEventListener("click", async function(){
+    var name = $("aiName").value.trim(), pass = $("aiPass").value, st = $("aiSetupStatus");
+    if (!name || !pass){ st.innerHTML = "<span style='color:var(--bad)'>Enter the account and password.</span>"; return; }
+    var url = ($("aiUrl").value.trim() || AI_DEFAULT_URL).replace(/\/+$/, "");
+    st.textContent = "Signing in…";
+    try {
+      var r = await fetch(url + "/login", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({name:name, password:pass}) });
+      var b = await r.json().catch(function(){ return {}; });
+      if (!r.ok){ st.innerHTML = "<span style='color:var(--bad)'>" + escapeHtml(b.error || ("Sign-in failed (" + r.status + ")")) + "</span>"; return; }
+      if (!b.ai){
+        // Not enabled for this account: keep nothing, so a stray session is not left behind.
+        fetch(url + "/logout", { method:"POST", headers:{"Authorization":"Bearer " + b.token} }).catch(function(){});
+        aiSignedOut();
+        st.innerHTML = "<span style='color:var(--bad)'>The voice assistant is not enabled for this account.</span>";
+        return;
+      }
+      lsSet(AI_LS.token, b.token); lsSet(AI_LS.on, "1"); lsSet(AI_LS.url, url); lsSet(AI_LS.name, (b.user && b.user.name) || name);
+      $("aiPass").value = "";
+      updateVoiceUI();
+    } catch(err){
+      st.innerHTML = "<span style='color:var(--bad)'>Couldn't reach the server: " + escapeHtml(err.message || "") + "</span>";
+    }
+  });
+  $("btnAiSignOut").addEventListener("click", function(){
+    var t = lsGet(AI_LS.token);
+    if (t) fetch(aiBase() + "/logout", { method:"POST", headers:{"Authorization":"Bearer " + t} }).catch(function(){});
+    aiSignedOut();
+    $("aiSetupStatus").textContent = "Signed out.";
+  });
+  updateVoiceUI();
+
+  var dlgVoice = $("dlgVoice"), voiceProposal = null, recog = null;
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  $("voiceLang").value = lsGet(AI_LS.lang) || "tr-TR";
+  $("voiceLang").addEventListener("change", function(){ lsSet(AI_LS.lang, $("voiceLang").value); });
+  if (!SpeechRec){
+    $("btnVoiceMic").style.display = "none";
+    $("voiceLang").style.display = "none";
+    $("voiceHint").textContent = "This browser has no speech recognition — type instead, or use the keyboard's own dictation key.";
+  }
+  function stopListening(){
+    if (recog){ try { recog.stop(); } catch(e){} }
+    recog = null;
+    $("btnVoiceMic").classList.remove("listening");
+    $("btnVoiceMic").textContent = "🎙 Speak";
+  }
+  $("btnVoiceMic").addEventListener("click", function(){
+    if (recog){ stopListening(); return; }
+    var r = new SpeechRec(), box = $("voiceText");
+    r.lang = $("voiceLang").value; r.interimResults = true; r.continuous = true;
+    var base = box.value ? box.value.replace(/\s+$/, "") + " " : "";
+    r.onresult = function(e){
+      var fin = "", tmp = "";
+      for (var i = 0; i < e.results.length; i++){
+        if (e.results[i].isFinal) fin += e.results[i][0].transcript; else tmp += e.results[i][0].transcript;
+      }
+      box.value = base + fin + tmp;
+    };
+    r.onerror = function(e){
+      $("voiceHint").textContent = e.error === "not-allowed" ? "Microphone permission was refused." : "Speech recognition stopped (" + e.error + ").";
+      stopListening();
+    };
+    r.onend = function(){ if (recog === r) stopListening(); };
+    recog = r;
+    $("btnVoiceMic").classList.add("listening");
+    $("btnVoiceMic").textContent = "■ Stop";
+    $("voiceHint").textContent = "";
+    try { r.start(); } catch(e){ stopListening(); }
+  });
+  function resetVoice(){
+    voiceProposal = null;
+    $("voiceResult").innerHTML = "";
+    $("btnVoiceApply").style.display = "none";
+    $("btnVoiceSend").style.display = "";
+  }
+  $("btnVoice").addEventListener("click", function(){
+    resetVoice(); $("voiceText").value = ""; $("voiceHint").textContent = SpeechRec ? "" : $("voiceHint").textContent;
+    openSheet(dlgVoice);
+  });
+  $("btnVoiceClose").addEventListener("click", function(){ stopListening(); closeSheet(dlgVoice); });
+  $("voiceText").addEventListener("input", resetVoice);
+
+  function voiceContext(){
+    var today = isoDate(new Date()), from = isoDate(addDays(new Date(), -7)), to = isoDate(addDays(new Date(), 30));
+    return state.events.filter(function(e){
+      if (e.status === "cancelled") return false;
+      if (e.date === today) return true;
+      return e.status !== "done" && e.date >= from && e.date <= to;
+    }).sort(function(a,b){ return (a.date + (a.start||"")).localeCompare(b.date + (b.start||"")); })
+      .slice(0, 120)
+      .map(function(e){ return { id:e.id, date:e.date, start:e.start, title:e.title, status:e.status }; });
+  }
+  $("btnVoiceSend").addEventListener("click", async function(){
+    stopListening();
+    var text = $("voiceText").value.trim(), hint = $("voiceHint");
+    if (!text){ hint.textContent = "Say or type something first."; return; }
+    $("btnVoiceSend").disabled = true; hint.textContent = "Thinking…";
+    try {
+      var r = await fetch(aiBase() + "/ai/daily", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", "Authorization":"Bearer " + lsGet(AI_LS.token) },
+        body: JSON.stringify({ text:text, today:isoDate(new Date()), events:voiceContext() })
+      });
+      var b = await r.json().catch(function(){ return {}; });
+      if (r.status === 401 || r.status === 403){
+        aiSignedOut();
+        hint.textContent = (b.error || "Not allowed") + " — sign in again under Connect.";
+        return;
+      }
+      if (!r.ok){ hint.textContent = b.error || ("Failed (" + r.status + ")"); return; }
+      hint.textContent = "";
+      showProposal(b);
+    } catch(err){
+      hint.textContent = "Couldn't reach the server: " + err.message;
+    } finally { $("btnVoiceSend").disabled = false; }
+  });
+  function showProposal(p){
+    voiceProposal = p;
+    var html = p.reply ? "<div class='hint' style='color:var(--text)'>" + escapeHtml(p.reply) + "</div>" : "";
+    var byId = {}; state.events.forEach(function(e){ byId[e.id] = e; });
+    if (p.done.length){
+      html += "<div class='vc-group'>Mark as done</div>";
+      p.done.forEach(function(id, i){
+        var e = byId[id]; if (!e) return;
+        html += "<label class='vc-row'><input type='checkbox' data-done='" + i + "' checked><span>" + escapeHtml(e.title) +
+          "<small>" + escapeHtml(e.date + (e.start ? " " + e.start : "")) + "</small></span></label>";
+      });
+    }
+    if (p.add.length){
+      html += "<div class='vc-group'>Add to the schedule</div>";
+      p.add.forEach(function(a, i){
+        html += "<label class='vc-row'><input type='checkbox' data-add='" + i + "' checked><span>" + escapeHtml(a.title) +
+          "<small>" + escapeHtml(a.date + (a.start ? " " + a.start + (a.end ? "–" + a.end : "") : " · reminder, no fixed hour")) +
+          (a.note ? " · " + escapeHtml(a.note) : "") + "</small></span></label>";
+      });
+    }
+    var none = !p.done.length && !p.add.length;
+    if (none) html += "<div class='hint'>Nothing to change.</div>";
+    $("voiceResult").innerHTML = html;
+    $("btnVoiceApply").style.display = none ? "none" : "";
+    $("btnVoiceSend").style.display = none ? "" : "none";
+  }
+  function voiceEnd(a){
+    var start = timeToMin(a.start), cap = END_HOUR * 60;
+    if (a.end && timeToMin(a.end) > start) return { end: a.end, placeholder: false };
+    var d = durationFor(a.title), mins = d.researched ? d.total : DEFAULT_NEW_EVENT_MIN;
+    return { end: minToTime(Math.min(start + mins, cap)), placeholder: !d.researched };
+  }
+  $("btnVoiceApply").addEventListener("click", function(){
+    if (!voiceProposal) return;
+    var byId = {}; state.events.forEach(function(e){ byId[e.id] = e; });
+    var nDone = 0, added = [];
+    $("voiceResult").querySelectorAll("input[data-done]:checked").forEach(function(c){
+      var e = byId[voiceProposal.done[+c.getAttribute("data-done")]];
+      if (e && e.status !== "done"){ e.status = "done"; nDone++; }
+    });
+    $("voiceResult").querySelectorAll("input[data-add]:checked").forEach(function(c){
+      var a = voiceProposal.add[+c.getAttribute("data-add")];
+      var timed = a.start && timeToMin(a.start) < END_HOUR * 60;
+      var ev = { id: uid(), date: a.date, title: a.title, category: "other", type: timed ? "active" : "reminder",
+        status: "pending", notes: a.note || "" };
+      if (timed){
+        var t = voiceEnd(a);
+        ev.start = a.start; ev.end = t.end;
+        if (t.placeholder) ev.notes = (ev.notes ? ev.notes + " " : "") + "End time is a placeholder, no researched duration.";
+      }
+      state.events.push(ev); added.push(ev);
+    });
+    stopListening(); closeSheet(dlgVoice);
+    if (!nDone && !added.length) return;
+    render(); scheduleSave();
+    added.forEach(function(ev){ if (ev.type !== "reminder") warnIfConflicting(ev); });
+    setStatus(nDone + " done, " + added.length + " added", "saved");
+  });
 
   // =====================================================================
   // Calendar feed

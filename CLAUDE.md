@@ -83,6 +83,9 @@ mid-session, and those edits are real. If he marked something done, it is done.
 
 Rebuild the feed with `node tools/build-ics.mjs` and commit the result alongside the JSON.
 
+**Never wait for Umut's approval to merge** (his word, 2026-11-05: "Asla bekleme"). Once CI is green, mark the PR
+ready and merge it, then tell him it landed. This does not cover secrets or deploys only he can do.
+
 ## 5. Scheduling rules that keep biting
 
 - `active` blocks the day; `passive` runs unattended. Other work goes **inside** passive stretches,

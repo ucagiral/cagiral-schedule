@@ -11,44 +11,53 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cagiral Schedule">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#faf6f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0b0a" media="(prefers-color-scheme: dark)">
 <style>
   :root{
-    --bg:#f2f2f7; --panel:#ffffff; --border:#d8dce1; --text:#1f2430; --muted:#6b7280;
-    --grid-line:#e5e7eb; --hour-line:#cfd4db; --halfhour-line:#eef0f3;
+    --bg:#faf6f1; --panel:#fffdfa; --border:#e6dccf; --text:#211b16; --muted:#7a6f65;
+    --grid-line:#eee5d9; --hour-line:#d9cdbd; --halfhour-line:#f4ede3;
     --cat-experiment:#3b82f6; --cat-meeting:#ef4444; --cat-writing:#8b5cf6;
     --cat-personal:#22c55e; --cat-other:#6b7280;
-    /* Apple's own system blue/red/green, not an arbitrary pick — this is what
-       "feels like Apple" cashes out to for an accent colour. */
-    --accent:#007aff; --warn-bg:#fff7ed; --warn-border:#fde68a; --warn-text:#7c2d12;
-    --ok:#34c759; --bad:#ff3b30;
-    /* iOS's "filled gray" secondary-button treatment — a tinted fill instead of
-       an outlined box, used for Cancel/Close-type actions. */
-    --fill:rgba(120,120,128,.12); --fill-strong:rgba(120,120,128,.20);
-    /* Fixed and neutral on purpose — a reminder's whole point is to be visually distinct
-       from every category/group colour, not join their system. */
+    --accent:#c2570a; --warn-bg:#fff3e3; --warn-border:#f0cf9f; --warn-text:#7c2d12;
+    --ok:#2f9e57; --bad:#d9382b;
+    --fill:rgba(194,87,10,.09); --fill-strong:rgba(194,87,10,.17);
     --reminder-bg:#78716c; --reminder-border:#57534e;
-    --safe-b:env(safe-area-inset-bottom,0px);
+    --safe-b:env(safe-area-inset-bottom,0px); --on-accent:#fff;
   }
   @media (prefers-color-scheme: dark){
     html:not([data-theme="light"]){
-      --bg:#000000; --panel:#1c1c1e; --border:#38383a; --text:#f2f2f7; --muted:#9aa1ac;
-      --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
-      --accent:#0a84ff; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
-      --ok:#30d158; --bad:#ff453a;
-      --fill:rgba(120,120,128,.24); --fill-strong:rgba(120,120,128,.36);
-      --reminder-bg:#8a8580; --reminder-border:#a8a29e;
+      --bg:#0d0b0a; --panel:#161413; --border:#2e2a27; --text:#f3efea; --muted:#8f8780;
+      --grid-line:#26221f; --hour-line:#3a3531; --halfhour-line:#1d1a18;
+      --accent:#ff9a4a; --on-accent:#1a1208; --warn-bg:#2a1d10; --warn-border:#5c3a16; --warn-text:#ffd2a8;
+      --ok:#6fcf8a; --bad:#ff6b5a;
+      --fill:rgba(255,154,74,.08); --fill-strong:rgba(255,154,74,.16);
+      --reminder-bg:#4a403a; --reminder-border:#6b5d54;
     }
   }
   html[data-theme="dark"]{
-    --bg:#000000; --panel:#1c1c1e; --border:#38383a; --text:#f2f2f7; --muted:#9aa1ac;
-    --grid-line:#282c34; --hour-line:#3a3f4a; --halfhour-line:#22262d;
-    --accent:#0a84ff; --warn-bg:#2a2210; --warn-border:#5c4a16; --warn-text:#fcd9a8;
-    --ok:#30d158; --bad:#ff453a;
-    --fill:rgba(120,120,128,.24); --fill-strong:rgba(120,120,128,.36);
-    --reminder-bg:#8a8580; --reminder-border:#a8a29e;
+    --bg:#0d0b0a; --panel:#161413; --border:#2e2a27; --text:#f3efea; --muted:#8f8780;
+      --grid-line:#26221f; --hour-line:#3a3531; --halfhour-line:#1d1a18;
+      --accent:#ff9a4a; --on-accent:#1a1208; --warn-bg:#2a1d10; --warn-border:#5c3a16; --warn-text:#ffd2a8;
+      --ok:#6fcf8a; --bad:#ff6b5a;
+      --fill:rgba(255,154,74,.08); --fill-strong:rgba(255,154,74,.16);
+      --reminder-bg:#4a403a; --reminder-border:#6b5d54;
   }
+  /* warm orange theme: faint grid texture, mono small labels */
+  body{background-image:linear-gradient(rgba(194,87,10,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(194,87,10,.05) 1px,transparent 1px); background-size:32px 32px}
+  #status,.head .datepart{font-family:ui-monospace,Menlo,Consolas,monospace}
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]) body{
+      background-image:linear-gradient(rgba(255,154,74,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,154,74,.04) 1px,transparent 1px);
+      background-size:32px 32px;
+    }
+    html:not([data-theme="light"]) .head .datepart,html:not([data-theme="light"]) #status{font-family:ui-monospace,Menlo,Consolas,monospace}
+  }
+  html[data-theme="dark"] body{
+    background-image:linear-gradient(rgba(255,154,74,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,154,74,.04) 1px,transparent 1px);
+    background-size:32px 32px;
+  }
+  html[data-theme="dark"] .head .datepart,html[data-theme="dark"] #status{font-family:ui-monospace,Menlo,Consolas,monospace}
   *{box-sizing:border-box}
   html,body{overscroll-behavior-y:contain}
   body{
@@ -72,7 +81,7 @@
   }
   button:hover{background:var(--fill-strong)}
   button:active{opacity:.6}
-  button.primary{background:var(--accent); color:#fff; font-weight:600}
+  button.primary{background:var(--accent); color:var(--on-accent); font-weight:600}
   button.primary:hover{background:var(--accent); opacity:.88}
   button.danger{color:var(--bad); background:var(--fill)}
   button:disabled{opacity:.4; cursor:not-allowed}
@@ -320,7 +329,7 @@
   #fab{
     position:fixed; right:16px; bottom:calc(16px + var(--safe-b)); z-index:20;
     width:56px; height:56px; border-radius:28px; font-size:28px; line-height:1;
-    background:var(--accent); color:#fff; border:none; box-shadow:0 5px 16px rgba(0,0,0,.3);
+    background:var(--accent); color:var(--on-accent); border:none; box-shadow:0 5px 16px rgba(0,0,0,.3);
     display:none; align-items:center; justify-content:center; padding:0;
   }
 

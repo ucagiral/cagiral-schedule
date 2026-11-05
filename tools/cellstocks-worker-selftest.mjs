@@ -9,7 +9,7 @@
 // built only on fetch/Request/Response/crypto.subtle: those are what make this possible.
 
 import { handleRequest, dataPathFor, xlsxPathFor, canWrite, ROLES, LAB_STORAGE_PATH, ICON_PREFIX,
-         KROKI_PREFIX, krokiPathFor, NOTES_PREFIX, notesPathFor, staffNotesPathFor, extractMentions, checkTreeChange, dispatchDailyMail, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
+         KROKI_PREFIX, krokiPathFor, NOTES_PREFIX, notesPathFor, staffNotesPathFor, extractMentions, checkTreeChange, dispatchDailyMail, aiAllowed, aiSanitize, commitFilesAtomic, COMMIT_ATTEMPTS } from "../cellstocks-worker/worker.js";
 
 // ---------------------------------------------------------------- test harness
 let passed = 0;
@@ -1511,6 +1511,63 @@ await check("/commit applies the tree rules, and a delete needs the box empty in
   const emptied = { path: "cellstocks/data/umut.json", content: JSON.stringify({ vials: [{ id: "v1", status: "withdrawn", location: null }] }) };
   const r4 = await put(t3, umutToken, [emptied]);
   if (r4.status !== 200) return "deleting after withdrawing in the same commit: " + r4.status + " " + (await r4.text());
+  return null;
+});
+
+
+// ==================================================================== voice assistant
+
+await check("/ai/daily: only listed accounts, needs the key, returns sanitised proposals and applies nothing", async () => {
+  const seen = [];
+  const anthropic = async (url, init) => {
+    seen.push({ url, init });
+    return { ok: true, status: 200, json: async () => ({ content: [{ type: "tool_use", name: "propose_changes", input: {
+      done: ["e1", "not-listed", "e1"],
+      add: [
+        { title: "  Order primers ", date: "2026-11-05", start: "10:00" },
+        { title: "bad date", date: "tomorrow" },
+        { title: "x".repeat(300), date: "2026-11-06", start: "09:00", end: "08:00" }
+      ],
+      reply: "Tamam."
+    } }] }) };
+  };
+  const env = makeEnv({ AI_USERS: "umut", ANTHROPIC_API_KEY: "sk-test", fetch: anthropic });
+  const { body: admin } = await bootstrapAdmin(env);
+  const adminToken = (await login(env, "admin", "correcthorsebatterystaple")).body.token;
+  for (const n of ["Umut", "Baris"]) {
+    await handleRequest(req("POST", "/admin/users", { name: n, password: "pw-" + n }, adminToken), env);
+  }
+  const umut = await login(env, "Umut", "pw-Umut");
+  const baris = await login(env, "Baris", "pw-Baris");
+  if (umut.body.ai !== true || baris.body.ai !== false) return "login must say who has the assistant: " + json([umut.body.ai, baris.body.ai]);
+  const sess = await (await handleRequest(req("GET", "/session", undefined, umut.body.token), env)).json();
+  if (sess.ai !== true) return "/session must carry the ai flag";
+  const call = (token, extra) => handleRequest(req("POST", "/ai/daily", Object.assign({ text: "PCR yaptim", today: "2026-11-04", events: [{ id: "e1", date: "2026-11-04", title: "PCR" }] }, extra || {}), token), env);
+  if ((await call(undefined)).status !== 401) return "no session must be 401";
+  if ((await call(baris.body.token)).status !== 403) return "an account not in AI_USERS must be 403";
+  const ok = await call(umut.body.token);
+  if (ok.status !== 200) return "listed account refused: " + ok.status + " " + (await ok.text());
+  const out = await ok.json();
+  if (json(out.done) !== json(["e1"])) return "unknown or repeated ids must be dropped: " + json(out.done);
+  if (out.add.length !== 2) return "an item without a real date must be dropped: " + json(out.add);
+  if (out.add[0].title !== "Order primers" || out.add[0].start !== "10:00" || out.add[0].end) return "first item: " + json(out.add[0]);
+  if (out.add[1].title.length !== 120 || out.add[1].start !== "09:00" || out.add[1].end) return "an end before the start must be dropped: " + json(out.add[1]);
+  if (seen.length !== 1 || seen[0].init.headers["x-api-key"] !== "sk-test") return "the key must be sent to Anthropic only";
+  const sent = JSON.parse(seen[0].init.body);
+  if (sent.tool_choice.name !== "propose_changes") return "the proposal tool must be forced";
+  if ((await call(umut.body.token, { text: "" })).status !== 400) return "empty text must be 400";
+  if ((await call(umut.body.token, { today: "yesterday" })).status !== 400) return "a bad date must be 400";
+  const noKey = Object.assign({}, env, { ANTHROPIC_API_KEY: undefined });
+  if ((await handleRequest(req("POST", "/ai/daily", { text: "a", today: "2026-11-04" }, umut.body.token), noKey)).status !== 503) return "a missing key must be 503";
+  const none = Object.assign({}, env, { AI_USERS: "" });
+  if ((await handleRequest(req("POST", "/ai/daily", { text: "a", today: "2026-11-04" }, umut.body.token), none)).status !== 403) return "an empty AI_USERS must allow nobody";
+  return null;
+});
+
+await check("aiAllowed is case-insensitive and an empty list allows nobody", () => {
+  if (!aiAllowed({ AI_USERS: " Umut , x " }, { name: "umut" })) return "case";
+  if (aiAllowed({ AI_USERS: "" }, { name: "umut" })) return "empty";
+  if (aiAllowed({}, { name: "umut" })) return "unset";
   return null;
 });
 

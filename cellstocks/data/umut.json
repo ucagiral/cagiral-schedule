@@ -5028,21 +5028,7 @@
       "passageKind": "relative",
       "frozenRaw": "4/5/2026",
       "frozenOn": "2026-05-04",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "b-umut-cells-80",
-        "position": "F6"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "importedFrom": "Cell Stocks UC -80.xlsx!UMUT -80!row 133"
     },
     {
@@ -15765,6 +15751,29 @@
       "by": "Umut",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mw67r0p4",
+      "vialId": "v-133",
+      "name": "HEK ATP7B KO g3",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "b-umut-cells-80",
+        "position": "F6"
+      },
+      "date": "2026-11-07",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -15791,7 +15800,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-11-07T09:40:57.230Z"
+    "savedAt": "2026-11-07T09:41:02.400Z"
   },
   "removedVialIds": [
     "v-205",

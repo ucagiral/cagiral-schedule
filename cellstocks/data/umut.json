@@ -12908,21 +12908,7 @@
       "passageKind": "relative",
       "frozenRaw": "2026-10-12",
       "frozenOn": "2026-10-12",
-      "location": {
-        "path": [
-          {
-            "id": "u-ln2",
-            "name": "Freezer 1"
-          },
-          {
-            "id": "t-1",
-            "name": "Rack 1"
-          }
-        ],
-        "boxId": "umut-cell-box-5",
-        "position": "F1"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-10-12T14:42:28.205Z",
       "addedBy": "Umut"
     },
@@ -15783,6 +15769,29 @@
       "by": "Umut",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mwm08gbc",
+      "vialId": "v-mv5d2kfh-0",
+      "name": "LnCap Canada",
+      "from": {
+        "path": [
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
+        ],
+        "boxId": "umut-cell-box-5",
+        "position": "F1"
+      },
+      "date": "2026-11-18",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -15809,7 +15818,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-11-18T10:53:43.741Z"
+    "savedAt": "2026-11-18T10:54:57.077Z"
   },
   "removedVialIds": [
     "v-205",

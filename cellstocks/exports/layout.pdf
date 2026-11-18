@@ -12,7 +12,7 @@ endobj
 << /Length 2955 >>
 stream
 BT /F2 20 Tf 40 781.89 Td (CAA Lab Stocks) Tj ET
-BT /F1 10 Tf 40 762.89 Td (Freezer layout · 2026-11-17) Tj ET
+BT /F1 10 Tf 40 762.89 Td (Freezer layout · 2026-11-18) Tj ET
 q 0.8 0.8 0.8 RG 0.5 w 40 758.39 m 555.28 758.39 l S Q
 BT /F2 13 Tf 40 735.39 Td (Where everything is) Tj ET
 BT /F2 11 Tf 46 718.54 Td (Liquid Nitrogen  \(-196 deg C · Left\)  ?  2 inside) Tj ET
@@ -39,7 +39,7 @@ BT /F1 9.5 Tf 74 426.02 Td (UMUT CELLS -80  ·  umut  ·  81/81 full) Tj ET
 BT /F1 9.5 Tf 74 412.24 Td (DUZENLE  ·  umut  ·  81/81 full) Tj ET
 BT /F1 9.5 Tf 74 398.47 Td (ONGOING  ·  umut  ·  75/81 full) Tj ET
 BT /F1 9.5 Tf 74 384.69 Td (UMUT CELLS -4-  ·  umut  ·  66/81 full) Tj ET
-BT /F1 9.5 Tf 74 370.92 Td (Umut Cell Box -5-  ·  umut  ·  75/81 full) Tj ET
+BT /F1 9.5 Tf 74 370.92 Td (Umut Cell Box -5-  ·  umut  ·  74/81 full) Tj ET
 BT /F1 9.5 Tf 74 357.14 Td (Big Plasmid Box  ·  umut  ·  13/81 full) Tj ET
 BT /F1 9.5 Tf 60 343.37 Td (Rack 2  ?  1 inside) Tj ET
 BT /F1 9.5 Tf 74 329.59 Td (Common Box #1  ·  umut  ·  9/81 full) Tj ET
@@ -4328,11 +4328,11 @@ endobj
 << /Type /Page /Parent 56 0 R /MediaBox [0 0 595.28 841.89] /Resources 3 0 R /Contents 36 0 R >>
 endobj
 38 0 obj
-<< /Length 12552 >>
+<< /Length 12442 >>
 stream
 BT /F2 16 Tf 40 785.89 Td (Umut Cell Box -5-) Tj ET
 BT /F1 10 Tf 40 768.69 Td (Freezer 1 ? Rack 1) Tj ET
-BT /F1 10 Tf 40 754.19 Td (umut  ·  75 of 81 slots full) Tj ET
+BT /F1 10 Tf 40 754.19 Td (umut  ·  74 of 81 slots full) Tj ET
 BT /F2 7.5 Tf 85 747.69 Td (1) Tj ET
 BT /F2 7.5 Tf 137 747.69 Td (2) Tj ET
 BT /F2 7.5 Tf 189 747.69 Td (3) Tj ET
@@ -4471,9 +4471,7 @@ q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 478 573.69 52 34 re B Q
 BT /F1 5.4 Tf 480.5 598.69 Td (HEK) Tj ET
 BT /F2 5.4 Tf 480.5 576.69 Td (30) Tj ET
 BT /F2 7.5 Tf 46 553.69 Td (F) Tj ET
-q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 62 539.69 52 34 re B Q
-BT /F1 5.4 Tf 64.5 564.69 Td (LnCap Canada) Tj ET
-BT /F2 5.4 Tf 64.5 542.69 Td (p+18) Tj ET
+q 0.6 w 0.6 0.6 0.6 RG 62 539.69 52 34 re S Q
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 114 539.69 52 34 re B Q
 BT /F1 5.4 Tf 116.5 564.69 Td (LnCap Canada) Tj ET
 BT /F2 5.4 Tf 116.5 542.69 Td (p+18) Tj ET
@@ -5567,27 +5565,27 @@ xref
 0000207466 00000 n 
 0000219720 00000 n 
 0000219833 00000 n 
-0000232439 00000 n 
-0000232552 00000 n 
-0000239102 00000 n 
-0000239215 00000 n 
-0000244837 00000 n 
-0000244950 00000 n 
-0000249631 00000 n 
-0000249744 00000 n 
-0000254429 00000 n 
-0000254542 00000 n 
-0000259227 00000 n 
-0000259340 00000 n 
-0000264029 00000 n 
-0000264142 00000 n 
-0000268826 00000 n 
-0000268939 00000 n 
-0000273615 00000 n 
-0000273728 00000 n 
-0000273960 00000 n 
+0000232329 00000 n 
+0000232442 00000 n 
+0000238992 00000 n 
+0000239105 00000 n 
+0000244727 00000 n 
+0000244840 00000 n 
+0000249521 00000 n 
+0000249634 00000 n 
+0000254319 00000 n 
+0000254432 00000 n 
+0000259117 00000 n 
+0000259230 00000 n 
+0000263919 00000 n 
+0000264032 00000 n 
+0000268716 00000 n 
+0000268829 00000 n 
+0000273505 00000 n 
+0000273618 00000 n 
+0000273850 00000 n 
 trailer
 << /Size 58 /Root 57 0 R >>
 startxref
-274011
+273901
 %%EOF

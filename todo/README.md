@@ -18,6 +18,9 @@ screen requirement was dropped (2026-10-31).
 - **Widget, via Scriptable** (free app; no Xcode, no paid account). The web app itself cannot offer a widget (WidgetKit is native-only; same limitation as `../widgets/README.md`). `scriptable/Reminders.js` draws the open tasks on the Home Screen (small / medium / large) from `GET /api/tasks`, read-only. Setup: install [Scriptable](https://scriptable.app), + -> paste the script, name it `Reminders`, run it once and enter the access token (kept in the Keychain), then Home Screen -> + -> Scriptable -> pick a size -> Script: `Reminders`. iOS decides the refresh cadence. **Lock Screen widgets through Scriptable: not verified** (no source found); the script handles the `accessory*` sizes in case Scriptable offers them.
 - Completing removes the task from the server on the next sync, which ends its repeats. If the phone is offline when you complete, the sync is retried on reconnect; a push may still arrive in between.
 
+## Sharing it with someone else
+`FRIEND-PROMPT.md` is a self-contained brief a friend can give to their own Claude to set the app up on their own phone (Android in mind): what the app is, how it is built, what is verified and not, and the setup steps. Each person needs their own Cloudflare Worker, KV store, keys and token.
+
 ## Files
 - `engine.js` - every rule, pure functions (loaded by the page, the service worker, the Worker and `tools/todo-selftest.mjs`).
 - `index.html`, `sw.js`, `manifest.webmanifest`, icons - the app.

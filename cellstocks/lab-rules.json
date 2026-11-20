@@ -92,6 +92,10 @@
   ],
   "resistance": [
     {
+      "match": "Pac",
+      "value": "PacR"
+    },
+    {
       "match": "DuDtxR",
       "value": "DtxR"
     },

@@ -14548,15 +14548,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-11-20",
       "frozenOn": "2026-11-20",
-      "location": {
-        "path": [
-          "u-ln2",
-          "t-1"
-        ],
-        "boxId": "big-plasmid-box",
-        "position": "D2"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-11-20T15:00:16.800Z",
       "addedBy": "Umut"
     },
@@ -14569,15 +14561,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-11-20",
       "frozenOn": "2026-11-20",
-      "location": {
-        "path": [
-          "u-ln2",
-          "t-1"
-        ],
-        "boxId": "big-plasmid-box",
-        "position": "D3"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-11-20T15:00:16.800Z",
       "addedBy": "Umut"
     },
@@ -14590,15 +14574,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-11-20",
       "frozenOn": "2026-11-20",
-      "location": {
-        "path": [
-          "u-ln2",
-          "t-1"
-        ],
-        "boxId": "big-plasmid-box",
-        "position": "D4"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-11-20T15:00:16.800Z",
       "addedBy": "Umut"
     },
@@ -14611,15 +14587,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-11-20",
       "frozenOn": "2026-11-20",
-      "location": {
-        "path": [
-          "u-ln2",
-          "t-1"
-        ],
-        "boxId": "big-plasmid-box",
-        "position": "D5"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-11-20T15:00:16.800Z",
       "addedBy": "Umut"
     },
@@ -16368,6 +16336,74 @@
       "by": "Umut",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mwpef415",
+      "vialId": "v-mwp3voym-1",
+      "name": "HN30",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D2"
+      },
+      "date": "2026-11-20",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mwpef50r",
+      "vialId": "v-mwp3voym-2",
+      "name": "HN30",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D3"
+      },
+      "date": "2026-11-20",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mwpef5zh",
+      "vialId": "v-mwp3voym-3",
+      "name": "HN30",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D4"
+      },
+      "date": "2026-11-20",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
+    },
+    {
+      "id": "w-mwpef6tj",
+      "vialId": "v-mwp3voym-4",
+      "name": "HN30",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D5"
+      },
+      "date": "2026-11-20",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -16394,7 +16430,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-11-20T19:55:18.772Z"
+    "savedAt": "2026-11-20T19:55:23.042Z"
   },
   "removedVialIds": [
     "v-205",

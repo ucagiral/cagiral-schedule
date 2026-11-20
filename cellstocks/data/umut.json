@@ -14903,6 +14903,195 @@
       "status": "stored",
       "addedAt": "2026-11-20T15:00:45.848Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-0",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F1"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-1",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F2"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-2",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F3"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-3",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F4"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-4",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F5"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-5",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F6"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-6",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F7"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-7",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F8"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwp3xcbg-8",
+      "name": "H460PacR",
+      "lineId": "l-h460pacr",
+      "passage": "P+19",
+      "passageNumber": 19,
+      "passageKind": "relative",
+      "frozenRaw": "2026-11-20",
+      "frozenOn": "2026-11-20",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "F9"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-20T15:01:33.724Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -16196,7 +16385,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-11-20T15:00:47.156Z"
+    "savedAt": "2026-11-20T19:55:05.677Z"
   },
   "removedVialIds": [
     "v-205",

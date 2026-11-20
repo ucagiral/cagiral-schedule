@@ -14535,15 +14535,7 @@
       "passageKind": "absolute",
       "frozenRaw": "2026-11-20",
       "frozenOn": "2026-11-20",
-      "location": {
-        "path": [
-          "u-ln2",
-          "t-1"
-        ],
-        "boxId": "big-plasmid-box",
-        "position": "D1"
-      },
-      "status": "stored",
+      "status": "withdrawn",
       "addedAt": "2026-11-20T15:00:16.800Z",
       "addedBy": "Umut"
     },
@@ -16359,6 +16351,23 @@
       "by": "Umut",
       "purpose": "thaw",
       "notes": ""
+    },
+    {
+      "id": "w-mwpef2v4",
+      "vialId": "v-mwp3voym-0",
+      "name": "HN30",
+      "from": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D1"
+      },
+      "date": "2026-11-20",
+      "by": "Umut",
+      "purpose": "thaw",
+      "notes": ""
     }
   ],
   "settings": {
@@ -16385,7 +16394,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-11-20T19:55:05.677Z"
+    "savedAt": "2026-11-20T19:55:18.772Z"
   },
   "removedVialIds": [
     "v-205",

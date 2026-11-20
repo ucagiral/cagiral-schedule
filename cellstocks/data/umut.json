@@ -14453,8 +14453,14 @@
       "frozenOn": "2026-11-01",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "umut-cell-box-5",
         "position": "D7"
@@ -14474,8 +14480,14 @@
       "frozenOn": "2026-11-01",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "umut-cell-box-5",
         "position": "D8"
@@ -14495,8 +14507,14 @@
       "frozenOn": "2026-11-01",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "C1"
@@ -14516,8 +14534,14 @@
       "frozenOn": "2026-11-01",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "C2"
@@ -14654,8 +14678,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E1"
@@ -14675,8 +14705,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E2"
@@ -14696,8 +14732,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E3"
@@ -14717,8 +14759,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E4"
@@ -14738,8 +14786,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E5"
@@ -14759,8 +14813,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E6"
@@ -14780,8 +14840,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E7"
@@ -14801,8 +14867,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E8"
@@ -14822,8 +14894,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "E9"
@@ -14843,8 +14921,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F1"
@@ -14864,8 +14948,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F2"
@@ -14885,8 +14975,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F3"
@@ -14906,8 +15002,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F4"
@@ -14927,8 +15029,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F5"
@@ -14948,8 +15056,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F6"
@@ -14969,8 +15083,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F7"
@@ -14990,8 +15110,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F8"
@@ -15011,8 +15137,14 @@
       "frozenOn": "2026-11-20",
       "location": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "F9"
@@ -16294,8 +16426,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D1"
@@ -16311,8 +16449,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D2"
@@ -16328,8 +16472,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D3"
@@ -16345,8 +16495,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D4"
@@ -16362,8 +16518,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D5"
@@ -16379,8 +16541,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D6"
@@ -16396,8 +16564,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D7"
@@ -16413,8 +16587,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D8"
@@ -16430,8 +16610,14 @@
       "name": "HN30",
       "from": {
         "path": [
-          "u-ln2",
-          "t-1"
+          {
+            "id": "u-ln2",
+            "name": "Freezer 1"
+          },
+          {
+            "id": "t-1",
+            "name": "Rack 1"
+          }
         ],
         "boxId": "big-plasmid-box",
         "position": "D9"

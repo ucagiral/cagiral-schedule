@@ -92,7 +92,7 @@
   ],
   "resistance": [
     {
-      "match": "Pac",
+      "match": "PacR",
       "value": "PacR"
     },
     {

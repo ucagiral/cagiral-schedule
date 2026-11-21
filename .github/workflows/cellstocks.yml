@@ -36,6 +36,7 @@ on:
       - tools/cellstocks-arrange-browser-test.mjs
       - tools/cellstocks-storage-browser-test.mjs
       - .github/workflows/cellstocks.yml
+      - tools/ci-runner-pin-selftest.mjs
   pull_request:
     paths:
       - cellstocks/**
@@ -54,6 +55,7 @@ on:
       - tools/cellstocks-arrange-browser-test.mjs
       - tools/cellstocks-storage-browser-test.mjs
       - .github/workflows/cellstocks.yml
+      - tools/ci-runner-pin-selftest.mjs
   workflow_dispatch:
 
 permissions:
@@ -65,13 +67,19 @@ concurrency:
 
 jobs:
   selftest:
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest: latest moved to 26.04, which Playwright 1.56.1 does not
+    # support, and every push to main failed at the Chromium install (2026-11-20).
+    # todo.yml is pinned the same way. Bump this and playwright together, deliberately.
+    runs-on: ubuntu-24.04
     # Raised from 5 for the browser suite: the checks themselves take about half a
     # minute, but a cold chromium download on a slow runner is the outlier that would
     # have hit the old limit.
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+
+      - name: Runner pin check
+        run: node tools/ci-runner-pin-selftest.mjs
 
       # The engine reads and writes .xlsx through DecompressionStream and
       # CompressionStream, which node has had since 18. Pinned to 20 like the rest
@@ -113,7 +121,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-1.56.1
+          key: playwright-${{ env.ImageOS }}-1.56.1
 
       - name: Install playwright and Chromium
         run: |
@@ -210,7 +218,7 @@ jobs:
   deploy-worker:
     needs: selftest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: read

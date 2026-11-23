@@ -12,7 +12,7 @@ endobj
 << /Length 2955 >>
 stream
 BT /F2 20 Tf 40 781.89 Td (CAA Lab Stocks) Tj ET
-BT /F1 10 Tf 40 762.89 Td (Freezer layout · 2026-11-22) Tj ET
+BT /F1 10 Tf 40 762.89 Td (Freezer layout · 2026-11-23) Tj ET
 q 0.8 0.8 0.8 RG 0.5 w 40 758.39 m 555.28 758.39 l S Q
 BT /F2 13 Tf 40 735.39 Td (Where everything is) Tj ET
 BT /F2 11 Tf 46 718.54 Td (Liquid Nitrogen  \(-196 deg C · Left\)  ?  2 inside) Tj ET
@@ -38,9 +38,9 @@ BT /F1 9.5 Tf 74 439.79 Td (UMUT CAA CELLS  ·  umut  ·  81/81 full) Tj ET
 BT /F1 9.5 Tf 74 426.02 Td (UMUT CELLS -80  ·  umut  ·  81/81 full) Tj ET
 BT /F1 9.5 Tf 74 412.24 Td (DUZENLE  ·  umut  ·  81/81 full) Tj ET
 BT /F1 9.5 Tf 74 398.47 Td (ONGOING  ·  umut  ·  75/81 full) Tj ET
-BT /F1 9.5 Tf 74 384.69 Td (UMUT CELLS -4-  ·  umut  ·  66/81 full) Tj ET
+BT /F1 9.5 Tf 74 384.69 Td (UMUT CELLS -4-  ·  umut  ·  68/81 full) Tj ET
 BT /F1 9.5 Tf 74 370.92 Td (Umut Cell Box -5-  ·  umut  ·  74/81 full) Tj ET
-BT /F1 9.5 Tf 74 357.14 Td (Big Plasmid Box  ·  umut  ·  31/81 full) Tj ET
+BT /F1 9.5 Tf 74 357.14 Td (Big Plasmid Box  ·  umut  ·  40/81 full) Tj ET
 BT /F1 9.5 Tf 60 343.37 Td (Rack 2  ?  1 inside) Tj ET
 BT /F1 9.5 Tf 74 329.59 Td (Common Box #1  ·  umut  ·  9/81 full) Tj ET
 BT /F2 11 Tf 46 308.32 Td (Fridge 1  \(-20\)  ?  4 inside) Tj ET
@@ -4076,11 +4076,11 @@ endobj
 << /Type /Page /Parent 56 0 R /MediaBox [0 0 595.28 841.89] /Resources 3 0 R /Contents 34 0 R >>
 endobj
 36 0 obj
-<< /Length 12200 >>
+<< /Length 12408 >>
 stream
 BT /F2 16 Tf 40 785.89 Td (UMUT CELLS -4-) Tj ET
 BT /F1 10 Tf 40 768.69 Td (Freezer 1 ? Rack 1) Tj ET
-BT /F1 10 Tf 40 754.19 Td (umut  ·  66 of 81 slots full) Tj ET
+BT /F1 10 Tf 40 754.19 Td (umut  ·  68 of 81 slots full) Tj ET
 BT /F2 7.5 Tf 85 747.69 Td (1) Tj ET
 BT /F2 7.5 Tf 137 747.69 Td (2) Tj ET
 BT /F2 7.5 Tf 189 747.69 Td (3) Tj ET
@@ -4223,8 +4223,12 @@ q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 322 573.69 52 34 re B Q
 BT /F1 5.4 Tf 324.5 598.69 Td (DuDtxR CASPEX g1) Tj ET
 BT /F1 5.4 Tf 324.5 592.69 Td (.1 \(eski\)) Tj ET
 BT /F2 5.4 Tf 324.5 576.69 Td (p?) Tj ET
-q 0.6 w 0.6 0.6 0.6 RG 374 573.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 426 573.69 52 34 re S Q
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 374 573.69 52 34 re B Q
+BT /F1 5.4 Tf 376.5 598.69 Td (DuDtxR) Tj ET
+BT /F2 5.4 Tf 376.5 576.69 Td (19) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 426 573.69 52 34 re B Q
+BT /F1 5.4 Tf 428.5 598.69 Td (DuDtxR) Tj ET
+BT /F2 5.4 Tf 428.5 576.69 Td (19) Tj ET
 q 0.6 w 0.6 0.6 0.6 RG 478 573.69 52 34 re S Q
 BT /F2 7.5 Tf 46 553.69 Td (F) Tj ET
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 62 539.69 52 34 re B Q
@@ -4586,11 +4590,11 @@ endobj
 << /Type /Page /Parent 56 0 R /MediaBox [0 0 595.28 841.89] /Resources 3 0 R /Contents 38 0 R >>
 endobj
 40 0 obj
-<< /Length 8401 >>
+<< /Length 9326 >>
 stream
 BT /F2 16 Tf 40 785.89 Td (Big Plasmid Box) Tj ET
 BT /F1 10 Tf 40 768.69 Td (Freezer 1 ? Rack 1) Tj ET
-BT /F1 10 Tf 40 754.19 Td (umut  ·  31 of 81 slots full) Tj ET
+BT /F1 10 Tf 40 754.19 Td (umut  ·  40 of 81 slots full) Tj ET
 BT /F2 7.5 Tf 85 747.69 Td (1) Tj ET
 BT /F2 7.5 Tf 137 747.69 Td (2) Tj ET
 BT /F2 7.5 Tf 189 747.69 Td (3) Tj ET
@@ -4666,15 +4670,33 @@ q 0.6 w 0.6 0.6 0.6 RG 374 641.69 52 34 re S Q
 q 0.6 w 0.6 0.6 0.6 RG 426 641.69 52 34 re S Q
 q 0.6 w 0.6 0.6 0.6 RG 478 641.69 52 34 re S Q
 BT /F2 7.5 Tf 46 621.69 Td (D) Tj ET
-q 0.6 w 0.6 0.6 0.6 RG 62 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 114 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 166 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 218 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 270 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 322 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 374 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 426 607.69 52 34 re S Q
-q 0.6 w 0.6 0.6 0.6 RG 478 607.69 52 34 re S Q
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 62 607.69 52 34 re B Q
+BT /F1 5.4 Tf 64.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 64.5 610.69 Td (10) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 114 607.69 52 34 re B Q
+BT /F1 5.4 Tf 116.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 116.5 610.69 Td (10) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 166 607.69 52 34 re B Q
+BT /F1 5.4 Tf 168.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 168.5 610.69 Td (10) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 218 607.69 52 34 re B Q
+BT /F1 5.4 Tf 220.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 220.5 610.69 Td (10) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 270 607.69 52 34 re B Q
+BT /F1 5.4 Tf 272.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 272.5 610.69 Td (10) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 322 607.69 52 34 re B Q
+BT /F1 5.4 Tf 324.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 324.5 610.69 Td (10) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 374 607.69 52 34 re B Q
+BT /F1 5.4 Tf 376.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 376.5 610.69 Td (10) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 426 607.69 52 34 re B Q
+BT /F1 5.4 Tf 428.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 428.5 610.69 Td (10) Tj ET
+q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 478 607.69 52 34 re B Q
+BT /F1 5.4 Tf 480.5 632.69 Td (Du145) Tj ET
+BT /F2 5.4 Tf 480.5 610.69 Td (10) Tj ET
 BT /F2 7.5 Tf 46 587.69 Td (E) Tj ET
 q 0.93 0.95 0.98 rg 0.6 w 0.6 0.6 0.6 RG 62 573.69 52 34 re B Q
 BT /F1 5.4 Tf 64.5 598.69 Td (HN30CX) Tj ET
@@ -5599,29 +5621,29 @@ xref
 0000193945 00000 n 
 0000207353 00000 n 
 0000207466 00000 n 
-0000219720 00000 n 
-0000219833 00000 n 
-0000232329 00000 n 
-0000232442 00000 n 
-0000240896 00000 n 
-0000241009 00000 n 
-0000246631 00000 n 
-0000246744 00000 n 
-0000251425 00000 n 
-0000251538 00000 n 
-0000256223 00000 n 
-0000256336 00000 n 
-0000261021 00000 n 
-0000261134 00000 n 
-0000265823 00000 n 
-0000265936 00000 n 
-0000270620 00000 n 
-0000270733 00000 n 
-0000275409 00000 n 
-0000275522 00000 n 
-0000275754 00000 n 
+0000219928 00000 n 
+0000220041 00000 n 
+0000232537 00000 n 
+0000232650 00000 n 
+0000242029 00000 n 
+0000242142 00000 n 
+0000247764 00000 n 
+0000247877 00000 n 
+0000252558 00000 n 
+0000252671 00000 n 
+0000257356 00000 n 
+0000257469 00000 n 
+0000262154 00000 n 
+0000262267 00000 n 
+0000266956 00000 n 
+0000267069 00000 n 
+0000271753 00000 n 
+0000271866 00000 n 
+0000276542 00000 n 
+0000276655 00000 n 
+0000276887 00000 n 
 trailer
 << /Size 58 /Root 57 0 R >>
 startxref
-275805
+276938
 %%EOF

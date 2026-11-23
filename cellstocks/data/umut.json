@@ -15152,6 +15152,48 @@
       "status": "stored",
       "addedAt": "2026-11-20T15:01:33.724Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb06zi-0",
+      "name": "DuDtxR",
+      "lineId": "l-dudtxr",
+      "passage": "19",
+      "passageNumber": 19,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "E7"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:30:48.798Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb06zi-1",
+      "name": "DuDtxR",
+      "lineId": "l-dudtxr",
+      "passage": "19",
+      "passageNumber": 19,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "b-umut-cells-4",
+        "position": "E8"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:30:48.798Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -16652,7 +16694,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-11-20T19:55:31.306Z"
+    "savedAt": "2026-11-23T13:30:50.909Z"
   },
   "removedVialIds": [
     "v-205",

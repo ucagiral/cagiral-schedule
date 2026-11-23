@@ -15194,6 +15194,195 @@
       "status": "stored",
       "addedAt": "2026-11-23T13:30:48.798Z",
       "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-0",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D1"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-1",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D2"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-2",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D3"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-3",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D4"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-4",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D5"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-5",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D6"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-6",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D7"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-7",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D8"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
+    },
+    {
+      "id": "v-mwtb0szn-8",
+      "name": "Du145",
+      "lineId": "l-du145",
+      "passage": "10",
+      "passageNumber": 10,
+      "passageKind": "absolute",
+      "frozenRaw": "2026-11-23",
+      "frozenOn": "2026-11-23",
+      "location": {
+        "path": [
+          "u-ln2",
+          "t-1"
+        ],
+        "boxId": "big-plasmid-box",
+        "position": "D9"
+      },
+      "status": "stored",
+      "addedAt": "2026-11-23T13:31:17.315Z",
+      "addedBy": "Umut"
     }
   ],
   "withdrawals": [
@@ -16694,7 +16883,7 @@
   },
   "_meta": {
     "savedBy": "Umut",
-    "savedAt": "2026-11-23T13:30:50.909Z"
+    "savedAt": "2026-11-23T13:31:18.606Z"
   },
   "removedVialIds": [
     "v-205",

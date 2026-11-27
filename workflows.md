@@ -288,6 +288,30 @@ Dependency chain, each step feeding the next:
 
 ---
 
+## Oligo-annealing clones
+
+**An oligo annealing always gets an AP treatment.** Umut's standing rule, stated 27 Nov 2026 and
+asked about twice. It applies to shRNA and CRISPR-guide clones alike, and it is not re-raised each
+round. The published counter-argument for Tet-pLKO is recorded in
+[`protocols/cloning.md`](protocols/cloning.md) as a disagreement, and as the first thing to check
+if a round comes back with no colonies.
+
+**Several backbones with different enzymes still go in one sitting.** His call, same day: three
+different enzyme pairs is not three digest blocks. A verification digest of an unrelated plasmid
+can be the extra reaction in that block — which is a free way to get one done.
+
+---
+
+## Transduction and selection
+
+- **Split and transduce the same day** when that is what he says — it is a documented HEK293
+  alternative to seeding the day before, not a shortcut.
+- **Puromycin selection starts 24 h after transduction** (his value) and the medium is changed
+  **every 2–3 days**. Those feeds go on the calendar individually; the selection is not one block,
+  and what ends it is the untransduced control dying rather than a date.
+
+---
+
 ## Colour groups
 
 Related work shares one colour across the week through the event's `group` field, so a whole
@@ -296,11 +320,11 @@ group exists but isn't:
 
 | Group | Colour | Covers |
 |---|---|---|
-| Virus prep | teal `#0d9488` | HEK293T seeding, pLentiGuide transfection, virus medium change, harvest |
+| Virus prep | teal `#0d9488` | HEK293T seeding, pLentiGuide transfection, virus medium change, harvest — and, from 27 Nov 2026, the downstream end of the same thread: transduction and the puromycin selection feeds |
 | Western — biotin | red `#dc2626` | every `Western — …` step plus the protein boil |
 | ATF3 qPCR | amber `#a16207` | RNA isolation, cDNA conversion, qPCR prep, qPCR run |
 | CuAdapt | green `#15803d` | copper treatment, passage, freeze, thaw, medium change. The recurring passage/treatment pair ended 30 Oct 2026 (see Cell culture); the group stays for the history and for one-off CuAdapt work. |
-| Cloning | violet `#7c3aed` | bacterial culture, miniprep, plasmids to sequencing |
+| Cloning | violet `#7c3aed` | bacterial culture, miniprep, plasmids to sequencing — and, from 1 Dec 2026, the sh/KO/OX round, which is a real multi-construct project rather than a one-off step. It is here because **`PALETTE`'s 16 colours are now all in use** (14 pinned groups plus the two auto-coloured ones, ATF3 mutants and Nek2→YY1), and the palette note below says the count stops at 16. A 17th thread either shares an existing group, as this one does, or retires a dead one — `Nek2→YY1` is archival and `CuAdapt`'s recurrence ended 30 Oct 2026, so those are the candidates. Do not eyeball a new hex. |
 | SRB assay | pink `#db2777` | seeding, copper/cisplatin treatment, TCA fixation and wash, pelleting |
 | LNCX/LUCX | indigo `#6d28d9` | the **AR-CasPEx** work — thaw, seed, transduction, hygromycin selection. The group still carries the old name on the calendar; renaming it would retag the five existing events and change the feed, so it is left until asked. |
 | ATF3 mutants | cyan `#0891b2` | thaw and medium change for the HEK/Huh7 mutants |

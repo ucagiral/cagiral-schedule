@@ -28,6 +28,9 @@ can be scheduled on top. A 2 h transfer costs 15 minutes of attention; a 30 min 
 | gRNA design (in silico) | ~3–4 h | all | — | Desk work, no measured bench figure published. Current Protocols' CHOPCHOP walkthrough runs design → off-target review → oligo ordering as one sitting. Treat as a half-day, not an hour. |
 | In vitro Cas9 cleavage assay | ~2.5 h | ~1 h | ~1.5 h | 60 min RNP + target at 37 °C is the common incubation (10 min at the fast end), then Proteinase K and an agarose gel. The incubation and the gel run are unattended. |
 | Lentiviral transduction | ~1 h | all | 48–72 h after | Hands-on is adding virus; the infection itself sits 48–72 h before selection starts. |
+| Puromycin selection — start | **24 h post-transduction** | ~30 min | — | **Umut's value, 27 Nov 2026.** Published protocols start at 24–48 h, so this is the early end of the window, not a departure from it. Titrate to the lowest dose that kills 100% of untransduced cells in 3–5 days. |
+| Puromycin selection — medium change | ~30 min per feed | all | — | Selective medium replaced **every 2–3 days**. Duration to a stable pool varies widely by line (3–7 days at the fast end, 7–28 days quoted for slow-dividing cells), so what ends it is the untransduced control dying, not a date. Schedule the feeds. |
+| Lentiviral transduction — split and transduce the same day | ~1.5 h | all | infection sits until selection | Seeding and transducing on one day is a documented alternative to seeding the day before, for HEK293 specifically. Polybrene 5–8 µg/mL. Overnight exposure can be cut to ~4 h if the virus is toxic to the line. |
 | Antibiotic selection (puro/blast/hygro) | **10–14 days** | ~30 min per feed | rest | Selection begins 48 h post-transduction and runs 3–10 days, re-fed every 2–3 days until the untransduced control is dead. Schedule the feeds, not one block. **Umut's hygromycin window is 5–7 days, 6 standard** — his value wins. |
 | APEX2 biotinylation (labelling day) | ~1.5 h | all | — | 30 min biotin-phenol at 37 °C, H₂O₂ for 30 s–1 min, immediate quench, then washes. The H₂O₂ minute is exact and the quench can't be late. Scale multiplies the hands-on, not the clock. |
 | Dox + Shield-1 induction | **2 days before labelling** | ~20 min to dose | rest | Umut's value. Makes a labelling date a three-day commitment. |
@@ -99,6 +102,11 @@ These came from Umut directly and override any published range — see
 - [Bio-protocol — in vitro cleavage and electrophoretic mobility shift assays](https://bio-protocol.org/en/bpdetail?id=4138&type=0)
 - [Chemical Science — Cas9 cleavage assay for pre-screening of sgRNAs](https://pubs.rsc.org/sc/article/7/8/4951/545870/Cas9-cleavage-assay-for-pre-screening-of-sgRNAs)
 - [Addgene — generating stable cell lines](https://www.addgene.org/protocols/generating-stable-cell-lines/)
+- [OpenWetWare — puromycin selection](https://openwetware.org/wiki/Griffin:Puromycin_Selection)
+- [Mirus Bio — puromycin dihydrochloride quick reference protocol](https://tools.mirusbio.com/assets/quick-reference-protocols/puromycin-antibiotic-protocol.pdf)
+- [OriGene — stable cell lines protocol](https://www.origene.com/support/learning-resources/protocols/stable-cell-lines-protocol)
+- [OriGene — lentiviral transduction protocol](https://www.origene.com/support/learning-resources/protocols/lentiviral-transduction-protocol)
+- [BPS Bioscience — polybrene-based viral transduction protocol](https://bpsbioscience.com/polybrene-based-viral-transduction-protocol)
 - [Creative Biogene — guide to stable lentiviral cell line construction](https://www.creative-biogene.com/support/comprehensive-guide-to-stable-lentiviral-cell-line-construction.html)
 - [GeneMedi — lentivirus infection protocol for stable cell line development](https://www.genemedi.net/i/lentivirus-infection-protocol-for-cld)
 - [Nature Methods — dCas9–APEX proximity labeling at a predefined genomic locus (CasPEx / GLoPro)](https://www.nature.com/articles/s41592-018-0007-1)

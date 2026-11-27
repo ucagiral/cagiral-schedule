@@ -155,12 +155,41 @@ pair** going into an AgeI/EcoRI-cut inducible backbone.
 | Ligation | overnight, 16 °C | Standing value since 30 Aug 2026. |
 | Midiprep | straight off the colony culture, no sequencing wait | Umut asked for it in the same week. A mis-ligated clone is caught afterwards instead of before. |
 
-### Open question: the AP treatment
+### The AP treatment — settled 27 Nov 2026
 
-Umut listed an **AP treatment** step. The Novartis/Wiederschain Tet-pLKO manual says in so many
-words **not to dephosphorylate** this vector after the AgeI/EcoRI cut — the annealed oligos are
-supplied unphosphorylated, so removing the vector's own 5′ phosphates leaves the ligation with no
-phosphate at all and no colonies. The step is on the calendar because he asked for it; it is
-flagged here and in the event's own note rather than dropped. If the oligos **are** ordered
-phosphorylated, the AP step is correct and this note is the thing that is wrong — worth settling
-once, because it decides whether the whole cloning works.
+**Umut's rule: an oligo annealing always gets an AP treatment.** His words, asked twice and
+answered the same way, so it is our value and it goes on every oligo-annealing clone without being
+re-raised.
+
+The published disagreement stays recorded, because it is real and it is not a range: the
+Novartis/Wiederschain Tet-pLKO manual says in so many words **not to dephosphorylate** that vector
+after the AgeI/EcoRI cut, on the grounds that the annealed oligos are supplied unphosphorylated and
+removing the vector's own 5′ phosphates would leave the ligation with no phosphate at all. Two
+things would make his rule and that advice agree rather than conflict: oligos ordered
+phosphorylated, or a kinase step on the annealed duplex. Neither has been stated. If a round of
+oligo cloning comes back with no colonies and a clean negative control, this is the first thing to
+look at — not a reason to override him beforehand.
+
+
+---
+
+## sh, KO and OX — the 1 Dec 2026 round
+
+Three constructs cloned in one week, from oligos Umut ordered (shRNAs), CRISPR guides, and an
+overexpression insert.
+
+| Construct | Insert route | Backbone |
+|---|---|---|
+| sh | oligo annealing + AP | cut with its own enzyme pair |
+| KO (CRISPR guides) | oligo annealing + AP | cut with its own enzyme pair |
+| OX | **PCR first**, then restriction digest of the product | cut with its own enzyme pair |
+
+- **The OX route starts a day earlier**, because the PCR has to finish and be cleaned up before its
+  insert can go into the digest with everything else.
+- **The three backbones take three different enzyme pairs but one sitting** — Umut's call, 27 Nov
+  2026: "hepsi farklı enzim ama tek seferde yapılabilir". So the calendar carries one digest block,
+  not three.
+- **A verification digest rides along.** He asked for the SMARCA2 plasmid's verification digest to
+  be timed with the backbone cuts, so it is the fifth reaction in the same block and is read off
+  the same gel as the OX insert. It goes no further than the gel.
+- The annealing is unattended for ~2 h, so it runs inside the digest rather than beside it.
